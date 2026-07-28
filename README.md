@@ -11,15 +11,22 @@ estética neón.
 ## Estructura del repositorio
 
 ```
-cards/    # Una tarjeta = un módulo independiente (npm workspace)
-core/     # Clases y contratos base compartidos
-ha/       # Integración específica con Home Assistant
-shared/   # Componentes visuales y estilos reutilizables
-utils/    # Utilidades genéricas sin dependencias de HA
-docs/     # Documentación versionada (es/en)
-examples/ # YAML de ejemplo de cada tarjeta
-scripts/  # Scripts de mantenimiento del repositorio (release, etc.)
+core/           # Paquete npm independiente: clases y contratos base
+src/
+  ha/           # Integración específica con Home Assistant
+  shared/       # Componentes visuales y estilos reutilizables
+  utils/        # Utilidades genéricas sin dependencias de HA
+  cards/        # Cada tarjeta, aislada de las demás (una subcarpeta = una tarjeta)
+  index.ts      # Punto de entrada del paquete raíz
+docs/           # Documentación versionada (es/en)
+examples/       # YAML de ejemplo de cada tarjeta
+scripts/        # Scripts de mantenimiento del repositorio (release, etc.)
 ```
+
+`core` se mantiene como paquete npm independiente (workspace aparte) porque
+es el candidato natural a publicarse por separado si algún día conviene
+reutilizarlo fuera de este repositorio. El resto vive junto en `src/` para
+minimizar el número de `package.json`/`tsconfig.json` que mantener.
 
 Ver los [acuerdos completos del repositorio](./docs/es/acuerdos.md) para el
 detalle de cada regla de arquitectura, calidad y proceso.

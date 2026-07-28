@@ -5,17 +5,15 @@
   "type": "module",
   "description": "Paquete de tarjetas Lovelace personalizadas para Home Assistant, con estética neón.",
   "workspaces": [
-    "core",
-    "ha",
-    "shared",
-    "utils",
-    "cards/*"
+    "core"
   ],
   "engines": {
     "node": ">=18"
   },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
+    "build": "tsc -b",
     "lint": "eslint . --ext .ts",
     "typecheck": "tsc --build",
     "test": "echo \"(sin tests todavía)\" && exit 0",
@@ -24,6 +22,9 @@
     "release:minor": "node scripts/release.js minor",
     "release:major": "node scripts/release.js major",
     "release": "node scripts/release.js"
+  },
+  "dependencies": {
+    "@neon-cards/core": "0.1.0"
   },
   "devDependencies": {
     "typescript": "^5.5.4",

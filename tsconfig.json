@@ -1,9 +1,10 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./core" },
-    { "path": "./ha" },
-    { "path": "./shared" },
-    { "path": "./utils" }
-  ]
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "composite": true
+  },
+  "include": ["src"],
+  "references": [{ "path": "./core" }]
 }
