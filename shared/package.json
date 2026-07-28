@@ -1,0 +1,15 @@
+{
+  "name": "@neon-cards/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Componentes visuales y estilos reutilizables entre tarjetas (estética neón).",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@neon-cards/core": "0.1.0"
+  }
+}
