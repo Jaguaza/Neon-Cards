@@ -1,12 +1,19 @@
 /**
  * src/core
  *
- * Clases y contratos base que todas las tarjetas de Neón Cards pueden
- * extender. No contiene nada específico de Home Assistant (eso vive en
- * `src/ha`) ni utilidades genéricas (eso vive en `src/utils`).
- *
- * Este archivo se irá completando a medida que se construyan tarjetas y se
- * detecte código realmente reutilizable entre ellas (ver acuerdo nº4).
+ * Clases y contratos base que todas las tarjetas de Neón Cards extienden.
+ * No contiene nada específico de Home Assistant (eso vive en `src/ha`) ni
+ * utilidades genéricas (eso vive en `src/utils`).
  */
 
-export const CORE_VERSION = '0.1.0';
+export { BaseNeonCard } from './base-card';
+export {
+  createGestureState,
+  handlePointerDown,
+  cancelHold,
+  handleClick,
+  HOLD_DELAY_MS,
+  DOUBLE_TAP_DELAY_MS,
+} from './gestures';
+export type { GestureState, TapHandlers } from './gestures';
+export { dispatchHassAction } from './actions';

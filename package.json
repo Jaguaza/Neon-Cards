@@ -22,6 +22,9 @@
     "release:major": "node scripts/release.js major",
     "release": "node scripts/release.js"
   },
+  "dependencies": {
+    "lit": "^3.2.1"
+  },
   "devDependencies": {
     "typescript": "^5.5.4",
     "eslint": "^9.9.0",

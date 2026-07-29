@@ -16,6 +16,10 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Workflow de CI (lint, typecheck, test, build) y workflow de release
   (adjunta los `.js` de `dist-cards/` al GitHub Release).
 - Rollup empaqueta cada tarjeta en un único archivo JS bajo `dist-cards/`.
+- `BaseNeonCard` (`src/core`): framework base en Lit (sin decoradores) con
+  gestión de gestos tap/hold/double-tap y despacho de `hass-action`
+  reutilizables entre tarjetas.
 - Primera tarjeta: **Neón Card Entity** (`custom:neon-card-entity`) —
   interruptor con aro neón degradado de 3 colores, editor visual, gestos
-  tap/hold/double-tap y paletas predefinidas o personalizadas.
+  tap/hold/double-tap y paletas predefinidas o personalizadas. Construida
+  sobre `BaseNeonCard`.
