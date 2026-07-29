@@ -10,5 +10,7 @@ Una tarjeta:
 - No se publica hasta tener código, editor visual, documentación, ejemplos,
   animaciones y rendimiento validado (acuerdo nº18).
 
-Todavía no hay ninguna tarjeta aquí — la primera (`entity`) se añadirá en
-la fase 2 del proyecto.
+## Tarjetas
+
+- [`entity`](./entity) — `custom:neon-card-entity`, interruptor con aro
+  neón degradado de 3 colores. Ver [ejemplo](../../examples/README.md).

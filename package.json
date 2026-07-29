@@ -10,7 +10,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc -b",
+    "build": "npm run build:ts && npm run build:cards",
+    "build:ts": "tsc -b",
+    "build:cards": "rollup -c",
     "lint": "eslint . --ext .ts",
     "typecheck": "tsc --build",
     "test": "echo \"(sin tests todavía)\" && exit 0",
