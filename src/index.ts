@@ -1,10 +1,8 @@
 /**
- * Punto de entrada del paquete raíz de Neón Cards.
+ * Punto de entrada del paquete de Neón Cards (paquete único, sin
+ * workspaces — igual que Mushroom).
  *
- * Este paquete agrupa todo salvo `core`, que vive aislado como paquete npm
- * independiente en `../core` (es el candidato natural a publicarse por
- * separado si algún día alguien externo quisiera reutilizarlo).
- *
+ * - src/core    → clases y contratos base compartidos
  * - src/ha      → todo lo que depende de Home Assistant
  * - src/shared  → componentes visuales y estilos reutilizados entre tarjetas
  * - src/utils   → utilidades genéricas puras
