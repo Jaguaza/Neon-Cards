@@ -42,7 +42,7 @@ Interruptor minimalista con animaciones SVG, paletas dinámicas y arquitectura m
   ![Neon Card - Sunset Amber](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/4%20Ne%C3%B3n.jpg)
 
 - **Toxic Purple:** Violeta, Púrpura, Azul  
-  ![Neon Card - Toxic Purple](https://github.com/Jaguaza/Neon-Card-Home-Assistant/blob/main/images/docs/Entity/5%20Ne%C3%B3n.jpg)
+  ![Neon Card - Toxic Purple](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/5%20Ne%C3%B3n.jpg)
 
 - **Personalizado:** Elige tus propios colores.
 
@@ -115,18 +115,19 @@ Minimalist switch with SVG animations, dynamic palettes, and modular architectur
 ### **Available Palettes**
 
 - **Cyber Emerald** *(Default)*  
-  ![Neon Card - Cyber Emerald](https://github.com/Jaguaza/Neon-Card-Home-Assistant/blob/main/images/docs/Entity/1%20Ne%C3%B3n.jpg)
+  ![Neon Card - Cyber Emerald](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/1%20Ne%C3%B3n.jpg)
+  
 - **Cyberpunk Pink:** Pink, Crimson, Purple  
-  ![Neon Card - Cyberpunk Pink](https://github.com/Jaguaza/Neon-Card-Home-Assistant/blob/main/images/docs/Entity/2%20Ne%C3%B3n.jpg)
+  ![Neon Card - Cyberpunk Pink](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/2%20Ne%C3%B3n.jpg)
 
 - **Electric Blue:** Cyan, Blue, Dark Blue  
-  ![Neon Card - Electric Blue](https://github.com/Jaguaza/Neon-Card-Home-Assistant/blob/main/images/docs/Entity/3%20Ne%C3%B3n.jpg)
+  ![Neon Card - Electric Blue](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/3%20Ne%C3%B3n.jpg)
 
 - **Sunset Amber:** Orange, Yellow, Pink  
-  ![Neon Card - Sunset Amber](https://github.com/Jaguaza/Neon-Card-Home-Assistant/blob/main/images/docs/Entity/4%20Ne%C3%B3n.jpg)
+  ![Neon Card - Sunset Amber](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/4%20Ne%C3%B3n.jpg)
 
 - **Toxic Purple:** Violet, Purple, Blue  
-  ![Neon Card - Toxic Purple](https://github.com/Jaguaza/Neon-Card-Home-Assistant/blob/main/images/docs/Entity/5%20Ne%C3%B3n.jpg)
+  ![Neon Card - Toxic Purple](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/5%20Ne%C3%B3n.jpg)
 
 - **Custom:** Choose your own colors.
 
