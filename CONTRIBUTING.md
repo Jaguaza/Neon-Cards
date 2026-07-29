@@ -4,6 +4,14 @@ Antes de proponer un cambio, lee los
 [acuerdos del repositorio](./docs/es/acuerdos.md) — recogen las reglas de
 arquitectura, calidad y proceso que rigen este proyecto.
 
+## Versión única
+
+La versión de todo el proyecto vive en un solo sitio: `package.json`. Cada
+tarjeta la referencia importando `NEON_CARDS_VERSION` desde
+`src/version.ts` — nunca declares un número de versión propio en una
+tarjeta. `scripts/release.js` mantiene ambos sincronizados en cada
+release; no edites ninguno de los dos a mano.
+
 ## Resumen rápido
 
 - Una tarjeta nunca importa código de otra tarjeta. Solo puede depender de

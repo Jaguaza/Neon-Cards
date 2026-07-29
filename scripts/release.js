@@ -13,7 +13,7 @@
  * assets y crea el Release cuando detecta un tag `v*`.
  */
 
-import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -38,36 +38,23 @@ function readVersion() {
   return readJson(PKG_PATH).version;
 }
 
-function workspacePackageJsonPaths(rootPkg) {
-  const paths = [];
-  for (const glob of rootPkg.workspaces || []) {
-    if (glob.endsWith('/*')) {
-      const base = path.join(ROOT, glob.slice(0, -2));
-      if (!existsSync(base)) continue;
-      for (const entry of readdirSync(base, { withFileTypes: true })) {
-        if (entry.isDirectory()) {
-          const pkgJson = path.join(base, entry.name, 'package.json');
-          if (existsSync(pkgJson)) paths.push(pkgJson);
-        }
-      }
-    } else {
-      const pkgJson = path.join(ROOT, glob, 'package.json');
-      if (existsSync(pkgJson)) paths.push(pkgJson);
-    }
-  }
-  return paths;
-}
+const VERSION_TS_PATH = path.join(ROOT, 'src', 'version.ts');
 
 function writeVersionEverywhere(version) {
   const rootPkg = readJson(PKG_PATH);
   rootPkg.version = version;
   writeJson(PKG_PATH, rootPkg);
 
-  for (const pkgPath of workspacePackageJsonPaths(rootPkg)) {
-    const pkg = readJson(pkgPath);
-    pkg.version = version;
-    writeJson(pkgPath, pkg);
+  const versionTs = readFileSync(VERSION_TS_PATH, 'utf8');
+  const updated = versionTs.replace(
+    /export const NEON_CARDS_VERSION = '[^']*';/,
+    `export const NEON_CARDS_VERSION = '${version}';`
+  );
+  if (updated === versionTs) {
+    console.error(`No se encontró NEON_CARDS_VERSION en ${VERSION_TS_PATH}; revísalo a mano.`);
+    process.exit(1);
   }
+  writeFileSync(VERSION_TS_PATH, updated);
 }
 
 function bumpSemver(version, type) {

@@ -1,5 +1,7 @@
+import { NEON_CARDS_VERSION } from '../../version';
+
 export const CARD_AUTHOR = 'Jaguaza';
-export const CARD_VERSION = '1.5.0';
+export const CARD_VERSION = NEON_CARDS_VERSION;
 
 export interface NeonPreset {
   name: string;
