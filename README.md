@@ -97,7 +97,7 @@ Si deseas utilizar **Neon Cards** con fines comerciales, contacta previamente co
 ## Autor
 **@Jaguaza**
 
-**GitHub:** https://github.com/Jaguaza/Neon_Card-Home_Assistant  
+**GitHub:** https://github.com/Jaguaza/Neon-Cards  
 **Telegram:** https://t.me/Jaguaza  
 **Grupo de Domótica:** https://t.me/DomoticaParaTodos
 
@@ -182,6 +182,6 @@ For commercial use, please contact the author to obtain a commercial license.
 ## Author
 **@Jaguaza**
 
-**GitHub:** https://github.com/Jaguaza/Neon_Card-Home_Assistant  
+**GitHub:** https://github.com/Jaguaza/Neon-Cards  
 **Telegram:** https://t.me/Jaguaza  
 **Home Automation Group:** https://t.me/DomoticaParaTodos
