@@ -36,5 +36,5 @@
     "@rollup/plugin-terser": "^0.4.4",
     "tslib": "^2.6.3"
   },
-  "license": "MIT"
+  "license": "PolyForm-Noncommercial-1.0.0"
 }
