@@ -1,59 +1,187 @@
-# Neón Cards
+![Cabecera](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/branding/social-preview.png)
 
-Paquete de tarjetas Lovelace personalizadas para Home Assistant, con
-estética neón.
+Colección de tarjetas personalizadas para Home Assistant con una estética moderna inspirada en el neón.  
+Collection of custom cards for Home Assistant with a modern neon-inspired aesthetic.
 
-🇪🇸 Español (este archivo) · 🇬🇧 [English](./docs/en/README.md)
+## 🎬 Demo Neón Cards
 
-> **Estado:** en desarrollo temprano. Todavía no hay ninguna tarjeta
-> publicada — ver [docs/es](./docs/es/README.md) para el plan de fases.
+<p align="center">
+  <img src="https://github.com/Jaguaza/Neon-Cards/blob/main/assets/gifs/Ne%C3%B3n-Card.gif" width="450" style="margin-right:20px;"><img src="https://github.com/Jaguaza/Neon-Cards/blob/main/assets/gifs/Ne%C3%B3n-Card-2.gif" width="450">
+</p>
+  
 
-## Estructura del repositorio
+---
 
-```
-src/
-  core/         # Clases y contratos base compartidos
-  ha/           # Integración específica con Home Assistant
-  shared/       # Componentes visuales y estilos reutilizables
-  utils/        # Utilidades genéricas sin dependencias de HA
-  cards/        # Cada tarjeta, aislada de las demás (una subcarpeta = una tarjeta)
-  index.ts      # Punto de entrada del paquete
-docs/           # Documentación versionada (es/en)
-examples/       # YAML de ejemplo de cada tarjeta
-scripts/        # Scripts de mantenimiento del repositorio (release, etc.)
-```
+## 📘 Selección de idioma / Language selection
 
-Paquete único (igual que Mushroom), sin workspaces: todo el código vive
-bajo `src/`, organizado por dominio.
+👉 [Ir leeme en Español](#readme-es)  👉 [Go to readme in English](#readme-en)
 
-Ver los [acuerdos completos del repositorio](./docs/es/acuerdos.md) para el
-detalle de cada regla de arquitectura, calidad y proceso.
+---
 
-## Desarrollo
+# 🇪🇸 Español
+<a name="readme-es"></a>
 
-```bash
-npm install
-npm run lint
-npm run typecheck
-npm run build
-```
+## ✨ Tarjetas incluidas
 
-## Releases
+### **Neon Entity Card**
 
-Este repo usa versionado semántico gestionado por `scripts/release.js`:
+Interruptor minimalista con animaciones SVG, paletas dinámicas y arquitectura modular.
 
-```bash
-npm run release:patch   # 0.1.0 → 0.1.1 (arreglos pequeños)
-npm run release:minor   # 0.1.0 → 0.2.0 (nueva funcionalidad compatible)
-npm run release:major   # 0.1.0 → 1.0.0 (cambios incompatibles)
-npm run release -- 1.0.0  # salto directo a una versión concreta
-npm run release:beta    # publica un tag de prueba sin cambiar la versión
-```
+### **Paletas disponibles**
 
-Cada `release:patch|minor|major` o `release -- X.Y.Z` crea un commit, un tag
-`vX.Y.Z` y lo empuja a `main`; el workflow de GitHub Actions se encarga de
-construir los assets y publicar el GitHub Release.
+- **Cyber Emerald** *(Predeterminada)*  
+  ![Neon Card - Cyber Emerald](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/1%20Ne%C3%B3n.jpg)
 
-## Licencia
+- **Cyberpunk Pink:** Rosa, Carmesí, Púrpura  
+  ![Neon Card - Cyberpunk Pink](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/2%20Ne%C3%B3n.jpg)
 
-[MIT](./LICENSE)
+- **Electric Blue:** Cian, Azul, Azul Oscuro  
+  ![Neon Card - Electric Blue](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/3%20Ne%C3%B3n.jpg)
+
+- **Sunset Amber:** Naranja, Amarillo, Rosa  
+  ![Neon Card - Sunset Amber](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/4%20Ne%C3%B3n.jpg)
+
+- **Toxic Purple:** Violeta, Púrpura, Azul  
+  ![Neon Card - Toxic Purple](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/5%20Ne%C3%B3n.jpg)
+
+- **Personalizado:** Elige tus propios colores.
+
+---
+
+## 🚀 Próximamente
+
+Neon Cards se está diseñando como una colección completa de tarjetas para Home Assistant.
+
+---
+
+## 🛠 Instalación mediante HACS
+
+1. Abre **HACS**.
+2. Pulsa el menú **⋮** (arriba a la derecha) → **Repositorios personalizados**.
+3. Añade el repositorio:
+
+   **https://github.com/Jaguaza/Neon-Card-Home-Assistant**
+
+   Categoría: **Dashboard**
+
+4. Busca **Neon Cards**.
+5. Instálalo desde HACS.
+
+> HACS añadirá automáticamente el recurso de Lovelace.  
+> No es necesario configurar manualmente **Configuración → Recursos**.
+
+---
+
+## 📄 Licencia
+
+Este proyecto está licenciado bajo **PolyForm Noncommercial 1.0.0**.
+
+### ✔ Puedes
+
+- Usarlo gratuitamente en Home Assistant.
+- Modificar el código.
+- Aprender del proyecto.
+- Compartir mejoras.
+- Crear forks para uso no comercial.
+
+### ❌ No puedes
+
+- Vender este software.
+- Utilizarlo con fines comerciales.
+- Incluirlo en productos o servicios comerciales sin autorización expresa del autor.
+
+Si deseas utilizar **Neon Cards** con fines comerciales, contacta previamente con el autor para obtener una licencia comercial.
+
+---
+
+## Autor
+**@Jaguaza**
+
+**GitHub:** https://github.com/Jaguaza/Neon-Cards  
+**Telegram:** https://t.me/Jaguaza  
+**Grupo de Domótica:** https://t.me/DomoticaParaTodos
+
+---
+
+# 🇬🇧 English
+<a name="readme-en"></a>
+
+## ✨ Included Cards
+
+### **Neon Entity Card**
+
+Minimalist switch with SVG animations, dynamic palettes, and modular architecture.
+
+### **Available Palettes**
+
+- **Cyber Emerald** *(Default)*  
+  ![Neon Card - Cyber Emerald](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/1%20Ne%C3%B3n.jpg)
+  
+- **Cyberpunk Pink:** Pink, Crimson, Purple  
+  ![Neon Card - Cyberpunk Pink](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/2%20Ne%C3%B3n.jpg)
+
+- **Electric Blue:** Cyan, Blue, Dark Blue  
+  ![Neon Card - Electric Blue](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/3%20Ne%C3%B3n.jpg)
+
+- **Sunset Amber:** Orange, Yellow, Pink  
+  ![Neon Card - Sunset Amber](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/4%20Ne%C3%B3n.jpg)
+
+- **Toxic Purple:** Violet, Purple, Blue  
+  ![Neon Card - Toxic Purple](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/5%20Ne%C3%B3n.jpg)
+
+- **Custom:** Choose your own colors.
+
+---
+
+## 🚀 Coming Soon
+
+Neon Cards is being designed as a complete collection of cards for Home Assistant.
+
+---
+
+## 🛠 Installation via HACS
+
+1. Open **HACS**.
+2. Click the **⋮** menu → **Custom repositories**.
+3. Add the repository:
+
+   **https://github.com/Jaguaza/Neon-Card-Home-Assistant**
+
+   Category: **Dashboard**
+
+4. Search for **Neon Cards**.
+5. Install it from HACS.
+
+> HACS will automatically add the Lovelace resource.  
+> No manual configuration under **Settings → Resources** is required.
+
+---
+
+## 📄 License
+
+This project is licensed under **PolyForm Noncommercial 1.0.0**.
+
+### ✔ Allowed
+
+- Free use in Home Assistant.
+- Modify the code.
+- Learn from the project.
+- Share improvements.
+- Create non‑commercial forks.
+
+### ❌ Not allowed
+
+- Sell this software.
+- Use it for commercial purposes.
+- Include it in commercial products or services without explicit permission.
+
+For commercial use, please contact the author to obtain a commercial license.
+
+---
+
+## Author
+**@Jaguaza**
+
+**GitHub:** https://github.com/Jaguaza/Neon-Cards  
+**Telegram:** https://t.me/Jaguaza  
+**Home Automation Group:** https://t.me/DomoticaParaTodos
