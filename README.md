@@ -1,4 +1,4 @@
-![Cabecera](https://github.com/Jaguaza/Neon-Card-Home-Assistant/blob/main/images/social-preview.png)
+![Cabecera](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/branding/social-preview.png)
 
 Colección de tarjetas personalizadas para Home Assistant con una estética moderna inspirada en el neón.  
 Collection of custom cards for Home Assistant with a modern neon-inspired aesthetic.
@@ -6,8 +6,8 @@ Collection of custom cards for Home Assistant with a modern neon-inspired aesthe
 ## 🎬 Demo Neón Cards
 
 <p align="center">
-  <img src="https://github.com/Jaguaza/Neon-Card-Home-Assistant/blob/main/images/docs/image-readme/Ne%C3%B3n-Card.gif" width="450" style="margin-right:20px;">
-  <img src="https://github.com/Jaguaza/Neon-Card-Home-Assistant/blob/main/images/docs/image-readme/Ne%C3%B3n-Card-2.gif" width="450">
+  <img src="https://github.com/Jaguaza/Neon-Cards/blob/main/assets/gifs/Ne%C3%B3n-Card.gif" width="450" style="margin-right:20px;">
+  <img src="https://github.com/Jaguaza/Neon-Cards/blob/main/assets/gifs/Ne%C3%B3n-Card-2.gif" width="450">
 </p>
 
 ---
@@ -30,16 +30,16 @@ Interruptor minimalista con animaciones SVG, paletas dinámicas y arquitectura m
 ### **Paletas disponibles**
 
 - **Cyber Emerald** *(Predeterminada)*  
-  ![Neon Card - Cyber Emerald](https://github.com/Jaguaza/Neon-Card-Home-Assistant/blob/main/images/docs/Entity/1%20Ne%C3%B3n.jpg)
+  ![Neon Card - Cyber Emerald](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/1%20Ne%C3%B3n.jpg)
 
 - **Cyberpunk Pink:** Rosa, Carmesí, Púrpura  
-  ![Neon Card - Cyberpunk Pink](https://github.com/Jaguaza/Neon-Card-Home-Assistant/blob/main/images/docs/Entity/2%20Ne%C3%B3n.jpg)
+  ![Neon Card - Cyberpunk Pink](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/2%20Ne%C3%B3n.jpg)
 
 - **Electric Blue:** Cian, Azul, Azul Oscuro  
-  ![Neon Card - Electric Blue](https://github.com/Jaguaza/Neon-Card-Home-Assistant/blob/main/images/docs/Entity/3%20Ne%C3%B3n.jpg)
+  ![Neon Card - Electric Blue](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/3%20Ne%C3%B3n.jpg)
 
 - **Sunset Amber:** Naranja, Amarillo, Rosa  
-  ![Neon Card - Sunset Amber](https://github.com/Jaguaza/Neon-Card-Home-Assistant/blob/main/images/docs/Entity/4%20Ne%C3%B3n.jpg)
+  ![Neon Card - Sunset Amber](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/4%20Ne%C3%B3n.jpg)
 
 - **Toxic Purple:** Violeta, Púrpura, Azul  
   ![Neon Card - Toxic Purple](https://github.com/Jaguaza/Neon-Card-Home-Assistant/blob/main/images/docs/Entity/5%20Ne%C3%B3n.jpg)
