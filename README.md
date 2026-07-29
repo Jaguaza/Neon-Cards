@@ -116,7 +116,6 @@ Minimalist switch with SVG animations, dynamic palettes, and modular architectur
 
 - **Cyber Emerald** *(Default)*  
   ![Neon Card - Cyber Emerald](https://github.com/Jaguaza/Neon-Card-Home-Assistant/blob/main/images/docs/Entity/1%20Ne%C3%B3n.jpg)
-
 - **Cyberpunk Pink:** Pink, Crimson, Purple  
   ![Neon Card - Cyberpunk Pink](https://github.com/Jaguaza/Neon-Card-Home-Assistant/blob/main/images/docs/Entity/2%20Ne%C3%B3n.jpg)
 
