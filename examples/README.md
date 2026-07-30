@@ -29,6 +29,7 @@ hold_action:
   action: toggle
 double_tap_action:
   action: none
+show_status_dot: false
 ```
 
 Captura, GIF y explicación detallada pendientes de añadir (acuerdo nº17).

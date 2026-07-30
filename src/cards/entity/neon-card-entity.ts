@@ -173,6 +173,7 @@ export class NeonCardEntity extends BaseNeonCard {
       neon_color1: '#39e07a',
       neon_color2: '#2dd6b8',
       neon_color3: '#1ecdf2',
+      show_status_dot: true,
       tap_action: { action: 'more-info' },
       hold_action: { action: 'none' },
       double_tap_action: { action: 'none' },
@@ -246,6 +247,7 @@ export class NeonCardEntity extends BaseNeonCard {
     const label = stateObj ? ent.name || stateObj.attributes.friendly_name || ent.entity : `${ent.entity} (no disponible)`;
     const gesture = this._gestureFor(ent.entity);
     const hasDoubleTap = !!this._config?.double_tap_action && this._config.double_tap_action.action !== 'none';
+    const showDot = this._config?.show_status_dot ?? true;
 
     return html`
       <div
@@ -302,7 +304,7 @@ export class NeonCardEntity extends BaseNeonCard {
               filter="url(#neonBlur${i})"
             />
           </svg>
-          <span class="dot"></span>
+          ${showDot ? html`<span class="dot"></span>` : nothing}
         </label>
         <span class="name">${label}</span>
       </div>

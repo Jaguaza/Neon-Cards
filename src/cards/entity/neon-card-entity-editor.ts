@@ -88,6 +88,19 @@ export class NeonCardEntityEditor extends LitElement {
       font-size: 14px;
       cursor: pointer;
     }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--primary-text-color, #e5e5e5);
+      cursor: pointer;
+    }
+    .checkbox-row input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
   `;
 
   setConfig(config: NeonCardEntityConfig): void {
@@ -184,6 +197,14 @@ export class NeonCardEntityEditor extends LitElement {
                 </div>
               `
             : nothing}
+          <label class="checkbox-row">
+            <input
+              type="checkbox"
+              .checked=${this._config.show_status_dot ?? true}
+              @change=${(ev: Event) => this._configChanged('show_status_dot', (ev.target as HTMLInputElement).checked)}
+            />
+            Mostrar punto de estado
+          </label>
         </div>
         <div class="mushroom-section">
           <div class="section-header">Acciones al pulsar</div>

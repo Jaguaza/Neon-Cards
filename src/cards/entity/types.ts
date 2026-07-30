@@ -19,6 +19,7 @@ export interface NeonCardEntityConfig {
   neon_color1?: string;
   neon_color2?: string;
   neon_color3?: string;
+  show_status_dot?: boolean;
   tap_action?: ActionConfig;
   hold_action?: ActionConfig;
   double_tap_action?: ActionConfig;
