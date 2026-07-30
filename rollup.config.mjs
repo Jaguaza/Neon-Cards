@@ -11,7 +11,7 @@ import terser from '@rollup/plugin-terser';
  * automático de carpetas (acuerdo nº10: nada de magia oculta).
  */
 const cards = {
-  'neon-card-entity': 'src/cards/entity/index.ts',
+  'neon-cards-entity': 'src/cards/entity/index.ts',
 };
 
 export default {
