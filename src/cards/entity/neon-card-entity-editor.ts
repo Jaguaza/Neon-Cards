@@ -58,6 +58,17 @@ export class NeonCardEntityEditor extends LitElement {
       gap: 10px;
       margin-top: 6px;
     }
+    .two-col-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .field-col {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
     .color-picker-wrapper {
       display: flex;
       flex-direction: column;
@@ -139,8 +150,8 @@ export class NeonCardEntityEditor extends LitElement {
           ></ha-textfield>
         </div>
         <div class="mushroom-section">
-          <div class="section-header">Paleta del Aro Neón (3 Colores)</div>
-          <label class="native-select-label" for="palette">Estilo de degradado</label>
+          <div class="section-header">Apariencia</div>
+          <label class="native-select-label" for="palette">Estilo de degradado del aro</label>
           <select
             id="palette"
             class="native-select"
@@ -188,27 +199,30 @@ export class NeonCardEntityEditor extends LitElement {
                 </div>
               `
             : nothing}
-        </div>
-        <div class="mushroom-section">
-          <div class="section-header">Apariencia</div>
-          <label class="native-select-label" for="primary-info">Información primaria</label>
-          <select
-            id="primary-info"
-            class="native-select"
-            .value=${this._config.primary_info || 'name'}
-            @change=${(ev: Event) => this._configChanged('primary_info', (ev.target as HTMLSelectElement).value)}
-          >
-            ${INFO_OPTIONS.map((opt) => html`<option value=${opt}>${INFO_LABELS[opt]}</option>`)}
-          </select>
-          <label class="native-select-label" for="secondary-info">Información secundaria</label>
-          <select
-            id="secondary-info"
-            class="native-select"
-            .value=${this._config.secondary_info || 'none'}
-            @change=${(ev: Event) => this._configChanged('secondary_info', (ev.target as HTMLSelectElement).value)}
-          >
-            ${INFO_OPTIONS.map((opt) => html`<option value=${opt}>${INFO_LABELS[opt]}</option>`)}
-          </select>
+          <div class="two-col-grid">
+            <div class="field-col">
+              <label class="native-select-label" for="primary-info">Información primaria</label>
+              <select
+                id="primary-info"
+                class="native-select"
+                .value=${this._config.primary_info || 'name'}
+                @change=${(ev: Event) => this._configChanged('primary_info', (ev.target as HTMLSelectElement).value)}
+              >
+                ${INFO_OPTIONS.map((opt) => html`<option value=${opt}>${INFO_LABELS[opt]}</option>`)}
+              </select>
+            </div>
+            <div class="field-col">
+              <label class="native-select-label" for="secondary-info">Información secundaria</label>
+              <select
+                id="secondary-info"
+                class="native-select"
+                .value=${this._config.secondary_info || 'none'}
+                @change=${(ev: Event) => this._configChanged('secondary_info', (ev.target as HTMLSelectElement).value)}
+              >
+                ${INFO_OPTIONS.map((opt) => html`<option value=${opt}>${INFO_LABELS[opt]}</option>`)}
+              </select>
+            </div>
+          </div>
           <ha-formfield label="Mostrar punto de estado">
             <ha-switch
               .checked=${this._config.show_status_dot ?? true}
