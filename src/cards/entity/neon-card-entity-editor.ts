@@ -89,18 +89,8 @@ export class NeonCardEntityEditor extends LitElement {
       font-size: 14px;
       cursor: pointer;
     }
-    .checkbox-row {
+    ha-formfield {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      color: var(--primary-text-color, #e5e5e5);
-      cursor: pointer;
-    }
-    .checkbox-row input {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
     }
   `;
 
@@ -219,14 +209,12 @@ export class NeonCardEntityEditor extends LitElement {
           >
             ${INFO_OPTIONS.map((opt) => html`<option value=${opt}>${INFO_LABELS[opt]}</option>`)}
           </select>
-          <label class="checkbox-row">
-            <input
-              type="checkbox"
+          <ha-formfield label="Mostrar punto de estado">
+            <ha-switch
               .checked=${this._config.show_status_dot ?? true}
               @change=${(ev: Event) => this._configChanged('show_status_dot', (ev.target as HTMLInputElement).checked)}
-            />
-            Mostrar punto de estado
-          </label>
+            ></ha-switch>
+          </ha-formfield>
         </div>
         <div class="mushroom-section">
           <div class="section-header">Acciones al pulsar</div>
