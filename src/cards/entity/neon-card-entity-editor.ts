@@ -1,6 +1,7 @@
 import { LitElement, html, css, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import type { HomeAssistant } from '../../ha/types';
+import { INFO_OPTIONS, INFO_LABELS } from '../../core';
 import { DEFAULT_PALETTE } from './constants';
 import type { ActionConfig, NeonCardEntityConfig, ValueChangedEvent } from './types';
 
@@ -197,6 +198,27 @@ export class NeonCardEntityEditor extends LitElement {
                 </div>
               `
             : nothing}
+        </div>
+        <div class="mushroom-section">
+          <div class="section-header">Apariencia</div>
+          <label class="native-select-label" for="primary-info">Información primaria</label>
+          <select
+            id="primary-info"
+            class="native-select"
+            .value=${this._config.primary_info || 'name'}
+            @change=${(ev: Event) => this._configChanged('primary_info', (ev.target as HTMLSelectElement).value)}
+          >
+            ${INFO_OPTIONS.map((opt) => html`<option value=${opt}>${INFO_LABELS[opt]}</option>`)}
+          </select>
+          <label class="native-select-label" for="secondary-info">Información secundaria</label>
+          <select
+            id="secondary-info"
+            class="native-select"
+            .value=${this._config.secondary_info || 'none'}
+            @change=${(ev: Event) => this._configChanged('secondary_info', (ev.target as HTMLSelectElement).value)}
+          >
+            ${INFO_OPTIONS.map((opt) => html`<option value=${opt}>${INFO_LABELS[opt]}</option>`)}
+          </select>
           <label class="checkbox-row">
             <input
               type="checkbox"

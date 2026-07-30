@@ -30,6 +30,8 @@ hold_action:
 double_tap_action:
   action: none
 show_status_dot: false
+primary_info: name
+secondary_info: last-changed
 ```
 
 Captura, GIF y explicación detallada pendientes de añadir (acuerdo nº17).

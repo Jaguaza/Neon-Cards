@@ -1,7 +1,15 @@
 import { html, css, nothing } from 'lit';
 import type { PropertyValues, TemplateResult } from 'lit';
-import { BaseNeonCard, createGestureState, handlePointerDown, cancelHold, handleClick, dispatchHassAction } from '../../core';
-import type { GestureState } from '../../core';
+import {
+  BaseNeonCard,
+  createGestureState,
+  handlePointerDown,
+  cancelHold,
+  handleClick,
+  dispatchHassAction,
+  computeInfoDisplay,
+} from '../../core';
+import type { GestureState, InfoOption } from '../../core';
 import { CARD_AUTHOR, CARD_VERSION, NEON_PRESETS } from './constants';
 import type { EntityItemConfig, GradientColors, NeonCardEntityConfig } from './types';
 
@@ -48,13 +56,28 @@ export class NeonCardEntity extends BaseNeonCard {
     .item:hover .name {
       opacity: 0.8;
     }
-    .name {
-      font-size: 14px;
-      color: var(--primary-text-color, #e5e5e5);
+    .text {
+      display: flex;
+      flex-direction: column;
       text-align: left;
       flex: 1 1 auto;
       min-width: 0;
+      overflow: hidden;
+    }
+    .name {
+      font-size: 14px;
+      color: var(--primary-text-color, #e5e5e5);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       transition: opacity 0.2s ease;
+    }
+    .secondary {
+      font-size: 12px;
+      color: var(--secondary-text-color, #9a9a9a);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .switch {
       position: relative;
@@ -174,6 +197,8 @@ export class NeonCardEntity extends BaseNeonCard {
       neon_color2: '#2dd6b8',
       neon_color3: '#1ecdf2',
       show_status_dot: true,
+      primary_info: 'name',
+      secondary_info: 'none',
       tap_action: { action: 'more-info' },
       hold_action: { action: 'none' },
       double_tap_action: { action: 'none' },
@@ -244,7 +269,15 @@ export class NeonCardEntity extends BaseNeonCard {
     const stateObj = this.hass?.states[ent.entity];
     const isOn = !!stateObj && stateObj.state === 'on';
     const isUnavailable = !stateObj || stateObj.state === 'unavailable' || stateObj.state === 'unknown';
-    const label = stateObj ? ent.name || stateObj.attributes.friendly_name || ent.entity : `${ent.entity} (no disponible)`;
+    const name = ent.name || stateObj?.attributes.friendly_name || ent.entity;
+    const primaryInfo = ((this._config?.primary_info as InfoOption) || 'name') as InfoOption;
+    const secondaryInfo = ((this._config?.secondary_info as InfoOption) || 'none') as InfoOption;
+    const primaryText =
+      stateObj && this.hass
+        ? computeInfoDisplay(primaryInfo, name, stateObj.state, stateObj, this.hass)
+        : `${ent.entity} (no disponible)`;
+    const hasSecondary = !!stateObj && !!this.hass && secondaryInfo !== 'none';
+    const secondaryText = hasSecondary ? computeInfoDisplay(secondaryInfo, name, stateObj!.state, stateObj!, this.hass!) : nothing;
     const gesture = this._gestureFor(ent.entity);
     const hasDoubleTap = !!this._config?.double_tap_action && this._config.double_tap_action.action !== 'none';
     const showDot = this._config?.show_status_dot ?? true;
@@ -306,7 +339,10 @@ export class NeonCardEntity extends BaseNeonCard {
           </svg>
           ${showDot ? html`<span class="dot"></span>` : nothing}
         </label>
-        <span class="name">${label}</span>
+        <div class="text">
+          <span class="name">${primaryText}</span>
+          ${hasSecondary ? html`<span class="secondary">${secondaryText}</span>` : nothing}
+        </div>
       </div>
     `;
   }

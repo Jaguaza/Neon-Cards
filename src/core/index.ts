@@ -17,3 +17,5 @@ export {
 } from './gestures';
 export type { GestureState, TapHandlers } from './gestures';
 export { dispatchHassAction } from './actions';
+export { computeInfoDisplay, INFO_OPTIONS, INFO_LABELS } from './info';
+export type { InfoOption } from './info';
