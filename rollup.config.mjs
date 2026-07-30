@@ -3,23 +3,16 @@ import typescript from '@rollup/plugin-typescript';
 import terser from '@rollup/plugin-terser';
 
 /**
- * Cada tarjeta se empaqueta como un único archivo JS bajo dist-cards/,
- * listo para servirse a Home Assistant como recurso Lovelace (y, en la
- * fase 3, como asset de un GitHub Release para HACS).
- *
- * Añadir una tarjeta nueva = añadir una línea aquí. Sin descubrimiento
- * automático de carpetas (acuerdo nº10: nada de magia oculta).
+ * Todas las tarjetas se empaquetan juntas en un único archivo
+ * (dist-cards/neon-cards.js) — igual que Mushroom hace con mushroom.js.
+ * Un único recurso Lovelace instala toda la colección; añadir una tarjeta
+ * nueva es una línea de import en src/neon-cards.ts, no un cambio aquí.
  */
-const cards = {
-  'neon-cards-entity': 'src/cards/entity/index.ts',
-};
-
 export default {
-  input: cards,
+  input: 'src/neon-cards.ts',
   output: {
-    dir: 'dist-cards',
+    file: 'dist-cards/neon-cards.js',
     format: 'es',
-    entryFileNames: '[name].js',
     sourcemap: true,
   },
   plugins: [

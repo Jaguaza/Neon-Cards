@@ -23,7 +23,9 @@ Construida con [Lit](https://lit.dev) sobre `BaseNeonCard`
 npm run build:cards
 ```
 
-Genera `dist-cards/neon-cards-entity.js` — el único archivo que hay que
-servir como recurso Lovelace en Home Assistant.
+Empaqueta **todas** las tarjetas de Neón Cards (no solo esta) en un único
+`dist-cards/neon-cards.js` — el único archivo que hay que servir como
+recurso Lovelace en Home Assistant. Ver el punto de entrada compartido en
+[`src/neon-cards.ts`](../../neon-cards.ts).
 
 Ver el ejemplo de uso en [`examples/`](../../../examples/README.md).

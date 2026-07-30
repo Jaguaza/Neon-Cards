@@ -15,7 +15,9 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Scripts de release (`release:patch|minor|major|beta`, `release -- X.Y.Z`).
 - Workflow de CI (lint, typecheck, test, build) y workflow de release
   (adjunta los `.js` de `dist-cards/` al GitHub Release).
-- Rollup empaqueta cada tarjeta en un único archivo JS bajo `dist-cards/`.
+- Rollup empaqueta **todas** las tarjetas juntas en un único
+  `dist-cards/neon-cards.js` (igual que Mushroom con `mushroom.js`) — un
+  solo recurso Lovelace instala toda la colección.
 - `BaseNeonCard` (`src/core`): framework base en Lit (sin decoradores) con
   gestión de gestos tap/hold/double-tap y despacho de `hass-action`
   reutilizables entre tarjetas.
