@@ -35,4 +35,20 @@ secondary_info: last-changed
 card_orientation: right
 ```
 
-Captura, GIF y explicación detallada pendientes de añadir (acuerdo nº17).
+### Capturas
+
+![Escenarios de Neón Card Entity](../assets/screenshots/entity/Entity%20completa.jpg)
+
+### GIF
+
+![Neón Card Entity en acción](../assets/gifs/Ne%C3%B3n-Card.gif)
+
+### Explicación
+
+Neón Card Entity es un interruptor con un aro neón degradado de 3 colores
+alrededor de la píldora. Cada entidad puede mostrar información primaria y
+secundaria (nombre, estado, último cambio...), un punto de estado opcional,
+y admite tap / mantener pulsado / doble toque configurables por separado.
+La orientación de la tarjeta (`card_orientation`) permite elegir si la
+píldora queda a la izquierda (por defecto) o a la derecha, con la
+información en el lado contrario.
