@@ -205,10 +205,12 @@ export class NeonCardEntityEditor extends LitElement {
               <select
                 id="primary-info"
                 class="native-select"
-                .value=${this._config.primary_info || 'name'}
                 @change=${(ev: Event) => this._configChanged('primary_info', (ev.target as HTMLSelectElement).value)}
               >
-                ${INFO_OPTIONS.map((opt) => html`<option value=${opt}>${INFO_LABELS[opt]}</option>`)}
+                ${INFO_OPTIONS.map(
+                  (opt) =>
+                    html`<option value=${opt} ?selected=${opt === (this._config!.primary_info || 'name')}>${INFO_LABELS[opt]}</option>`
+                )}
               </select>
             </div>
             <div class="field-col">
@@ -216,10 +218,12 @@ export class NeonCardEntityEditor extends LitElement {
               <select
                 id="secondary-info"
                 class="native-select"
-                .value=${this._config.secondary_info || 'none'}
                 @change=${(ev: Event) => this._configChanged('secondary_info', (ev.target as HTMLSelectElement).value)}
               >
-                ${INFO_OPTIONS.map((opt) => html`<option value=${opt}>${INFO_LABELS[opt]}</option>`)}
+                ${INFO_OPTIONS.map(
+                  (opt) =>
+                    html`<option value=${opt} ?selected=${opt === (this._config!.secondary_info || 'none')}>${INFO_LABELS[opt]}</option>`
+                )}
               </select>
             </div>
           </div>
@@ -229,12 +233,15 @@ export class NeonCardEntityEditor extends LitElement {
               @change=${(ev: Event) => this._configChanged('show_status_dot', (ev.target as HTMLInputElement).checked)}
             ></ha-switch>
           </ha-formfield>
-          <ha-formfield label="Diseño dividido (información a la izquierda, interruptor a la derecha)">
-            <ha-switch
-              .checked=${this._config.split_layout ?? false}
-              @change=${(ev: Event) => this._configChanged('split_layout', (ev.target as HTMLInputElement).checked)}
-            ></ha-switch>
-          </ha-formfield>
+          <label class="native-select-label" for="orientation">Orientación de la Tarjeta</label>
+          <select
+            id="orientation"
+            class="native-select"
+            @change=${(ev: Event) => this._configChanged('card_orientation', (ev.target as HTMLSelectElement).value)}
+          >
+            <option value="left" ?selected=${(this._config.card_orientation ?? 'left') === 'left'}>Vista izquierda</option>
+            <option value="right" ?selected=${this._config.card_orientation === 'right'}>Vista derecha</option>
+          </select>
         </div>
         <div class="mushroom-section">
           <div class="section-header">Acciones al pulsar</div>

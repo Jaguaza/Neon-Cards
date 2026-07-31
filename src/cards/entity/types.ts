@@ -22,7 +22,7 @@ export interface NeonCardEntityConfig {
   show_status_dot?: boolean;
   primary_info?: string;
   secondary_info?: string;
-  split_layout?: boolean;
+  card_orientation?: 'left' | 'right';
   tap_action?: ActionConfig;
   hold_action?: ActionConfig;
   double_tap_action?: ActionConfig;
