@@ -32,6 +32,7 @@ double_tap_action:
 show_status_dot: false
 primary_info: name
 secondary_info: last-changed
+split_layout: true
 ```
 
 Captura, GIF y explicación detallada pendientes de añadir (acuerdo nº17).

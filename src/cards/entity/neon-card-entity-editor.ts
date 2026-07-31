@@ -229,6 +229,12 @@ export class NeonCardEntityEditor extends LitElement {
               @change=${(ev: Event) => this._configChanged('show_status_dot', (ev.target as HTMLInputElement).checked)}
             ></ha-switch>
           </ha-formfield>
+          <ha-formfield label="Diseño dividido (información a la izquierda, interruptor a la derecha)">
+            <ha-switch
+              .checked=${this._config.split_layout ?? false}
+              @change=${(ev: Event) => this._configChanged('split_layout', (ev.target as HTMLInputElement).checked)}
+            ></ha-switch>
+          </ha-formfield>
         </div>
         <div class="mushroom-section">
           <div class="section-header">Acciones al pulsar</div>

@@ -53,6 +53,16 @@ export class NeonCardEntity extends BaseNeonCard {
       user-select: none;
       -webkit-user-select: none;
     }
+    .item.split {
+      justify-content: space-between;
+      width: 100%;
+    }
+    .item.split .switch {
+      order: 2;
+    }
+    .item.split .text {
+      order: 1;
+    }
     .item:hover .name {
       opacity: 0.8;
     }
@@ -278,13 +288,14 @@ export class NeonCardEntity extends BaseNeonCard {
         : `${ent.entity} (no disponible)`;
     const hasSecondary = !!stateObj && !!this.hass && secondaryInfo !== 'none';
     const secondaryText = hasSecondary ? computeInfoDisplay(secondaryInfo, name, stateObj!.state, stateObj!, this.hass!) : nothing;
+    const isSplit = this._config?.split_layout ?? false;
     const gesture = this._gestureFor(ent.entity);
     const hasDoubleTap = !!this._config?.double_tap_action && this._config.double_tap_action.action !== 'none';
     const showDot = this._config?.show_status_dot ?? true;
 
     return html`
       <div
-        class="item"
+        class="item ${isSplit ? 'split' : ''}"
         @pointerdown=${(ev: PointerEvent) => handlePointerDown(gesture, ev, '.switch', () => this._handleAction(ent, 'hold'))}
         @pointerup=${() => cancelHold(gesture)}
         @pointercancel=${() => cancelHold(gesture)}
