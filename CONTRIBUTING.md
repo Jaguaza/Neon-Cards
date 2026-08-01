@@ -32,7 +32,13 @@ npm run lint
 npm run typecheck
 npm run build
 npm test
+npm run perf
 ```
 
 Todo debe pasar en verde. Los cambios significativos se revisan también en
 arquitectura, API, rendimiento y documentación (acuerdo nº20).
+
+`npm run perf` ejecuta el render real de cada tarjeta en jsdom para
+detectar renders lentos o fugas de memoria (acuerdo nº18) — no sustituye
+una prueba manual en el navegador con muchas tarjetas reales, pero sí
+detecta regresiones antes de llegar ahí.

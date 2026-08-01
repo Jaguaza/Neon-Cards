@@ -9,6 +9,20 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
+- `scripts/perf-check.mjs` (`npm run perf`): benchmark automatizado del
+  render real de cada tarjeta en jsdom, detecta renders lentos y fugas de
+  memoria (acuerdo nº18).
+
+### Fixed
+
+- Neón Card Entity: `getCardSize()`/`getGridOptions()` ahora reflejan el
+  contenido real (filas × información secundaria); antes eran fijos y la
+  tarjeta siguiente en el dashboard podía montarse encima cuando se
+  activaba información secundaria.
+- Neón Card Entity: el grid interno usaba `minmax(0, auto)` y
+  `justify-items: start`, lo que permitía que el texto se saliera de la
+  tarjeta al estrechar su ancho desde "Diseño". Ahora usa
+  `minmax(0, 1fr)` + `justify-items: stretch`.
 - Esqueleto inicial del proyecto: `src/core`, `src/ha`, `src/shared`,
   `src/utils`, `src/cards`, `docs/` (es/en), `examples/` — paquete único,
   sin workspaces.

@@ -40,7 +40,7 @@ export class NeonCardEntity extends BaseNeonCard {
     .grid {
       display: grid;
       gap: 20px;
-      justify-items: start;
+      justify-items: stretch;
       width: 100%;
     }
     .item {
@@ -231,6 +231,28 @@ export class NeonCardEntity extends BaseNeonCard {
     return this._config?.columns || this._entities.length || 1;
   }
 
+  private get _hasSecondaryInfo(): boolean {
+    return !!this._config?.secondary_info && this._config.secondary_info !== 'none';
+  }
+
+  private get _rows(): number {
+    return Math.max(1, Math.ceil(this._entities.length / this._columns));
+  }
+
+  getCardSize(): number {
+    // +1 si hay información secundaria: la fila ocupa más alto (dos
+    // líneas de texto en vez de una) del que el tamaño base de
+    // BaseNeonCard asume.
+    return this._rows + (this._hasSecondaryInfo ? 1 : 0);
+  }
+
+  getGridOptions(): { rows: number; columns: number } {
+    return {
+      rows: this._rows + (this._hasSecondaryInfo ? 1 : 0),
+      columns: 12,
+    };
+  }
+
   private _toggle(entityId: string): void {
     if (!this.hass) return;
     const [domain] = entityId.split('.');
@@ -366,7 +388,7 @@ export class NeonCardEntity extends BaseNeonCard {
       <ha-card>
         <div
           class="grid"
-          style="grid-template-columns: repeat(${this._columns}, minmax(0, auto)); --neon-c1: ${c1}; --neon-c2: ${c2}; --neon-c3: ${c3};"
+          style="grid-template-columns: repeat(${this._columns}, minmax(0, 1fr)); --neon-c1: ${c1}; --neon-c2: ${c2}; --neon-c3: ${c3};"
         >
           ${this._entities.map((ent, i) => this._renderItem(ent, i, c1, c2, c3))}
         </div>
