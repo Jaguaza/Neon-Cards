@@ -76,13 +76,13 @@ function assertCleanWorkingTree() {
 
 function releaseBeta() {
   const version = readVersion();
-  const existingTags = execSync(`git tag -l "v${version}-beta.*"`, { cwd: ROOT })
+  const existingTags = execSync(`git tag -l "v${version}-Beta.*"`, { cwd: ROOT })
     .toString()
     .trim()
     .split('\n')
     .filter(Boolean);
-  const nextIndex = existingTags.length;
-  const tag = `v${version}-beta.${nextIndex}`;
+  const nextNumber = existingTags.length + 1;
+  const tag = `v${version}-Beta.${nextNumber}`;
 
   run(`git tag -a ${tag} -m "Beta release ${tag}"`);
   run(`git push origin ${tag}`);

@@ -26,6 +26,6 @@ jobs:
       - name: Crear GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          prerelease: ${{ contains(github.ref_name, '-beta.') }}
+          prerelease: ${{ contains(github.ref_name, '-Beta.') }}
           files: dist-cards/*.js
           fail_on_unmatched_files: false
