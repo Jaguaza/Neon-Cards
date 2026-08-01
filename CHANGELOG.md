@@ -17,11 +17,13 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 - Neón Card Entity: `getCardSize()`/`getGridOptions()` daban un tamaño
   fijo demasiado pequeño (1 unidad ≈ 50-56px), así que la tarjeta
-  siguiente en el dashboard se montaba encima; un primer intento de
-  sumar +1 fila solo cuando había información secundaria sobrecorregía
-  al revés (hueco enorme). Ahora cada fila de entidades reserva 2
-  unidades de forma consistente (100-120px), margen que ya absorbe la
-  línea de información secundaria sin necesitar ajustes especiales.
+  siguiente en el dashboard se montaba encima. Tras hacer los cálculos
+  con la fórmula real de Home Assistant (`filas × 56px + (filas-1) ×
+  8px` en la vista de secciones), la solución correcta no era sumar
+  filas de grid extra (demasiado tosco, deja huecos enormes), sino
+  reducir el padding vertical de `ha-card` para que 1 fila de contenido
+  quepa justo dentro de 1 unidad de grid — sin ajustes especiales para
+  la información secundaria, ya cabe con margen de sobra.
 - Neón Card Entity: el grid interno usaba `minmax(0, auto)` y
   `justify-items: start`, lo que permitía que el texto se saliera de la
   tarjeta al estrechar su ancho desde "Diseño". Ahora usa

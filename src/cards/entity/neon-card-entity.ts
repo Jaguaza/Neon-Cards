@@ -35,7 +35,7 @@ export class NeonCardEntity extends BaseNeonCard {
     }
     ha-card {
       box-sizing: border-box;
-      padding: 16px 20px;
+      padding: 10px 20px;
     }
     .grid {
       display: grid;
@@ -236,19 +236,16 @@ export class NeonCardEntity extends BaseNeonCard {
   }
 
   getCardSize(): number {
-    // 1 fila de entidades = 2 unidades (100px en masonry, 120px en
-    // secciones). El interruptor (34px) + el padding de ha-card (32px)
-    // ya ocupan ~66px por sí solos, así que con 1 unidad (50/56px) se
-    // queda corto y las tarjetas se pegan entre sí. Con 2 unidades sobra
-    // margen de sobra para la línea de información secundaria sin
-    // necesitar una unidad extra por separado (eso generaba un hueco
-    // enorme e inconsistente).
-    return this._rows * 2;
+    // El padding de ha-card se ajustó (10px verticales) para que 1 fila
+    // de contenido (interruptor de 34px + 20px de padding = 54px) quepa
+    // justo dentro de 1 unidad de grid (50px en masonry, 56px en
+    // secciones — fórmula real: filas × 56px + (filas-1) × 8px de gap).
+    return this._rows;
   }
 
   getGridOptions(): { rows: number; columns: number } {
     return {
-      rows: this._rows * 2,
+      rows: this._rows,
       columns: 12,
     };
   }
