@@ -15,10 +15,13 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
-- Neón Card Entity: `getCardSize()`/`getGridOptions()` ahora reflejan el
-  contenido real (filas × información secundaria); antes eran fijos y la
-  tarjeta siguiente en el dashboard podía montarse encima cuando se
-  activaba información secundaria.
+- Neón Card Entity: `getCardSize()`/`getGridOptions()` daban un tamaño
+  fijo demasiado pequeño (1 unidad ≈ 50-56px), así que la tarjeta
+  siguiente en el dashboard se montaba encima; un primer intento de
+  sumar +1 fila solo cuando había información secundaria sobrecorregía
+  al revés (hueco enorme). Ahora cada fila de entidades reserva 2
+  unidades de forma consistente (100-120px), margen que ya absorbe la
+  línea de información secundaria sin necesitar ajustes especiales.
 - Neón Card Entity: el grid interno usaba `minmax(0, auto)` y
   `justify-items: start`, lo que permitía que el texto se saliera de la
   tarjeta al estrechar su ancho desde "Diseño". Ahora usa

@@ -231,24 +231,24 @@ export class NeonCardEntity extends BaseNeonCard {
     return this._config?.columns || this._entities.length || 1;
   }
 
-  private get _hasSecondaryInfo(): boolean {
-    return !!this._config?.secondary_info && this._config.secondary_info !== 'none';
-  }
-
   private get _rows(): number {
     return Math.max(1, Math.ceil(this._entities.length / this._columns));
   }
 
   getCardSize(): number {
-    // +1 si hay información secundaria: la fila ocupa más alto (dos
-    // líneas de texto en vez de una) del que el tamaño base de
-    // BaseNeonCard asume.
-    return this._rows + (this._hasSecondaryInfo ? 1 : 0);
+    // 1 fila de entidades = 2 unidades (100px en masonry, 120px en
+    // secciones). El interruptor (34px) + el padding de ha-card (32px)
+    // ya ocupan ~66px por sí solos, así que con 1 unidad (50/56px) se
+    // queda corto y las tarjetas se pegan entre sí. Con 2 unidades sobra
+    // margen de sobra para la línea de información secundaria sin
+    // necesitar una unidad extra por separado (eso generaba un hueco
+    // enorme e inconsistente).
+    return this._rows * 2;
   }
 
   getGridOptions(): { rows: number; columns: number } {
     return {
-      rows: this._rows + (this._hasSecondaryInfo ? 1 : 0),
+      rows: this._rows * 2,
       columns: 12,
     };
   }
