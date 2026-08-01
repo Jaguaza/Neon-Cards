@@ -9,6 +9,9 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
+- `hacs.json`: fase 3, prepara el repositorio para instalación vía HACS
+  (`filename: neon-cards.js`, `homeassistant: 2025.10.0` — igual que
+  Mushroom).
 - `scripts/perf-check.mjs` (`npm run perf`): benchmark automatizado del
   render real de cada tarjeta en jsdom, detecta renders lentos y fugas de
   memoria (acuerdo nº18).
