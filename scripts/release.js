@@ -91,12 +91,17 @@ function releaseVersion(newVersion) {
   assertCleanWorkingTree();
   writeVersionEverywhere(newVersion);
 
-  run('git add -A');
-  run(`git commit -m "chore(release): v${newVersion}"`);
+  const pendingChanges = execSync('git status --porcelain', { cwd: ROOT }).toString().trim();
+  if (pendingChanges) {
+    run('git add -A');
+    run(`git commit -m "chore(release): v${newVersion}"`);
+    run('git push origin main');
+  } else {
+    console.log(`La versión ya era v${newVersion} en package.json/version.ts; no hay nada que commitear, solo se crea el tag.`);
+  }
 
   const tag = `v${newVersion}`;
   run(`git tag -a ${tag} -m "Release ${tag}"`);
-  run('git push origin main');
   run(`git push origin ${tag}`);
 
   console.log(`Release ${tag} publicado. GitHub Actions construirá los assets y creará el GitHub Release.`);
