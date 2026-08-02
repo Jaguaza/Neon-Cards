@@ -2,7 +2,9 @@
 
 - [Repository agreements](./agreements.md) — the architecture, quality and
   process rules that govern this project.
-- Architecture, API reference and "how to build a card" guides will be added
-  once a first reference card exists (phase 2).
+- [API reference](./api.md) — the base framework (`src/core`), Home
+  Assistant types, and each card's YAML configuration.
+- "How to build a card": to be added once a second reference card exists
+  (phase 4).
 
 See also the [Spanish version](../es/README.md).
