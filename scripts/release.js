@@ -46,14 +46,12 @@ function writeVersionEverywhere(version) {
   writeJson(PKG_PATH, rootPkg);
 
   const versionTs = readFileSync(VERSION_TS_PATH, 'utf8');
-  const updated = versionTs.replace(
-    /export const NEON_CARDS_VERSION = '[^']*';/,
-    `export const NEON_CARDS_VERSION = '${version}';`
-  );
-  if (updated === versionTs) {
+  const versionPattern = /export const NEON_CARDS_VERSION = '[^']*';/;
+  if (!versionPattern.test(versionTs)) {
     console.error(`No se encontró NEON_CARDS_VERSION en ${VERSION_TS_PATH}; revísalo a mano.`);
     process.exit(1);
   }
+  const updated = versionTs.replace(versionPattern, `export const NEON_CARDS_VERSION = '${version}';`);
   writeFileSync(VERSION_TS_PATH, updated);
 }
 
