@@ -9,6 +9,16 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Changed
+
+- Licencia: de PolyForm Noncommercial 1.0.0 a **Apache License 2.0**.
+  PolyForm no está en la lista de licencias que GitHub/HACS reconocen
+  automáticamente (`licensee`/`choosealicense.com`), así que la
+  comprobación de licencia de HACS nunca pasaba, ni siquiera para
+  instalación como repositorio personalizado.
+
+## [0.1.0] - 2026-08-02
+
 ### Added
 
 - Esqueleto inicial del proyecto: `src/core`, `src/ha`, `src/shared`,
@@ -68,6 +78,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+### Changed
+
+- License: from PolyForm Noncommercial 1.0.0 to **Apache License 2.0**.
+  PolyForm isn't on the list of licenses GitHub/HACS automatically
+  recognize (`licensee`/`choosealicense.com`), so HACS's license check
+  never passed, not even for custom-repository installation.
+
+## [0.1.0] - 2026-08-02
 
 ### Added
 

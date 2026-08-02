@@ -74,7 +74,7 @@ Neon Cards se está diseñando como una colección completa de tarjetas para Hom
 
 ## 📄 Licencia
 
-Este proyecto está licenciado bajo **PolyForm Noncommercial 1.0.0**.
+Este proyecto está licenciado bajo **Apache License 2.0**.
 
 ### ✔ Puedes
 
@@ -82,15 +82,16 @@ Este proyecto está licenciado bajo **PolyForm Noncommercial 1.0.0**.
 - Modificar el código.
 - Aprender del proyecto.
 - Compartir mejoras.
-- Crear forks para uso no comercial.
+- Crear forks, incluso con fines comerciales.
+- Usarlo en productos o servicios comerciales.
 
-### ❌ No puedes
+### Debes
 
-- Vender este software.
-- Utilizarlo con fines comerciales.
-- Incluirlo en productos o servicios comerciales sin autorización expresa del autor.
+- Conservar el aviso de copyright y de licencia.
+- Indicar claramente si has modificado los archivos.
 
-Si deseas utilizar **Neon Cards** con fines comerciales, contacta previamente con el autor para obtener una licencia comercial.
+Ver el texto legal completo en [`LICENSE`](./LICENSE) (inglés,
+vinculante) o su [traducción informativa](./LICENSE%20ES.md).
 
 ---
 
@@ -159,7 +160,7 @@ Neon Cards is being designed as a complete collection of cards for Home Assistan
 
 ## 📄 License
 
-This project is licensed under **PolyForm Noncommercial 1.0.0**.
+This project is licensed under the **Apache License 2.0**.
 
 ### ✔ Allowed
 
@@ -167,15 +168,16 @@ This project is licensed under **PolyForm Noncommercial 1.0.0**.
 - Modify the code.
 - Learn from the project.
 - Share improvements.
-- Create non‑commercial forks.
+- Create forks, including for commercial purposes.
+- Use it in commercial products or services.
 
-### ❌ Not allowed
+### Required
 
-- Sell this software.
-- Use it for commercial purposes.
-- Include it in commercial products or services without explicit permission.
+- Keep the copyright and license notice.
+- Clearly state if you modified any files.
 
-For commercial use, please contact the author to obtain a commercial license.
+See the full legal text in [`LICENSE`](./LICENSE) (English, binding) or
+its [informational translation](./LICENSE%20ES.md).
 
 ---
 
