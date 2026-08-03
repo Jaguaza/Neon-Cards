@@ -165,7 +165,7 @@ sobrevivirían entre pulsaciones.
 
 #### `computeInfoDisplay(info, name, state, stateObj, hass)`
 
-- **Descripción:** calcula qué mostrar como información primaria o secundaria de una entidad — mismo concepto que usa Home Assistant/Mushroom.
+- **Descripción:** calcula qué mostrar como información primaria o secundaria de una entidad.
 - **Parámetros:**
   - `info: InfoOption` — una de `'name' | 'state' | 'last-changed' | 'last-updated' | 'none'`.
   - `name: string` — nombre ya resuelto de la entidad.

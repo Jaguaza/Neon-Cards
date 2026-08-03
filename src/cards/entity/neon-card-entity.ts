@@ -1,5 +1,6 @@
 import { html, css, nothing } from 'lit';
 import type { PropertyValues, TemplateResult } from 'lit';
+import type { HomeAssistant } from '../../ha/types';
 import {
   BaseNeonCard,
   createGestureState,
@@ -198,9 +199,15 @@ export class NeonCardEntity extends BaseNeonCard {
     return document.createElement('neon-card-entity-editor');
   }
 
-  static getStubConfig(): NeonCardEntityConfig {
+  static getStubConfig(hass?: HomeAssistant, entities?: string[], entitiesFallback?: string[]): NeonCardEntityConfig {
+    const candidates = [...(entities ?? []), ...(entitiesFallback ?? [])];
+    const isLightOrSwitch = (id: string) => id.startsWith('light.') || id.startsWith('switch.');
+    const fromCandidates = candidates.find(isLightOrSwitch);
+    const fromHass = hass ? Object.keys(hass.states).find(isLightOrSwitch) : undefined;
+    const entity = fromCandidates || fromHass || 'light.example_light';
+
     return {
-      entity: '',
+      entity,
       name: '',
       neon_palette: 'emerald',
       neon_color1: '#39e07a',

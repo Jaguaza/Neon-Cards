@@ -4,8 +4,7 @@ import type { HassEntityState, HomeAssistant } from '../ha/types';
 
 /**
  * Qué mostrar en la línea principal/secundaria de una tarjeta (acuerdo
- * nº4: mismo concepto que usa Home Assistant/Mushroom, no se reinventa
- * por tarjeta).
+ * nº4: no se reinventa por tarjeta).
  */
 export const INFO_OPTIONS = ['name', 'state', 'last-changed', 'last-updated', 'none'] as const;
 export type InfoOption = (typeof INFO_OPTIONS)[number];

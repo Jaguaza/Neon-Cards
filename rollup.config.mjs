@@ -4,9 +4,9 @@ import terser from '@rollup/plugin-terser';
 
 /**
  * Todas las tarjetas se empaquetan juntas en un único archivo
- * (dist-cards/neon-cards.js) — igual que Mushroom hace con mushroom.js.
- * Un único recurso Lovelace instala toda la colección; añadir una tarjeta
- * nueva es una línea de import en src/neon-cards.ts, no un cambio aquí.
+ * (dist-cards/neon-cards.js). Un único recurso Lovelace instala toda la
+ * colección; añadir una tarjeta nueva es una línea de import en
+ * src/neon-cards.ts, no un cambio aquí.
  */
 export default {
   input: 'src/neon-cards.ts',

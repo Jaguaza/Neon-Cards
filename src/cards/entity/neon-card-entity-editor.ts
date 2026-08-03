@@ -23,7 +23,7 @@ export class NeonCardEntityEditor extends LitElement {
       gap: 20px;
       padding: 4px 0;
     }
-    .mushroom-section {
+    .editor-section {
       background: var(--card-background-color, rgba(255, 255, 255, 0.04));
       border: 1px solid var(--divider-color, rgba(255, 255, 255, 0.1));
       border-radius: 12px;
@@ -100,6 +100,18 @@ export class NeonCardEntityEditor extends LitElement {
       font-size: 14px;
       cursor: pointer;
     }
+    .native-input {
+      width: 100%;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid var(--divider-color, rgba(255, 255, 255, 0.2));
+      background: var(--card-background-color, #1c1c1c);
+      color: var(--primary-text-color, #e5e5e5);
+      padding: 0 10px;
+      font-size: 14px;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
     ha-formfield {
       display: flex;
     }
@@ -134,7 +146,7 @@ export class NeonCardEntityEditor extends LitElement {
 
     return html`
       <div class="editor-container">
-        <div class="mushroom-section">
+        <div class="editor-section">
           <div class="section-header">Configuración Principal</div>
           <ha-entity-picker
             .hass=${this.hass}
@@ -143,13 +155,16 @@ export class NeonCardEntityEditor extends LitElement {
             allow-custom-entity
             @value-changed=${(ev: ValueChangedEvent) => this._configChanged('entity', ev.detail.value)}
           ></ha-entity-picker>
-          <ha-textfield
+          <label class="native-select-label" for="name">Nombre personalizado (Opcional)</label>
+          <input
+            id="name"
+            type="text"
+            class="native-input"
             .value=${this._config.name || ''}
-            label="Nombre personalizado (Opcional)"
             @input=${(ev: InputEvent) => this._configChanged('name', (ev.target as HTMLInputElement).value)}
-          ></ha-textfield>
+          />
         </div>
-        <div class="mushroom-section">
+        <div class="editor-section">
           <div class="section-header">Apariencia</div>
           <label class="native-select-label" for="palette">Estilo de degradado del aro</label>
           <select
@@ -243,7 +258,7 @@ export class NeonCardEntityEditor extends LitElement {
             <option value="right" ?selected=${this._config.card_orientation === 'right'}>Vista derecha</option>
           </select>
         </div>
-        <div class="mushroom-section">
+        <div class="editor-section">
           <div class="section-header">Acciones al pulsar</div>
           <div class="action-item">
             <span class="action-title">1 Toque (Tap)</span>

@@ -17,6 +17,21 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   comprobación de licencia de HACS nunca pasaba, ni siquiera para
   instalación como repositorio personalizado.
 
+### Fixed
+
+- Quitadas todas las menciones a Mushroom en código y documentación
+  (comentarios, CHANGELOG, `hacs.json`); la clase CSS `.mushroom-section`
+  del editor pasa a llamarse `.editor-section`. El proyecto queda
+  completamente independiente en su propio código.
+- El campo "Nombre personalizado" del editor usaba `ha-textfield` (un
+  componente interno de HA) y no se veía; ahora es un `<input>` nativo,
+  como el resto de campos del editor.
+- `getStubConfig()` devolvía `entity: ''`, lo que hacía que `setConfig()`
+  lanzara un error al generar la vista previa en el selector de tarjetas
+  de HA — por eso no se veía ningún ejemplo ahí. Ahora recibe `hass` y
+  busca una entidad `light`/`switch` real para la vista previa (igual
+  que hace la card `entity` oficial de Home Assistant).
+
 ## [0.1.0] - 2026-08-02
 
 ### Added
@@ -28,8 +43,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Workflow de CI (lint, typecheck, test, build) y workflow de release
   (adjunta los `.js` de `dist-cards/` al GitHub Release).
 - Rollup empaqueta **todas** las tarjetas juntas en un único
-  `dist-cards/neon-cards.js` (igual que Mushroom con `mushroom.js`) — un
-  solo recurso Lovelace instala toda la colección.
+  `dist-cards/neon-cards.js` — un solo recurso Lovelace instala toda la
+  colección.
 - `BaseNeonCard` (`src/core`): framework base en Lit (sin decoradores) con
   gestión de gestos tap/hold/double-tap y despacho de `hass-action`
   reutilizables entre tarjetas.
@@ -38,8 +53,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   tap/hold/double-tap y paletas predefinidas o personalizadas. Construida
   sobre `BaseNeonCard`.
 - `hacs.json`: fase 3, prepara el repositorio para instalación vía HACS
-  (`filename: neon-cards.js`, `homeassistant: 2025.10.0` — igual que
-  Mushroom).
+  (`filename: neon-cards.js`, `homeassistant: 2025.10.0`).
 - `scripts/perf-check.mjs` (`npm run perf`): benchmark automatizado del
   render real de cada tarjeta en jsdom, detecta renders lentos y fugas de
   memoria (acuerdo nº18).
@@ -86,6 +100,21 @@ and this project follows [Semantic Versioning](https://semver.org/).
   recognize (`licensee`/`choosealicense.com`), so HACS's license check
   never passed, not even for custom-repository installation.
 
+### Fixed
+
+- Removed every mention of Mushroom from code and docs (comments,
+  CHANGELOG, `hacs.json`); the editor's `.mushroom-section` CSS class is
+  now `.editor-section`. The project is now fully independent in its
+  own codebase.
+- The editor's "Custom name" field used `ha-textfield` (an internal HA
+  component) and wasn't showing up; it's now a native `<input>`, like
+  every other field in the editor.
+- `getStubConfig()` returned `entity: ''`, which made `setConfig()`
+  throw while generating the preview in HA's card picker — that's why
+  no example ever showed up there. It now receives `hass` and looks for
+  a real `light`/`switch` entity for the preview (same approach as
+  Home Assistant's own `entity` card).
+
 ## [0.1.0] - 2026-08-02
 
 ### Added
@@ -97,9 +126,8 @@ and this project follows [Semantic Versioning](https://semver.org/).
 - CI workflow (lint, typecheck, test, build) and release workflow
   (attaches the `dist-cards/` `.js` files to the GitHub Release).
 - Rollup bundles **all** cards together into a single
-  `dist-cards/neon-cards.js` (same approach as Mushroom's
-  `mushroom.js`) — one single Lovelace resource installs the whole
-  collection.
+  `dist-cards/neon-cards.js` — one single Lovelace resource installs the
+  whole collection.
 - `BaseNeonCard` (`src/core`): base framework in Lit (no decorators)
   with tap/hold/double-tap gesture handling and `hass-action`
   dispatching, reusable across cards.
@@ -108,8 +136,7 @@ and this project follows [Semantic Versioning](https://semver.org/).
   tap/hold/double-tap gestures, and preset or custom color palettes.
   Built on top of `BaseNeonCard`.
 - `hacs.json`: phase 3, prepares the repository for installation via
-  HACS (`filename: neon-cards.js`, `homeassistant: 2025.10.0` — same
-  as Mushroom).
+  HACS (`filename: neon-cards.js`, `homeassistant: 2025.10.0`).
 - `scripts/perf-check.mjs` (`npm run perf`): automated benchmark of
   each card's real render in jsdom, catches slow renders and memory
   leaks (agreement nº18).

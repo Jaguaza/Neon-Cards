@@ -164,7 +164,7 @@ wouldn't survive between taps.
 
 #### `computeInfoDisplay(info, name, state, stateObj, hass)`
 
-- **Description:** computes what to display as an entity's primary or secondary info — the same concept Home Assistant/Mushroom use.
+- **Description:** computes what to display as an entity's primary or secondary info.
 - **Parameters:**
   - `info: InfoOption` — one of `'name' | 'state' | 'last-changed' | 'last-updated' | 'none'`.
   - `name: string` — the entity's already-resolved name.
