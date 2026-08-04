@@ -42,14 +42,17 @@ export const NEON_HALO_STYLES = css`
       6px 6px 26px -6px color-mix(in srgb, var(--neon-c3) 55%, transparent),
       0 0 18px -6px color-mix(in srgb, var(--neon-c2) 65%, transparent);
   }
-  /* La fuente de luz "nace" del icono: el propio icono recibe un
-     drop-shadow con el color inicial de la paleta cuando está activo,
-     coherente con que el halo es más intenso en su esquina. */
+  /* La fuente de luz "nace" del icono: en estado activo adopta el color
+     de la paleta (no el neutro del tema) y una doble capa de
+     drop-shadow para que "resalte" con claridad, coherente con que el
+     halo es más intenso en su esquina (punto 15: "el icono es la fuente
+     de iluminación de la tarjeta"). */
   .neon-halo-icon {
-    transition: filter 300ms ease-out;
+    transition: color 300ms ease-out, filter 300ms ease-out;
   }
   .neon-halo-active .neon-halo-icon {
-    filter: drop-shadow(0 0 6px var(--neon-c1));
+    color: var(--neon-c1);
+    filter: drop-shadow(0 0 3px var(--neon-c1)) drop-shadow(0 0 10px color-mix(in srgb, var(--neon-c1) 70%, transparent));
   }
 `;
 

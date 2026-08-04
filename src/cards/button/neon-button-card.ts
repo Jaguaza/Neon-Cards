@@ -86,6 +86,7 @@ export class NeonButtonCard extends BaseNeonCard {
       --mdc-icon-size: 32px;
       color: var(--state-icon-color, var(--primary-text-color));
       margin-bottom: 6px;
+      transition: color 300ms ease-out, filter 300ms ease-out;
     }
     .text {
       display: flex;
@@ -130,13 +131,18 @@ export class NeonButtonCard extends BaseNeonCard {
       align-items: center;
       width: 100%;
       min-width: 0;
+      overflow: hidden;
     }
     .sensor {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       min-width: 0;
-      flex: 1 1 0;
+      /* Contenido primero: se encoge proporcionalmente si no cabe, en
+         vez de repartirse en tercios iguales (eso es lo que dejaba el
+         valor en 0px de ancho y lo hacía invisible en tarjetas
+         estrechas). El valor nunca baja de ~3 caracteres. */
+      flex: 0 1 auto;
       font-size: 13px;
       line-height: 16px;
       color: var(--secondary-text-color);
@@ -145,14 +151,19 @@ export class NeonButtonCard extends BaseNeonCard {
       width: 1px;
       align-self: stretch;
       background: var(--divider-color, rgba(255, 255, 255, 0.12));
-      margin: 0 10px;
+      margin: 0 6px;
       flex: 0 0 auto;
     }
     .sensor ha-icon,
     .top-sensor ha-icon {
-      --mdc-icon-size: 16px;
+      --mdc-icon-size: 15px;
       margin-bottom: 0;
-      color: var(--secondary-text-color);
+      /* Los sensores llevan el tinte de la paleta neón siempre (no solo
+         en estado activo) — es lo que en las referencias visuales hace
+         que icono de temperatura/humedad se identifiquen como Neon
+         Cards, no un icono gris cualquiera. */
+      color: color-mix(in srgb, var(--neon-c2, var(--state-icon-color)) 65%, var(--secondary-text-color) 35%);
+      filter: drop-shadow(0 0 2px color-mix(in srgb, var(--neon-c2, transparent) 45%, transparent));
       flex: 0 0 auto;
     }
     .sensor .value,
@@ -161,6 +172,8 @@ export class NeonButtonCard extends BaseNeonCard {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      flex: 0 1 auto;
+      min-width: 3ch;
     }
   `,
   ];
