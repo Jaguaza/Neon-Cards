@@ -102,6 +102,15 @@ export class NeonButtonCardEditor extends LitElement {
       cursor: pointer;
       background: transparent;
     }
+    .sensor-card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.15);
+      padding: 12px;
+      border-radius: 8px;
+      border-left: 3px solid #2dd6b8;
+    }
     .sensor-row {
       display: flex;
       align-items: center;
@@ -112,15 +121,25 @@ export class NeonButtonCardEditor extends LitElement {
     }
     .sensor-extra-fields {
       display: flex;
-      gap: 8px;
-      margin: -4px 0 4px 0;
+      gap: 10px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+    .field.decimals-field {
+      flex: 0 0 90px;
+    }
+    .field-label {
+      font-size: 11px;
+      color: var(--secondary-text-color);
     }
     .sensor-extra-fields .native-input {
       height: 34px;
       font-size: 13px;
-    }
-    .decimals-input {
-      max-width: 90px;
+      width: 100%;
     }
     .remove-sensor {
       background: none;
@@ -129,6 +148,7 @@ export class NeonButtonCardEditor extends LitElement {
       cursor: pointer;
       font-size: 18px;
       padding: 4px 8px;
+      flex: 0 0 auto;
     }
     .add-sensor {
       align-self: flex-start;
@@ -307,75 +327,95 @@ export class NeonButtonCardEditor extends LitElement {
 
         <div class="editor-section">
           <div class="section-header">Sensor suelto (opcional, encima del divisor)</div>
-          <ha-entity-picker
-            .hass=${this.hass}
-            .value=${this._config.top_sensor?.entity || ''}
-            .includeDomains=${['sensor', 'binary_sensor']}
-            label="Sensor destacado"
-            allow-custom-entity
-            @value-changed=${(ev: ValueChangedEvent) => this._topSensorChanged(ev.detail.value)}
-          ></ha-entity-picker>
-          ${this._config.top_sensor
-            ? html`
-                <div class="sensor-extra-fields">
-                  <input
-                    type="text"
-                    class="native-input"
-                    placeholder="Icono (auto si se deja vacío)"
-                    .value=${this._config.top_sensor.icon || ''}
-                    @input=${(ev: InputEvent) => this._topSensorFieldChanged('icon', (ev.target as HTMLInputElement).value)}
-                  />
-                  <input
-                    type="number"
-                    min="0"
-                    max="4"
-                    class="native-input decimals-input"
-                    placeholder="Decimales"
-                    .value=${this._config.top_sensor.decimals ?? ''}
-                    @input=${(ev: InputEvent) => {
-                      const raw = (ev.target as HTMLInputElement).value;
-                      this._topSensorFieldChanged('decimals', raw === '' ? undefined : Number(raw));
-                    }}
-                  />
-                </div>
-              `
-            : nothing}
+          <div class="sensor-card">
+            <ha-entity-picker
+              .hass=${this.hass}
+              .value=${this._config.top_sensor?.entity || ''}
+              .includeDomains=${['sensor', 'binary_sensor']}
+              label="Sensor destacado"
+              allow-custom-entity
+              @value-changed=${(ev: ValueChangedEvent) => this._topSensorChanged(ev.detail.value)}
+            ></ha-entity-picker>
+            ${this._config.top_sensor
+              ? html`
+                  <div class="sensor-extra-fields">
+                    <div class="field">
+                      <label class="field-label" for="top-sensor-icon">Icono (vacío = automático)</label>
+                      <input
+                        id="top-sensor-icon"
+                        type="text"
+                        class="native-input"
+                        placeholder="mdi:flash"
+                        .value=${this._config.top_sensor.icon || ''}
+                        @input=${(ev: InputEvent) => this._topSensorFieldChanged('icon', (ev.target as HTMLInputElement).value)}
+                      />
+                    </div>
+                    <div class="field decimals-field">
+                      <label class="field-label" for="top-sensor-decimals">Nº decimales</label>
+                      <input
+                        id="top-sensor-decimals"
+                        type="number"
+                        min="0"
+                        max="4"
+                        class="native-input"
+                        placeholder="1"
+                        .value=${this._config.top_sensor.decimals ?? ''}
+                        @input=${(ev: InputEvent) => {
+                          const raw = (ev.target as HTMLInputElement).value;
+                          this._topSensorFieldChanged('decimals', raw === '' ? undefined : Number(raw));
+                        }}
+                      />
+                    </div>
+                  </div>
+                `
+              : nothing}
+          </div>
         </div>
 
         <div class="editor-section">
           <div class="section-header">Sensores agrupados (máx. ${MAX_GROUPED_SENSORS}, con separador)</div>
           ${this._sensors.map(
             (s, i) => html`
-              <div class="sensor-row">
-                <ha-entity-picker
-                  .hass=${this.hass}
-                  .value=${s.entity}
-                  .includeDomains=${['sensor', 'binary_sensor']}
-                  allow-custom-entity
-                  @value-changed=${(ev: ValueChangedEvent) => this._sensorFieldChanged(i, 'entity', ev.detail.value)}
-                ></ha-entity-picker>
-                <button class="remove-sensor" @click=${() => this._removeSensor(i)} title="Quitar sensor">✕</button>
-              </div>
-              <div class="sensor-extra-fields">
-                <input
-                  type="text"
-                  class="native-input"
-                  placeholder="Icono (auto si se deja vacío)"
-                  .value=${s.icon || ''}
-                  @input=${(ev: InputEvent) => this._sensorFieldChanged(i, 'icon', (ev.target as HTMLInputElement).value)}
-                />
-                <input
-                  type="number"
-                  min="0"
-                  max="4"
-                  class="native-input decimals-input"
-                  placeholder="Decimales"
-                  .value=${s.decimals ?? ''}
-                  @input=${(ev: InputEvent) => {
-                    const raw = (ev.target as HTMLInputElement).value;
-                    this._sensorFieldChanged(i, 'decimals', raw === '' ? undefined : Number(raw));
-                  }}
-                />
+              <div class="sensor-card">
+                <div class="sensor-row">
+                  <ha-entity-picker
+                    .hass=${this.hass}
+                    .value=${s.entity}
+                    .includeDomains=${['sensor', 'binary_sensor']}
+                    allow-custom-entity
+                    @value-changed=${(ev: ValueChangedEvent) => this._sensorFieldChanged(i, 'entity', ev.detail.value)}
+                  ></ha-entity-picker>
+                  <button class="remove-sensor" @click=${() => this._removeSensor(i)} title="Quitar sensor">✕</button>
+                </div>
+                <div class="sensor-extra-fields">
+                  <div class="field">
+                    <label class="field-label" for="sensor-icon-${i}">Icono (vacío = automático)</label>
+                    <input
+                      id="sensor-icon-${i}"
+                      type="text"
+                      class="native-input"
+                      placeholder="mdi:thermometer"
+                      .value=${s.icon || ''}
+                      @input=${(ev: InputEvent) => this._sensorFieldChanged(i, 'icon', (ev.target as HTMLInputElement).value)}
+                    />
+                  </div>
+                  <div class="field decimals-field">
+                    <label class="field-label" for="sensor-decimals-${i}">Nº decimales</label>
+                    <input
+                      id="sensor-decimals-${i}"
+                      type="number"
+                      min="0"
+                      max="4"
+                      class="native-input"
+                      placeholder="1"
+                      .value=${s.decimals ?? ''}
+                      @input=${(ev: InputEvent) => {
+                        const raw = (ev.target as HTMLInputElement).value;
+                        this._sensorFieldChanged(i, 'decimals', raw === '' ? undefined : Number(raw));
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
             `
           )}

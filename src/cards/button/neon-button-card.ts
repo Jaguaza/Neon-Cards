@@ -129,6 +129,11 @@ export class NeonButtonCard extends BaseNeonCard {
     .sensors {
       display: flex;
       align-items: center;
+      /* space-evenly reparte el espacio sobrante por igual entre todos
+         los huecos, incluidos los bordes — con 1, 2 o 3 sensores queda
+         siempre el mismo margen a izquierda y derecha, en vez de
+         amontonarse a la izquierda y dejar hueco solo a la derecha. */
+      justify-content: space-evenly;
       width: 100%;
       min-width: 0;
       overflow: hidden;
