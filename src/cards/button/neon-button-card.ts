@@ -233,11 +233,19 @@ export class NeonButtonCard extends BaseNeonCard {
   }
 
   getGridOptions(): { rows: number; columns: number } {
-    // 4 columnas de 12 → 3 botones por fila de dashboard, tamaño de
-    // "tile" cuadrado en vez de la fila completa que usa la Entity Card.
+    // El ancho se adapta a cuánto contenido hay en la fila de sensores:
+    // sin sensores o solo el suelto, la tarjeta puede ser más estrecha;
+    // cada sensor agrupado de más pide más ancho para seguir siendo
+    // legible con separador vertical, y evita el hueco enorme que deja
+    // un `space-evenly` sobre un ancho fijo cuando hay pocos sensores.
+    const groupedCount = this._config?.sensors?.length ?? 0;
+    let columns = 3;
+    if (groupedCount >= 3) columns = 5;
+    else if (groupedCount === 2) columns = 4;
+
     return {
       rows: this._hasSensors ? 3 : 2,
-      columns: 4,
+      columns,
     };
   }
 
