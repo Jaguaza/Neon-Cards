@@ -11,8 +11,10 @@ import {
   computeInfoDisplay,
 } from '../../core';
 import type { GestureState, InfoOption } from '../../core';
-import { CARD_AUTHOR, CARD_VERSION, NEON_PRESETS } from './constants';
-import type { EntityItemConfig, GradientColors, NeonCardEntityConfig } from './types';
+import { resolveGradientColors } from '../../shared';
+import type { GradientColors } from '../../shared';
+import { CARD_AUTHOR, CARD_VERSION } from './constants';
+import type { EntityItemConfig, NeonCardEntityConfig } from './types';
 
 /**
  * Neón Card Entity
@@ -281,15 +283,7 @@ export class NeonCardEntity extends BaseNeonCard {
   }
 
   private _getGradientColors(): GradientColors {
-    const palette = this._config?.neon_palette || 'emerald';
-    if (palette !== 'custom' && NEON_PRESETS[palette]) {
-      return NEON_PRESETS[palette];
-    }
-    return {
-      c1: this._config?.neon_color1 || '#39e07a',
-      c2: this._config?.neon_color2 || '#2dd6b8',
-      c3: this._config?.neon_color3 || '#1ecdf2',
-    };
+    return resolveGradientColors(this._config);
   }
 
   private _gestureFor(entityId: string): GestureState {

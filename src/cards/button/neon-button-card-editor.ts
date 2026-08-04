@@ -1,20 +1,20 @@
 import { LitElement, html, css, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import type { HomeAssistant } from '../../ha/types';
-import { INFO_OPTIONS, INFO_LABELS } from '../../core';
 import { DEFAULT_PALETTE } from '../../shared';
-import type { ActionConfig, NeonCardEntityConfig, ValueChangedEvent } from './types';
+import type { SensorItemConfig, ValueChangedEvent, NeonButtonCardConfig } from './types';
+import type { ActionConfig } from '../../ha/types';
 
 const ALLOWED_ACTIONS = ['more-info', 'toggle', 'navigate', 'url', 'call-service', 'assist', 'none'];
 
-export class NeonCardEntityEditor extends LitElement {
+export class NeonButtonCardEditor extends LitElement {
   static properties = {
     hass: { attribute: false },
     _config: { state: true },
   };
 
   hass?: HomeAssistant;
-  private _config?: NeonCardEntityConfig;
+  private _config?: NeonButtonCardConfig;
 
   static styles = css`
     .editor-container {
@@ -58,32 +58,6 @@ export class NeonCardEntityEditor extends LitElement {
       gap: 10px;
       margin-top: 6px;
     }
-    .two-col-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 6px;
-    }
-    .field-col {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .color-picker-wrapper {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      font-size: 12px;
-      color: var(--secondary-text-color);
-    }
-    input[type='color'] {
-      border: none;
-      width: 100%;
-      height: 38px;
-      border-radius: 6px;
-      cursor: pointer;
-      background: transparent;
-    }
     .native-select-label {
       font-size: 12px;
       color: var(--secondary-text-color);
@@ -112,22 +86,65 @@ export class NeonCardEntityEditor extends LitElement {
       box-sizing: border-box;
       font-family: inherit;
     }
-    ha-formfield {
+    .color-picker-wrapper {
       display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--secondary-text-color);
+    }
+    input[type='color'] {
+      border: none;
+      width: 100%;
+      height: 38px;
+      border-radius: 6px;
+      cursor: pointer;
+      background: transparent;
+    }
+    .sensor-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sensor-row ha-entity-picker {
+      flex: 1;
+    }
+    .remove-sensor {
+      background: none;
+      border: none;
+      color: var(--secondary-text-color);
+      cursor: pointer;
+      font-size: 18px;
+      padding: 4px 8px;
+    }
+    .add-sensor {
+      align-self: flex-start;
+      background: none;
+      border: 1px dashed var(--divider-color, rgba(255, 255, 255, 0.3));
+      color: var(--primary-text-color);
+      border-radius: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 13px;
     }
   `;
 
-  setConfig(config: NeonCardEntityConfig): void {
+  setConfig(config: NeonButtonCardConfig): void {
     this._config = config;
   }
 
   private _configChanged(key: string, value: unknown): void {
     if (!this._config) return;
-    const newConfig: NeonCardEntityConfig = { ...this._config };
-    if (value === '') delete newConfig[key];
+    const newConfig: NeonButtonCardConfig = { ...this._config };
+    if (value === '' || value === undefined) delete newConfig[key];
     else newConfig[key] = value;
+    this._emit(newConfig);
+  }
+
+  private _emit(config: NeonButtonCardConfig): void {
+    this._config = config;
     const event = new CustomEvent('config-changed', {
-      detail: { config: newConfig },
+      detail: { config },
       bubbles: true,
       composed: true,
     });
@@ -135,7 +152,28 @@ export class NeonCardEntityEditor extends LitElement {
   }
 
   private _actionFor(key: 'tap_action' | 'hold_action' | 'double_tap_action', defaultAction: string): ActionConfig {
-    return this._config?.[key] as ActionConfig | undefined || { action: defaultAction };
+    return (this._config?.[key] as ActionConfig | undefined) || { action: defaultAction };
+  }
+
+  private get _sensors(): SensorItemConfig[] {
+    return this._config?.sensors ?? [];
+  }
+
+  private _addSensor(): void {
+    if (!this._config) return;
+    this._emit({ ...this._config, sensors: [...this._sensors, { entity: '' }] });
+  }
+
+  private _removeSensor(index: number): void {
+    if (!this._config) return;
+    const sensors = this._sensors.filter((_, i) => i !== index);
+    this._emit({ ...this._config, sensors });
+  }
+
+  private _sensorChanged(index: number, entity: string): void {
+    if (!this._config) return;
+    const sensors = this._sensors.map((s, i) => (i === index ? { entity } : s));
+    this._emit({ ...this._config, sensors });
   }
 
   protected render(): TemplateResult | typeof nothing {
@@ -151,11 +189,11 @@ export class NeonCardEntityEditor extends LitElement {
           <ha-entity-picker
             .hass=${this.hass}
             .value=${this._config.entity || ''}
-            label="Entidad (Requerida)"
+            label="Entidad (Opcional)"
             allow-custom-entity
             @value-changed=${(ev: ValueChangedEvent) => this._configChanged('entity', ev.detail.value)}
           ></ha-entity-picker>
-          <label class="native-select-label" for="name">Nombre personalizado (Opcional)</label>
+          <label class="native-select-label" for="name">Nombre</label>
           <input
             id="name"
             type="text"
@@ -163,10 +201,28 @@ export class NeonCardEntityEditor extends LitElement {
             .value=${this._config.name || ''}
             @input=${(ev: InputEvent) => this._configChanged('name', (ev.target as HTMLInputElement).value)}
           />
+          <label class="native-select-label" for="subtitle">Subtítulo</label>
+          <input
+            id="subtitle"
+            type="text"
+            class="native-input"
+            .value=${this._config.subtitle || ''}
+            @input=${(ev: InputEvent) => this._configChanged('subtitle', (ev.target as HTMLInputElement).value)}
+          />
+          <label class="native-select-label" for="icon">Icono (mdi:...)</label>
+          <input
+            id="icon"
+            type="text"
+            class="native-input"
+            placeholder="mdi:sofa"
+            .value=${this._config.icon || ''}
+            @input=${(ev: InputEvent) => this._configChanged('icon', (ev.target as HTMLInputElement).value)}
+          />
         </div>
+
         <div class="editor-section">
-          <div class="section-header">Apariencia</div>
-          <label class="native-select-label" for="palette">Estilo de degradado del aro</label>
+          <div class="section-header">Apariencia del halo</div>
+          <label class="native-select-label" for="palette">Paleta del halo (estado activo)</label>
           <select
             id="palette"
             class="native-select"
@@ -214,50 +270,27 @@ export class NeonCardEntityEditor extends LitElement {
                 </div>
               `
             : nothing}
-          <div class="two-col-grid">
-            <div class="field-col">
-              <label class="native-select-label" for="primary-info">Información primaria</label>
-              <select
-                id="primary-info"
-                class="native-select"
-                @change=${(ev: Event) => this._configChanged('primary_info', (ev.target as HTMLSelectElement).value)}
-              >
-                ${INFO_OPTIONS.map(
-                  (opt) =>
-                    html`<option value=${opt} ?selected=${opt === (this._config!.primary_info || 'name')}>${INFO_LABELS[opt]}</option>`
-                )}
-              </select>
-            </div>
-            <div class="field-col">
-              <label class="native-select-label" for="secondary-info">Información secundaria</label>
-              <select
-                id="secondary-info"
-                class="native-select"
-                @change=${(ev: Event) => this._configChanged('secondary_info', (ev.target as HTMLSelectElement).value)}
-              >
-                ${INFO_OPTIONS.map(
-                  (opt) =>
-                    html`<option value=${opt} ?selected=${opt === (this._config!.secondary_info || 'none')}>${INFO_LABELS[opt]}</option>`
-                )}
-              </select>
-            </div>
-          </div>
-          <ha-formfield label="Mostrar punto de estado">
-            <ha-switch
-              .checked=${this._config.show_status_dot ?? true}
-              @change=${(ev: Event) => this._configChanged('show_status_dot', (ev.target as HTMLInputElement).checked)}
-            ></ha-switch>
-          </ha-formfield>
-          <label class="native-select-label" for="orientation">Orientación de la Tarjeta</label>
-          <select
-            id="orientation"
-            class="native-select"
-            @change=${(ev: Event) => this._configChanged('card_orientation', (ev.target as HTMLSelectElement).value)}
-          >
-            <option value="left" ?selected=${(this._config.card_orientation ?? 'left') === 'left'}>Vista izquierda</option>
-            <option value="right" ?selected=${this._config.card_orientation === 'right'}>Vista derecha</option>
-          </select>
         </div>
+
+        <div class="editor-section">
+          <div class="section-header">Sensores (sensor / binary_sensor)</div>
+          ${this._sensors.map(
+            (s, i) => html`
+              <div class="sensor-row">
+                <ha-entity-picker
+                  .hass=${this.hass}
+                  .value=${s.entity}
+                  .includeDomains=${['sensor', 'binary_sensor']}
+                  allow-custom-entity
+                  @value-changed=${(ev: ValueChangedEvent) => this._sensorChanged(i, ev.detail.value)}
+                ></ha-entity-picker>
+                <button class="remove-sensor" @click=${() => this._removeSensor(i)} title="Quitar sensor">✕</button>
+              </div>
+            `
+          )}
+          <button class="add-sensor" @click=${() => this._addSensor()}>+ Añadir sensor</button>
+        </div>
+
         <div class="editor-section">
           <div class="section-header">Acciones al pulsar</div>
           <div class="action-item">

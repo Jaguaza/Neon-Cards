@@ -20,3 +20,16 @@ export interface HomeAssistant {
     serviceData?: Record<string, unknown>
   ): Promise<void>;
 }
+
+/**
+ * Config de `tap_action`/`hold_action`/`double_tap_action`, común a
+ * cualquier tarjeta con acciones configurables (acuerdo nº4). Vive aquí
+ * en vez de en una tarjeta concreta porque ninguna tarjeta puede importar
+ * código de otra (ver `src/cards/README.md`).
+ */
+export type ActionType = 'more-info' | 'toggle' | 'navigate' | 'url' | 'call-service' | 'assist' | 'none';
+
+export interface ActionConfig {
+  action: ActionType | string;
+  [key: string]: unknown;
+}

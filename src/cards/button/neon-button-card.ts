@@ -1,0 +1,297 @@
+import { html, css, nothing } from 'lit';
+import type { PropertyValues, TemplateResult } from 'lit';
+import type { HomeAssistant } from '../../ha/types';
+import { getSensorDisplay, sensorGridColumns } from '../../ha/sensors';
+import {
+  BaseNeonCard,
+  createGestureState,
+  handlePointerDown,
+  cancelHold,
+  handleClick,
+  dispatchHassAction,
+} from '../../core';
+import type { GestureState } from '../../core';
+import { resolveGradientColors, NEON_HALO_STYLES, neonHaloVars } from '../../shared';
+import { CARD_AUTHOR, CARD_VERSION, DEFAULT_ICON } from './constants';
+import type { NeonButtonCardConfig } from './types';
+
+/** Dominios cuyo estado "on" se interpreta como botón activo. */
+const ACTIVE_DOMAINS_ON_STATE = new Set([
+  'light',
+  'switch',
+  'fan',
+  'input_boolean',
+  'automation',
+  'media_player',
+  'binary_sensor',
+  'cover',
+]);
+
+/**
+ * Neón Button Card
+ * ------------------------------------------------------------
+ * Creador: Jaguaza
+ *
+ * Botón de acción para Home Assistant: entidad principal opcional,
+ * cristal (glassmorphism), icono protagonista y sensores contextuales
+ * (`sensor`/`binary_sensor`) en la parte inferior. Ver
+ * `src/cards/button/README.md` para la especificación completa.
+ */
+export class NeonButtonCard extends BaseNeonCard {
+  static properties = {
+    ...BaseNeonCard.properties,
+    _config: { state: true },
+  };
+
+  private _config?: NeonButtonCardConfig;
+  private _gesture: GestureState = createGestureState();
+
+  static styles = [
+    NEON_HALO_STYLES,
+    css`
+    :host {
+      display: block;
+    }
+    ha-card {
+      box-sizing: border-box;
+      /* Padding vertical ajustado a propósito (ver getCardSize) para que
+         el contenido quepa justo en 2 filas de grid sin sensores y 3 con
+         sensores — igual que se hizo con el padding de la Entity Card. */
+      padding: 12px 20px;
+      height: 100%;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      overflow: hidden;
+      /* Glassmorphism: nunca colores fijos, solo variables CSS de HA. */
+      background: color-mix(in srgb, var(--card-background-color, #1c1c1c) 55%, transparent);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid color-mix(in srgb, var(--divider-color, #ffffff) 14%, transparent);
+      box-shadow: 0 1px 0 0 color-mix(in srgb, var(--divider-color, #ffffff) 20%, transparent) inset,
+        0 8px 24px rgba(0, 0, 0, 0.12);
+      transition: transform 150ms ease;
+    }
+    ha-card:active {
+      transform: scale(0.98);
+    }
+    .content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      height: 100%;
+    }
+    ha-icon {
+      --mdc-icon-size: 32px;
+      color: var(--state-icon-color, var(--primary-text-color));
+      margin-bottom: 6px;
+    }
+    .text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+      width: 100%;
+    }
+    .name {
+      font-size: 16px;
+      line-height: 20px;
+      font-weight: 500;
+      color: var(--primary-text-color);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .subtitle {
+      font-size: 13px;
+      line-height: 16px;
+      color: var(--secondary-text-color);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: var(--divider-color, rgba(255, 255, 255, 0.12));
+      margin-top: auto;
+    }
+    .sensors {
+      display: grid;
+      gap: 6px 14px;
+      width: 100%;
+    }
+    .sensor {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      font-size: 13px;
+      line-height: 16px;
+      color: var(--secondary-text-color);
+    }
+    .sensor ha-icon {
+      --mdc-icon-size: 16px;
+      margin-bottom: 0;
+      color: var(--secondary-text-color);
+    }
+    .sensor .value {
+      color: var(--primary-text-color);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  `,
+  ];
+
+  static getConfigElement(): HTMLElement {
+    return document.createElement('neon-button-card-editor');
+  }
+
+  static getStubConfig(hass?: HomeAssistant, entities?: string[], entitiesFallback?: string[]): NeonButtonCardConfig {
+    const candidates = [...(entities ?? []), ...(entitiesFallback ?? [])];
+    const isLightOrSwitch = (id: string) => id.startsWith('light.') || id.startsWith('switch.');
+    const fromCandidates = candidates.find(isLightOrSwitch);
+    const fromHass = hass ? Object.keys(hass.states).find(isLightOrSwitch) : undefined;
+    const entity = fromCandidates || fromHass || 'light.example_light';
+
+    return {
+      entity,
+      name: 'Salón',
+      subtitle: 'Luces',
+      neon_palette: 'emerald',
+      neon_color1: '#39e07a',
+      neon_color2: '#2dd6b8',
+      neon_color3: '#1ecdf2',
+      tap_action: { action: 'toggle' },
+      hold_action: { action: 'more-info' },
+      double_tap_action: { action: 'none' },
+      sensors: [],
+    };
+  }
+
+  setConfig(config: NeonButtonCardConfig): void {
+    // La entidad es completamente opcional (punto 10 de la spec): la
+    // tarjeta debe funcionar como botón de acción puro sin ella.
+    this._config = config;
+  }
+
+  getCardSize(): number {
+    // Cálculo real de altura de contenido, igual criterio que la Entity
+    // Card (padding ajustado a propósito para encajar en unidades de
+    // grid de HA, ~56px/fila en sections, +8px de gap entre filas):
+    //  Sin sensores: padding(12×2=24) + icono(32+6) + gap(10) + texto(20+2+16=38)
+    //    = 24 + 38 + 10 + 38 = 110px → cabe en 2 filas (56×2+8 = 120px)
+    //  Con sensores: + gap(10) + divider(1) + gap(10) + fila sensores(16)
+    //    = 110 + 37 = 147px → cabe en 3 filas (56×3+16 = 184px)
+    return this._hasSensors ? 3 : 2;
+  }
+
+  getGridOptions(): { rows: number; columns: number } {
+    // 4 columnas de 12 → 3 botones por fila de dashboard, tamaño de
+    // "tile" cuadrado en vez de la fila completa que usa la Entity Card.
+    return {
+      rows: this._hasSensors ? 3 : 2,
+      columns: 4,
+    };
+  }
+
+  private get _stateObj() {
+    return this._config?.entity ? this.hass?.states[this._config.entity] : undefined;
+  }
+
+  private get _hasSensors(): boolean {
+    return (this._config?.sensors?.length ?? 0) > 0;
+  }
+
+  private get _isActive(): boolean {
+    const stateObj = this._stateObj;
+    if (!stateObj) return false;
+    const domain = this._config!.entity!.split('.')[0];
+    if (!ACTIVE_DOMAINS_ON_STATE.has(domain)) return false;
+    return stateObj.state === 'on';
+  }
+
+  private get _icon(): string {
+    return this._config?.icon || (this._stateObj?.attributes.icon as string | undefined) || DEFAULT_ICON;
+  }
+
+  private get _name(): string {
+    return this._config?.name || (this._stateObj?.attributes.friendly_name as string | undefined) || '';
+  }
+
+  private _handleAction(actionType: string): void {
+    dispatchHassAction(
+      this,
+      {
+        entity: this._config?.entity,
+        tap_action: this._config?.tap_action || { action: 'more-info' },
+        hold_action: this._config?.hold_action || { action: 'none' },
+        double_tap_action: this._config?.double_tap_action || { action: 'none' },
+      },
+      actionType
+    );
+  }
+
+  private _renderSensors(): TemplateResult | typeof nothing {
+    if (!this._config?.sensors?.length || !this.hass) return nothing;
+    const displays = this._config.sensors
+      .map((s) => getSensorDisplay(s.entity, this.hass!))
+      .filter((d): d is NonNullable<typeof d> => d !== null);
+    if (!displays.length) return nothing;
+    const columns = sensorGridColumns(displays.length);
+
+    return html`
+      <div class="divider"></div>
+      <div class="sensors" style="grid-template-columns: repeat(${columns}, minmax(0, 1fr));">
+        ${displays.map(
+          (d) => html`
+            <div class="sensor">
+              <ha-icon icon=${d.icon}></ha-icon>
+              <span class="value">${d.state}${d.unit ? ` ${d.unit}` : ''}</span>
+            </div>
+          `
+        )}
+      </div>
+    `;
+  }
+
+  protected render(): TemplateResult | typeof nothing {
+    if (!this._config) return nothing;
+    const colors = resolveGradientColors(this._config);
+    const active = this._isActive;
+    const hasDoubleTap = !!this._config.double_tap_action && this._config.double_tap_action.action !== 'none';
+
+    return html`
+      <ha-card
+        class="neon-halo-host ${active ? 'neon-halo-active' : ''}"
+        style=${neonHaloVars(colors)}
+        @pointerdown=${(ev: PointerEvent) => handlePointerDown(this._gesture, ev, '.-none-', () => this._handleAction('hold'))}
+        @pointerup=${() => cancelHold(this._gesture)}
+        @pointercancel=${() => cancelHold(this._gesture)}
+        @click=${(ev: MouseEvent) =>
+          handleClick(this._gesture, ev, '.-none-', {
+            onTap: () => this._handleAction('tap'),
+            onDoubleTap: () => this._handleAction('double_tap'),
+            hasDoubleTap,
+          })}
+      >
+        <div class="content">
+          <ha-icon class="neon-halo-icon" icon=${this._icon}></ha-icon>
+          <div class="text">
+            <span class="name">${this._name}</span>
+            ${this._config.subtitle ? html`<span class="subtitle">${this._config.subtitle}</span>` : nothing}
+          </div>
+          ${this._renderSensors()}
+        </div>
+      </ha-card>
+    `;
+  }
+
+  protected updated(changedProps: PropertyValues): void {
+    super.updated(changedProps);
+  }
+}
+
+export { CARD_AUTHOR, CARD_VERSION };
