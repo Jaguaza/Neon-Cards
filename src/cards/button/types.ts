@@ -2,6 +2,10 @@ import type { ActionConfig } from '../../ha/types';
 
 export interface SensorItemConfig {
   entity: string;
+  /** Icono propio; si no se indica, se calcula automáticamente. */
+  icon?: string;
+  /** Decimales a mostrar; si no se indica, usa DEFAULT_SENSOR_DECIMALS. */
+  decimals?: number;
 }
 
 export interface NeonButtonCardConfig {

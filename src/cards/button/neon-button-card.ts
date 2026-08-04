@@ -158,13 +158,18 @@ export class NeonButtonCard extends BaseNeonCard {
     .top-sensor ha-icon {
       --mdc-icon-size: 15px;
       margin-bottom: 0;
-      /* Los sensores llevan el tinte de la paleta neón siempre (no solo
-         en estado activo) — es lo que en las referencias visuales hace
-         que icono de temperatura/humedad se identifiquen como Neon
-         Cards, no un icono gris cualquiera. */
-      color: color-mix(in srgb, var(--neon-c2, var(--state-icon-color)) 65%, var(--secondary-text-color) 35%);
-      filter: drop-shadow(0 0 2px color-mix(in srgb, var(--neon-c2, transparent) 45%, transparent));
+      /* Igual que el icono principal: neutro en reposo, con el color y
+         el resplandor de la paleta solo en estado activo (ver regla
+         .neon-halo-active más abajo) — mismo comportamiento, no un
+         tinte permanente. */
+      color: var(--secondary-text-color);
+      transition: color 300ms ease-out, filter 300ms ease-out;
       flex: 0 0 auto;
+    }
+    .neon-halo-active .sensor ha-icon,
+    .neon-halo-active .top-sensor ha-icon {
+      color: var(--neon-c2);
+      filter: drop-shadow(0 0 4px color-mix(in srgb, var(--neon-c2) 55%, transparent));
     }
     .sensor .value,
     .top-sensor .value {
@@ -270,7 +275,8 @@ export class NeonButtonCard extends BaseNeonCard {
   /** Sensor suelto y opcional, encima del divisor, sin agrupar. */
   private _renderTopSensor(): TemplateResult | typeof nothing {
     if (!this._config?.top_sensor || !this.hass) return nothing;
-    const d = getSensorDisplay(this._config.top_sensor.entity, this.hass);
+    const cfg = this._config.top_sensor;
+    const d = getSensorDisplay(cfg.entity, this.hass, { icon: cfg.icon, decimals: cfg.decimals });
     if (!d) return nothing;
     return html`
       <div class="top-sensor">
@@ -289,7 +295,7 @@ export class NeonButtonCard extends BaseNeonCard {
     if (!this._config?.sensors?.length || !this.hass) return nothing;
     const displays = this._config.sensors
       .slice(0, MAX_GROUPED_SENSORS)
-      .map((s) => getSensorDisplay(s.entity, this.hass!))
+      .map((s) => getSensorDisplay(s.entity, this.hass!, { icon: s.icon, decimals: s.decimals }))
       .filter((d): d is NonNullable<typeof d> => d !== null);
     if (!displays.length) return nothing;
 

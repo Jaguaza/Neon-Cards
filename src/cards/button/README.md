@@ -52,6 +52,27 @@ con icono + estado + unidad.
 - `sensors` (opcional, máximo 3): fila agrupada bajo el divisor, con un
   separador vertical entre cada uno para mantenerla legible.
 
+Cada sensor (`top_sensor` o cualquier elemento de `sensors`) admite
+`icon` (si no se indica, se calcula automáticamente por `device_class`)
+y `decimals` (por defecto 1) para redondear el estado:
+
+```yaml
+top_sensor:
+  entity: sensor.salon_power
+  icon: mdi:flash
+  decimals: 0
+sensors:
+  - entity: sensor.salon_temperature
+    decimals: 1
+  - entity: sensor.salon_humidity
+    icon: mdi:water-percent
+    decimals: 0
+```
+
+Los iconos de los sensores se comportan igual que el icono principal:
+neutros en reposo, con el color y el resplandor de la paleta neón solo
+cuando la tarjeta está en estado activo.
+
 ---
 
 <a id="srccardsbutton-english"></a>
@@ -107,3 +128,23 @@ icon, state, and unit are always read automatically from Home Assistant.
 - `top_sensor` (optional): a single, ungrouped sensor above the divider.
 - `sensors` (optional, max 3): the grouped row below the divider, with a
   vertical separator between each one to keep it readable.
+
+Each sensor (`top_sensor` or any item in `sensors`) accepts `icon` (auto
+by `device_class` when omitted) and `decimals` (defaults to 1) to round
+the state:
+
+```yaml
+top_sensor:
+  entity: sensor.living_room_power
+  icon: mdi:flash
+  decimals: 0
+sensors:
+  - entity: sensor.living_room_temperature
+    decimals: 1
+  - entity: sensor.living_room_humidity
+    icon: mdi:water-percent
+    decimals: 0
+```
+
+Sensor icons behave like the main icon: neutral at rest, and colored
+with the neon glow only when the card is in its active state.

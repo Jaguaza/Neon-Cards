@@ -110,6 +110,18 @@ export class NeonButtonCardEditor extends LitElement {
     .sensor-row ha-entity-picker {
       flex: 1;
     }
+    .sensor-extra-fields {
+      display: flex;
+      gap: 8px;
+      margin: -4px 0 4px 0;
+    }
+    .sensor-extra-fields .native-input {
+      height: 34px;
+      font-size: 13px;
+    }
+    .decimals-input {
+      max-width: 90px;
+    }
     .remove-sensor {
       background: none;
       border: none;
@@ -171,9 +183,14 @@ export class NeonButtonCardEditor extends LitElement {
     this._emit({ ...this._config, sensors });
   }
 
-  private _sensorChanged(index: number, entity: string): void {
+  private _sensorFieldChanged(index: number, field: keyof SensorItemConfig, value: string | number | undefined): void {
     if (!this._config) return;
-    const sensors = this._sensors.map((s, i) => (i === index ? { entity } : s));
+    const sensors = this._sensors.map((s, i) => {
+      if (i !== index) return s;
+      const next = { ...s, [field]: value };
+      if (value === '' || value === undefined) delete next[field];
+      return next;
+    });
     this._emit({ ...this._config, sensors });
   }
 
@@ -181,8 +198,15 @@ export class NeonButtonCardEditor extends LitElement {
     if (!this._config) return;
     const newConfig: NeonButtonCardConfig = { ...this._config };
     if (!entity) delete newConfig.top_sensor;
-    else newConfig.top_sensor = { entity };
+    else newConfig.top_sensor = { ...newConfig.top_sensor, entity };
     this._emit(newConfig);
+  }
+
+  private _topSensorFieldChanged(field: 'icon' | 'decimals', value: string | number | undefined): void {
+    if (!this._config?.top_sensor) return;
+    const next = { ...this._config.top_sensor, [field]: value };
+    if (value === '' || value === undefined) delete next[field];
+    this._emit({ ...this._config, top_sensor: next });
   }
 
   protected render(): TemplateResult | typeof nothing {
@@ -291,6 +315,31 @@ export class NeonButtonCardEditor extends LitElement {
             allow-custom-entity
             @value-changed=${(ev: ValueChangedEvent) => this._topSensorChanged(ev.detail.value)}
           ></ha-entity-picker>
+          ${this._config.top_sensor
+            ? html`
+                <div class="sensor-extra-fields">
+                  <input
+                    type="text"
+                    class="native-input"
+                    placeholder="Icono (auto si se deja vacío)"
+                    .value=${this._config.top_sensor.icon || ''}
+                    @input=${(ev: InputEvent) => this._topSensorFieldChanged('icon', (ev.target as HTMLInputElement).value)}
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    max="4"
+                    class="native-input decimals-input"
+                    placeholder="Decimales"
+                    .value=${this._config.top_sensor.decimals ?? ''}
+                    @input=${(ev: InputEvent) => {
+                      const raw = (ev.target as HTMLInputElement).value;
+                      this._topSensorFieldChanged('decimals', raw === '' ? undefined : Number(raw));
+                    }}
+                  />
+                </div>
+              `
+            : nothing}
         </div>
 
         <div class="editor-section">
@@ -303,9 +352,30 @@ export class NeonButtonCardEditor extends LitElement {
                   .value=${s.entity}
                   .includeDomains=${['sensor', 'binary_sensor']}
                   allow-custom-entity
-                  @value-changed=${(ev: ValueChangedEvent) => this._sensorChanged(i, ev.detail.value)}
+                  @value-changed=${(ev: ValueChangedEvent) => this._sensorFieldChanged(i, 'entity', ev.detail.value)}
                 ></ha-entity-picker>
                 <button class="remove-sensor" @click=${() => this._removeSensor(i)} title="Quitar sensor">✕</button>
+              </div>
+              <div class="sensor-extra-fields">
+                <input
+                  type="text"
+                  class="native-input"
+                  placeholder="Icono (auto si se deja vacío)"
+                  .value=${s.icon || ''}
+                  @input=${(ev: InputEvent) => this._sensorFieldChanged(i, 'icon', (ev.target as HTMLInputElement).value)}
+                />
+                <input
+                  type="number"
+                  min="0"
+                  max="4"
+                  class="native-input decimals-input"
+                  placeholder="Decimales"
+                  .value=${s.decimals ?? ''}
+                  @input=${(ev: InputEvent) => {
+                    const raw = (ev.target as HTMLInputElement).value;
+                    this._sensorFieldChanged(i, 'decimals', raw === '' ? undefined : Number(raw));
+                  }}
+                />
               </div>
             `
           )}
