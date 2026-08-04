@@ -10,6 +10,9 @@ export interface NeonButtonCardConfig {
   icon?: string;
   name?: string;
   subtitle?: string;
+  /** Sensor suelto, opcional, encima del divisor (sin agrupar). */
+  top_sensor?: SensorItemConfig;
+  /** Fila agrupada bajo el divisor, separada por "|", máximo 3. */
   sensors?: SensorItemConfig[];
   neon_palette?: string;
   neon_color1?: string;

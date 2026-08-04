@@ -9,7 +9,17 @@ import type { GradientColors } from './neon-palette';
  * que quiera un "glow" de card completa comparte exactamente el mismo
  * lenguaje visual y la misma paleta que el aro de la Entity Card.
  *
- * Toda la animación es CSS puro (opacity + transform), sin JS, para
+ * Implementado con `box-shadow` en capas (no `radial-gradient` +
+ * pseudo-elemento): un `box-shadow` siempre pinta por FUERA del borde del
+ * elemento, nunca por dentro, así que separación y "flotar sobre el
+ * cristal" quedan garantizados por cómo funciona la propiedad, no hay
+ * que pelear con z-index/stacking contexts. El `spread` negativo retrasa
+ * dónde empieza a verse el resplandor (separación real de unos píxeles
+ * antes de que se note el halo) y los offsets asimétricos concentran más
+ * brillo en la esquina superior izquierda, donde vive el icono, en vez
+ * de un resplandor uniforme (punto 15 de la spec).
+ *
+ * Toda la animación es CSS puro (box-shadow + filter), sin JS, para
  * cumplir el objetivo de rendimiento (250-350ms, mínimos re-renderizados).
  *
  * Uso: la tarjeta anfitriona añade `NEON_HALO_STYLES` a su `static
@@ -19,35 +29,27 @@ import type { GradientColors } from './neon-palette';
  */
 export const NEON_HALO_STYLES = css`
   .neon-halo-host {
-    position: relative;
-    isolation: isolate;
+    box-shadow: 0 0 0 0 transparent;
+    transition: box-shadow 300ms ease-out;
   }
-  .neon-halo-host::before {
-    content: '';
-    position: absolute;
-    inset: -8px;
-    border-radius: inherit;
-    background: radial-gradient(circle at 28% 22%, var(--neon-c1) 0%, transparent 62%),
-      radial-gradient(circle at 72% 78%, var(--neon-c3) 0%, transparent 62%),
-      radial-gradient(circle at 50% 50%, var(--neon-c2) 0%, transparent 68%);
-    filter: blur(20px);
-    opacity: 0;
-    transform: scale(0.94);
-    transition: opacity 300ms ease-out, transform 300ms ease-out;
-    pointer-events: none;
-    z-index: -1;
-  }
-  .neon-halo-host.neon-halo-active::before {
-    opacity: 0.5;
-    transform: scale(1);
+  .neon-halo-host.neon-halo-active {
+    /* Las 3 capas se leen de "más cerca del icono" a "más lejos":
+       offset negativo (arriba-izquierda, junto al icono) más intenso,
+       offset positivo (esquina opuesta) más tenue, capa central para
+       rellenar el contorno completo sin que se vea partido en dos. */
+    box-shadow:
+      -6px -6px 26px -4px color-mix(in srgb, var(--neon-c1) 75%, transparent),
+      6px 6px 26px -6px color-mix(in srgb, var(--neon-c3) 55%, transparent),
+      0 0 18px -6px color-mix(in srgb, var(--neon-c2) 65%, transparent);
   }
   /* La fuente de luz "nace" del icono: el propio icono recibe un
-     drop-shadow con el color medio de la paleta cuando está activo. */
+     drop-shadow con el color inicial de la paleta cuando está activo,
+     coherente con que el halo es más intenso en su esquina. */
   .neon-halo-icon {
-    transition: filter 300ms ease-out, opacity 300ms ease-out;
+    transition: filter 300ms ease-out;
   }
   .neon-halo-active .neon-halo-icon {
-    filter: drop-shadow(0 0 6px var(--neon-c2));
+    filter: drop-shadow(0 0 6px var(--neon-c1));
   }
 `;
 

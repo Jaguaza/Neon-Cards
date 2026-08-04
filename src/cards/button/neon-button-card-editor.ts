@@ -2,6 +2,7 @@ import { LitElement, html, css, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import type { HomeAssistant } from '../../ha/types';
 import { DEFAULT_PALETTE } from '../../shared';
+import { MAX_GROUPED_SENSORS } from './constants';
 import type { SensorItemConfig, ValueChangedEvent, NeonButtonCardConfig } from './types';
 import type { ActionConfig } from '../../ha/types';
 
@@ -176,6 +177,14 @@ export class NeonButtonCardEditor extends LitElement {
     this._emit({ ...this._config, sensors });
   }
 
+  private _topSensorChanged(entity: string): void {
+    if (!this._config) return;
+    const newConfig: NeonButtonCardConfig = { ...this._config };
+    if (!entity) delete newConfig.top_sensor;
+    else newConfig.top_sensor = { entity };
+    this._emit(newConfig);
+  }
+
   protected render(): TemplateResult | typeof nothing {
     if (!this.hass || !this._config) return nothing;
 
@@ -273,7 +282,19 @@ export class NeonButtonCardEditor extends LitElement {
         </div>
 
         <div class="editor-section">
-          <div class="section-header">Sensores (sensor / binary_sensor)</div>
+          <div class="section-header">Sensor suelto (opcional, encima del divisor)</div>
+          <ha-entity-picker
+            .hass=${this.hass}
+            .value=${this._config.top_sensor?.entity || ''}
+            .includeDomains=${['sensor', 'binary_sensor']}
+            label="Sensor destacado"
+            allow-custom-entity
+            @value-changed=${(ev: ValueChangedEvent) => this._topSensorChanged(ev.detail.value)}
+          ></ha-entity-picker>
+        </div>
+
+        <div class="editor-section">
+          <div class="section-header">Sensores agrupados (máx. ${MAX_GROUPED_SENSORS}, con separador)</div>
           ${this._sensors.map(
             (s, i) => html`
               <div class="sensor-row">
@@ -288,7 +309,9 @@ export class NeonButtonCardEditor extends LitElement {
               </div>
             `
           )}
-          <button class="add-sensor" @click=${() => this._addSensor()}>+ Añadir sensor</button>
+          ${this._sensors.length < MAX_GROUPED_SENSORS
+            ? html`<button class="add-sensor" @click=${() => this._addSensor()}>+ Añadir sensor</button>`
+            : html`<span class="native-select-label">Máximo de ${MAX_GROUPED_SENSORS} sensores para mantenerlo legible.</span>`}
         </div>
 
         <div class="editor-section">

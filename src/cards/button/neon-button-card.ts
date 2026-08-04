@@ -1,7 +1,7 @@
 import { html, css, nothing } from 'lit';
 import type { PropertyValues, TemplateResult } from 'lit';
 import type { HomeAssistant } from '../../ha/types';
-import { getSensorDisplay, sensorGridColumns } from '../../ha/sensors';
+import { getSensorDisplay } from '../../ha/sensors';
 import {
   BaseNeonCard,
   createGestureState,
@@ -12,7 +12,7 @@ import {
 } from '../../core';
 import type { GestureState } from '../../core';
 import { resolveGradientColors, NEON_HALO_STYLES, neonHaloVars } from '../../shared';
-import { CARD_AUTHOR, CARD_VERSION, DEFAULT_ICON } from './constants';
+import { CARD_AUTHOR, CARD_VERSION, DEFAULT_ICON, MAX_GROUPED_SENSORS } from './constants';
 import type { NeonButtonCardConfig } from './types';
 
 /** Dominios cuyo estado "on" se interpreta como botón activo. */
@@ -117,26 +117,46 @@ export class NeonButtonCard extends BaseNeonCard {
       background: var(--divider-color, rgba(255, 255, 255, 0.12));
       margin-top: auto;
     }
+    .top-sensor {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      line-height: 16px;
+      color: var(--secondary-text-color);
+    }
     .sensors {
-      display: grid;
-      gap: 6px 14px;
+      display: flex;
+      align-items: center;
       width: 100%;
+      min-width: 0;
     }
     .sensor {
       display: flex;
       align-items: center;
       gap: 6px;
       min-width: 0;
+      flex: 1 1 0;
       font-size: 13px;
       line-height: 16px;
       color: var(--secondary-text-color);
     }
-    .sensor ha-icon {
+    .sensor-separator {
+      width: 1px;
+      align-self: stretch;
+      background: var(--divider-color, rgba(255, 255, 255, 0.12));
+      margin: 0 10px;
+      flex: 0 0 auto;
+    }
+    .sensor ha-icon,
+    .top-sensor ha-icon {
       --mdc-icon-size: 16px;
       margin-bottom: 0;
       color: var(--secondary-text-color);
+      flex: 0 0 auto;
     }
-    .sensor .value {
+    .sensor .value,
+    .top-sensor .value {
       color: var(--primary-text-color);
       white-space: nowrap;
       overflow: hidden;
@@ -202,7 +222,7 @@ export class NeonButtonCard extends BaseNeonCard {
   }
 
   private get _hasSensors(): boolean {
-    return (this._config?.sensors?.length ?? 0) > 0;
+    return !!this._config?.top_sensor || (this._config?.sensors?.length ?? 0) > 0;
   }
 
   private get _isActive(): boolean {
@@ -234,19 +254,37 @@ export class NeonButtonCard extends BaseNeonCard {
     );
   }
 
+  /** Sensor suelto y opcional, encima del divisor, sin agrupar. */
+  private _renderTopSensor(): TemplateResult | typeof nothing {
+    if (!this._config?.top_sensor || !this.hass) return nothing;
+    const d = getSensorDisplay(this._config.top_sensor.entity, this.hass);
+    if (!d) return nothing;
+    return html`
+      <div class="top-sensor">
+        <ha-icon icon=${d.icon}></ha-icon>
+        <span class="value">${d.state}${d.unit ? ` ${d.unit}` : ''}</span>
+      </div>
+    `;
+  }
+
+  /**
+   * Fila agrupada bajo el divisor: siempre icono + estado + unidad,
+   * separada por una línea vertical entre cada sensor. Tope de
+   * `MAX_GROUPED_SENSORS` para que siga siendo legible.
+   */
   private _renderSensors(): TemplateResult | typeof nothing {
     if (!this._config?.sensors?.length || !this.hass) return nothing;
     const displays = this._config.sensors
+      .slice(0, MAX_GROUPED_SENSORS)
       .map((s) => getSensorDisplay(s.entity, this.hass!))
       .filter((d): d is NonNullable<typeof d> => d !== null);
     if (!displays.length) return nothing;
-    const columns = sensorGridColumns(displays.length);
 
     return html`
-      <div class="divider"></div>
-      <div class="sensors" style="grid-template-columns: repeat(${columns}, minmax(0, 1fr));">
+      <div class="sensors">
         ${displays.map(
-          (d) => html`
+          (d, i) => html`
+            ${i > 0 ? html`<span class="sensor-separator"></span>` : nothing}
             <div class="sensor">
               <ha-icon icon=${d.icon}></ha-icon>
               <span class="value">${d.state}${d.unit ? ` ${d.unit}` : ''}</span>
@@ -283,6 +321,8 @@ export class NeonButtonCard extends BaseNeonCard {
             <span class="name">${this._name}</span>
             ${this._config.subtitle ? html`<span class="subtitle">${this._config.subtitle}</span>` : nothing}
           </div>
+          ${this._renderTopSensor()}
+          ${this._config.sensors?.length ? html`<div class="divider"></div>` : nothing}
           ${this._renderSensors()}
         </div>
       </ha-card>

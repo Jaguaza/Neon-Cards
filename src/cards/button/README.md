@@ -36,13 +36,21 @@ entity: light.salon
 subtitle: Luces
 tap_action:
   action: toggle
+top_sensor:
+  entity: sensor.salon_power
 sensors:
-  - entity: sensor.salon_power
+  - entity: sensor.salon_temperature
+  - entity: sensor.salon_humidity
 ```
 
 Los sensores solo aceptan los dominios `sensor` y `binary_sensor`; su
-icono, estado y unidad se leen automáticamente de Home Assistant y la
-distribución se calcula sola según cuántos haya.
+icono, estado y unidad se leen automáticamente de Home Assistant, siempre
+con icono + estado + unidad.
+
+- `top_sensor` (opcional): un único sensor suelto, encima del divisor,
+  sin agrupar.
+- `sensors` (opcional, máximo 3): fila agrupada bajo el divisor, con un
+  separador vertical entre cada uno para mantenerla legible.
 
 ---
 
@@ -86,10 +94,16 @@ entity: light.living_room
 subtitle: Lights
 tap_action:
   action: toggle
+top_sensor:
+  entity: sensor.living_room_power
 sensors:
-  - entity: sensor.living_room_power
+  - entity: sensor.living_room_temperature
+  - entity: sensor.living_room_humidity
 ```
 
 Sensors only accept the `sensor` and `binary_sensor` domains; their
-icon, state, and unit are read automatically from Home Assistant, and
-the layout is computed automatically based on how many there are.
+icon, state, and unit are always read automatically from Home Assistant.
+
+- `top_sensor` (optional): a single, ungrouped sensor above the divider.
+- `sensors` (optional, max 3): the grouped row below the divider, with a
+  vertical separator between each one to keep it readable.
