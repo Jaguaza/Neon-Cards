@@ -55,6 +55,12 @@ export class NeonButtonCard extends BaseNeonCard {
     }
     ha-card {
       box-sizing: border-box;
+      /* Permite que la fila de sensores consulte el ancho REAL de la
+         tarjeta con @container y encoja su propia tipografía en vez de
+         truncar el valor — el mismo YAML se ve bien en un dashboard de
+         PC ancho y en una tile estrecha de móvil sin números mágicos
+         por dispositivo. */
+      container-type: inline-size;
       /* Padding vertical ajustado a propósito (ver getCardSize) para que
          el contenido quepa justo en 2 filas de grid sin sensores y 3 con
          sensores — igual que se hizo con el padding de la Entity Card. */
@@ -184,7 +190,36 @@ export class NeonButtonCard extends BaseNeonCard {
       overflow: hidden;
       text-overflow: ellipsis;
       flex: 0 1 auto;
-      min-width: 3ch;
+      /* 4ch cubre con margen "26 °C"/"100 %"/"230 V" — antes eran 3ch
+         y se quedaba corto en tarjetas estrechas de móvil (ver la regla
+         @container más abajo para el resto del achique responsivo). */
+      min-width: 4ch;
+    }
+
+    /* Tarjeta estrecha (móvil, tile pequeña, columna angosta de un
+       dashboard): la fila de sensores encoge icono/tipografía/márgenes
+       en vez de dejar que el valor se trunque con "…". Los umbrales son
+       del ancho REAL de la tarjeta (container query), no del viewport,
+       así funciona igual en un móvil que en una columna estrecha de
+       PC. */
+    @container (max-width: 260px) {
+      .sensor,
+      .top-sensor {
+        font-size: 10px;
+        gap: 3px;
+      }
+      .sensor ha-icon,
+      .top-sensor ha-icon {
+        --mdc-icon-size: 13px;
+      }
+      .sensor .value,
+      .top-sensor .value {
+        font-size: 9px;
+        min-width: 3ch;
+      }
+      .sensor-separator {
+        margin: 0 4px;
+      }
     }
   `,
   ];
