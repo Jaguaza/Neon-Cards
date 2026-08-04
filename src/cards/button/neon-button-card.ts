@@ -57,7 +57,7 @@ export class NeonButtonCard extends BaseNeonCard {
       /* Padding vertical ajustado a propósito (ver getCardSize) para que
          el contenido quepa justo en 2 filas de grid sin sensores y 3 con
          sensores — igual que se hizo con el padding de la Entity Card. */
-      padding: 12px 20px;
+      padding: 10px 20px;
       height: 100%;
       cursor: pointer;
       user-select: none;
@@ -83,7 +83,7 @@ export class NeonButtonCard extends BaseNeonCard {
       height: 100%;
     }
     ha-icon {
-      --mdc-icon-size: 32px;
+      --mdc-icon-size: 40px;
       color: var(--state-icon-color, var(--primary-text-color));
       margin-bottom: 6px;
       transition: color 300ms ease-out, filter 300ms ease-out;
@@ -96,8 +96,8 @@ export class NeonButtonCard extends BaseNeonCard {
       width: 100%;
     }
     .name {
-      font-size: 16px;
-      line-height: 20px;
+      font-size: 18px;
+      line-height: 22px;
       font-weight: 500;
       color: var(--primary-text-color);
       white-space: nowrap;
@@ -105,8 +105,8 @@ export class NeonButtonCard extends BaseNeonCard {
       text-overflow: ellipsis;
     }
     .subtitle {
-      font-size: 13px;
-      line-height: 16px;
+      font-size: 11px;
+      line-height: 14px;
       color: var(--secondary-text-color);
       white-space: nowrap;
       overflow: hidden;
@@ -122,8 +122,8 @@ export class NeonButtonCard extends BaseNeonCard {
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 13px;
-      line-height: 16px;
+      font-size: 11px;
+      line-height: 14px;
       color: var(--secondary-text-color);
     }
     .sensors {
@@ -143,8 +143,8 @@ export class NeonButtonCard extends BaseNeonCard {
          valor en 0px de ancho y lo hacía invisible en tarjetas
          estrechas). El valor nunca baja de ~3 caracteres. */
       flex: 0 1 auto;
-      font-size: 13px;
-      line-height: 16px;
+      font-size: 11px;
+      line-height: 14px;
       color: var(--secondary-text-color);
     }
     .sensor-separator {
@@ -173,6 +173,7 @@ export class NeonButtonCard extends BaseNeonCard {
     }
     .sensor .value,
     .top-sensor .value {
+      font-size: 10px;
       color: var(--primary-text-color);
       white-space: nowrap;
       overflow: hidden;
@@ -219,10 +220,10 @@ export class NeonButtonCard extends BaseNeonCard {
     // Cálculo real de altura de contenido, igual criterio que la Entity
     // Card (padding ajustado a propósito para encajar en unidades de
     // grid de HA, ~56px/fila en sections, +8px de gap entre filas):
-    //  Sin sensores: padding(12×2=24) + icono(32+6) + gap(10) + texto(20+2+16=38)
-    //    = 24 + 38 + 10 + 38 = 110px → cabe en 2 filas (56×2+8 = 120px)
-    //  Con sensores: + gap(10) + divider(1) + gap(10) + fila sensores(16)
-    //    = 110 + 37 = 147px → cabe en 3 filas (56×3+16 = 184px)
+    //  Sin sensores: padding(10×2=20) + icono(40+6) + gap(10) + texto(22+2+14=38)
+    //    = 20 + 46 + 10 + 38 = 114px → cabe en 2 filas (56×2+8 = 120px)
+    //  Con sensores: + gap(10) + divider(1) + gap(10) + fila sensores(14)
+    //    = 114 + 35 = 149px → cabe en 3 filas (56×3+16 = 184px)
     return this._hasSensors ? 3 : 2;
   }
 
