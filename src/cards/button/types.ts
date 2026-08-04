@@ -13,6 +13,13 @@ export interface NeonButtonCardConfig {
   entity?: string;
   icon?: string;
   name?: string;
+  /**
+   * 'custom' (por defecto, texto libre en `subtitle`) o cualquier
+   * InfoOption de src/core ('name'|'state'|'last-changed'|
+   * 'last-updated'|'none') — requiere `entity` para poder calcularse.
+   */
+  subtitle_type?: string;
+  /** Texto libre cuando subtitle_type es 'custom' (o no se indica). */
   subtitle?: string;
   /** Sensor suelto, opcional, encima del divisor (sin agrupar). */
   top_sensor?: SensorItemConfig;

@@ -73,6 +73,23 @@ Los iconos de los sensores se comportan igual que el icono principal:
 neutros en reposo, con el color y el resplandor de la paleta neón solo
 cuando la tarjeta está en estado activo.
 
+## Subtítulo
+
+`subtitle` es texto libre por defecto (`subtitle_type: custom`, el
+valor por defecto). Con `subtitle_type` se puede calcular a partir de la
+entidad en su lugar — reutiliza el mismo helper `computeInfoDisplay` de
+`src/core` que usa `primary_info`/`secondary_info` en la Entity Card, no
+hay lógica separada:
+
+```yaml
+entity: light.salon
+subtitle_type: state
+# subtitle_type: name | state | last-changed | last-updated | custom
+```
+
+`name`/`state`/`last-changed`/`last-updated` necesitan `entity`
+configurada; sin ella, solo `custom` tiene algo que mostrar.
+
 ---
 
 <a id="srccardsbutton-english"></a>
@@ -148,3 +165,19 @@ sensors:
 
 Sensor icons behave like the main icon: neutral at rest, and colored
 with the neon glow only when the card is in its active state.
+
+## Subtitle
+
+`subtitle` is free text by default (`subtitle_type: custom`, the
+default). Set `subtitle_type` to compute it from the entity instead —
+reuses the same `computeInfoDisplay` helper from `src/core` as the
+Entity Card's `primary_info`/`secondary_info`, no separate logic:
+
+```yaml
+entity: light.living_room
+subtitle_type: state
+# subtitle_type: name | state | last-changed | last-updated | custom
+```
+
+`name`/`state`/`last-changed`/`last-updated` all need `entity` set;
+without it, only `custom` has anything to show.

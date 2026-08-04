@@ -2,6 +2,7 @@ import { LitElement, html, css, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import type { HomeAssistant } from '../../ha/types';
 import { DEFAULT_PALETTE } from '../../shared';
+import { INFO_OPTIONS, INFO_LABELS } from '../../core';
 import { MAX_GROUPED_SENSORS } from './constants';
 import type { SensorItemConfig, ValueChangedEvent, NeonButtonCardConfig } from './types';
 import type { ActionConfig } from '../../ha/types';
@@ -254,14 +255,34 @@ export class NeonButtonCardEditor extends LitElement {
             .value=${this._config.name || ''}
             @input=${(ev: InputEvent) => this._configChanged('name', (ev.target as HTMLInputElement).value)}
           />
-          <label class="native-select-label" for="subtitle">Subtítulo</label>
-          <input
-            id="subtitle"
-            type="text"
-            class="native-input"
-            .value=${this._config.subtitle || ''}
-            @input=${(ev: InputEvent) => this._configChanged('subtitle', (ev.target as HTMLInputElement).value)}
-          />
+          <label class="native-select-label" for="subtitle-type">Subtítulo</label>
+          <select
+            id="subtitle-type"
+            class="native-select"
+            .value=${this._config.subtitle_type || 'custom'}
+            @change=${(ev: Event) => {
+              const value = (ev.target as HTMLSelectElement).value;
+              if (!value || value === (this._config?.subtitle_type || 'custom')) return;
+              this._configChanged('subtitle_type', value === 'custom' ? undefined : value);
+            }}
+          >
+            <option value="custom" ?selected=${(this._config.subtitle_type || 'custom') === 'custom'}>Personalizado</option>
+            ${INFO_OPTIONS.filter((opt) => opt !== 'none').map(
+              (opt) => html`<option value=${opt} ?selected=${opt === this._config?.subtitle_type}>${INFO_LABELS[opt]}</option>`
+            )}
+          </select>
+          ${(this._config.subtitle_type || 'custom') === 'custom'
+            ? html`
+                <input
+                  id="subtitle"
+                  type="text"
+                  class="native-input"
+                  placeholder="Texto libre"
+                  .value=${this._config.subtitle || ''}
+                  @input=${(ev: InputEvent) => this._configChanged('subtitle', (ev.target as HTMLInputElement).value)}
+                />
+              `
+            : html`<span class="native-select-label">Se calcula a partir de la entidad — requiere que "Entidad" esté configurada.</span>`}
           <label class="native-select-label" for="icon">Icono (mdi:...)</label>
           <input
             id="icon"

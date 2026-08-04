@@ -9,8 +9,9 @@ import {
   cancelHold,
   handleClick,
   dispatchHassAction,
+  computeInfoDisplay,
 } from '../../core';
-import type { GestureState } from '../../core';
+import type { GestureState, InfoOption } from '../../core';
 import { resolveGradientColors, NEON_HALO_STYLES, neonHaloVars } from '../../shared';
 import { CARD_AUTHOR, CARD_VERSION, DEFAULT_ICON, MAX_GROUPED_SENSORS } from './constants';
 import type { NeonButtonCardConfig } from './types';
@@ -129,11 +130,6 @@ export class NeonButtonCard extends BaseNeonCard {
     .sensors {
       display: flex;
       align-items: center;
-      /* space-evenly reparte el espacio sobrante por igual entre todos
-         los huecos, incluidos los bordes — con 1, 2 o 3 sensores queda
-         siempre el mismo margen a izquierda y derecha, en vez de
-         amontonarse a la izquierda y dejar hueco solo a la derecha. */
-      justify-content: space-evenly;
       width: 100%;
       min-width: 0;
       overflow: hidden;
@@ -143,11 +139,15 @@ export class NeonButtonCard extends BaseNeonCard {
       align-items: center;
       gap: 4px;
       min-width: 0;
-      /* Contenido primero: se encoge proporcionalmente si no cabe, en
-         vez de repartirse en tercios iguales (eso es lo que dejaba el
-         valor en 0px de ancho y lo hacía invisible en tarjetas
-         estrechas). El valor nunca baja de ~3 caracteres. */
-      flex: 0 1 auto;
+      /* Hueco fijo de 1/3 del ancho de la fila para CUALQUIER sensor,
+         haya 1, 2 o 3 — así el tamaño de la tarjeta no depende de
+         cuántos estén configurados (si sobra sitio, se queda vacío al
+         final en vez de repartirse). flex-basis fijo con flex-grow:0;
+         solo se agranda (flex-shrink) si el propio contenido de ESE
+         sensor lo necesita, nunca por el hueco que dejen los demás.
+         El 3 de "calc(100% / 3)" es MAX_GROUPED_SENSORS — si cambia esa
+         constante, cambiar también aquí. */
+      flex: 0 1 calc(100% / 3);
       font-size: 11px;
       line-height: 14px;
       color: var(--secondary-text-color);
@@ -233,19 +233,13 @@ export class NeonButtonCard extends BaseNeonCard {
   }
 
   getGridOptions(): { rows: number; columns: number } {
-    // El ancho se adapta a cuánto contenido hay en la fila de sensores:
-    // sin sensores o solo el suelto, la tarjeta puede ser más estrecha;
-    // cada sensor agrupado de más pide más ancho para seguir siendo
-    // legible con separador vertical, y evita el hueco enorme que deja
-    // un `space-evenly` sobre un ancho fijo cuando hay pocos sensores.
-    const groupedCount = this._config?.sensors?.length ?? 0;
-    let columns = 3;
-    if (groupedCount >= 3) columns = 5;
-    else if (groupedCount === 2) columns = 4;
-
+    // Ancho constante: la tarjeta nunca cambia de tamaño según cuántos
+    // sensores tenga configurados (cada sensor tiene su propio hueco fijo
+    // en la fila — ver `.sensor` en los estilos — así que 4 columnas
+    // sirven igual con 1, 2 o 3 sensores agrupados).
     return {
       rows: this._hasSensors ? 3 : 2,
-      columns,
+      columns: 4,
     };
   }
 
@@ -271,6 +265,21 @@ export class NeonButtonCard extends BaseNeonCard {
 
   private get _name(): string {
     return this._config?.name || (this._stateObj?.attributes.friendly_name as string | undefined) || '';
+  }
+
+  /**
+   * 'custom' (por defecto) usa el texto libre de `subtitle`; cualquier
+   * otro valor delega en `computeInfoDisplay` de `src/core` — el mismo
+   * cálculo que ya usa la Entity Card para primary/secondary_info, no
+   * se reinventa aquí. Sin entidad configurada, solo 'custom' tiene
+   * algo que mostrar.
+   */
+  private get _subtitle(): string | TemplateResult | typeof nothing {
+    const type = this._config?.subtitle_type || 'custom';
+    if (type === 'custom') return this._config?.subtitle || nothing;
+    const stateObj = this._stateObj;
+    if (!stateObj || !this.hass) return nothing;
+    return computeInfoDisplay(type as InfoOption, this._name, stateObj.state, stateObj, this.hass);
   }
 
   private _handleAction(actionType: string): void {
@@ -352,7 +361,7 @@ export class NeonButtonCard extends BaseNeonCard {
           <ha-icon class="neon-halo-icon" icon=${this._icon}></ha-icon>
           <div class="text">
             <span class="name">${this._name}</span>
-            ${this._config.subtitle ? html`<span class="subtitle">${this._config.subtitle}</span>` : nothing}
+            ${this._subtitle !== nothing ? html`<span class="subtitle">${this._subtitle}</span>` : nothing}
           </div>
           ${this._renderTopSensor()}
           ${this._config.sensors?.length ? html`<div class="divider"></div>` : nothing}
