@@ -135,25 +135,25 @@ export class NeonButtonCard extends BaseNeonCard {
     }
     .sensors {
       display: flex;
+      /* Cada sensor ocupa solo lo que su propio contenido necesita (no
+         un tercio fijo) — con tarjetas realmente estrechas (móvil en
+         listados densos), reservar 1/3 aunque solo haya 1 sensor deja
+         MENOS sitio del que tendría de otro modo, y eso es justo lo que
+         producía el "2…" ilegible. Si aun así no cabe todo en una fila,
+         se pasa a una segunda línea (flex-wrap) en vez de recortar el
+         texto — más alto ocasionalmente, pero siempre legible. */
+      flex-wrap: wrap;
+      row-gap: 4px;
       align-items: center;
       width: 100%;
       min-width: 0;
-      overflow: hidden;
     }
     .sensor {
       display: flex;
       align-items: center;
       gap: 4px;
       min-width: 0;
-      /* Hueco fijo de 1/3 del ancho de la fila para CUALQUIER sensor,
-         haya 1, 2 o 3 — así el tamaño de la tarjeta no depende de
-         cuántos estén configurados (si sobra sitio, se queda vacío al
-         final en vez de repartirse). flex-basis fijo con flex-grow:0;
-         solo se agranda (flex-shrink) si el propio contenido de ESE
-         sensor lo necesita, nunca por el hueco que dejen los demás.
-         El 3 de "calc(100% / 3)" es MAX_GROUPED_SENSORS — si cambia esa
-         constante, cambiar también aquí. */
-      flex: 0 1 calc(100% / 3);
+      flex: 0 1 auto;
       font-size: 11px;
       line-height: 14px;
       color: var(--secondary-text-color);
@@ -190,19 +190,18 @@ export class NeonButtonCard extends BaseNeonCard {
       overflow: hidden;
       text-overflow: ellipsis;
       flex: 0 1 auto;
-      /* 4ch cubre con margen "26 °C"/"100 %"/"230 V" — antes eran 3ch
-         y se quedaba corto en tarjetas estrechas de móvil (ver la regla
-         @container más abajo para el resto del achique responsivo). */
-      min-width: 4ch;
+      /* Suelo mínimo solo para evitar un colapso a 0px — con contenido
+         auto-dimensionado y el salto de línea de arriba como red de
+         seguridad, ya no hace falta un mínimo grande. */
+      min-width: 2ch;
     }
 
-    /* Tarjeta estrecha (móvil, tile pequeña, columna angosta de un
-       dashboard): la fila de sensores encoge icono/tipografía/márgenes
-       en vez de dejar que el valor se trunque con "…". Los umbrales son
-       del ancho REAL de la tarjeta (container query), no del viewport,
-       así funciona igual en un móvil que en una columna estrecha de
-       PC. */
-    @container (max-width: 260px) {
+    /* Tarjeta MUY estrecha (móvil en listados densos, 2-3 tarjetas por
+       fila): reduce icono/tipografía antes de necesitar el salto de
+       línea, para que quepan más sensores en una sola fila cuando el
+       espacio da un poco de margen. El ancho REAL de la tarjeta
+       (container query), no el del viewport. */
+    @container (max-width: 220px) {
       .sensor,
       .top-sensor {
         font-size: 10px;
@@ -215,7 +214,6 @@ export class NeonButtonCard extends BaseNeonCard {
       .sensor .value,
       .top-sensor .value {
         font-size: 9px;
-        min-width: 3ch;
       }
       .sensor-separator {
         margin: 0 4px;
@@ -264,7 +262,10 @@ export class NeonButtonCard extends BaseNeonCard {
     //    = 20 + 46 + 10 + 38 = 114px → cabe en 2 filas (56×2+8 = 120px)
     //  Con sensores: + gap(10) + divider(1) + gap(10) + fila sensores(14)
     //    = 114 + 35 = 149px → cabe en 3 filas (56×3+16 = 184px)
-    return this._hasSensors ? 3 : 2;
+    //  Con 2+ sensores agrupados: una fila extra de margen (4 filas) por
+    //  si la tarjeta es tan estrecha (tile de móvil) que la fila de
+    //  sensores necesita saltar a una segunda línea en vez de truncar.
+    return this._sensorRows;
   }
 
   getGridOptions(): { rows: number; columns: number } {
@@ -273,9 +274,16 @@ export class NeonButtonCard extends BaseNeonCard {
     // en la fila — ver `.sensor` en los estilos — así que 4 columnas
     // sirven igual con 1, 2 o 3 sensores agrupados).
     return {
-      rows: this._hasSensors ? 3 : 2,
+      rows: this._sensorRows,
       columns: 4,
     };
+  }
+
+  private get _sensorRows(): number {
+    const groupedCount = this._config?.sensors?.length ?? 0;
+    if (groupedCount >= 2) return 4;
+    if (this._hasSensors) return 3;
+    return 2;
   }
 
   private get _stateObj() {
