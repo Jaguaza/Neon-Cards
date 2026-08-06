@@ -277,11 +277,16 @@ export class NeonButtonCard extends BaseNeonCard {
     // grid de HA, ~56px/fila en sections, +8px de gap entre filas):
     //  Sin sensores: padding(10×2=20) + icono(40+6) + gap(10) + texto(22+2+14=38)
     //    = 20 + 46 + 10 + 38 = 114px → cabe en 2 filas (56×2+8 = 120px)
-    //  Con sensores: + gap(10) + divider(1) + gap(10) + fila sensores(14)
-    //    = 114 + 35 = 149px → cabe en 3 filas (56×3+16 = 184px)
-    //  Con 2+ sensores agrupados: una fila extra de margen (4 filas) por
-    //  si la tarjeta es tan estrecha (tile de móvil) que la fila de
-    //  sensores necesita saltar a una segunda línea en vez de truncar.
+    //  Con sensores (top_sensor y/o agrupados, en una sola línea, que es
+    //  el caso normal): + gap(10) + top_sensor(14) + gap(10) + divider(1)
+    //  + gap(10) + fila sensores(14) = 114 + 59 = 173px → cabe en 3 filas
+    //  (56×3+16 = 184px). Antes se reservaba una 4ª fila completa "por si"
+    //  los sensores agrupados saltaban a una segunda línea en tarjetas muy
+    //  estrechas — pero eso dejaba ~50px de hueco vacío en el caso normal
+    //  (mucho más frecuente) solo para cubrir un caso raro. Si de verdad
+    //  saltan a 2 líneas, el margen de 11px sobrante en 3 filas ya no
+    //  alcanza y el footer se recorta unos px (overflow:hidden) — un
+    //  compromiso mejor que estirar TODAS las tarjetas con sensores.
     return this._sensorRows;
   }
 
@@ -297,8 +302,6 @@ export class NeonButtonCard extends BaseNeonCard {
   }
 
   private get _sensorRows(): number {
-    const groupedCount = this._groupedSensorDisplays.length;
-    if (groupedCount >= 2) return 4;
     if (this._hasSensors) return 3;
     return 2;
   }
