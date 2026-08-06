@@ -88,6 +88,24 @@ export class NeonButtonCard extends BaseNeonCard {
     ha-card:active {
       transform: scale(0.98);
     }
+    /* Solo para top_sensor suelto (2 filas de grid, ver getGridOptions):
+       el resto de variantes ya encajan bien con el espaciado normal, pero
+       esta necesita esos px extra para no recortar la fila del sensor. */
+    ha-card.compact-sensor {
+      padding: 7px 20px;
+    }
+    ha-card.compact-sensor .content {
+      gap: 7px;
+    }
+    ha-card.compact-sensor ha-icon {
+      margin-bottom: 2px;
+    }
+    ha-card.compact-sensor .name {
+      line-height: 20px;
+    }
+    ha-card.compact-sensor .subtitle {
+      line-height: 13px;
+    }
     .content {
       display: flex;
       flex-direction: column;
@@ -443,7 +461,9 @@ export class NeonButtonCard extends BaseNeonCard {
 
     return html`
       <ha-card
-        class="neon-halo-host ${active ? 'neon-halo-active' : ''}"
+        class="neon-halo-host ${active ? 'neon-halo-active' : ''} ${
+          this._hasSensors && !this._groupedSensorDisplays.length ? 'compact-sensor' : ''
+        }"
         style=${neonHaloVars(colors)}
         @pointerdown=${(ev: PointerEvent) => handlePointerDown(this._gesture, ev, '.-none-', () => this._handleAction('hold'))}
         @pointerup=${() => cancelHold(this._gesture)}
