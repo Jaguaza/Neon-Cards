@@ -52,6 +52,12 @@ export class NeonButtonCard extends BaseNeonCard {
     css`
     :host {
       display: block;
+      /* Sin esto, el 100% de ha-card no tiene una altura definida contra la
+         que resolverse de forma fiable a través del wrapper interno de HA
+         (hui-card) — la tarjeta se encogía a su contenido en vez de ocupar
+         toda la celda de grid reservada (getGridOptions), dejando un hueco
+         entre ella y la siguiente tarjeta de la columna. */
+      height: 100%;
     }
     ha-card {
       box-sizing: border-box;
