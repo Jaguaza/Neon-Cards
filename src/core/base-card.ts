@@ -27,7 +27,7 @@ export abstract class BaseNeonCard extends LitElement {
     return 1;
   }
 
-  getGridOptions(): { rows: number; columns: number } {
+  getGridOptions(): { rows: number | 'auto'; columns: number } {
     return { rows: 1, columns: 12 };
   }
 }
