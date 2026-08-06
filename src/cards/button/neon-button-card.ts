@@ -290,18 +290,15 @@ export class NeonButtonCard extends BaseNeonCard {
     return this._sensorRows;
   }
 
-  getGridOptions(): { rows: number | 'auto'; columns: number; min_rows: number } {
-    // Ancho constante: la tarjeta nunca cambia de tamaño según cuántos
-    // sensores tenga configurados (cada sensor tiene su propio hueco fijo
-    // en la fila — ver `.sensor` en los estilos — así que 4 columnas
-    // sirven igual con 1, 2 o 3 sensores agrupados).
-    //
-    // 'auto' == el toggle "Altura automática" del editor de HA: en vez de
-    // que nosotros adivinemos cuántas filas de ~56px hacen falta (siempre
-    // deja hueco de sobra o de menos según cuánto contenido tenga cada
-    // tarjeta — top_sensor solo, sensores agrupados, ninguno...), HA mide
-    // el alto real renderizado y ajusta la celda de grid a eso. min_rows
-    // es solo un suelo para el primer render antes de medir.
+  getGridOptions(): { rows: number | 'auto'; columns: number; min_rows?: number } {
+    // Tamaño fijo (no 'auto') para las variantes ya validadas por captura
+    // real en HA: sin sensores (con o sin subtítulo, mismo tamaño) es
+    // siempre 2 filas × 3 columnas. El resto de variantes (con top_sensor
+    // y/o sensores agrupados) siguen en 'auto' hasta confirmar sus
+    // grid_options exactos uno a uno.
+    if (!this._hasSensors) {
+      return { rows: 2, columns: 3 };
+    }
     return {
       rows: 'auto',
       columns: 4,
