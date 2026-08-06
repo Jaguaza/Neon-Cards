@@ -292,11 +292,11 @@ export class NeonButtonCard extends BaseNeonCard {
 
   getGridOptions(): { rows: number | 'auto'; columns: number; min_rows?: number } {
     // Tamaño fijo (no 'auto') para las variantes ya validadas por captura
-    // real en HA: sin sensores (con o sin subtítulo, mismo tamaño) es
-    // siempre 2 filas × 3 columnas. El resto de variantes (con top_sensor
-    // y/o sensores agrupados) siguen en 'auto' hasta confirmar sus
-    // grid_options exactos uno a uno.
-    if (!this._hasSensors) {
+    // real en HA: sin sensores, y con un único top_sensor suelto (sin
+    // sensores agrupados) — ambas caben en 2 filas × 3 columnas. Solo la
+    // variante con sensores agrupados (con divisor) sigue en 'auto' hasta
+    // confirmar su grid_options exacto.
+    if (!this._groupedSensorDisplays.length) {
       return { rows: 2, columns: 3 };
     }
     return {
@@ -456,15 +456,15 @@ export class NeonButtonCard extends BaseNeonCard {
             <span class="name">${this._name}</span>
             ${this._subtitle !== nothing ? html`<span class="subtitle">${this._subtitle}</span>` : nothing}
           </div>
-          ${this._hasSensors
+          ${this._groupedSensorDisplays.length
             ? html`
                 <div class="footer">
                   ${this._renderTopSensor()}
-                  ${this._groupedSensorDisplays.length ? html`<div class="divider"></div>` : nothing}
+                  <div class="divider"></div>
                   ${this._renderSensors()}
                 </div>
               `
-            : nothing}
+            : this._renderTopSensor()}
         </div>
       </ha-card>
     `;
