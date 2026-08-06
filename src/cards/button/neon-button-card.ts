@@ -119,11 +119,22 @@ export class NeonButtonCard extends BaseNeonCard {
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    /* Agrupa top_sensor + divider + sensores para que, si al contenido le
+       sobra alto dentro de las filas de grid asignadas (ver getCardSize),
+       el hueco se quede ANTES de este bloque (pegado al texto) en vez de
+       DESPUÉS (colgando entre el contenido y el borde inferior de la
+       tarjeta) — igual que hace la fila de la Entity Card nativa. */
+    .footer {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      margin-top: auto;
+    }
     .divider {
       width: 100%;
       height: 1px;
       background: var(--divider-color, rgba(255, 255, 255, 0.12));
-      margin-top: auto;
     }
     .top-sensor {
       display: flex;
@@ -280,7 +291,7 @@ export class NeonButtonCard extends BaseNeonCard {
   }
 
   private get _sensorRows(): number {
-    const groupedCount = this._config?.sensors?.length ?? 0;
+    const groupedCount = this._groupedSensorDisplays.length;
     if (groupedCount >= 2) return 4;
     if (this._hasSensors) return 3;
     return 2;
@@ -290,8 +301,39 @@ export class NeonButtonCard extends BaseNeonCard {
     return this._config?.entity ? this.hass?.states[this._config.entity] : undefined;
   }
 
+  /**
+   * Sensor suelto resuelto (icono/estado/unidad ya calculados) o `null` si
+   * no hay `top_sensor` configurado, no hay `hass` todavía, o la entidad
+   * configurada no es un dominio `sensor`/`binary_sensor` válido.
+   */
+  private get _topSensorDisplay() {
+    if (!this._config?.top_sensor || !this.hass) return null;
+    const cfg = this._config.top_sensor;
+    return getSensorDisplay(cfg.entity, this.hass, { icon: cfg.icon, decimals: cfg.decimals });
+  }
+
+  /** Sensores agrupados ya resueltos — entradas sin entidad válida quedan fuera. */
+  private get _groupedSensorDisplays() {
+    if (!this._config?.sensors?.length || !this.hass) return [];
+    return this._config.sensors
+      .slice(0, MAX_GROUPED_SENSORS)
+      .map((s) => getSensorDisplay(s.entity, this.hass!, { icon: s.icon, decimals: s.decimals }))
+      .filter((d): d is NonNullable<typeof d> => d !== null);
+  }
+
+  /**
+   * Si hay `hass`, refleja lo que REALMENTE se va a pintar (evita reservar
+   * la fila/hueco del footer para un `top_sensor`/sensor cuya entidad no
+   * resuelve a nada — p. ej. mal configurada o con el dominio equivocado,
+   * que antes dejaba un hueco vacío del tamaño de una fila de sensor sin
+   * mostrar ningún sensor). Sin `hass` (primer render) se cae al chequeo
+   * por configuración, para no infra-reservar tamaño antes de que llegue.
+   */
   private get _hasSensors(): boolean {
-    return !!this._config?.top_sensor || (this._config?.sensors?.length ?? 0) > 0;
+    if (!this.hass) {
+      return !!this._config?.top_sensor || (this._config?.sensors?.length ?? 0) > 0;
+    }
+    return !!this._topSensorDisplay || this._groupedSensorDisplays.length > 0;
   }
 
   private get _isActive(): boolean {
@@ -340,9 +382,7 @@ export class NeonButtonCard extends BaseNeonCard {
 
   /** Sensor suelto y opcional, encima del divisor, sin agrupar. */
   private _renderTopSensor(): TemplateResult | typeof nothing {
-    if (!this._config?.top_sensor || !this.hass) return nothing;
-    const cfg = this._config.top_sensor;
-    const d = getSensorDisplay(cfg.entity, this.hass, { icon: cfg.icon, decimals: cfg.decimals });
+    const d = this._topSensorDisplay;
     if (!d) return nothing;
     return html`
       <div class="top-sensor">
@@ -358,11 +398,7 @@ export class NeonButtonCard extends BaseNeonCard {
    * `MAX_GROUPED_SENSORS` para que siga siendo legible.
    */
   private _renderSensors(): TemplateResult | typeof nothing {
-    if (!this._config?.sensors?.length || !this.hass) return nothing;
-    const displays = this._config.sensors
-      .slice(0, MAX_GROUPED_SENSORS)
-      .map((s) => getSensorDisplay(s.entity, this.hass!, { icon: s.icon, decimals: s.decimals }))
-      .filter((d): d is NonNullable<typeof d> => d !== null);
+    const displays = this._groupedSensorDisplays;
     if (!displays.length) return nothing;
 
     return html`
@@ -406,9 +442,15 @@ export class NeonButtonCard extends BaseNeonCard {
             <span class="name">${this._name}</span>
             ${this._subtitle !== nothing ? html`<span class="subtitle">${this._subtitle}</span>` : nothing}
           </div>
-          ${this._renderTopSensor()}
-          ${this._config.sensors?.length ? html`<div class="divider"></div>` : nothing}
-          ${this._renderSensors()}
+          ${this._hasSensors
+            ? html`
+                <div class="footer">
+                  ${this._renderTopSensor()}
+                  ${this._groupedSensorDisplays.length ? html`<div class="divider"></div>` : nothing}
+                  ${this._renderSensors()}
+                </div>
+              `
+            : nothing}
         </div>
       </ha-card>
     `;
