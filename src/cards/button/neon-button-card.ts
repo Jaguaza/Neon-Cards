@@ -302,7 +302,7 @@ export class NeonButtonCard extends BaseNeonCard {
       return { rows: 2, columns: 3 };
     }
     if (!this._groupedSensorDisplays.length) {
-      return { rows: 3, columns: 4 };
+      return { rows: 2, columns: 4 };
     }
     return {
       rows: 'auto',
