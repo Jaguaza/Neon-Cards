@@ -92,13 +92,6 @@ export class NeonButtonCard extends BaseNeonCard {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      /* Cuando sobra alto (la variante top_sensor + agrupados es la
-         única a 3 filas), reparte el espacio arriba y abajo del bloque
-         en vez de amontonarlo en un único hueco enorme antes de los
-         sensores (eso era lo que hacía el margin-top:auto del
-         divisor). En el resto de variantes el contenido ya llena las
-         2 filas casi justo, así que esto apenas se nota. */
-      justify-content: center;
       gap: 5px;
       height: 100%;
     }
@@ -136,6 +129,13 @@ export class NeonButtonCard extends BaseNeonCard {
       width: 100%;
       height: 1px;
       background: var(--divider-color, rgba(255, 255, 255, 0.12));
+      /* Ancla el divisor + la fila de sensores al fondo de la tarjeta
+         cuando sobra alto (la variante top_sensor + agrupados, la única
+         a 3 filas) — deja el espacio pequeño que se pidió, en vez de
+         repartirlo por todo el bloque. En el resto de variantes el
+         contenido ya llena las 2 filas casi justo, así que apenas se
+         nota. */
+      margin-top: auto;
     }
     .top-sensor {
       display: flex;
@@ -159,10 +159,10 @@ export class NeonButtonCard extends BaseNeonCard {
       align-items: center;
       /* El reparto a todo el ancho (space-between) solo tiene sentido
          con los 3 sensores a la vez — es donde se pidió y donde queda
-         bien. Con 1 o 2 sensores, repartirlos a los bordes deja un
-         hueco enorme en el centro que se ve raro; con pocos, mejor
-         quedarse juntos con un gap normal. */
-      gap: 14px;
+         bien. Con 1 o 2 sensores, se quedan juntos con el espacio que
+         ya pone el margen de .sensor-separator — sin gap aquí, porque
+         sumado al margen del separador duplicaba el espacio y hacía
+         que la fila saltara de línea y se recortase. */
       justify-content: flex-start;
       width: 100%;
       min-width: 0;
