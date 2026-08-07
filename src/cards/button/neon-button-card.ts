@@ -129,10 +129,14 @@ export class NeonButtonCard extends BaseNeonCard {
       width: 100%;
       height: 1px;
       background: var(--divider-color, rgba(255, 255, 255, 0.12));
-      /* margin-top:auto se llevaba TODO el hueco sobrante de golpe
-         (variante top_sensor + agrupados, la única a 3 filas) — un
-         hueco fijo y pequeño en vez de "auto": lo que sobre se queda
-         al final de la tarjeta, no empujando el grupo hacia abajo. */
+      /* Sin top_sensor (variante a 2 filas, ya calibrada justa) NO debe
+         llevar margen extra — por eso este margen vive en la clase
+         .divider--gap de abajo y no aquí, para no aplicarse siempre. */
+    }
+    .divider.divider--gap {
+      /* Solo la variante top_sensor + agrupados (la única a 3 filas)
+         lleva este hueco fijo y pequeño antes del grupo — el resto de
+         variantes no lo necesita y les desbordaría su altura ajustada. */
       margin-top: 14px;
     }
     .top-sensor {
@@ -426,7 +430,9 @@ export class NeonButtonCard extends BaseNeonCard {
             ${this._subtitle !== nothing ? html`<span class="subtitle">${this._subtitle}</span>` : nothing}
           </div>
           ${this._renderTopSensor()}
-          ${this._config.sensors?.length ? html`<div class="divider"></div>` : nothing}
+          ${this._config.sensors?.length
+            ? html`<div class="divider ${this._config.top_sensor ? 'divider--gap' : ''}"></div>`
+            : nothing}
           ${this._renderSensors()}
         </div>
       </ha-card>
