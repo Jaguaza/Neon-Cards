@@ -92,6 +92,13 @@ export class NeonButtonCard extends BaseNeonCard {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
+      /* Cuando sobra alto (la variante top_sensor + agrupados es la
+         única a 3 filas), reparte el espacio arriba y abajo del bloque
+         en vez de amontonarlo en un único hueco enorme antes de los
+         sensores (eso era lo que hacía el margin-top:auto del
+         divisor). En el resto de variantes el contenido ya llena las
+         2 filas casi justo, así que esto apenas se nota. */
+      justify-content: center;
       gap: 5px;
       height: 100%;
     }
@@ -129,11 +136,6 @@ export class NeonButtonCard extends BaseNeonCard {
       width: 100%;
       height: 1px;
       background: var(--divider-color, rgba(255, 255, 255, 0.12));
-      /* Solo tiene efecto visible cuando sobra alto de verdad (variante
-         top_sensor + agrupados, la única a 3 filas) — en el resto el
-         contenido ya llena las 2 filas casi justo, así que esto no
-         vuelve a abrir el hueco que se quitó antes. */
-      margin-top: auto;
     }
     .top-sensor {
       display: flex;
