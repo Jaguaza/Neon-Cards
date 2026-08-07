@@ -52,12 +52,6 @@ export class NeonButtonCard extends BaseNeonCard {
     css`
     :host {
       display: block;
-      /* Sin esto, el 100% de ha-card no tiene una altura definida contra la
-         que resolverse de forma fiable a través del wrapper interno de HA
-         (hui-card) — la tarjeta se encogía a su contenido en vez de ocupar
-         toda la celda de grid reservada (getGridOptions), dejando un hueco
-         entre ella y la siguiente tarjeta de la columna. */
-      height: 100%;
     }
     ha-card {
       box-sizing: border-box;
@@ -87,24 +81,6 @@ export class NeonButtonCard extends BaseNeonCard {
     }
     ha-card:active {
       transform: scale(0.98);
-    }
-    /* Solo para top_sensor suelto (2 filas de grid, ver getGridOptions):
-       el resto de variantes ya encajan bien con el espaciado normal, pero
-       esta necesita esos px extra para no recortar la fila del sensor. */
-    ha-card.compact-sensor {
-      padding: 7px 20px;
-    }
-    ha-card.compact-sensor .content {
-      gap: 7px;
-    }
-    ha-card.compact-sensor ha-icon {
-      margin-bottom: 2px;
-    }
-    ha-card.compact-sensor .name {
-      line-height: 20px;
-    }
-    ha-card.compact-sensor .subtitle {
-      line-height: 13px;
     }
     .content {
       display: flex;
@@ -143,22 +119,11 @@ export class NeonButtonCard extends BaseNeonCard {
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    /* Agrupa top_sensor + divider + sensores para que, si al contenido le
-       sobra alto dentro de las filas de grid asignadas (ver getCardSize),
-       el hueco se quede ANTES de este bloque (pegado al texto) en vez de
-       DESPUÉS (colgando entre el contenido y el borde inferior de la
-       tarjeta) — igual que hace la fila de la Entity Card nativa. */
-    .footer {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      width: 100%;
-      margin-top: auto;
-    }
     .divider {
       width: 100%;
       height: 1px;
       background: var(--divider-color, rgba(255, 255, 255, 0.12));
+      margin-top: auto;
     }
     .top-sensor {
       display: flex;
@@ -290,46 +255,33 @@ export class NeonButtonCard extends BaseNeonCard {
   }
 
   getCardSize(): number {
-    // Cálculo real de altura de contenido, igual criterio que la Entity
-    // Card (padding ajustado a propósito para encajar en unidades de
-    // grid de HA, ~56px/fila en sections, +8px de gap entre filas):
-    //  Sin sensores: padding(10×2=20) + icono(40+6) + gap(10) + texto(22+2+14=38)
-    //    = 20 + 46 + 10 + 38 = 114px → cabe en 2 filas (56×2+8 = 120px)
-    //  Con sensores (top_sensor y/o agrupados, en una sola línea, que es
-    //  el caso normal): + gap(10) + top_sensor(14) + gap(10) + divider(1)
-    //  + gap(10) + fila sensores(14) = 114 + 59 = 173px → cabe en 3 filas
-    //  (56×3+16 = 184px). Antes se reservaba una 4ª fila completa "por si"
-    //  los sensores agrupados saltaban a una segunda línea en tarjetas muy
-    //  estrechas — pero eso dejaba ~50px de hueco vacío en el caso normal
-    //  (mucho más frecuente) solo para cubrir un caso raro. Si de verdad
-    //  saltan a 2 líneas, el margen de 11px sobrante en 3 filas ya no
-    //  alcanza y el footer se recorta unos px (overflow:hidden) — un
-    //  compromiso mejor que estirar TODAS las tarjetas con sensores.
+    // Alto en filas de grid, calibrado contra capturas reales de HA (no
+    // solo el cálculo teórico de píxeles): sin sensores, 2 filas; con
+    // fila de sensores agrupados pero SIN sensor suelto, 3 filas; en
+    // cuanto hay sensor suelto (top_sensor) se añade una fila más,
+    // porque esa fila ocupa una línea extra por sí sola.
     return this._sensorRows;
   }
 
-  getGridOptions(): { rows: number | 'auto'; columns: number; min_rows?: number } {
-    // Tamaño fijo (no 'auto') para las variantes ya validadas por captura
-    // real en HA:
-    //  - sin sensores: 2 filas x 3 columnas
-    //  - con un único top_sensor suelto (sin sensores agrupados): 3 filas
-    //    x 4 columnas
-    // Solo la variante con sensores agrupados (con divisor) sigue en
-    // 'auto' hasta confirmar su grid_options exacto.
-    if (!this._hasSensors) {
-      return { rows: 2, columns: 3 };
-    }
-    if (!this._groupedSensorDisplays.length) {
-      return { rows: 2, columns: 4 };
-    }
+  getGridOptions(): { rows: number; columns: number } {
+    // Ancho en columnas de grid, también calibrado contra capturas
+    // reales: 3 de base (icono + nombre, sin más), 4 en cuanto hay
+    // subtítulo o algún sensor, y 6 cuando los 3 sensores agrupados
+    // están presentes a la vez (necesitan bastante más sitio para no
+    // saltar de línea).
+    const groupedCount = this._config?.sensors?.length ?? 0;
+    let columns = 3;
+    if (this._subtitle !== nothing || groupedCount >= 1) columns = 4;
+    if (groupedCount === 3) columns = 6;
+
     return {
-      rows: 'auto',
-      columns: 4,
-      min_rows: this._sensorRows,
+      rows: this._sensorRows,
+      columns,
     };
   }
 
   private get _sensorRows(): number {
+    if (this._config?.top_sensor) return 4;
     if (this._hasSensors) return 3;
     return 2;
   }
@@ -338,39 +290,8 @@ export class NeonButtonCard extends BaseNeonCard {
     return this._config?.entity ? this.hass?.states[this._config.entity] : undefined;
   }
 
-  /**
-   * Sensor suelto resuelto (icono/estado/unidad ya calculados) o `null` si
-   * no hay `top_sensor` configurado, no hay `hass` todavía, o la entidad
-   * configurada no es un dominio `sensor`/`binary_sensor` válido.
-   */
-  private get _topSensorDisplay() {
-    if (!this._config?.top_sensor || !this.hass) return null;
-    const cfg = this._config.top_sensor;
-    return getSensorDisplay(cfg.entity, this.hass, { icon: cfg.icon, decimals: cfg.decimals });
-  }
-
-  /** Sensores agrupados ya resueltos — entradas sin entidad válida quedan fuera. */
-  private get _groupedSensorDisplays() {
-    if (!this._config?.sensors?.length || !this.hass) return [];
-    return this._config.sensors
-      .slice(0, MAX_GROUPED_SENSORS)
-      .map((s) => getSensorDisplay(s.entity, this.hass!, { icon: s.icon, decimals: s.decimals }))
-      .filter((d): d is NonNullable<typeof d> => d !== null);
-  }
-
-  /**
-   * Si hay `hass`, refleja lo que REALMENTE se va a pintar (evita reservar
-   * la fila/hueco del footer para un `top_sensor`/sensor cuya entidad no
-   * resuelve a nada — p. ej. mal configurada o con el dominio equivocado,
-   * que antes dejaba un hueco vacío del tamaño de una fila de sensor sin
-   * mostrar ningún sensor). Sin `hass` (primer render) se cae al chequeo
-   * por configuración, para no infra-reservar tamaño antes de que llegue.
-   */
   private get _hasSensors(): boolean {
-    if (!this.hass) {
-      return !!this._config?.top_sensor || (this._config?.sensors?.length ?? 0) > 0;
-    }
-    return !!this._topSensorDisplay || this._groupedSensorDisplays.length > 0;
+    return !!this._config?.top_sensor || (this._config?.sensors?.length ?? 0) > 0;
   }
 
   private get _isActive(): boolean {
@@ -419,7 +340,9 @@ export class NeonButtonCard extends BaseNeonCard {
 
   /** Sensor suelto y opcional, encima del divisor, sin agrupar. */
   private _renderTopSensor(): TemplateResult | typeof nothing {
-    const d = this._topSensorDisplay;
+    if (!this._config?.top_sensor || !this.hass) return nothing;
+    const cfg = this._config.top_sensor;
+    const d = getSensorDisplay(cfg.entity, this.hass, { icon: cfg.icon, decimals: cfg.decimals });
     if (!d) return nothing;
     return html`
       <div class="top-sensor">
@@ -435,7 +358,11 @@ export class NeonButtonCard extends BaseNeonCard {
    * `MAX_GROUPED_SENSORS` para que siga siendo legible.
    */
   private _renderSensors(): TemplateResult | typeof nothing {
-    const displays = this._groupedSensorDisplays;
+    if (!this._config?.sensors?.length || !this.hass) return nothing;
+    const displays = this._config.sensors
+      .slice(0, MAX_GROUPED_SENSORS)
+      .map((s) => getSensorDisplay(s.entity, this.hass!, { icon: s.icon, decimals: s.decimals }))
+      .filter((d): d is NonNullable<typeof d> => d !== null);
     if (!displays.length) return nothing;
 
     return html`
@@ -461,9 +388,7 @@ export class NeonButtonCard extends BaseNeonCard {
 
     return html`
       <ha-card
-        class="neon-halo-host ${active ? 'neon-halo-active' : ''} ${
-          this._hasSensors && !this._groupedSensorDisplays.length ? 'compact-sensor' : ''
-        }"
+        class="neon-halo-host ${active ? 'neon-halo-active' : ''}"
         style=${neonHaloVars(colors)}
         @pointerdown=${(ev: PointerEvent) => handlePointerDown(this._gesture, ev, '.-none-', () => this._handleAction('hold'))}
         @pointerup=${() => cancelHold(this._gesture)}
@@ -481,15 +406,9 @@ export class NeonButtonCard extends BaseNeonCard {
             <span class="name">${this._name}</span>
             ${this._subtitle !== nothing ? html`<span class="subtitle">${this._subtitle}</span>` : nothing}
           </div>
-          ${this._hasSensors
-            ? html`
-                <div class="footer">
-                  ${this._renderTopSensor()}
-                  ${this._groupedSensorDisplays.length ? html`<div class="divider"></div>` : nothing}
-                  ${this._renderSensors()}
-                </div>
-              `
-            : nothing}
+          ${this._renderTopSensor()}
+          ${this._config.sensors?.length ? html`<div class="divider"></div>` : nothing}
+          ${this._renderSensors()}
         </div>
       </ha-card>
     `;
