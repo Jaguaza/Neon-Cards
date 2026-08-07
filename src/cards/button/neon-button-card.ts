@@ -129,7 +129,6 @@ export class NeonButtonCard extends BaseNeonCard {
       width: 100%;
       height: 1px;
       background: var(--divider-color, rgba(255, 255, 255, 0.12));
-      margin-top: auto;
     }
     .top-sensor {
       display: flex;
