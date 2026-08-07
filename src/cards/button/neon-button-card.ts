@@ -264,14 +264,13 @@ export class NeonButtonCard extends BaseNeonCard {
   }
 
   getGridOptions(): { rows: number; columns: number } {
-    // Ancho en columnas de grid, también calibrado contra capturas
-    // reales: 3 de base (icono + nombre, sin más), 4 en cuanto hay
-    // subtítulo o algún sensor, y 6 cuando los 3 sensores agrupados
-    // están presentes a la vez (necesitan bastante más sitio para no
-    // saltar de línea).
+    // Empezamos de cero con datos confirmados uno a uno en vez de
+    // heurísticas encadenadas. Confirmado: icono+nombre(+subtítulo), sin
+    // sensores → 3 de ancho x 2 de alto. El subtítulo por sí solo NO
+    // pide más ancho (antes sí, era un dato viejo que quedó descartado).
     const groupedCount = this._config?.sensors?.length ?? 0;
     let columns = 3;
-    if (this._subtitle !== nothing || groupedCount >= 1) columns = 4;
+    if (groupedCount >= 1) columns = 4;
     if (groupedCount === 3) columns = 6;
 
     return {
