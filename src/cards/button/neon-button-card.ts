@@ -264,13 +264,14 @@ export class NeonButtonCard extends BaseNeonCard {
   }
 
   getGridOptions(): { rows: number; columns: number } {
-    // Empezamos de cero con datos confirmados uno a uno en vez de
-    // heurísticas encadenadas. Confirmado: icono+nombre(+subtítulo), sin
-    // sensores → 3 de ancho x 2 de alto. El subtítulo por sí solo NO
-    // pide más ancho (antes sí, era un dato viejo que quedó descartado).
+    // Datos confirmados uno a uno:
+    //  - sin sensores: 3 de ancho x 2 de alto
+    //  - solo top_sensor suelto (sin agrupados): 4 de ancho x 2 de alto
+    //    (el sensor suelto SÍ pide más ancho, pero NO más alto — cabe
+    //    en las mismas 2 filas que el caso sin sensores)
     const groupedCount = this._config?.sensors?.length ?? 0;
     let columns = 3;
-    if (groupedCount >= 1) columns = 4;
+    if (this._config?.top_sensor || groupedCount >= 1) columns = 4;
     if (groupedCount === 3) columns = 6;
 
     return {
@@ -280,17 +281,16 @@ export class NeonButtonCard extends BaseNeonCard {
   }
 
   private get _sensorRows(): number {
-    if (this._config?.top_sensor) return 4;
-    if (this._hasSensors) return 3;
+    // top_sensor suelto por sí solo no pide más alto (2, igual que sin
+    // sensores) — solo la fila de sensores agrupados (con divisor) lo
+    // hace. Valor de 3 para agrupados aún sin confirmar dato a dato.
+    const groupedCount = this._config?.sensors?.length ?? 0;
+    if (groupedCount >= 1) return 3;
     return 2;
   }
 
   private get _stateObj() {
     return this._config?.entity ? this.hass?.states[this._config.entity] : undefined;
-  }
-
-  private get _hasSensors(): boolean {
-    return !!this._config?.top_sensor || (this._config?.sensors?.length ?? 0) > 0;
   }
 
   private get _isActive(): boolean {
