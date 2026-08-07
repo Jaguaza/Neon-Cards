@@ -148,45 +148,35 @@ export class NeonButtonCard extends BaseNeonCard {
       color: var(--secondary-text-color);
     }
     .sensors {
-      display: flex;
-      /* Cada sensor ocupa solo lo que su propio contenido necesita (no
-         un tercio fijo) — con tarjetas realmente estrechas (móvil en
-         listados densos), reservar 1/3 aunque solo haya 1 sensor deja
-         MENOS sitio del que tendría de otro modo, y eso es justo lo que
-         producía el "2…" ilegible. Si aun así no cabe todo en una fila,
-         se pasa a una segunda línea (flex-wrap) en vez de recortar el
-         texto — más alto ocasionalmente, pero siempre legible. */
-      flex-wrap: wrap;
-      row-gap: 4px;
+      /* Cuadrícula de N columnas iguales (una por sensor, calculada al
+         renderizar) — cada sensor centrado dentro de su propio hueco,
+         no el grupo entero centrado en bloque. Así 2 sensores no quedan
+         amontonados en el medio: cada uno tiene su mitad de la fila. */
+      display: grid;
       align-items: center;
-      /* Con 2 o 3 sensores, centrados en el ancho de la tarjeta (el
-         espacio entre ellos lo pone el margen de .sensor-separator, sin
-         gap aquí — sumado al margen del separador duplicaba el espacio
-         y hacía que la fila saltara de línea y se recortase). Con 1
-         solo sensor, a la izquierda — ver .sensors-left más abajo. */
-      justify-content: center;
       width: 100%;
       min-width: 0;
-    }
-    .sensors.sensors-left {
-      justify-content: flex-start;
     }
     .sensor {
       display: flex;
       align-items: center;
+      justify-self: center;
       gap: 4px;
       min-width: 0;
-      flex: 0 1 auto;
       font-size: 11px;
       line-height: 14px;
       color: var(--secondary-text-color);
     }
-    .sensor-separator {
-      width: 1px;
-      align-self: stretch;
-      background: var(--divider-color, rgba(255, 255, 255, 0.12));
-      margin: 0 6px;
-      flex: 0 0 auto;
+    /* Con 1 solo sensor no hay "huecos" que repartir — se queda a la
+       izquierda en vez de centrado en toda la tarjeta. */
+    .sensors.sensors-single .sensor {
+      justify-self: start;
+    }
+    .sensor.sensor--divided {
+      /* Separador como borde en vez de un elemento aparte — así no
+         cuenta como columna extra en la cuadrícula. */
+      border-left: 1px solid var(--divider-color, rgba(255, 255, 255, 0.12));
+      padding-left: 12px;
     }
     .sensor ha-icon,
     .top-sensor ha-icon {
@@ -238,8 +228,8 @@ export class NeonButtonCard extends BaseNeonCard {
       .top-sensor .value {
         font-size: 9px;
       }
-      .sensor-separator {
-        margin: 0 4px;
+      .sensor.sensor--divided {
+        padding-left: 8px;
       }
     }
   `,
@@ -387,11 +377,10 @@ export class NeonButtonCard extends BaseNeonCard {
     if (!displays.length) return nothing;
 
     return html`
-      <div class="sensors ${displays.length === 1 ? 'sensors-left' : ''}">
+      <div class="sensors ${displays.length === 1 ? 'sensors-single' : ''}" style="grid-template-columns: repeat(${displays.length}, 1fr);">
         ${displays.map(
           (d, i) => html`
-            ${i > 0 ? html`<span class="sensor-separator"></span>` : nothing}
-            <div class="sensor">
+            <div class="sensor ${i > 0 ? 'sensor--divided' : ''}">
               <ha-icon icon=${d.icon}></ha-icon>
               <span class="value">${d.state}${d.unit ? ` ${d.unit}` : ''}</span>
             </div>
