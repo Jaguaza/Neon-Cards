@@ -70,7 +70,7 @@ export class NeonButtonCard extends BaseNeonCard {
       /* Padding vertical ajustado a propósito (ver getCardSize) para que
          el contenido quepa justo en 2 filas de grid sin sensores y 3 con
          sensores — igual que se hizo con el padding de la Entity Card. */
-      padding: 7px 20px;
+      padding: 4px 20px;
       height: 100%;
       cursor: pointer;
       user-select: none;
@@ -92,13 +92,13 @@ export class NeonButtonCard extends BaseNeonCard {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 7px;
+      gap: 5px;
       height: 100%;
     }
     ha-icon {
       --mdc-icon-size: 40px;
       color: var(--state-icon-color, var(--primary-text-color));
-      margin-bottom: 4px;
+      margin-bottom: 2px;
       transition: color 300ms ease-out, filter 300ms ease-out;
     }
     .text {
@@ -286,11 +286,11 @@ export class NeonButtonCard extends BaseNeonCard {
   }
 
   private get _sensorRows(): number {
-    // top_sensor suelto por sí solo no pide más alto (2, igual que sin
-    // sensores) — solo la fila de sensores agrupados (con divisor) lo
-    // hace. Valor de 3 para agrupados aún sin confirmar dato a dato.
-    const groupedCount = this._config?.sensors?.length ?? 0;
-    if (groupedCount >= 1) return 3;
+    // Con el espaciado actual (padding 4px, gap 5px, icono 40px), TODAS
+    // las variantes de contenido caben en 2 filas de grid — incluida la
+    // de sensores agrupados sin top_sensor, que antes se quedaba corta
+    // en 2 y sobraba en 3. Se ajustó el CSS a propósito para esto en vez
+    // de reservar una fila de más "por si acaso".
     return 2;
   }
 
