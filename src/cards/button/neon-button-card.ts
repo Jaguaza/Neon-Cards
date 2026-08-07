@@ -52,6 +52,12 @@ export class NeonButtonCard extends BaseNeonCard {
     css`
     :host {
       display: block;
+      /* ha-card usa height:100%, que solo funciona si :host (el propio
+         elemento, tal y como lo mide el grid de HA) tiene una altura
+         explícita. Sin esto, en algunos navegadores/WebViews la tarjeta
+         puede renderizar más alta de lo que HA le reservó y empujar a
+         la siguiente tarjeta del grid hacia arriba, superponiéndose. */
+      height: 100%;
     }
     ha-card {
       box-sizing: border-box;
@@ -64,7 +70,7 @@ export class NeonButtonCard extends BaseNeonCard {
       /* Padding vertical ajustado a propósito (ver getCardSize) para que
          el contenido quepa justo en 2 filas de grid sin sensores y 3 con
          sensores — igual que se hizo con el padding de la Entity Card. */
-      padding: 10px 20px;
+      padding: 7px 20px;
       height: 100%;
       cursor: pointer;
       user-select: none;
@@ -86,13 +92,13 @@ export class NeonButtonCard extends BaseNeonCard {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 10px;
+      gap: 7px;
       height: 100%;
     }
     ha-icon {
       --mdc-icon-size: 40px;
       color: var(--state-icon-color, var(--primary-text-color));
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       transition: color 300ms ease-out, filter 300ms ease-out;
     }
     .text {
