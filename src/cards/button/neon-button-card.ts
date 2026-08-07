@@ -129,13 +129,11 @@ export class NeonButtonCard extends BaseNeonCard {
       width: 100%;
       height: 1px;
       background: var(--divider-color, rgba(255, 255, 255, 0.12));
-      /* Ancla el divisor + la fila de sensores al fondo de la tarjeta
-         cuando sobra alto (la variante top_sensor + agrupados, la única
-         a 3 filas) — deja el espacio pequeño que se pidió, en vez de
-         repartirlo por todo el bloque. En el resto de variantes el
-         contenido ya llena las 2 filas casi justo, así que apenas se
-         nota. */
-      margin-top: auto;
+      /* margin-top:auto se llevaba TODO el hueco sobrante de golpe
+         (variante top_sensor + agrupados, la única a 3 filas) — un
+         hueco fijo y pequeño en vez de "auto": lo que sobre se queda
+         al final de la tarjeta, no empujando el grupo hacia abajo. */
+      margin-top: 14px;
     }
     .top-sensor {
       display: flex;
