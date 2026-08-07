@@ -129,6 +129,11 @@ export class NeonButtonCard extends BaseNeonCard {
       width: 100%;
       height: 1px;
       background: var(--divider-color, rgba(255, 255, 255, 0.12));
+      /* Solo tiene efecto visible cuando sobra alto de verdad (variante
+         top_sensor + agrupados, la única a 3 filas) — en el resto el
+         contenido ya llena las 2 filas casi justo, así que esto no
+         vuelve a abrir el hueco que se quitó antes. */
+      margin-top: auto;
     }
     .top-sensor {
       display: flex;
@@ -286,11 +291,11 @@ export class NeonButtonCard extends BaseNeonCard {
   }
 
   private get _sensorRows(): number {
-    // Con el espaciado actual (padding 4px, gap 5px, icono 40px), TODAS
-    // las variantes de contenido caben en 2 filas de grid — incluida la
-    // de sensores agrupados sin top_sensor, que antes se quedaba corta
-    // en 2 y sobraba en 3. Se ajustó el CSS a propósito para esto en vez
-    // de reservar una fila de más "por si acaso".
+    // Todas las variantes caben en 2 filas con el espaciado actual,
+    // excepto cuando top_sensor Y sensores agrupados aparecen a la vez
+    // (top_sensor + divisor + fila de sensores no caben en 2 sin
+    // recortarse) — esa combinación necesita 3.
+    if (this._config?.top_sensor && (this._config?.sensors?.length ?? 0) >= 1) return 3;
     return 2;
   }
 
