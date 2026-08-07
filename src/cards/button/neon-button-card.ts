@@ -161,11 +161,12 @@ export class NeonButtonCard extends BaseNeonCard {
       align-items: center;
       /* El reparto a todo el ancho (space-between) solo tiene sentido
          con los 3 sensores a la vez — es donde se pidió y donde queda
-         bien. Con 1 o 2 sensores, se quedan juntos con el espacio que
-         ya pone el margen de .sensor-separator — sin gap aquí, porque
-         sumado al margen del separador duplicaba el espacio y hacía
-         que la fila saltara de línea y se recortase. */
-      justify-content: flex-start;
+         bien. Con 1 o 2 sensores, se quedan juntos (el espacio lo pone
+         el margen de .sensor-separator, sin gap aquí — sumado al
+         margen del separador duplicaba el espacio y hacía que la fila
+         saltara de línea y se recortase) pero CENTRADOS en el ancho de
+         la tarjeta en vez de pegados al borde izquierdo. */
+      justify-content: center;
       width: 100%;
       min-width: 0;
     }
@@ -287,19 +288,18 @@ export class NeonButtonCard extends BaseNeonCard {
     return this._sensorRows;
   }
 
-  getGridOptions(): { rows: number; columns: number } {
-    // Datos confirmados uno a uno:
-    //  - sin sensores: 3 de ancho x 2 de alto
-    //  - solo top_sensor suelto (sin agrupados): 4 de ancho x 2 de alto
-    //    (el sensor suelto SÍ pide más ancho, pero NO más alto — cabe
-    //    en las mismas 2 filas que el caso sin sensores)
+  getGridOptions(): { rows: number | 'auto'; columns: number } {
+    // rows: 'auto' — confirmado contra HA real ("altura automática" en
+    // el editor de Diseño da el resultado perfecto para top_sensor +
+    // agrupados, la variante que nunca encajaba limpia en un número
+    // entero de filas). Se deja fijo en vez de calcular _sensorRows.
     const groupedCount = this._config?.sensors?.length ?? 0;
     let columns = 3;
     if (this._config?.top_sensor || groupedCount >= 1) columns = 4;
     if (groupedCount === 3) columns = 6;
 
     return {
-      rows: this._sensorRows,
+      rows: 'auto',
       columns,
     };
   }
