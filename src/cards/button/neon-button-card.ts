@@ -157,6 +157,11 @@ export class NeonButtonCard extends BaseNeonCard {
       flex-wrap: wrap;
       row-gap: 4px;
       align-items: center;
+      /* Reparte los sensores por todo el ancho de la fila (el primero
+         pegado al borde izquierdo, el último al derecho) en vez de
+         amontonarse a la izquierda y dejar hueco solo al final. Con 1
+         solo sensor no hay nada que repartir y no se nota. */
+      justify-content: space-between;
       width: 100%;
       min-width: 0;
     }
