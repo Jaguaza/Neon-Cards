@@ -157,13 +157,18 @@ export class NeonButtonCard extends BaseNeonCard {
       flex-wrap: wrap;
       row-gap: 4px;
       align-items: center;
-      /* Reparte los sensores por todo el ancho de la fila (el primero
-         pegado al borde izquierdo, el último al derecho) en vez de
-         amontonarse a la izquierda y dejar hueco solo al final. Con 1
-         solo sensor no hay nada que repartir y no se nota. */
-      justify-content: space-between;
+      /* El reparto a todo el ancho (space-between) solo tiene sentido
+         con los 3 sensores a la vez — es donde se pidió y donde queda
+         bien. Con 1 o 2 sensores, repartirlos a los bordes deja un
+         hueco enorme en el centro que se ve raro; con pocos, mejor
+         quedarse juntos con un gap normal. */
+      gap: 14px;
+      justify-content: flex-start;
       width: 100%;
       min-width: 0;
+    }
+    .sensors.sensors-spread {
+      justify-content: space-between;
     }
     .sensor {
       display: flex;
@@ -382,7 +387,7 @@ export class NeonButtonCard extends BaseNeonCard {
     if (!displays.length) return nothing;
 
     return html`
-      <div class="sensors">
+      <div class="sensors ${displays.length >= 3 ? 'sensors-spread' : ''}">
         ${displays.map(
           (d, i) => html`
             ${i > 0 ? html`<span class="sensor-separator"></span>` : nothing}
