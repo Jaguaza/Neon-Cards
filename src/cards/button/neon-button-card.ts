@@ -277,28 +277,33 @@ export class NeonButtonCard extends BaseNeonCard {
   }
 
   getGridOptions(): { rows: number | 'auto'; columns: number } {
-    // rows: 'auto' — confirmado contra HA real ("altura automática" en
-    // el editor de Diseño da el resultado perfecto para top_sensor +
-    // agrupados, la variante que nunca encajaba limpia en un número
-    // entero de filas). Se deja fijo en vez de calcular _sensorRows.
+    // rows: 'auto' SOLO para la variante top_sensor + agrupados, la
+    // única que nunca encaja limpia en un número entero de filas fijas
+    // (confirmado: "altura automática" da el resultado perfecto ahí).
+    // El resto usa filas fijas (2, ya calibrado) — 'auto' en todas
+    // causaba que, al compartir fila del grid de secciones con esta
+    // variante más alta, HA estirase también las tarjetas más cortas
+    // al mismo alto, dejando hueco vacío visible debajo de sus
+    // sensores.
     const groupedCount = this._config?.sensors?.length ?? 0;
     let columns = 3;
     if (this._config?.top_sensor || groupedCount >= 1) columns = 4;
     if (groupedCount === 3) columns = 6;
 
     return {
-      rows: 'auto',
+      rows: this._needsAutoHeight ? 'auto' : 2,
       columns,
     };
   }
 
+  private get _needsAutoHeight(): boolean {
+    return !!this._config?.top_sensor && (this._config?.sensors?.length ?? 0) >= 1;
+  }
+
   private get _sensorRows(): number {
-    // Todas las variantes caben en 2 filas con el espaciado actual,
-    // excepto cuando top_sensor Y sensores agrupados aparecen a la vez
-    // (top_sensor + divisor + fila de sensores no caben en 2 sin
-    // recortarse) — esa combinación necesita 3.
-    if (this._config?.top_sensor && (this._config?.sensors?.length ?? 0) >= 1) return 3;
-    return 2;
+    // Aproximación numérica para getCardSize (vistas masonry, que no
+    // entienden 'auto') — usa el mismo criterio que _needsAutoHeight.
+    return this._needsAutoHeight ? 3 : 2;
   }
 
   private get _stateObj() {
