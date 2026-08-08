@@ -193,8 +193,8 @@ export class NeonButtonCard extends BaseNeonCard {
     }
     .neon-halo-active .sensor ha-icon,
     .neon-halo-active .top-sensor ha-icon {
-      color: var(--neon-c2);
-      filter: drop-shadow(0 0 4px color-mix(in srgb, var(--neon-c2) 55%, transparent));
+      color: var(--neon-c1);
+      filter: drop-shadow(0 0 4px color-mix(in srgb, var(--neon-c1) 55%, transparent));
     }
     .sensor .value,
     .top-sensor .value {
