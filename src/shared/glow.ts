@@ -1,4 +1,5 @@
-import { css } from 'lit';
+import { css, html } from 'lit';
+import type { TemplateResult } from 'lit';
 import type { GradientColors } from './neon-palette';
 
 /**
@@ -55,6 +56,81 @@ export const NEON_HALO_STYLES = css`
     filter: drop-shadow(0 0 3px var(--neon-c1)) drop-shadow(0 0 10px color-mix(in srgb, var(--neon-c1) 70%, transparent));
   }
 `;
+
+/**
+ * Aro nítido con gradiente de 3 colores, mismo lenguaje visual Y MISMA
+ * ANIMACIÓN DE ENCENDIDO que el aro SVG de la Entity Card: no es un
+ * fundido de opacidad, es un trazo que se "dibuja" (stroke-dasharray +
+ * stroke-dashoffset) alrededor del contorno de la tarjeta.
+ *
+ * A diferencia del switch de Entity (tamaño fijo 64×34, geometría
+ * calculada a mano en el `path`), aquí el rect debe adaptarse a
+ * cualquier tamaño/`border-radius` de tarjeta. Se resuelve con:
+ * - `x`/`y`/`width`/`height`/`rx` fijados por CSS (propiedades de
+ *   geometría SVG como CSS, soportado en navegadores modernos) en vez
+ *   de atributos XML fijos, para que seguir el tamaño real del host.
+ * - `pathLength="100"` en el `<rect>`: normaliza la longitud del
+ *   contorno a 100 unidades sea cual sea el tamaño real, así
+ *   `stroke-dasharray: 100` + `stroke-dashoffset` funcionan igual en
+ *   una tarjeta de 2 columnas que en una de 6, sin recalcular nada.
+ *
+ * Uso: la tarjeta anfitriona añade `NEON_RING_STYLES`, incluye
+ * `neonRingTemplate(uid)` como primer hijo dentro de `ha-card`, pone la
+ * clase `neon-ring-host` en el contenedor y `neon-halo-active`
+ * (compartida con `NEON_HALO_STYLES`) cuando el estado es "activo".
+ * `uid` debe ser estable y único por instancia (para no chocar los
+ * `id` del `<linearGradient>` cuando hay varias tarjetas en el mismo
+ * dashboard).
+ */
+export const NEON_RING_STYLES = css`
+  .neon-ring-host {
+    position: relative;
+  }
+  .neon-ring-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .neon-ring-rect {
+    x: 1.2px;
+    y: 1.2px;
+    width: calc(100% - 2.4px);
+    height: calc(100% - 2.4px);
+    rx: var(--ha-card-border-radius, 12px);
+    fill: none;
+    stroke-width: 2.4px;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--neon-c2) 65%, transparent));
+    transition: stroke-dashoffset 900ms ease-in-out;
+  }
+  .neon-ring-host.neon-halo-active .neon-ring-rect {
+    stroke-dashoffset: 0;
+  }
+`;
+
+/**
+ * Markup del aro SVG que consume `NEON_RING_STYLES`. `uid` identifica el
+ * `<linearGradient>` para que no colisione con el de otras tarjetas
+ * Button en el mismo dashboard.
+ */
+export function neonRingTemplate(uid: string): TemplateResult {
+  return html`
+    <svg class="neon-ring-svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="neon-ring-grad-${uid}" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="var(--neon-c1)" />
+          <stop offset="50%" stop-color="var(--neon-c2)" />
+          <stop offset="100%" stop-color="var(--neon-c3)" />
+        </linearGradient>
+      </defs>
+      <rect class="neon-ring-rect" pathLength="100" stroke="url(#neon-ring-grad-${uid})"></rect>
+    </svg>
+  `;
+}
 
 /** Fija las variables CSS `--neon-c1/c2/c3` que consume NEON_HALO_STYLES. */
 export function neonHaloVars(colors: GradientColors): string {

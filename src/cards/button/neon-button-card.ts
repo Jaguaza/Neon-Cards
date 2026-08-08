@@ -12,7 +12,7 @@ import {
   computeInfoDisplay,
 } from '../../core';
 import type { GestureState, InfoOption } from '../../core';
-import { resolveGradientColors, NEON_HALO_STYLES, neonHaloVars } from '../../shared';
+import { resolveGradientColors, NEON_HALO_STYLES, NEON_RING_STYLES, neonHaloVars, neonRingTemplate } from '../../shared';
 import { CARD_AUTHOR, CARD_VERSION, DEFAULT_ICON, MAX_GROUPED_SENSORS } from './constants';
 import type { NeonButtonCardConfig } from './types';
 
@@ -46,9 +46,13 @@ export class NeonButtonCard extends BaseNeonCard {
 
   private _config?: NeonButtonCardConfig;
   private _gesture: GestureState = createGestureState();
+  /** Id estable por instancia para el <linearGradient> del aro SVG, evita
+      colisiones cuando hay varias Button Card en el mismo dashboard. */
+  private readonly _ringUid = Math.random().toString(36).slice(2);
 
   static styles = [
     NEON_HALO_STYLES,
+    NEON_RING_STYLES,
     css`
     :host {
       display: block;
@@ -76,13 +80,10 @@ export class NeonButtonCard extends BaseNeonCard {
       user-select: none;
       -webkit-user-select: none;
       overflow: hidden;
-      /* Glassmorphism: nunca colores fijos, solo variables CSS de HA. */
-      background: color-mix(in srgb, var(--card-background-color, #1c1c1c) 55%, transparent);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid color-mix(in srgb, var(--divider-color, #ffffff) 14%, transparent);
-      box-shadow: 0 1px 0 0 color-mix(in srgb, var(--divider-color, #ffffff) 20%, transparent) inset,
-        0 8px 24px rgba(0, 0, 0, 0.12);
+      /* Mismo fondo que la Entity Card: sin overrides, se apoya en el
+         fondo por defecto de ha-card que ya da el tema de HA. El
+         color-mix + blur anterior oscurecía la tarjeta en todas sus
+         variantes al mezclarse con lo que hay detrás del dashboard. */
       transition: transform 150ms ease;
     }
     ha-card:active {
@@ -403,7 +404,7 @@ export class NeonButtonCard extends BaseNeonCard {
 
     return html`
       <ha-card
-        class="neon-halo-host ${active ? 'neon-halo-active' : ''}"
+        class="neon-ring-host ${active ? 'neon-halo-active' : ''}"
         style=${neonHaloVars(colors)}
         @pointerdown=${(ev: PointerEvent) => handlePointerDown(this._gesture, ev, '.-none-', () => this._handleAction('hold'))}
         @pointerup=${() => cancelHold(this._gesture)}
@@ -415,6 +416,7 @@ export class NeonButtonCard extends BaseNeonCard {
             hasDoubleTap,
           })}
       >
+        ${neonRingTemplate(this._ringUid)}
         <div class="content">
           <ha-icon class="neon-halo-icon" icon=${this._icon}></ha-icon>
           <div class="text">
