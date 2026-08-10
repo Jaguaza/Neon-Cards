@@ -25,5 +25,3 @@ export interface NeonCardEntityConfig {
   double_tap_action?: ActionConfig;
   [key: string]: unknown;
 }
-
-export type ValueChangedEvent = CustomEvent<{ value: string }>;

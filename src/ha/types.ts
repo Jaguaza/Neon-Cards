@@ -33,3 +33,12 @@ export interface ActionConfig {
   action: ActionType | string;
   [key: string]: unknown;
 }
+
+/**
+ * Evento `value-changed` que emiten los pickers/selectores de HA
+ * (ha-entity-picker, ha-selector, etc.) — común a cualquier editor de
+ * tarjeta. Antes duplicado literal en `cards/button/types.ts` y
+ * `cards/entity/types.ts` (violaba el acuerdo nº4); vive aquí por el
+ * mismo motivo que ActionConfig.
+ */
+export type ValueChangedEvent = CustomEvent<{ value: string }>;

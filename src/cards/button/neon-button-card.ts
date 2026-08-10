@@ -1,5 +1,5 @@
-import { html, css, nothing } from 'lit';
-import type { PropertyValues, TemplateResult } from 'lit';
+import { html, nothing } from 'lit';
+import type { TemplateResult } from 'lit';
 import type { HomeAssistant } from '../../ha/types';
 import { getSensorDisplay } from '../../ha/sensors';
 import {
@@ -12,8 +12,15 @@ import {
   computeInfoDisplay,
 } from '../../core';
 import type { GestureState, InfoOption } from '../../core';
-import { resolveGradientColors, NEON_HALO_STYLES, NEON_RING_STYLES, neonHaloVars, neonRingTemplate } from '../../shared';
-import { CARD_AUTHOR, CARD_VERSION, DEFAULT_ICON, MAX_GROUPED_SENSORS } from './constants';
+import {
+  resolveGradientColors,
+  NEON_HALO_STYLES,
+  NEON_RING_SPLIT_STYLES,
+  neonHaloVars,
+  neonRingSplitTemplate,
+} from '../../shared';
+import { DEFAULT_ICON, MAX_GROUPED_SENSORS, RING_ANIMATION_MS } from './constants';
+import { NEON_BUTTON_CARD_STYLES } from './neon-button-card.styles';
 import type { NeonButtonCardConfig } from './types';
 
 /** Dominios cuyo estado "on" se interpreta como botón activo. */
@@ -34,14 +41,16 @@ const ACTIVE_DOMAINS_ON_STATE = new Set([
  * Creador: Jaguaza
  *
  * Botón de acción para Home Assistant: entidad principal opcional,
- * cristal (glassmorphism), icono protagonista y sensores contextuales
- * (`sensor`/`binary_sensor`) en la parte inferior. Ver
+ * icono protagonista, aro neón animado en estado activo y sensores
+ * contextuales (`sensor`/`binary_sensor`) en la parte inferior. Ver
  * `src/cards/button/README.md` para la especificación completa.
  */
 export class NeonButtonCard extends BaseNeonCard {
   static properties = {
     ...BaseNeonCard.properties,
     _config: { state: true },
+    _ringSize: { state: true },
+    _tapFlash: { state: true },
   };
 
   private _config?: NeonButtonCardConfig;
@@ -49,191 +58,30 @@ export class NeonButtonCard extends BaseNeonCard {
   /** Id estable por instancia para el <linearGradient> del aro SVG, evita
       colisiones cuando hay varias Button Card en el mismo dashboard. */
   private readonly _ringUid = Math.random().toString(36).slice(2);
+  /** Tamaño real de ha-card, necesario porque el <path> del aro partido
+      no admite porcentajes (a diferencia de un <rect> con CSS). Se mide
+      con requestAnimationFrame en bucle continuo (ver _ringLoop) en vez
+      de ResizeObserver: éste dejaba de disparar de forma fiable al
+      crear/mover tarjetas en el editor de HA, dejando el aro con un
+      tamaño incorrecto hasta recargar la página. Midiendo cada
+      fotograma no hay evento que "esperar" — nunca puede desincronizarse. */
+  private _ringSize = { width: 0, height: 0, radius: 12 };
+  private _ringRafId?: number;
+  /** "Flash" del aro al pulsar/mantener/doble-toque sin `entity`
+      configurada — sin entidad `_isActive` es siempre false, así que el
+      aro nunca se dispara solo; esto lo fuerza y retrasa la acción real
+      (p.ej. navigate) hasta que termine de dibujarse, para que sea
+      visible antes de cambiar de pestaña/web (ver _handleAction). */
+  private _tapFlash = false;
+  private _tapFlashTimer?: ReturnType<typeof setTimeout>;
+  /** Evita que una pulsación nueva se pise con el cierre/temporizador
+      de una anterior todavía en curso. */
+  private _flashGeneration = 0;
 
   static styles = [
     NEON_HALO_STYLES,
-    NEON_RING_STYLES,
-    css`
-    :host {
-      display: block;
-      /* ha-card usa height:100%, que solo funciona si :host (el propio
-         elemento, tal y como lo mide el grid de HA) tiene una altura
-         explícita. Sin esto, en algunos navegadores/WebViews la tarjeta
-         puede renderizar más alta de lo que HA le reservó y empujar a
-         la siguiente tarjeta del grid hacia arriba, superponiéndose. */
-      height: 100%;
-    }
-    ha-card {
-      box-sizing: border-box;
-      /* Permite que la fila de sensores consulte el ancho REAL de la
-         tarjeta con @container y encoja su propia tipografía en vez de
-         truncar el valor — el mismo YAML se ve bien en un dashboard de
-         PC ancho y en una tile estrecha de móvil sin números mágicos
-         por dispositivo. */
-      container-type: inline-size;
-      /* Padding vertical ajustado a propósito (ver getCardSize) para que
-         el contenido quepa justo en 2 filas de grid sin sensores y 3 con
-         sensores — igual que se hizo con el padding de la Entity Card. */
-      padding: 4px 20px;
-      height: 100%;
-      cursor: pointer;
-      user-select: none;
-      -webkit-user-select: none;
-      overflow: hidden;
-      /* Mismo fondo que la Entity Card: sin overrides, se apoya en el
-         fondo por defecto de ha-card que ya da el tema de HA. El
-         color-mix + blur anterior oscurecía la tarjeta en todas sus
-         variantes al mezclarse con lo que hay detrás del dashboard. */
-      transition: transform 150ms ease;
-    }
-    ha-card:active {
-      transform: scale(0.98);
-    }
-    .content {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 5px;
-      height: 100%;
-    }
-    ha-icon {
-      --mdc-icon-size: 40px;
-      color: var(--state-icon-color, var(--primary-text-color));
-      margin-bottom: 2px;
-      transition: color 300ms ease-out, filter 300ms ease-out;
-    }
-    .text {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 0;
-      width: 100%;
-    }
-    .name {
-      font-size: 18px;
-      line-height: 22px;
-      font-weight: 500;
-      color: var(--primary-text-color);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .subtitle {
-      font-size: 11px;
-      line-height: 14px;
-      color: var(--secondary-text-color);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .divider {
-      width: 100%;
-      height: 1px;
-      background: var(--divider-color, rgba(255, 255, 255, 0.12));
-      /* Sin top_sensor (variante a 2 filas, ya calibrada justa) NO debe
-         llevar margen extra — por eso este margen vive en la clase
-         .divider--gap de abajo y no aquí, para no aplicarse siempre. */
-    }
-    .divider.divider--gap {
-      /* Solo la variante top_sensor + agrupados (la única a 3 filas)
-         lleva este hueco fijo y pequeño antes del grupo — el resto de
-         variantes no lo necesita y les desbordaría su altura ajustada. */
-      margin-top: 14px;
-    }
-    .top-sensor {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      line-height: 14px;
-      color: var(--secondary-text-color);
-    }
-    .sensors {
-      /* Cuadrícula de N columnas iguales (una por sensor, calculada al
-         renderizar) — cada sensor centrado dentro de su propio hueco,
-         no el grupo entero centrado en bloque. Así 2 sensores no quedan
-         amontonados en el medio: cada uno tiene su mitad de la fila. */
-      display: grid;
-      align-items: center;
-      width: 100%;
-      min-width: 0;
-    }
-    .sensor {
-      display: flex;
-      align-items: center;
-      justify-self: center;
-      gap: 4px;
-      min-width: 0;
-      font-size: 11px;
-      line-height: 14px;
-      color: var(--secondary-text-color);
-    }
-    /* Con 1 solo sensor no hay "huecos" que repartir — se queda a la
-       izquierda en vez de centrado en toda la tarjeta. */
-    .sensors.sensors-single .sensor {
-      justify-self: start;
-    }
-    .sensor.sensor--divided {
-      /* Separador como borde en vez de un elemento aparte — así no
-         cuenta como columna extra en la cuadrícula. */
-      border-left: 1px solid var(--divider-color, rgba(255, 255, 255, 0.12));
-      padding-left: 12px;
-    }
-    .sensor ha-icon,
-    .top-sensor ha-icon {
-      --mdc-icon-size: 15px;
-      margin-bottom: 0;
-      /* Igual que el icono principal: neutro en reposo, con el color y
-         el resplandor de la paleta solo en estado activo (ver regla
-         .neon-halo-active más abajo) — mismo comportamiento, no un
-         tinte permanente. */
-      color: var(--secondary-text-color);
-      transition: color 300ms ease-out, filter 300ms ease-out;
-      flex: 0 0 auto;
-    }
-    .neon-halo-active .sensor ha-icon,
-    .neon-halo-active .top-sensor ha-icon {
-      color: var(--neon-c1);
-      filter: drop-shadow(0 0 4px color-mix(in srgb, var(--neon-c1) 55%, transparent));
-    }
-    .sensor .value,
-    .top-sensor .value {
-      font-size: 10px;
-      color: var(--primary-text-color);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex: 0 1 auto;
-      /* Suelo mínimo solo para evitar un colapso a 0px — con contenido
-         auto-dimensionado y el salto de línea de arriba como red de
-         seguridad, ya no hace falta un mínimo grande. */
-      min-width: 2ch;
-    }
-
-    /* Tarjeta MUY estrecha (móvil en listados densos, 2-3 tarjetas por
-       fila): reduce icono/tipografía antes de necesitar el salto de
-       línea, para que quepan más sensores en una sola fila cuando el
-       espacio da un poco de margen. El ancho REAL de la tarjeta
-       (container query), no el del viewport. */
-    @container (max-width: 220px) {
-      .sensor,
-      .top-sensor {
-        font-size: 10px;
-        gap: 3px;
-      }
-      .sensor ha-icon,
-      .top-sensor ha-icon {
-        --mdc-icon-size: 13px;
-      }
-      .sensor .value,
-      .top-sensor .value {
-        font-size: 9px;
-      }
-      .sensor.sensor--divided {
-        padding-left: 8px;
-      }
-    }
-  `,
+    NEON_RING_SPLIT_STYLES,
+    NEON_BUTTON_CARD_STYLES,
   ];
 
   static getConfigElement(): HTMLElement {
@@ -249,8 +97,6 @@ export class NeonButtonCard extends BaseNeonCard {
 
     return {
       entity,
-      name: 'Salón',
-      subtitle: 'Luces',
       neon_palette: 'emerald',
       neon_color1: '#39e07a',
       neon_color2: '#2dd6b8',
@@ -271,28 +117,32 @@ export class NeonButtonCard extends BaseNeonCard {
   getCardSize(): number {
     // Alto en filas de grid, calibrado contra capturas reales de HA (no
     // solo el cálculo teórico de píxeles): sin sensores, 2 filas; con
-    // fila de sensores agrupados pero SIN sensor suelto, 3 filas; en
-    // cuanto hay sensor suelto (top_sensor) se añade una fila más,
-    // porque esa fila ocupa una línea extra por sí sola.
+    // fila de sensores agrupados pero SIN sensor suelto, 2 filas; en
+    // cuanto hay sensor suelto (top_sensor) Y agrupados a la vez, hace
+    // falta una fila más (3) — esa combinación tiene una línea de
+    // contenido de más que el resto.
     return this._sensorRows;
   }
 
-  getGridOptions(): { rows: number | 'auto'; columns: number } {
-    // rows: 'auto' SOLO para la variante top_sensor + agrupados, la
-    // única que nunca encaja limpia en un número entero de filas fijas
-    // (confirmado: "altura automática" da el resultado perfecto ahí).
-    // El resto usa filas fijas (2, ya calibrado) — 'auto' en todas
-    // causaba que, al compartir fila del grid de secciones con esta
-    // variante más alta, HA estirase también las tarjetas más cortas
-    // al mismo alto, dejando hueco vacío visible debajo de sus
-    // sensores.
+  getGridOptions(): { rows: 'auto'; columns: number } {
+    // rows: 'auto' en TODAS las variantes — confirmado en HA real que
+    // el alto queda bien así (sin el bug de alineación que había al
+    // mezclar 'auto' con filas fijas en la misma rejilla).
+    //
+    // columns calibrado con medidas reales tomadas en el editor de HA
+    // (capturas de las 6 variantes básicas): depende SOLO de
+    // sensors.length, top_sensor NO suma ancho por sí solo (con
+    // top_sensor y sin agrupados mide igual que sin nada — la fila de
+    // top_sensor no necesita más ancho, solo más alto, y eso ya lo da
+    // rows:'auto').
     const groupedCount = this._config?.sensors?.length ?? 0;
-    let columns = 3;
-    if (this._config?.top_sensor || groupedCount >= 1) columns = 4;
+    let columns = 3; // sin agrupados (con o sin top_sensor/subtítulo)
+    if (groupedCount === 1) columns = 4; // valor provisional: falta confirmar con una captura real (ver Issue pendiente)
+    if (groupedCount === 2) columns = 5;
     if (groupedCount === 3) columns = 6;
 
     return {
-      rows: this._needsAutoHeight ? 'auto' : 2,
+      rows: 'auto',
       columns,
     };
   }
@@ -302,8 +152,10 @@ export class NeonButtonCard extends BaseNeonCard {
   }
 
   private get _sensorRows(): number {
-    // Aproximación numérica para getCardSize (vistas masonry, que no
-    // entienden 'auto') — usa el mismo criterio que _needsAutoHeight.
+    // Sigue usándose en getCardSize() para vistas masonry antiguas que
+    // no entienden 'auto' (getGridOptions ya no lo usa, ver arriba).
+    // overlay del editor de HA, no en la tarjeta real gracias a
+    // ha-card height:auto) que contenido ilegible.
     return this._needsAutoHeight ? 3 : 2;
   }
 
@@ -343,6 +195,35 @@ export class NeonButtonCard extends BaseNeonCard {
   }
 
   private _handleAction(actionType: string): void {
+    const hasEntity = !!this._config?.entity;
+    const isFlashable = actionType === 'tap' || actionType === 'hold' || actionType === 'double_tap';
+    if (isFlashable && !hasEntity) {
+      // Sin entidad, _isActive es siempre false y el aro no se dispara
+      // solo con el estado — se fuerza un flash aquí (tap, hold o
+      // double_tap) y se retrasa la acción real (típicamente navigate)
+      // hasta que el trazado del aro termine, para que sea visible
+      // antes de cambiar de pestaña/web.
+      const gen = ++this._flashGeneration;
+      clearTimeout(this._tapFlashTimer);
+      this._tapFlash = true;
+      this._tapFlashTimer = setTimeout(() => {
+        // Si una pulsación más reciente ya tomó el control, no pisar
+        // su temporizador ni despachar la acción de esta pulsación
+        // vieja dos veces.
+        if (gen !== this._flashGeneration) return;
+        this._dispatchAction(actionType);
+        // Apaga el flash YA (si la tarjeta sigue montada, es decir la
+        // acción no navegó fuera): el propio cierre del aro (dashoffset
+        // 0→50 + opacity con delay) ya dura 900ms, no hace falta
+        // sostenerlo encendido más tiempo antes de empezar a cerrarlo.
+        this._tapFlash = false;
+      }, RING_ANIMATION_MS);
+      return;
+    }
+    this._dispatchAction(actionType);
+  }
+
+  private _dispatchAction(actionType: string): void {
     dispatchHassAction(
       this,
       {
@@ -399,7 +280,7 @@ export class NeonButtonCard extends BaseNeonCard {
   protected render(): TemplateResult | typeof nothing {
     if (!this._config) return nothing;
     const colors = resolveGradientColors(this._config);
-    const active = this._isActive;
+    const active = this._isActive || this._tapFlash;
     const hasDoubleTap = !!this._config.double_tap_action && this._config.double_tap_action.action !== 'none';
 
     return html`
@@ -416,7 +297,7 @@ export class NeonButtonCard extends BaseNeonCard {
             hasDoubleTap,
           })}
       >
-        ${neonRingTemplate(this._ringUid)}
+        ${neonRingSplitTemplate(this._ringUid, this._ringSize.width, this._ringSize.height, this._ringSize.radius)}
         <div class="content">
           <ha-icon class="neon-halo-icon" icon=${this._icon}></ha-icon>
           <div class="text">
@@ -433,9 +314,40 @@ export class NeonButtonCard extends BaseNeonCard {
     `;
   }
 
-  protected updated(changedProps: PropertyValues): void {
-    super.updated(changedProps);
+  connectedCallback(): void {
+    super.connectedCallback();
+    this._ringLoop();
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    clearTimeout(this._tapFlashTimer);
+    cancelAnimationFrame(this._ringRafId ?? -1);
+  }
+
+  /** Mide ha-card cada fotograma mientras la tarjeta está conectada, en
+      vez de esperar a un ResizeObserver (ver el porqué en el comentario
+      de _ringSize). Barato: solo offsetWidth/Height + un
+      getComputedStyle, y solo actualiza el estado reactivo (dispara
+      re-render) si el valor realmente cambió. */
+  private _ringLoop(): void {
+    const cardEl = this.renderRoot?.querySelector('ha-card') as HTMLElement | null;
+    if (cardEl) {
+      const width = cardEl.offsetWidth;
+      const height = cardEl.offsetHeight;
+      // Descarta lecturas degeneradas (0×0), típicas de un frame
+      // intermedio antes de que el elemento tenga layout asignado.
+      if (width >= 4 && height >= 4) {
+        const radius = parseFloat(getComputedStyle(cardEl).borderTopLeftRadius) || 12;
+        if (
+          width !== this._ringSize.width ||
+          height !== this._ringSize.height ||
+          radius !== this._ringSize.radius
+        ) {
+          this._ringSize = { width, height, radius };
+        }
+      }
+    }
+    this._ringRafId = requestAnimationFrame(() => this._ringLoop());
   }
 }
-
-export { CARD_AUTHOR, CARD_VERSION };

@@ -3,7 +3,8 @@ import type { TemplateResult } from 'lit';
 import type { HomeAssistant } from '../../ha/types';
 import { INFO_OPTIONS, INFO_LABELS } from '../../core';
 import { DEFAULT_PALETTE } from '../../shared';
-import type { ActionConfig, NeonCardEntityConfig, ValueChangedEvent } from './types';
+import type { ValueChangedEvent } from '../../ha/types';
+import type { ActionConfig, NeonCardEntityConfig } from './types';
 
 const ALLOWED_ACTIONS = ['more-info', 'toggle', 'navigate', 'url', 'call-service', 'assist', 'none'];
 

@@ -7,10 +7,30 @@ principal opcional: puede navegar, abrir un popup/more-info, ejecutar un
 script/servicio, o representar una habitación/zona sin estar ligado a
 ningún dominio concreto.
 
-Identidad visual: cristal (glassmorphism), icono protagonista y halo
-neón exterior en estado activo — reutiliza la misma paleta y el mismo
-framework (`src/core`, `src/shared`, `src/ha`) que la
+Identidad visual: icono protagonista y aro neón animado (se dibuja en
+dos direcciones desde la esquina superior izquierda, encontrándose en
+la inferior derecha) en estado activo — reutiliza la misma paleta y el
+mismo framework (`src/core`, `src/shared`, `src/ha`) que la
 [Entity Card](../entity), sin copiar su diseño.
+
+El ancho y el alto de la tarjeta se calculan solos según el contenido
+(`getGridOptions()`, filas automáticas + columnas según el número de
+sensores agrupados) — no hace falta indicar `grid_options` a mano salvo
+para forzar un tamaño distinto al calculado.
+
+## Paleta de colores
+
+```yaml
+neon_palette: emerald
+# emerald | cyberpunk | electric | sunset | toxic | custom
+neon_color1: "#39e07a"
+neon_color2: "#2dd6b8"
+neon_color3: "#1ecdf2"
+```
+
+`neon_color1/2/3` solo se leen cuando `neon_palette: custom`; con
+cualquier otro valor de `neon_palette` se ignoran y se usan los colores
+del preset.
 
 ## Config
 
@@ -103,10 +123,30 @@ main entity is optional: it can navigate, open a popup/more-info, run a
 script/service, or represent a room/zone without being tied to any
 particular domain.
 
-Visual identity: glassmorphism, a hero icon, and an outer neon halo when
+Visual identity: a hero icon and an animated neon ring (draws in two
+directions from the top-left corner, meeting at the bottom-right) when
 active — reuses the same palette and framework (`src/core`,
 `src/shared`, `src/ha`) as the [Entity Card](../entity) without copying
 its design.
+
+The card's width and height are computed automatically from its content
+(`getGridOptions()`, automatic rows + columns based on the number of
+grouped sensors) — no need to set `grid_options` by hand unless you want
+to force a different size than the computed one.
+
+## Color palette
+
+```yaml
+neon_palette: emerald
+# emerald | cyberpunk | electric | sunset | toxic | custom
+neon_color1: "#39e07a"
+neon_color2: "#2dd6b8"
+neon_color3: "#1ecdf2"
+```
+
+`neon_color1/2/3` are only read when `neon_palette: custom`; with any
+other `neon_palette` value they're ignored and the preset's colors are
+used instead.
 
 ## Config
 

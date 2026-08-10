@@ -7,8 +7,8 @@
  *
  * Esto es intencionadamente independiente del tema de Home Assistant: la
  * identidad "neón" de la colección no depende del tema activo (ver
- * `docs/*​/api.md`), solo el resto de la tarjeta (fondo, texto, cristal)
- * sí lo hace a través de variables CSS de HA.
+ * `docs/*​/api.md`), solo el resto de la tarjeta (fondo, texto) sí lo
+ * hace a través de variables CSS de HA.
  */
 
 export interface NeonPreset {

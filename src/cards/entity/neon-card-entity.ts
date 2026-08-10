@@ -13,7 +13,6 @@ import {
 import type { GestureState, InfoOption } from '../../core';
 import { resolveGradientColors } from '../../shared';
 import type { GradientColors } from '../../shared';
-import { CARD_AUTHOR, CARD_VERSION } from './constants';
 import type { EntityItemConfig, NeonCardEntityConfig } from './types';
 
 /**
@@ -404,5 +403,3 @@ export class NeonCardEntity extends BaseNeonCard {
     }
   }
 }
-
-export { CARD_AUTHOR, CARD_VERSION };

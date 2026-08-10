@@ -3,51 +3,19 @@ import type { TemplateResult } from 'lit';
 import type { GradientColors } from './neon-palette';
 
 /**
- * Halo/resplandor neón reutilizable para tarjetas completas (a diferencia
- * del aro SVG de la Entity Card, que rodea un interruptor concreto). Usa
- * las mismas variables `--neon-c1/c2/c3` que resuelve
- * `resolveGradientColors` en `neon-palette.ts`, así que cualquier tarjeta
- * que quiera un "glow" de card completa comparte exactamente el mismo
- * lenguaje visual y la misma paleta que el aro de la Entity Card.
- *
- * Implementado con `box-shadow` en capas (no `radial-gradient` +
- * pseudo-elemento): un `box-shadow` siempre pinta por FUERA del borde del
- * elemento, nunca por dentro, así que separación y "flotar sobre el
- * cristal" quedan garantizados por cómo funciona la propiedad, no hay
- * que pelear con z-index/stacking contexts. El `spread` negativo retrasa
- * dónde empieza a verse el resplandor (separación real de unos píxeles
- * antes de que se note el halo) y los offsets asimétricos concentran más
- * brillo en la esquina superior izquierda, donde vive el icono, en vez
- * de un resplandor uniforme (punto 15 de la spec).
- *
- * Toda la animación es CSS puro (box-shadow + filter), sin JS, para
- * cumplir el objetivo de rendimiento (250-350ms, mínimos re-renderizados).
+ * Brillo de icono neón reutilizable: en estado activo adopta el color de
+ * la paleta (variables `--neon-c1/c2/c3` que resuelve
+ * `resolveGradientColors` en `neon-palette.ts`) con doble capa de
+ * `drop-shadow`, en vez del color neutro del tema — la fuente de luz
+ * "nace" del propio icono. Cualquier tarjeta que quiera este efecto
+ * comparte exactamente el mismo lenguaje visual y la misma paleta.
  *
  * Uso: la tarjeta anfitriona añade `NEON_HALO_STYLES` a su `static
- * styles`, pone la clase `neon-halo-host` en el contenedor y
- * `neon-halo-active` cuando el estado es "activo", fijando las variables
- * con `neonHaloVars(colors)` en el `style` inline del mismo contenedor.
+ * styles`, pone la clase `neon-halo-icon` en el icono y `neon-halo-active`
+ * en un ancestro (normalmente el host) cuando el estado es "activo",
+ * fijando las variables con `neonHaloVars(colors)` en el `style` inline.
  */
 export const NEON_HALO_STYLES = css`
-  .neon-halo-host {
-    box-shadow: 0 0 0 0 transparent;
-    transition: box-shadow 300ms ease-out;
-  }
-  .neon-halo-host.neon-halo-active {
-    /* Las 3 capas se leen de "más cerca del icono" a "más lejos":
-       offset negativo (arriba-izquierda, junto al icono) más intenso,
-       offset positivo (esquina opuesta) más tenue, capa central para
-       rellenar el contorno completo sin que se vea partido en dos. */
-    box-shadow:
-      -6px -6px 26px -4px color-mix(in srgb, var(--neon-c1) 75%, transparent),
-      6px 6px 26px -6px color-mix(in srgb, var(--neon-c3) 55%, transparent),
-      0 0 18px -6px color-mix(in srgb, var(--neon-c2) 65%, transparent);
-  }
-  /* La fuente de luz "nace" del icono: en estado activo adopta el color
-     de la paleta (no el neutro del tema) y una doble capa de
-     drop-shadow para que "resalte" con claridad, coherente con que el
-     halo es más intenso en su esquina (punto 15: "el icono es la fuente
-     de iluminación de la tarjeta"). */
   .neon-halo-icon {
     transition: color 300ms ease-out, filter 300ms ease-out;
   }
@@ -58,31 +26,34 @@ export const NEON_HALO_STYLES = css`
 `;
 
 /**
- * Aro nítido con gradiente de 3 colores, mismo lenguaje visual Y MISMA
- * ANIMACIÓN DE ENCENDIDO que el aro SVG de la Entity Card: no es un
- * fundido de opacidad, es un trazo que se "dibuja" (stroke-dasharray +
- * stroke-dashoffset) alrededor del contorno de la tarjeta.
+ * Aro nítido con gradiente de 3 colores dividido en DOS mitades, igual
+ * que el aro SVG de la Entity Card: ambas arrancan del mismo punto
+ * (esquina superior izquierda) y se dibujan en direcciones opuestas —
+ * una via el borde superior + derecho, la otra via el izquierdo +
+ * inferior — encontrándose en la esquina inferior derecha.
  *
- * A diferencia del switch de Entity (tamaño fijo 64×34, geometría
- * calculada a mano en el `path`), aquí el rect debe adaptarse a
- * cualquier tamaño/`border-radius` de tarjeta. Se resuelve con:
- * - `x`/`y`/`width`/`height`/`rx` fijados por CSS (propiedades de
- *   geometría SVG como CSS, soportado en navegadores modernos) en vez
- *   de atributos XML fijos, para que seguir el tamaño real del host.
- * - `pathLength="100"` en el `<rect>`: normaliza la longitud del
- *   contorno a 100 unidades sea cual sea el tamaño real, así
- *   `stroke-dasharray: 100` + `stroke-dashoffset` funcionan igual en
- *   una tarjeta de 2 columnas que en una de 6, sin recalcular nada.
+ * Requiere JavaScript: un `<path>` con arcos de esquina necesita
+ * coordenadas en unidades reales — el atributo `d` no admite `%` ni
+ * `calc()` — así que recibe el ancho/alto real medido de la tarjeta.
+ * (Ver Button Card: en vez de `ResizeObserver`, que resultó no
+ * disparar de forma fiable tras crear/mover tarjetas en el editor de
+ * HA, se mide con `requestAnimationFrame` en bucle continuo mientras
+ * la tarjeta está montada — no depende de que ningún evento "avise"
+ * del cambio, así que no puede quedarse desincronizado.)
  *
- * Uso: la tarjeta anfitriona añade `NEON_RING_STYLES`, incluye
- * `neonRingTemplate(uid)` como primer hijo dentro de `ha-card`, pone la
- * clase `neon-ring-host` en el contenedor y `neon-halo-active`
- * (compartida con `NEON_HALO_STYLES`) cuando el estado es "activo".
- * `uid` debe ser estable y único por instancia (para no chocar los
- * `id` del `<linearGradient>` cuando hay varias tarjetas en el mismo
- * dashboard).
+ * Cada mitad usa `pathLength="50"` + `stroke-dasharray: 50` +
+ * `stroke-dashoffset` 50→0, exactamente la misma técnica que usan los
+ * dos `<path>` del aro de Entity.
+ *
+ * Uso: la tarjeta anfitriona añade `NEON_RING_SPLIT_STYLES`, incluye
+ * `neonRingSplitTemplate(uid, width, height, radius)` como primer hijo
+ * dentro de `ha-card`, pone la clase `neon-ring-host` en el contenedor
+ * y `neon-halo-active` (compartida con `NEON_HALO_STYLES`) cuando el
+ * estado es "activo". `uid` debe ser estable y único por instancia
+ * (para no chocar los `id` del `<linearGradient>` cuando hay varias
+ * tarjetas en el mismo dashboard).
  */
-export const NEON_RING_STYLES = css`
+export const NEON_RING_SPLIT_STYLES = css`
   .neon-ring-host {
     position: relative;
   }
@@ -94,30 +65,92 @@ export const NEON_RING_STYLES = css`
     overflow: visible;
     pointer-events: none;
   }
-  .neon-ring-rect {
-    x: 1.2px;
-    y: 1.2px;
-    width: calc(100% - 2.4px);
-    height: calc(100% - 2.4px);
-    rx: var(--ha-card-border-radius, 12px);
+  .neon-ring-path {
     fill: none;
     stroke-width: 2.4px;
-    stroke-dasharray: 100;
-    stroke-dashoffset: 100;
+    /* SIN stroke-linecap: round — con dash+gap y linecap redondeado, el
+       instante en que el trazo pasa por longitud casi cero (al empezar
+       a encenderse o justo en el punto de encuentro de las dos
+       mitades) deja un punto redondeado residual visible. El aro de la
+       Entity Card tampoco usa linecap redondeado. "butt" (por defecto)
+       no genera ese artefacto. */
+    stroke-dasharray: 50;
+    stroke-dashoffset: 50;
     filter: drop-shadow(0 0 4px color-mix(in srgb, var(--neon-c2) 65%, transparent));
     transition: stroke-dashoffset 900ms ease-in-out;
   }
-  .neon-ring-host.neon-halo-active .neon-ring-rect {
+  .neon-ring-host.neon-halo-active .neon-ring-path {
     stroke-dashoffset: 0;
   }
 `;
 
 /**
- * Markup del aro SVG que consume `NEON_RING_STYLES`. `uid` identifica el
- * `<linearGradient>` para que no colisione con el de otras tarjetas
- * Button en el mismo dashboard.
+ * Calcula los dos trazados (`d`) de las mitades del aro para un
+ * rectángulo redondeado de `width`×`height` con radio `radius`,
+ * separado `inset` px del borde real de la tarjeta (la mitad del
+ * grosor del trazo, para que el aro quede centrado sobre el borde).
+ * Ambos arrancan/terminan en el punto medio (45°) de la esquina
+ * correspondiente para que el encuentro entre las dos mitades sea
+ * exacto, sin solape ni hueco.
  */
-export function neonRingTemplate(uid: string): TemplateResult {
+export function neonRingSplitPaths(
+  width: number,
+  height: number,
+  radius: number,
+  inset: number,
+): { top: string; bottom: string } {
+  const r = Math.max(0, Math.min(radius, width / 2 - inset, height / 2 - inset));
+  const x0 = inset;
+  const y0 = inset;
+  const x1 = Math.max(x0, width - inset);
+  const y1 = Math.max(y0, height - inset);
+  // Punto al 45° del arco de esquina (mitad de cada cuarto de círculo).
+  const k = r * (1 - Math.SQRT1_2);
+  const startX = x0 + k;
+  const startY = y0 + k;
+  const endX = x1 - k;
+  const endY = y1 - k;
+
+  // Mitad "superior-derecha": del punto medio de la esquina sup-izq,
+  // termina el arco → borde superior → esquina sup-derecha (completa)
+  // → borde derecho → mitad del arco inferior-derecho.
+  const top = [
+    `M ${startX} ${startY}`,
+    `A ${r} ${r} 0 0 1 ${x0 + r} ${y0}`,
+    `L ${x1 - r} ${y0}`,
+    `A ${r} ${r} 0 0 1 ${x1} ${y0 + r}`,
+    `L ${x1} ${y1 - r}`,
+    `A ${r} ${r} 0 0 1 ${endX} ${endY}`,
+  ].join(' ');
+
+  // Mitad "inferior-izquierda": mismo punto de partida, sentido
+  // contrario → borde izquierdo → esquina inf-izq (completa) → borde
+  // inferior → mitad del arco inferior-derecho (mismo punto final).
+  const bottom = [
+    `M ${startX} ${startY}`,
+    `A ${r} ${r} 0 0 0 ${x0} ${y0 + r}`,
+    `L ${x0} ${y1 - r}`,
+    `A ${r} ${r} 0 0 0 ${x0 + r} ${y1}`,
+    `L ${x1 - r} ${y1}`,
+    `A ${r} ${r} 0 0 0 ${endX} ${endY}`,
+  ].join(' ');
+
+  return { top, bottom };
+}
+
+/**
+ * Markup del aro SVG partido en dos que consume `NEON_RING_SPLIT_STYLES`.
+ * `uid` identifica el `<linearGradient>` para que no colisione con el de
+ * otras tarjetas Button en el mismo dashboard.
+ */
+export function neonRingSplitTemplate(
+  uid: string,
+  width: number,
+  height: number,
+  radius: number,
+): TemplateResult {
+  const strokeWidth = 2.4;
+  const paths = neonRingSplitPaths(width, height, radius, strokeWidth / 2);
   return html`
     <svg class="neon-ring-svg" aria-hidden="true">
       <defs>
@@ -127,7 +160,18 @@ export function neonRingTemplate(uid: string): TemplateResult {
           <stop offset="100%" stop-color="var(--neon-c3)" />
         </linearGradient>
       </defs>
-      <rect class="neon-ring-rect" pathLength="100" stroke="url(#neon-ring-grad-${uid})"></rect>
+      <path
+        class="neon-ring-path"
+        pathLength="50"
+        stroke="url(#neon-ring-grad-${uid})"
+        d=${paths.top}
+      ></path>
+      <path
+        class="neon-ring-path"
+        pathLength="50"
+        stroke="url(#neon-ring-grad-${uid})"
+        d=${paths.bottom}
+      ></path>
     </svg>
   `;
 }

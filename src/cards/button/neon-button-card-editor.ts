@@ -4,7 +4,8 @@ import type { HomeAssistant } from '../../ha/types';
 import { DEFAULT_PALETTE } from '../../shared';
 import { INFO_OPTIONS, INFO_LABELS } from '../../core';
 import { MAX_GROUPED_SENSORS } from './constants';
-import type { SensorItemConfig, ValueChangedEvent, NeonButtonCardConfig } from './types';
+import type { ValueChangedEvent } from '../../ha/types';
+import type { SensorItemConfig, NeonButtonCardConfig } from './types';
 import type { ActionConfig } from '../../ha/types';
 
 const ALLOWED_ACTIONS = ['more-info', 'toggle', 'navigate', 'url', 'call-service', 'assist', 'none'];

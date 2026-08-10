@@ -16,6 +16,7 @@ See also the [Spanish version](../es/api.md).
   - [Primary/secondary info (`info.ts`)](#primarysecondary-info-infots)
 - [`src/ha` — Home Assistant types](#srcha--home-assistant-types)
 - [Neón Card Entity — YAML configuration](#neón-card-entity--yaml-configuration)
+- [Neón Button Card — YAML configuration](#neón-button-card--yaml-configuration)
 
 ---
 
@@ -261,4 +262,68 @@ show_status_dot: false
 primary_info: name
 secondary_info: last-changed
 card_orientation: right
+```
+
+---
+
+## Neón Button Card — YAML configuration
+
+Every key of `NeonButtonCardConfig` (`src/cards/button/types.ts`). See
+full examples in [`examples/`](../../examples/README.md).
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `entity` | `string` | — | Main entity, optional. Drives the active ring/icon when set; without it, the card still works (e.g. for `tap_action: navigate`) but is never marked active by state. |
+| `icon` | `string` | entity's icon, or `mdi:gesture-tap-button` | Button icon. |
+| `name` | `string` | — (empty) | Card title. |
+| `subtitle` | `string` | — (empty) | Free text under the name, when `subtitle_type` is `'custom'` or unset. |
+| `subtitle_type` | `'custom' \| 'name' \| 'state' \| 'last-changed' \| 'last-updated' \| 'none'` | `'custom'` | Any value other than `'custom'` computes the subtitle from `entity` (reuses `computeInfoDisplay` from `src/core`) — requires `entity`. |
+| `top_sensor` | `SensorItemConfig` | — | A single, ungrouped sensor above the divider. |
+| `sensors` | `SensorItemConfig[]` (max 3) | `[]` | The grouped row below the divider, with a vertical separator between each one. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | The neon ring's palette. `'custom'` enables `neon_color1/2/3`. |
+| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | palette-dependent | Gradient colors when `neon_palette: custom`. |
+| `tap_action` / `hold_action` / `double_tap_action` | `ActionConfig` | `toggle`/`more-info` (if `entity` set) / `more-info` / `none` | Standard Home Assistant actions. |
+
+`SensorItemConfig` (`top_sensor` or each item in `sensors`):
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `entity` | `string` | — (required) | Only `sensor` or `binary_sensor` domains. |
+| `icon` | `string` | computed from `device_class` | Sensor's own icon. |
+| `decimals` | `number` | `1` (`DEFAULT_SENSOR_DECIMALS`) | Decimals when rounding a numeric state. |
+
+### `getGridOptions()` — automatic sizing
+
+The card's width (`columns`) and height (`rows: 'auto'`) in HA's grid
+are computed automatically from its content — no need to set
+`grid_options` unless you want to force a different size:
+
+| Content | `columns` |
+|---|---|
+| No grouped sensors (with or without `top_sensor`/`subtitle`) | `3` |
+| 1 grouped sensor | `4` (provisional value, pending confirmation) |
+| 2 grouped sensors | `5` |
+| 3 grouped sensors | `6` |
+
+### Full example
+
+```yaml
+type: custom:neon-button-card
+entity: light.living_room
+subtitle: Lights
+neon_palette: cyberpunk
+tap_action:
+  action: toggle
+hold_action:
+  action: more-info
+double_tap_action:
+  action: none
+top_sensor:
+  entity: sensor.living_room_power
+  icon: mdi:flash
+  decimals: 0
+sensors:
+  - entity: sensor.living_room_temperature
+  - entity: sensor.living_room_humidity
+    icon: mdi:water-percent
 ```

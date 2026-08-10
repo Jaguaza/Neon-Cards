@@ -21,6 +21,6 @@ win.customCards = win.customCards || [];
 win.customCards.push({
   type: 'neon-button-card',
   name: 'Neón Button Card',
-  description: 'Botón de acción con cristal, icono protagonista y halo neón en estado activo.',
+  description: 'Botón de acción con icono protagonista, aro neón animado y halo en estado activo.',
   preview: true,
 });

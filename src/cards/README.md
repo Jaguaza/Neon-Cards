@@ -17,7 +17,8 @@ Una tarjeta:
 - [`entity`](./entity) — `custom:neon-card-entity`, interruptor con aro
   neón degradado de 3 colores. Ver [ejemplo](../../examples/README.md).
 - [`button`](./button) — `custom:neon-button-card`, botón de acción con
-  entidad opcional, cristal y halo neón en estado activo.
+  entidad opcional, icono protagonista y aro neón animado en estado
+  activo. Ver [ejemplo](../../examples/README.md).
 
 ---
 
@@ -42,4 +43,5 @@ A card:
 - [`entity`](./entity) — `custom:neon-card-entity`, a switch with a
   3-color neon gradient ring. See the [example](../../examples/README.md).
 - [`button`](./button) — `custom:neon-button-card`, an action button
-  with an optional entity, glassmorphism, and a neon halo when active.
+  with an optional entity, a hero icon, and an animated neon ring when
+  active. See the [example](../../examples/README.md).
