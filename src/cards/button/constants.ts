@@ -6,6 +6,17 @@ export const CARD_VERSION = NEON_CARDS_VERSION;
 /** Icono por defecto cuando no hay `icon:` ni `entity:` en la config. */
 export const DEFAULT_ICON = 'mdi:gesture-tap-button';
 
+/**
+ * Icono que sustituye al principal cuando SÍ hay `entity:` configurada
+ * pero está rota (no existe en `hass.states` o su estado es
+ * `unavailable`) — sustituye incluso a un `icon:` explícito, porque en
+ * ese caso el icono deja de comunicar la acción y pasa a comunicar el
+ * problema. Lleva el mismo tratamiento neón que el icono activo (ver
+ * `.neon-halo-error` en `src/shared/glow.ts`), nunca el icono roto/gris
+ * por defecto del navegador o de HA.
+ */
+export const ERROR_ICON = 'mdi:close';
+
 /** Máximo de sensores en la fila agrupada bajo el divisor — legibilidad. */
 export const MAX_GROUPED_SENSORS = 3;
 

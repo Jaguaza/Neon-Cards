@@ -23,6 +23,30 @@ export const NEON_HALO_STYLES = css`
     color: var(--neon-c1);
     filter: drop-shadow(0 0 3px var(--neon-c1)) drop-shadow(0 0 10px color-mix(in srgb, var(--neon-c1) 70%, transparent));
   }
+  /**
+   * Estado de error (entidad rota/no encontrada): mismo lenguaje visual
+   * de base que el halo activo (drop-shadow, luz que nace del icono),
+   * pero con rojo neón fijo (no la paleta configurada — es un estado
+   * semántico, "algo falla", no una variante de color más) y con una
+   * capa extra de glow para que lea como rótulo de neón, no como un
+   * simple tinte. Si esta clase y .neon-halo-active coinciden alguna
+   * vez en el mismo ancestro, el error va después en la hoja de
+   * estilos y gana, que es el comportamiento correcto (con entidad
+   * rota _isActive ya es false en la práctica, pero así queda
+   * blindado).
+   */
+  .neon-halo-error .neon-halo-icon {
+    color: var(--neon-error-color, #ff2d6b);
+    /* Tres capas (núcleo nítido → medio → halo amplio y difuso) en vez
+       de las dos que usa el halo activo normal — más cerca de un rótulo
+       de neón real (referencia: letreros "neon X" con núcleo blanco-
+       rosado muy saturado y una difusión amplia alrededor), ya que este
+       icono debe llamar la atención como una alerta, no fundirse con el
+       resto de iconos en reposo. */
+    filter: drop-shadow(0 0 2px var(--neon-error-color, #ff2d6b))
+      drop-shadow(0 0 6px var(--neon-error-color, #ff2d6b))
+      drop-shadow(0 0 16px color-mix(in srgb, var(--neon-error-color, #ff2d6b) 65%, transparent));
+  }
 `;
 
 /**

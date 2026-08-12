@@ -19,7 +19,7 @@ import {
   neonHaloVars,
   neonRingSplitTemplate,
 } from '../../shared';
-import { DEFAULT_ICON, MAX_GROUPED_SENSORS, RING_ANIMATION_MS } from './constants';
+import { DEFAULT_ICON, ERROR_ICON, MAX_GROUPED_SENSORS, RING_ANIMATION_MS } from './constants';
 import { NEON_BUTTON_CARD_STYLES } from './neon-button-card.styles';
 import type { NeonButtonCardConfig } from './types';
 
@@ -171,7 +171,24 @@ export class NeonButtonCard extends BaseNeonCard {
     return stateObj.state === 'on';
   }
 
+  /**
+   * `entity:` está configurada pero rota: no existe en `hass.states`
+   * (borrada, mal escrita) o su estado es `unavailable` (integración o
+   * dispositivo caído). Sin `entity:` configurada NO es un error — es
+   * el caso legítimo de botón de acción puro (punto 10 de la spec), así
+   * que ahí siempre es `false`.
+   */
+  private get _entityBroken(): boolean {
+    if (!this._config?.entity || !this.hass) return false;
+    const stateObj = this.hass.states[this._config.entity];
+    return !stateObj || stateObj.state === 'unavailable';
+  }
+
   private get _icon(): string {
+    // La entidad rota sustituye SIEMPRE al icono principal, incluso si
+    // hay un `icon:` explícito en la config — con la entidad caída el
+    // icono debe comunicar el problema, no la acción configurada.
+    if (this._entityBroken) return ERROR_ICON;
     return this._config?.icon || (this._stateObj?.attributes.icon as string | undefined) || DEFAULT_ICON;
   }
 
@@ -285,7 +302,7 @@ export class NeonButtonCard extends BaseNeonCard {
 
     return html`
       <ha-card
-        class="neon-ring-host ${active ? 'neon-halo-active' : ''}"
+        class="neon-ring-host ${active ? 'neon-halo-active' : ''} ${this._entityBroken ? 'neon-halo-error' : ''}"
         style=${neonHaloVars(colors)}
         @pointerdown=${(ev: PointerEvent) => handlePointerDown(this._gesture, ev, '.-none-', () => this._handleAction('hold'))}
         @pointerup=${() => cancelHold(this._gesture)}
