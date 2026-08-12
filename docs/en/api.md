@@ -300,8 +300,7 @@ are computed automatically from its content — no need to set
 
 | Content | `columns` |
 |---|---|
-| No grouped sensors (with or without `top_sensor`/`subtitle`) | `3` |
-| 1 grouped sensor | `4` (provisional value, pending confirmation) |
+| No grouped sensors, or just 1 (with or without `top_sensor`/`subtitle`) | `3` |
 | 2 grouped sensors | `5` |
 | 3 grouped sensors | `6` |
 

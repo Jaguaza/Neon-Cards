@@ -76,6 +76,31 @@ export const NEON_BUTTON_CARD_STYLES = css`
     margin-bottom: 2px;
     transition: color 300ms ease-out, filter 300ms ease-out;
   }
+  .icon-wrap {
+    position: relative;
+    /* Mismo margin-bottom que llevaba el icono suelto antes de
+       envolverlo — el wrapper es el que ahora separa del texto. */
+    margin-bottom: 2px;
+  }
+  .icon-wrap ha-icon {
+    /* El margin-bottom ya lo lleva .icon-wrap; evita doble espaciado. */
+    margin-bottom: 0;
+  }
+  /* Aviso de entidad unavailable/unknown: mismo lenguaje de color rojo
+     que el aro de error de la Entity Card (#ff4444), pero como una X
+     superpuesta en la esquina del icono en vez de un aro alrededor del
+     pomo — Button no tiene pomo, tiene icono. */
+  .unavailable-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    --mdc-icon-size: 16px;
+    color: #ff4444;
+    background: var(--card-background-color, #1c1c1c);
+    border-radius: 50%;
+    box-shadow: 0 0 4px rgba(255, 68, 68, 0.7);
+    pointer-events: none;
+  }
   .text {
     display: flex;
     flex-direction: column;

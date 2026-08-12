@@ -130,14 +130,14 @@ export class NeonButtonCard extends BaseNeonCard {
     // mezclar 'auto' con filas fijas en la misma rejilla).
     //
     // columns calibrado con medidas reales tomadas en el editor de HA
-    // (capturas de las 6 variantes básicas): depende SOLO de
-    // sensors.length, top_sensor NO suma ancho por sí solo (con
-    // top_sensor y sin agrupados mide igual que sin nada — la fila de
-    // top_sensor no necesita más ancho, solo más alto, y eso ya lo da
-    // rows:'auto').
+    // (capturas de las 6 variantes básicas + confirmación de 1 solo
+    // sensor agrupado): depende SOLO de sensors.length ≥ 2, top_sensor
+    // NO suma ancho por sí solo (con top_sensor y sin agrupados mide
+    // igual que sin nada — la fila de top_sensor no necesita más ancho,
+    // solo más alto, y eso ya lo da rows:'auto'). Con 1 solo sensor
+    // agrupado tampoco hace falta más ancho que la base (3).
     const groupedCount = this._config?.sensors?.length ?? 0;
-    let columns = 3; // sin agrupados (con o sin top_sensor/subtítulo)
-    if (groupedCount === 1) columns = 4; // valor provisional: falta confirmar con una captura real (ver Issue pendiente)
+    let columns = 3; // sin agrupados, o con 1 solo (con o sin top_sensor/subtítulo)
     if (groupedCount === 2) columns = 5;
     if (groupedCount === 3) columns = 6;
 
@@ -169,6 +169,16 @@ export class NeonButtonCard extends BaseNeonCard {
     const domain = this._config!.entity!.split('.')[0];
     if (!ACTIVE_DOMAINS_ON_STATE.has(domain)) return false;
     return stateObj.state === 'on';
+  }
+
+  /** Igual criterio que Entity Card (unavailable/unknown/entidad
+      desaparecida), pero SOLO si hay `entity` configurada — Button
+      admite no tener ninguna (p.ej. para tap_action: navigate), y ese
+      caso nunca debe marcarse como "en fallo". */
+  private get _isUnavailable(): boolean {
+    if (!this._config?.entity) return false;
+    const stateObj = this._stateObj;
+    return !stateObj || stateObj.state === 'unavailable' || stateObj.state === 'unknown';
   }
 
   private get _icon(): string {
@@ -299,7 +309,12 @@ export class NeonButtonCard extends BaseNeonCard {
       >
         ${neonRingSplitTemplate(this._ringUid, this._ringSize.width, this._ringSize.height, this._ringSize.radius)}
         <div class="content">
-          <ha-icon class="neon-halo-icon" icon=${this._icon}></ha-icon>
+          <div class="icon-wrap">
+            <ha-icon class="neon-halo-icon" icon=${this._icon}></ha-icon>
+            ${this._isUnavailable
+              ? html`<ha-icon class="unavailable-badge" icon="mdi:close" aria-hidden="true"></ha-icon>`
+              : nothing}
+          </div>
           <div class="text">
             <span class="name">${this._name}</span>
             ${this._subtitle !== nothing ? html`<span class="subtitle">${this._subtitle}</span>` : nothing}
