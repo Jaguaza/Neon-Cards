@@ -46,6 +46,11 @@ globalThis.Document = dom.window.Document;
 globalThis.CustomEvent = dom.window.CustomEvent;
 globalThis.Event = dom.window.Event;
 globalThis.getComputedStyle = dom.window.getComputedStyle;
+// jsdom no implementa RAF (no hace pintado real) — Button Card lo usa
+// para medir su tamaño (_ringLoop, ver src/shared/glow.ts). Sin esto el
+// benchmark no puede montar/desmontar la tarjeta.
+globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(Date.now()), 16);
+globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
 globalThis.ShadowRoot = dom.window.ShadowRoot;
 globalThis.CSSStyleSheet = dom.window.CSSStyleSheet;
 Object.defineProperty(globalThis, 'navigator', {

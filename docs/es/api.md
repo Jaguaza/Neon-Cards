@@ -15,6 +15,11 @@ Ver también la versión en [inglés](../en/api.md).
   - [Acciones (`actions.ts`)](#acciones-actionsts)
   - [Información primaria/secundaria (`info.ts`)](#información-primariasecundaria-infots)
 - [`src/ha` — Tipos de Home Assistant](#srcha--tipos-de-home-assistant)
+  - [Sensores (`sensors.ts`)](#sensores-sensorsts)
+- [`src/shared` — Paleta y efectos neón compartidos](#srcshared--paleta-y-efectos-neón-compartidos)
+  - [Paleta (`neon-palette.ts`)](#paleta-neon-palettets)
+  - [Halo de icono (`glow.ts`)](#halo-de-icono-glowts)
+  - [Aro partido (`glow.ts`)](#aro-partido-glowts)
 - [Neón Card Entity — Configuración YAML](#neón-card-entity--configuración-yaml)
 - [Neón Button Card — Configuración YAML](#neón-button-card--configuración-yaml)
 
@@ -220,6 +225,182 @@ interface HomeAssistant {
   - `service: string` — p. ej. `'toggle'`, `'turn_on'`.
   - `serviceData?: Record<string, unknown>` — p. ej. `{ entity_id: 'light.salon' }`.
   - **Devuelve:** `Promise<void>`.
+
+---
+
+### Sensores (`sensors.ts`)
+
+Helpers de entidades `sensor`/`binary_sensor` (las tarjetas nunca leen
+`hass.states` a mano para esto — acuerdo nº4). Hoy los usa la Button
+Card (`top_sensor`/`sensors`); cualquier tarjeta futura que muestre
+sensores contextuales debería reutilizarlos.
+
+#### `getSensorDisplay(entityId, hass, options?)`
+
+- **Descripción:** icono/estado/unidad ya formateados de una entidad
+  `sensor`/`binary_sensor`, listos para pintar. El icono se calcula por
+  `device_class` si no se indica uno explícito; el estado se redondea a
+  `options.decimals` decimales (por defecto `1`) cuando es numérico, y
+  se deja intacto si no lo es (p. ej. `"Cerrada"`, `"on"`/`"off"` de un
+  `binary_sensor`).
+- **Parámetros:**
+  - `entityId: string` — p. ej. `'sensor.salon_temperature'`.
+  - `hass: HomeAssistant`.
+  - `options?: { icon?: string; decimals?: number }` — sobreescriben el
+    icono/decimales calculados automáticamente para ese sensor.
+- **Devuelve:** `SensorDisplay | null` — `null` si `entityId` no
+  pertenece a los dominios `sensor`/`binary_sensor` (`SENSOR_DOMAINS`).
+  ```ts
+  interface SensorDisplay {
+    entity: string;
+    icon: string;
+    state: string;
+    unit: string;
+    available: boolean; // false si unavailable/unknown o no existe
+  }
+  ```
+- **Ejemplo:**
+  ```ts
+  const d = getSensorDisplay('sensor.salon_humidity', hass, { decimals: 0 });
+  // d?.icon === 'mdi:water-percent', d?.state === '47', d?.unit === '%'
+  ```
+
+#### `formatSensorState(state, decimals?)`
+
+- **Descripción:** redondea un estado numérico a `decimals` decimales
+  (por defecto `1`); deja intacto cualquier estado no numérico.
+- **Parámetros:**
+  - `state: string` — `stateObj.state` tal cual.
+  - `decimals?: number` — por defecto `DEFAULT_SENSOR_DECIMALS` (`1`).
+- **Devuelve:** `string`.
+- **Ejemplo:**
+  ```ts
+  formatSensorState('21.456', 1); // '21.5'
+  formatSensorState('unavailable'); // 'unavailable' (sin cambios)
+  ```
+
+#### Constantes y tipos
+
+| Nombre | Descripción |
+|---|---|
+| `SENSOR_DOMAINS` | `['sensor', 'binary_sensor']` — únicos dominios aceptados por `getSensorDisplay`. |
+| `SensorDomain` | Tipo TypeScript derivado de `SENSOR_DOMAINS`. |
+| `DEFAULT_SENSOR_DECIMALS` | `1` — decimales por defecto cuando el sensor no especifica los suyos. |
+
+---
+
+## `src/shared` — Paleta y efectos neón compartidos
+
+Lo visual reutilizable entre tarjetas (acuerdo nº4: nunca se copia por
+tarjeta). Nace en Neón Card Entity y lo consume también Neón Button
+Card. Es intencionadamente independiente del tema de Home Assistant: la
+identidad "neón" no depende del tema activo, solo el resto de la
+tarjeta (fondo, texto) sí lo hace a través de variables CSS de HA.
+
+### Paleta (`neon-palette.ts`)
+
+#### `resolveGradientColors(config)`
+
+- **Descripción:** resuelve los 3 colores del degradado neón a partir
+  de la config de una tarjeta — mismo cálculo para todas las tarjetas
+  (antes vivía duplicado dentro de cada una).
+- **Parámetros:**
+  - `config: NeonPaletteConfig | undefined`
+    ```ts
+    interface NeonPaletteConfig {
+      neon_palette?: string; // 'emerald' | 'cyberpunk' | 'electric' | 'sunset' | 'toxic' | 'custom'
+      neon_color1?: string;  // solo se leen si neon_palette === 'custom'
+      neon_color2?: string;
+      neon_color3?: string;
+    }
+    ```
+- **Devuelve:** `GradientColors` — `{ c1: string; c2: string; c3: string }`. Con `neon_palette: 'custom'` usa `neon_color1/2/3` (con fallback al preset por defecto si faltan); con cualquier otro valor (o ninguno) usa los colores del preset correspondiente de `NEON_PRESETS`.
+- **Ejemplo:**
+  ```ts
+  resolveGradientColors({ neon_palette: 'cyberpunk' });
+  // { c1: '#ff2a85', c2: '#ff0055', c3: '#7a00ff' }
+  ```
+
+#### Constantes y tipos
+
+| Nombre | Descripción |
+|---|---|
+| `NEON_PRESETS` | `Record<string, NeonPreset>` — los 5 presets (`emerald`, `cyberpunk`, `electric`, `sunset`, `toxic`), cada uno con `{ name, c1, c2, c3 }`. |
+| `DEFAULT_PALETTE` | `'emerald'` — preset usado cuando no se indica `neon_palette` o el valor no existe. |
+| `NeonPreset` | `{ name: string; c1: string; c2: string; c3: string }`. |
+| `GradientColors` | `{ c1: string; c2: string; c3: string }` — lo que devuelve `resolveGradientColors`. |
+
+---
+
+### Halo de icono (`glow.ts`)
+
+Brillo de icono reutilizable: en estado activo adopta el color de la
+paleta con doble/triple capa de `drop-shadow` en vez del color neutro
+del tema, para que la luz parezca nacer del propio icono.
+
+- **`NEON_HALO_STYLES`** — bloque `css` de Lit con las reglas
+  `.neon-halo-icon` / `.neon-halo-active .neon-halo-icon` /
+  `.neon-halo-error .neon-halo-icon`. Se añade a `static styles` de la
+  tarjeta anfitriona.
+- **`neonHaloVars(colors)`**
+  - **Descripción:** fija las variables CSS `--neon-c1/c2/c3` que
+    consume `NEON_HALO_STYLES`.
+  - **Parámetros:** `colors: GradientColors`.
+  - **Devuelve:** `string` — para usar directamente en el atributo
+    `style` del host.
+  - **Ejemplo:** `style=${neonHaloVars(resolveGradientColors(this._config))}`
+
+**Uso:** la tarjeta anfitriona añade `NEON_HALO_STYLES` a su `static
+styles`, pone la clase `neon-halo-icon` en el `<ha-icon>`, y
+`neon-halo-active` (estado activo) o `neon-halo-error` (entidad
+rota/no encontrada — rojo neón fijo, no la paleta) en un ancestro
+(normalmente el host), fijando `--neon-c1/c2/c3` con `neonHaloVars`.
+
+---
+
+### Aro partido (`glow.ts`)
+
+Aro nítido con gradiente de 3 colores dividido en dos mitades que
+arrancan del mismo punto (esquina superior izquierda) y se dibujan en
+direcciones opuestas, encontrándose en la esquina inferior derecha —
+requiere JavaScript porque un `<path>` con arcos de esquina necesita
+coordenadas en unidades reales (el atributo `d` no admite `%` ni
+`calc()`).
+
+#### `neonRingSplitPaths(width, height, radius, inset)`
+
+- **Descripción:** calcula los dos trazados (`d`) de las mitades del
+  aro para un rectángulo redondeado, separado `inset` px del borde real
+  (para que el trazo quede centrado sobre el borde).
+- **Parámetros:**
+  - `width: number`, `height: number` — tamaño real medido de la
+    tarjeta en píxeles.
+  - `radius: number` — radio de esquina de `ha-card`.
+  - `inset: number` — normalmente la mitad del grosor del trazo.
+- **Devuelve:** `{ top: string; bottom: string }` — los dos atributos
+  `d` listos para un `<path>`.
+
+#### `neonRingSplitTemplate(uid, width, height, radius)`
+
+- **Descripción:** markup completo del `<svg>` con las dos mitades del
+  aro (usa `neonRingSplitPaths` internamente), listo para insertar como
+  primer hijo dentro de `ha-card`.
+- **Parámetros:**
+  - `uid: string` — identificador estable y único por instancia, evita
+    que el `id` del `<linearGradient>` choque cuando hay varias
+    tarjetas en el mismo dashboard.
+  - `width: number`, `height: number`, `radius: number` — igual que en
+    `neonRingSplitPaths`.
+- **Devuelve:** `TemplateResult` (Lit).
+- **Ejemplo:**
+  ```ts
+  neonRingSplitTemplate(this._ringUid, this._ringSize.width, this._ringSize.height, this._ringSize.radius)
+  ```
+
+**Uso:** la tarjeta anfitriona añade `NEON_RING_SPLIT_STYLES` a su
+`static styles`, pone la clase `neon-ring-host` en el contenedor y
+`neon-halo-active` cuando el estado es activo (comparte la clase con
+`NEON_HALO_STYLES`).
 
 ---
 

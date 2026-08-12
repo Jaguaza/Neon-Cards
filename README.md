@@ -54,6 +54,13 @@ Neon Cards se está diseñando como una colección completa de tarjetas para Hom
 
 ---
 
+## ✅ Requisitos
+
+Home Assistant **2025.10.0** o superior (ver [`hacs.json`](./hacs.json)).
+No se garantiza compatibilidad con versiones anteriores.
+
+---
+
 ## 🛠 Instalación mediante HACS
 
 1. Abre **HACS**.
@@ -137,6 +144,13 @@ Minimalist switch with SVG animations, dynamic palettes, and modular architectur
 ## 🚀 Coming Soon
 
 Neon Cards is being designed as a complete collection of cards for Home Assistant.
+
+---
+
+## ✅ Requirements
+
+Home Assistant **2025.10.0** or later (see [`hacs.json`](./hacs.json)).
+Compatibility with earlier versions is not guaranteed.
 
 ---
 

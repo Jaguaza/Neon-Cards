@@ -15,6 +15,11 @@ See also the [Spanish version](../es/api.md).
   - [Actions (`actions.ts`)](#actions-actionsts)
   - [Primary/secondary info (`info.ts`)](#primarysecondary-info-infots)
 - [`src/ha` — Home Assistant types](#srcha--home-assistant-types)
+  - [Sensors (`sensors.ts`)](#sensors-sensorsts)
+- [`src/shared` — Shared neon palette and effects](#srcshared--shared-neon-palette-and-effects)
+  - [Palette (`neon-palette.ts`)](#palette-neon-palettets)
+  - [Icon halo (`glow.ts`)](#icon-halo-glowts)
+  - [Split ring (`glow.ts`)](#split-ring-glowts)
 - [Neón Card Entity — YAML configuration](#neón-card-entity--yaml-configuration)
 - [Neón Button Card — YAML configuration](#neón-button-card--yaml-configuration)
 
@@ -219,6 +224,182 @@ interface HomeAssistant {
   - `service: string` — e.g. `'toggle'`, `'turn_on'`.
   - `serviceData?: Record<string, unknown>` — e.g. `{ entity_id: 'light.living_room' }`.
   - **Returns:** `Promise<void>`.
+
+---
+
+### Sensors (`sensors.ts`)
+
+Helpers for `sensor`/`binary_sensor` entities (cards never read
+`hass.states` by hand for this — agreement nº4). Currently used by the
+Button Card (`top_sensor`/`sensors`); any future card that shows
+contextual sensors should reuse these instead of reading `hass.states`
+directly.
+
+#### `getSensorDisplay(entityId, hass, options?)`
+
+- **Description:** already-formatted icon/state/unit for a
+  `sensor`/`binary_sensor` entity, ready to render. The icon is
+  computed from `device_class` when none is given explicitly; the
+  state is rounded to `options.decimals` decimals (default `1`) when
+  numeric, and left untouched otherwise (e.g. `"Closed"`, a
+  `binary_sensor`'s `"on"`/`"off"`).
+- **Parameters:**
+  - `entityId: string` — e.g. `'sensor.living_room_temperature'`.
+  - `hass: HomeAssistant`.
+  - `options?: { icon?: string; decimals?: number }` — override the
+    automatically computed icon/decimals for that sensor.
+- **Returns:** `SensorDisplay | null` — `null` if `entityId` doesn't
+  belong to the `sensor`/`binary_sensor` domains (`SENSOR_DOMAINS`).
+  ```ts
+  interface SensorDisplay {
+    entity: string;
+    icon: string;
+    state: string;
+    unit: string;
+    available: boolean; // false when unavailable/unknown or missing
+  }
+  ```
+- **Example:**
+  ```ts
+  const d = getSensorDisplay('sensor.living_room_humidity', hass, { decimals: 0 });
+  // d?.icon === 'mdi:water-percent', d?.state === '47', d?.unit === '%'
+  ```
+
+#### `formatSensorState(state, decimals?)`
+
+- **Description:** rounds a numeric state to `decimals` decimals
+  (default `1`); leaves any non-numeric state untouched.
+- **Parameters:**
+  - `state: string` — `stateObj.state` as-is.
+  - `decimals?: number` — defaults to `DEFAULT_SENSOR_DECIMALS` (`1`).
+- **Returns:** `string`.
+- **Example:**
+  ```ts
+  formatSensorState('21.456', 1); // '21.5'
+  formatSensorState('unavailable'); // 'unavailable' (unchanged)
+  ```
+
+#### Constants and types
+
+| Name | Description |
+|---|---|
+| `SENSOR_DOMAINS` | `['sensor', 'binary_sensor']` — the only domains accepted by `getSensorDisplay`. |
+| `SensorDomain` | TypeScript type derived from `SENSOR_DOMAINS`. |
+| `DEFAULT_SENSOR_DECIMALS` | `1` — default decimals when a sensor doesn't specify its own. |
+
+---
+
+## `src/shared` — Shared neon palette and effects
+
+The visual pieces shared between cards (agreement nº4: never copied
+per card). Born in Neón Card Entity, also consumed by Neón Button
+Card. Intentionally independent from the Home Assistant theme: the
+"neon" identity doesn't depend on the active theme — only the rest of
+the card (background, text) does, through HA CSS variables.
+
+### Palette (`neon-palette.ts`)
+
+#### `resolveGradientColors(config)`
+
+- **Description:** resolves a card's 3 neon gradient colors from its
+  config — the same calculation for every card (it used to live
+  duplicated inside each one).
+- **Parameters:**
+  - `config: NeonPaletteConfig | undefined`
+    ```ts
+    interface NeonPaletteConfig {
+      neon_palette?: string; // 'emerald' | 'cyberpunk' | 'electric' | 'sunset' | 'toxic' | 'custom'
+      neon_color1?: string;  // only read when neon_palette === 'custom'
+      neon_color2?: string;
+      neon_color3?: string;
+    }
+    ```
+- **Returns:** `GradientColors` — `{ c1: string; c2: string; c3: string }`. With `neon_palette: 'custom'` it uses `neon_color1/2/3` (falling back to the default preset if missing); with any other value (or none) it uses the matching preset's colors from `NEON_PRESETS`.
+- **Example:**
+  ```ts
+  resolveGradientColors({ neon_palette: 'cyberpunk' });
+  // { c1: '#ff2a85', c2: '#ff0055', c3: '#7a00ff' }
+  ```
+
+#### Constants and types
+
+| Name | Description |
+|---|---|
+| `NEON_PRESETS` | `Record<string, NeonPreset>` — the 5 presets (`emerald`, `cyberpunk`, `electric`, `sunset`, `toxic`), each `{ name, c1, c2, c3 }`. |
+| `DEFAULT_PALETTE` | `'emerald'` — preset used when `neon_palette` is unset or doesn't exist. |
+| `NeonPreset` | `{ name: string; c1: string; c2: string; c3: string }`. |
+| `GradientColors` | `{ c1: string; c2: string; c3: string }` — what `resolveGradientColors` returns. |
+
+---
+
+### Icon halo (`glow.ts`)
+
+Reusable icon glow: in the active state it takes on the palette's
+color with a double/triple `drop-shadow` layer instead of the theme's
+neutral color, so the light appears to originate from the icon itself.
+
+- **`NEON_HALO_STYLES`** — Lit `css` block with the
+  `.neon-halo-icon` / `.neon-halo-active .neon-halo-icon` /
+  `.neon-halo-error .neon-halo-icon` rules. Added to the host card's
+  `static styles`.
+- **`neonHaloVars(colors)`**
+  - **Description:** sets the `--neon-c1/c2/c3` CSS variables that
+    `NEON_HALO_STYLES` consumes.
+  - **Parameters:** `colors: GradientColors`.
+  - **Returns:** `string` — for direct use in the host's `style`
+    attribute.
+  - **Example:** `style=${neonHaloVars(resolveGradientColors(this._config))}`
+
+**Usage:** the host card adds `NEON_HALO_STYLES` to its `static
+styles`, puts the `neon-halo-icon` class on the `<ha-icon>`, and
+`neon-halo-active` (active state) or `neon-halo-error` (broken/missing
+entity — fixed neon red, not the palette) on an ancestor (usually the
+host), setting `--neon-c1/c2/c3` with `neonHaloVars`.
+
+---
+
+### Split ring (`glow.ts`)
+
+A crisp 3-color gradient ring split into two halves that both start
+from the same point (top-left corner) and draw in opposite directions,
+meeting at the bottom-right corner — requires JavaScript because a
+`<path>` with corner arcs needs real-unit coordinates (the `d`
+attribute doesn't support `%` or `calc()`).
+
+#### `neonRingSplitPaths(width, height, radius, inset)`
+
+- **Description:** computes the two path (`d`) strings for the ring's
+  halves for a rounded rectangle, inset by `inset` px from the actual
+  edge (so the stroke sits centered on the border).
+- **Parameters:**
+  - `width: number`, `height: number` — the card's real measured size
+    in pixels.
+  - `radius: number` — `ha-card`'s corner radius.
+  - `inset: number` — normally half the stroke width.
+- **Returns:** `{ top: string; bottom: string }` — the two `d`
+  attributes, ready for a `<path>`.
+
+#### `neonRingSplitTemplate(uid, width, height, radius)`
+
+- **Description:** full `<svg>` markup with both halves of the ring
+  (uses `neonRingSplitPaths` internally), ready to insert as the first
+  child inside `ha-card`.
+- **Parameters:**
+  - `uid: string` — stable, per-instance-unique identifier, so the
+    `<linearGradient>`'s `id` doesn't collide when several Button
+    cards share the same dashboard.
+  - `width: number`, `height: number`, `radius: number` — same as
+    `neonRingSplitPaths`.
+- **Returns:** `TemplateResult` (Lit).
+- **Example:**
+  ```ts
+  neonRingSplitTemplate(this._ringUid, this._ringSize.width, this._ringSize.height, this._ringSize.radius)
+  ```
+
+**Usage:** the host card adds `NEON_RING_SPLIT_STYLES` to its `static
+styles`, puts the `neon-ring-host` class on the container, and
+`neon-halo-active` when the state is active (shared class with
+`NEON_HALO_STYLES`).
 
 ---
 
