@@ -294,6 +294,64 @@ export class NeonCardEntity extends BaseNeonCard {
     return state;
   }
 
+  private _renderSwitchPill(
+    ent: EntityItemConfig,
+    i: number,
+    c1: string,
+    c2: string,
+    c3: string,
+    isOn: boolean,
+    isUnavailable: boolean,
+    showDot: boolean
+  ): TemplateResult {
+    return html`
+      <label class="switch ${isUnavailable ? 'unavailable' : ''}">
+        <input
+          type="checkbox"
+          role="switch"
+          .checked=${isOn}
+          .disabled=${isUnavailable}
+          @change=${() => this._toggle(ent.entity)}
+        />
+        <span class="track"></span>
+        <span class="knob"></span>
+        <span class="error-ring"></span>
+        <svg class="neon" viewBox="0 0 64 34" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="neonGrad${i}" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color=${c1} />
+              <stop offset="50%" stop-color=${c2} />
+              <stop offset="100%" stop-color=${c3} />
+            </linearGradient>
+            <filter id="neonBlur${i}" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="0.8" result="b" />
+              <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+          </defs>
+          <path
+            class="ring-normal ring-normal-top"
+            pathLength="50"
+            d="M 1.5 17 A 15.5 15.5 0 0 1 17 1.5 L 47 1.5 A 15.5 15.5 0 0 1 62.5 17"
+            fill="none"
+            stroke="url(#neonGrad${i})"
+            stroke-width="1.6"
+            filter="url(#neonBlur${i})"
+          />
+          <path
+            class="ring-normal ring-normal-bottom"
+            pathLength="50"
+            d="M 1.5 17 A 15.5 15.5 0 0 0 17 32.5 L 47 32.5 A 15.5 15.5 0 0 0 62.5 17"
+            fill="none"
+            stroke="url(#neonGrad${i})"
+            stroke-width="1.6"
+            filter="url(#neonBlur${i})"
+          />
+        </svg>
+        ${showDot ? html`<span class="dot"></span>` : nothing}
+      </label>
+    `;
+  }
+
   private _renderItem(ent: EntityItemConfig, i: number, c1: string, c2: string, c3: string): TemplateResult {
     const stateObj = this.hass?.states[ent.entity];
     const isOn = !!stateObj && stateObj.state === 'on';
@@ -325,50 +383,7 @@ export class NeonCardEntity extends BaseNeonCard {
             hasDoubleTap,
           })}
       >
-        <label class="switch ${isUnavailable ? 'unavailable' : ''}">
-          <input
-            type="checkbox"
-            role="switch"
-            .checked=${isOn}
-            .disabled=${isUnavailable}
-            @change=${() => this._toggle(ent.entity)}
-          />
-          <span class="track"></span>
-          <span class="knob"></span>
-          <span class="error-ring"></span>
-          <svg class="neon" viewBox="0 0 64 34" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="neonGrad${i}" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stop-color=${c1} />
-                <stop offset="50%" stop-color=${c2} />
-                <stop offset="100%" stop-color=${c3} />
-              </linearGradient>
-              <filter id="neonBlur${i}" x="-60%" y="-60%" width="220%" height="220%">
-                <feGaussianBlur stdDeviation="0.8" result="b" />
-                <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
-              </filter>
-            </defs>
-            <path
-              class="ring-normal ring-normal-top"
-              pathLength="50"
-              d="M 1.5 17 A 15.5 15.5 0 0 1 17 1.5 L 47 1.5 A 15.5 15.5 0 0 1 62.5 17"
-              fill="none"
-              stroke="url(#neonGrad${i})"
-              stroke-width="1.6"
-              filter="url(#neonBlur${i})"
-            />
-            <path
-              class="ring-normal ring-normal-bottom"
-              pathLength="50"
-              d="M 1.5 17 A 15.5 15.5 0 0 0 17 32.5 L 47 32.5 A 15.5 15.5 0 0 0 62.5 17"
-              fill="none"
-              stroke="url(#neonGrad${i})"
-              stroke-width="1.6"
-              filter="url(#neonBlur${i})"
-            />
-          </svg>
-          ${showDot ? html`<span class="dot"></span>` : nothing}
-        </label>
+        ${this._renderSwitchPill(ent, i, c1, c2, c3, isOn, isUnavailable, showDot)}
         <div class="text">
           <span class="name">${primaryText}</span>
           ${hasSecondary ? html`<span class="secondary">${secondaryText}</span>` : nothing}
