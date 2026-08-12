@@ -301,8 +301,7 @@ de HA se calculan solos según el contenido — no hace falta indicar
 
 | Contenido | `columns` |
 |---|---|
-| Sin sensores agrupados (con o sin `top_sensor`/`subtitle`) | `3` |
-| 1 sensor agrupado | `4` (valor provisional, pendiente de confirmar) |
+| Sin sensores agrupados, o con 1 solo (con o sin `top_sensor`/`subtitle`) | `3` |
 | 2 sensores agrupados | `5` |
 | 3 sensores agrupados | `6` |
 

@@ -130,14 +130,14 @@ export class NeonButtonCard extends BaseNeonCard {
     // mezclar 'auto' con filas fijas en la misma rejilla).
     //
     // columns calibrado con medidas reales tomadas en el editor de HA
-    // (capturas de las 6 variantes básicas): depende SOLO de
-    // sensors.length, top_sensor NO suma ancho por sí solo (con
-    // top_sensor y sin agrupados mide igual que sin nada — la fila de
-    // top_sensor no necesita más ancho, solo más alto, y eso ya lo da
-    // rows:'auto').
+    // (capturas de las 6 variantes básicas + confirmación de 1 solo
+    // sensor agrupado): depende SOLO de sensors.length ≥ 2, top_sensor
+    // NO suma ancho por sí solo (con top_sensor y sin agrupados mide
+    // igual que sin nada — la fila de top_sensor no necesita más ancho,
+    // solo más alto, y eso ya lo da rows:'auto'). Con 1 solo sensor
+    // agrupado tampoco hace falta más ancho que la base (3).
     const groupedCount = this._config?.sensors?.length ?? 0;
-    let columns = 3; // sin agrupados (con o sin top_sensor/subtítulo)
-    if (groupedCount === 1) columns = 4; // valor provisional: falta confirmar con una captura real (ver Issue pendiente)
+    let columns = 3; // sin agrupados, o con 1 solo (con o sin top_sensor/subtítulo)
     if (groupedCount === 2) columns = 5;
     if (groupedCount === 3) columns = 6;
 
@@ -173,15 +173,15 @@ export class NeonButtonCard extends BaseNeonCard {
 
   /**
    * `entity:` está configurada pero rota: no existe en `hass.states`
-   * (borrada, mal escrita) o su estado es `unavailable` (integración o
-   * dispositivo caído). Sin `entity:` configurada NO es un error — es
-   * el caso legítimo de botón de acción puro (punto 10 de la spec), así
-   * que ahí siempre es `false`.
+   * (borrada, mal escrita) o su estado es `unavailable`/`unknown`
+   * (integración o dispositivo caído). Sin `entity:` configurada NO es
+   * un error — es el caso legítimo de botón de acción puro (punto 10
+   * de la spec), así que ahí siempre es `false`.
    */
   private get _entityBroken(): boolean {
     if (!this._config?.entity || !this.hass) return false;
     const stateObj = this.hass.states[this._config.entity];
-    return !stateObj || stateObj.state === 'unavailable';
+    return !stateObj || stateObj.state === 'unavailable' || stateObj.state === 'unknown';
   }
 
   private get _icon(): string {
