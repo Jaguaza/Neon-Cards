@@ -132,3 +132,7 @@ mantiene compatibilidad indefinida.
 Cuando la Neón Card Entity esté terminada, se congela la arquitectura, la
 API pública y las convenciones. A partir de ese momento el framework
 evoluciona sin rediseñarse.
+
+> **✅ Vigente desde 2026-08-13.** Declaración completa, línea base exacta
+> y proceso de excepción para bugs en la superficie congelada:
+> [`docs/es/framework-freeze.md`](./framework-freeze.md).

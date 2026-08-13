@@ -132,3 +132,7 @@ compatibility is not maintained.
 Once the Neón Card Entity is finished, the architecture, public API, and
 conventions are frozen. From that point on, the framework evolves without
 being redesigned.
+
+> **✅ In effect since 2026-08-13.** Full declaration, exact baseline and
+> the exception process for bugs in the frozen surface:
+> [`docs/en/framework-freeze.md`](./framework-freeze.md).

@@ -114,7 +114,9 @@ Checklist final, todo debe cumplirse antes de integrar:
 ## 7. Congelación del framework (acuerdo nº25)
 
 Este proceso (pasos 1-5) es el que se siguió para construir la Button
-Card sobre el framework que dejó la Entity Card. Una vez el framework se
-congele (acuerdo nº25), estos pasos dejan de cambiar — la única
-evolución posible a partir de ahí es dentro de las convenciones ya
-fijadas, sin rediseñar `core`/`ha`/`shared`.
+Card sobre el framework que dejó la Entity Card. El framework ya está
+congelado — ver la [declaración completa](./framework-freeze.md) para la
+línea base exacta y qué hacer si un bug futuro obliga a romper algo ya
+congelado. A partir de aquí estos pasos ya no cambian: la única
+evolución posible es dentro de las convenciones ya fijadas, sin
+rediseñar `core`/`ha`/`shared`.

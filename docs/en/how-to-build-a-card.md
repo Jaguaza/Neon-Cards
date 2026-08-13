@@ -119,7 +119,9 @@ Final checklist, all of it must pass before integrating:
 ## 7. Framework freeze (agreement nº25)
 
 This process (steps 1-5) is the one followed to build the Button Card on
-top of the framework the Entity Card left behind. Once the framework is
-frozen (agreement nº25), these steps stop changing — the only evolution
-possible from then on is within the conventions already set, without
-redesigning `core`/`ha`/`shared`.
+top of the framework the Entity Card left behind. The framework is now
+frozen — see the [full declaration](./framework-freeze.md) for the exact
+baseline and what to do if a future bug forces breaking something
+already frozen. From here on these steps stop changing — the only
+evolution possible from now on is within the conventions already set,
+without redesigning `core`/`ha`/`shared`.
