@@ -93,13 +93,12 @@ sensors:
 
 ### Capturas
 
-_Pendiente — faltan capturas reales de Home Assistant (ver acuerdo
-nº18: una tarjeta no se publica sin ejemplos completos)._
+![Escenarios de Neón Button Card, sin activar](../assets/screenshots/button/Button%201.jpg)
+![Escenarios de Neón Button Card, con halo activo](../assets/screenshots/button/Button%202.jpg)
 
 ### GIF
 
-_Pendiente — falta un GIF real mostrando el aro animándose al activarse
-la tarjeta._
+![Neón Button Card en acción](../assets/gifs/Button.gif)
 
 ### Explicación
 
@@ -214,13 +213,12 @@ sensors:
 
 ### Screenshots
 
-_Pending — real Home Assistant screenshots are still missing (see
-agreement nº18: a card isn't published without complete examples)._
+![Neón Button Card scenarios, inactive](../assets/screenshots/button/Button%201.jpg)
+![Neón Button Card scenarios, active halo](../assets/screenshots/button/Button%202.jpg)
 
 ### GIF
 
-_Pending — a real GIF showing the ring animating on activation is still
-missing._
+![Neón Button Card in action](../assets/gifs/Button.gif)
 
 ### Explanation
 
