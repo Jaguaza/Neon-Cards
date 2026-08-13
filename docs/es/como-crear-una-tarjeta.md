@@ -72,7 +72,28 @@ Toda en español **e** inglés, versionada en el repo:
 - `examples/README.md` — YAML mínimo, YAML avanzado, captura, GIF y
   explicación para la tarjeta nueva (acuerdo nº17).
 
-## 5. Antes de mergear a `main` (acuerdo nº18, nº20, nº21)
+## 5. Diagnóstico en desarrollo (acuerdo nº22)
+
+Para avisos que solo ayudan mientras se edita una tarjeta (config mal
+formada, entidad de dominio equivocado, algo que se recorta o se
+ignora en silencio) usa la constante global `__DEV__`:
+
+```ts
+if (__DEV__) {
+  console.warn('[mi-tarjeta] explica aquí qué está mal y por qué');
+}
+```
+
+`__DEV__` la sustituye `@rollup/plugin-replace` en tiempo de build (ver
+`rollup.config.mjs`) — en `npm run build:cards` normal vale `false` y
+terser borra el bloque entero como código muerto, así que no llega al
+bundle publicado; con `npm run build:cards:dev` vale `true` y el aviso
+sí se ve. No uses `console.warn`/`console.log` sueltos sin envolverlos
+en `if (__DEV__)` — eso sí llegaría a producción. Los scripts que
+importan el `.ts` sin pasar por rollup (como `scripts/perf-check.mjs`)
+necesitan su propio `globalThis.__DEV__ = false` al principio.
+
+## 6. Antes de mergear a `main` (acuerdo nº18, nº20, nº21)
 
 Checklist final, todo debe cumplirse antes de integrar:
 
@@ -90,7 +111,7 @@ Checklist final, todo debe cumplirse antes de integrar:
 - [ ] Revisión de arquitectura, API, rendimiento y documentación
       (acuerdo nº20) antes de mergear cambios importantes.
 
-## 6. Congelación del framework (acuerdo nº25)
+## 7. Congelación del framework (acuerdo nº25)
 
 Este proceso (pasos 1-5) es el que se siguió para construir la Button
 Card sobre el framework que dejó la Entity Card. Una vez el framework se

@@ -75,7 +75,30 @@ All of it in Spanish **and** English, versioned in the repo:
 - `examples/README.md` — minimal YAML, advanced YAML, screenshot, GIF
   and explanation for the new card (agreement nº17).
 
-## 5. Before merging into `main` (agreements nº18, nº20, nº21)
+## 5. Development diagnostics (agreement nº22)
+
+For warnings that only help while editing a card (malformed config, an
+entity of the wrong domain, something being silently truncated or
+skipped) use the global constant `__DEV__`:
+
+```ts
+if (__DEV__) {
+  console.warn('[my-card] explain here what is wrong and why');
+}
+```
+
+`__DEV__` gets replaced by `@rollup/plugin-replace` at build time (see
+`rollup.config.mjs`) — a normal `npm run build:cards` sets it to
+`false` and terser strips the whole block as dead code, so it never
+reaches the published bundle; `npm run build:cards:dev` sets it to
+`true` and the warning shows up. Don't use bare
+`console.warn`/`console.log` without wrapping it in `if (__DEV__)` —
+that would ship to production as-is. Scripts that import the `.ts`
+directly without going through rollup (like
+`scripts/perf-check.mjs`) need their own
+`globalThis.__DEV__ = false` at the top.
+
+## 6. Before merging into `main` (agreements nº18, nº20, nº21)
 
 Final checklist, all of it must pass before integrating:
 
@@ -93,7 +116,7 @@ Final checklist, all of it must pass before integrating:
 - [ ] Architecture, API, performance and documentation review
       (agreement nº20) before merging significant changes.
 
-## 6. Framework freeze (agreement nº25)
+## 7. Framework freeze (agreement nº25)
 
 This process (steps 1-5) is the one followed to build the Button Card on
 top of the framework the Entity Card left behind. Once the framework is

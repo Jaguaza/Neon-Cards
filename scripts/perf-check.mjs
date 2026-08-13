@@ -51,6 +51,11 @@ globalThis.getComputedStyle = dom.window.getComputedStyle;
 // benchmark no puede montar/desmontar la tarjeta.
 globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(Date.now()), 16);
 globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+// __DEV__ (acuerdo nº22) lo sustituye @rollup/plugin-replace en el
+// bundle real — este script importa el .ts directamente sin pasar por
+// rollup, así que hace falta el mismo polyfill. false: el benchmark
+// mide el camino de producción, no el de desarrollo.
+globalThis.__DEV__ = false;
 globalThis.ShadowRoot = dom.window.ShadowRoot;
 globalThis.CSSStyleSheet = dom.window.CSSStyleSheet;
 Object.defineProperty(globalThis, 'navigator', {

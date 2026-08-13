@@ -112,6 +112,16 @@ export class NeonButtonCard extends BaseNeonCard {
     // La entidad es completamente opcional (punto 10 de la spec): la
     // tarjeta debe funcionar como botón de acción puro sin ella.
     this._config = config;
+    // Solo en modo desarrollo (acuerdo nº22) — en YAML a mano es fácil
+    // pasarse de MAX_GROUPED_SENSORS sin darse cuenta; el recorte en
+    // _renderGroupedSensors (.slice) es silencioso, así que sin este
+    // aviso no hay forma de saber por qué "faltan" sensores.
+    if (__DEV__ && (config.sensors?.length ?? 0) > MAX_GROUPED_SENSORS) {
+      console.warn(
+        `[neon-button-card] sensors: tiene ${config.sensors!.length} entidades configuradas, pero solo se muestran las ` +
+          `primeras ${MAX_GROUPED_SENSORS} (MAX_GROUPED_SENSORS). El resto se ignora en silencio.`
+      );
+    }
   }
 
   getCardSize(): number {
@@ -258,7 +268,18 @@ export class NeonButtonCard extends BaseNeonCard {
     if (!this._config?.top_sensor || !this.hass) return nothing;
     const cfg = this._config.top_sensor;
     const d = getSensorDisplay(cfg.entity, this.hass, { icon: cfg.icon, decimals: cfg.decimals });
-    if (!d) return nothing;
+    if (!d) {
+      // Solo en modo desarrollo (acuerdo nº22) — getSensorDisplay
+      // devuelve null en silencio si el dominio no es sensor/
+      // binary_sensor; sin este aviso, top_sensor simplemente "no
+      // aparece" y no hay pista de por qué.
+      if (__DEV__) {
+        console.warn(
+          `[neon-button-card] top_sensor.entity ("${cfg.entity}") no es una entidad sensor/binary_sensor — no se muestra.`
+        );
+      }
+      return nothing;
+    }
     return html`
       <div class="top-sensor">
         <ha-icon icon=${d.icon}></ha-icon>
@@ -274,10 +295,17 @@ export class NeonButtonCard extends BaseNeonCard {
    */
   private _renderSensors(): TemplateResult | typeof nothing {
     if (!this._config?.sensors?.length || !this.hass) return nothing;
-    const displays = this._config.sensors
-      .slice(0, MAX_GROUPED_SENSORS)
+    const configured = this._config.sensors.slice(0, MAX_GROUPED_SENSORS);
+    const displays = configured
       .map((s) => getSensorDisplay(s.entity, this.hass!, { icon: s.icon, decimals: s.decimals }))
       .filter((d): d is NonNullable<typeof d> => d !== null);
+    if (__DEV__ && displays.length < configured.length) {
+      const invalid = configured.filter((s) => !getSensorDisplay(s.entity, this.hass!)).map((s) => s.entity);
+      console.warn(
+        `[neon-button-card] sensors: ${invalid.join(', ')} no ${invalid.length > 1 ? 'son' : 'es'} entidad(es) ` +
+          `sensor/binary_sensor — no se muestra(n).`
+      );
+    }
     if (!displays.length) return nothing;
 
     return html`
