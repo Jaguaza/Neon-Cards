@@ -79,7 +79,11 @@ export interface NeonPaletteConfig {
 export function resolveGradientColors(config: NeonPaletteConfig | undefined): GradientColors {
   const palette = config?.neon_palette || DEFAULT_PALETTE;
   if (palette !== 'custom' && NEON_PRESETS[palette]) {
-    return NEON_PRESETS[palette];
+    // Solo {c1,c2,c3} — NEON_PRESETS[palette] también trae `name`, que
+    // no forma parte de GradientColors y no debe filtrarse a quien
+    // llama (p. ej. a un JSON.stringify de la config resuelta).
+    const { c1, c2, c3 } = NEON_PRESETS[palette];
+    return { c1, c2, c3 };
   }
   return {
     c1: config?.neon_color1 || NEON_PRESETS[DEFAULT_PALETTE].c1,

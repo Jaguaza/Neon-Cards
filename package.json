@@ -15,7 +15,7 @@
     "build:cards": "rollup -c",
     "lint": "eslint . --ext .ts",
     "typecheck": "tsc --build",
-    "test": "echo \"(sin tests todavía)\" && exit 0",
+    "test": "vitest run",
     "perf": "node --expose-gc scripts/perf-check.mjs",
     "release:beta": "node scripts/release.js beta",
     "release:patch": "node scripts/release.js patch",
@@ -36,7 +36,8 @@
     "jsdom": "^30.0.1",
     "rollup": "^4.21.0",
     "tslib": "^2.6.3",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vitest": "^4.1.10"
   },
   "license": "Apache-2.0"
 }

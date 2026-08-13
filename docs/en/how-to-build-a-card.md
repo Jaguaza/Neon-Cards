@@ -79,7 +79,8 @@ All of it in Spanish **and** English, versioned in the repo:
 
 Final checklist, all of it must pass before integrating:
 
-- [ ] `npm run typecheck`, `npm run lint`, `npm run build` with no errors.
+- [ ] `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build`
+      with no errors.
 - [ ] `npm run perf` — no noticeable performance regression or memory
       leak indication.
 - [ ] Working visual editor (not YAML-only).

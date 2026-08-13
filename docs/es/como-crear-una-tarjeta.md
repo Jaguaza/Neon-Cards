@@ -76,7 +76,8 @@ Toda en español **e** inglés, versionada en el repo:
 
 Checklist final, todo debe cumplirse antes de integrar:
 
-- [ ] `npm run typecheck`, `npm run lint`, `npm run build` sin errores.
+- [ ] `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build`
+      sin errores.
 - [ ] `npm run perf` — sin regresión notable de rendimiento ni indicios
       de fuga de memoria.
 - [ ] Editor visual funcional (no solo YAML).
