@@ -25,7 +25,7 @@ Collection of custom cards for Home Assistant with a modern neon-inspired aesthe
 
 ## ✨ Tarjetas incluidas
 
-- 🪪**ENTITY**[Ir a Entity](#entity-card)
+- 🪪**ENTITY.**  [Ir a Entity](#entity-card)
 
 <a name="entity-card"></a>
 ### **Neon Entity Card**
