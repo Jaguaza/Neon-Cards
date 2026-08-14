@@ -26,6 +26,7 @@ Collection of custom cards for Home Assistant with a modern neon-inspired aesthe
 ## ✨ Tarjetas incluidas
 
 - 🪪**ENTITY.**  [Ir a Entity](#entity-card)
+- 🚾**BUTTON.**  [Ir a Button](#button-card)
 
 <a name="entity-card"></a>
 ### **Neon Entity Card**
@@ -56,7 +57,7 @@ Interruptor minimalista con animaciones SVG, paletas dinámicas y arquitectura m
 - **Subtítulo:** Incluye selector de: Nombre, Último cambio, etc.
 
 ---
-
+<a name="button-card"></a>
 ### **Neon Button Card**
 
 Botón minimalista con animaciones SVG, paletas dinámicas y arquitectura modular.
@@ -147,6 +148,10 @@ Ver el texto legal completo en [`LICENSE`](./LICENSE) (inglés, vinculante) o su
 
 ## ✨ Included Cards
 
+- 🪪**ENTITY.**  [Go to Entity](#entity-card-gb)
+- 🚾**BUTTON.**  [Go to Button](#button-card-gb)
+
+<a name="entity-card-gb"></a>
 ### **Neon Entity Card**
 
 Minimalist switch with SVG animations, dynamic palettes, and modular architecture.
@@ -175,7 +180,7 @@ Minimalist switch with SVG animations, dynamic palettes, and modular architectur
 - **Subtitle:** Includes selector for: Name, Last changed, etc.
 
 ---
-
+<a name="button-card-gb"></a>
 ### **Neon Button Card**
 
 Minimalist button with SVG animations, dynamic palettes, and modular architecture.
