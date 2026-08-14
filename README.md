@@ -7,7 +7,8 @@ Collection of custom cards for Home Assistant with a modern neon-inspired aesthe
 
 <p align="center">
   <img src="https://github.com/Jaguaza/Neon-Cards/blob/feature/neon-button-card/assets/gifs/Ne%C3%B3n%20Cards.gif" width="450" style="margin-right:20px;">
-  
+</p>
+<p align="center">
   <img src="https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/Ne%C3%B3n%20Completo.png" width="450" style="margin-right:20px;">
 </p>
   
