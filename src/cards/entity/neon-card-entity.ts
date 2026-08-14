@@ -10,7 +10,7 @@ import {
   dispatchHassAction,
   computeInfoDisplay,
 } from '../../core';
-import type { GestureState, InfoOption } from '../../core';
+import type { GestureState } from '../../core';
 import { resolveGradientColors } from '../../shared';
 import type { GradientColors } from '../../shared';
 import type { EntityItemConfig, NeonCardEntityConfig } from './types';
@@ -357,8 +357,8 @@ export class NeonCardEntity extends BaseNeonCard {
     const isOn = !!stateObj && stateObj.state === 'on';
     const isUnavailable = !stateObj || stateObj.state === 'unavailable' || stateObj.state === 'unknown';
     const name = ent.name || stateObj?.attributes.friendly_name || ent.entity;
-    const primaryInfo = ((this._config?.primary_info as InfoOption) || 'name') as InfoOption;
-    const secondaryInfo = ((this._config?.secondary_info as InfoOption) || 'none') as InfoOption;
+    const primaryInfo = this._config?.primary_info || 'name';
+    const secondaryInfo = this._config?.secondary_info || 'none';
     const primaryText =
       stateObj && this.hass
         ? computeInfoDisplay(primaryInfo, name, stateObj.state, stateObj, this.hass)
