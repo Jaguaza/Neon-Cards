@@ -6,7 +6,8 @@ Collection of custom cards for Home Assistant with a modern neon‑inspired aest
 ## 🎬 Demo Neón Cards
 
 <p align="center">
-  [![Neon Cards Demo](https://img.youtube.com/vi/0MzlXAx52JY/maxresdefault.jpg)](https://youtu.be/0MzlXAx52JY)
+ [![Neon Cards Demo](https://img.youtube.com/vi/0MzlXAx52JY/maxresdefault.jpg)](https://youtu.be/0MzlXAx52JY)
+
 </p>
 <p align="center">
   <img src="https://github.com/Jaguaza/Neon-Cards/blob/feature/neon-button-card/assets/screenshots/Neon%20Completa.jpg" width="450" style="margin-right:20px;">
