@@ -25,6 +25,8 @@ Collection of custom cards for Home Assistant with a modern neon-inspired aesthe
 
 ## ✨ Tarjetas incluidas
 
+- 🪪**ENTITY**(#Neon Entity Card)
+
 ### **Neon Entity Card**
 
 Interruptor minimalista con animaciones SVG, paletas dinámicas y arquitectura modular.
