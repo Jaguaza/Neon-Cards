@@ -11,7 +11,6 @@ Collection of custom cards for Home Assistant with a modern neon-inspired aesthe
 <p align="center">
   <img src="https://github.com/Jaguaza/Neon-Cards/blob/feature/neon-button-card/assets/screenshots/Neon%20Completa.jpg" width="450" style="margin-right:20px;">
 </p>
-  
 
 ---
 
@@ -49,17 +48,44 @@ Interruptor minimalista con animaciones SVG, paletas dinámicas y arquitectura m
 
 - **Personalizado:** Elige tus propios colores.
 
+### **Titulo y Subtitulo**
+- **Titulo:** Incluye selector de: título personalizado, nombre de la entidad, etc.
+- **Subtítulo:** Incluye selector de: Nombre, Último cambio, etc.
+
+---
+
+### **Neon Button Card**
+
+Botón minimalista con animaciones SVG, paletas dinámicas y arquitectura modular.
+
+### **Paletas disponibles**
+
+- **Cyber Emerald** *(Predeterminada)*  
+- **Cyberpunk Pink:** Rosa, Carmesí, Púrpura  
+- **Electric Blue:** Cian, Azul, Azul Oscuro  
+- **Sunset Amber:** Naranja, Amarillo, Rosa  
+- **Toxic Purple:** Violeta, Púrpura, Azul  
+- **Personalizado:** Elige tus propios colores.
+
+### **Titulo y Subtitulo**
+- **Titulo:** Incluye selector de: título personalizado, nombre de la entidad, etc.
+- **Subtítulo:** Incluye selector de: Nombre, Último cambio, etc.
+
+### **Selector de sensores**
+- **Sensor Libre:** Sensor que se encuentra justo debajo del subtítulo de la tarjeta.
+- **Grupo Sensores:** Situados debajo del sensor libre y se puede añadir desde 1 hasta 3 sensores.
+
 ---
 
 ## 🚀 Próximamente
 
-Neon Cards se está diseñando como una colección completa de tarjetas para Home Assistant.
+Neon Cards se está diseñando como una colección completa de tarjetas para Home Assistant, se irán añadiendo más tarjetas.
 
 ---
 
 ## ✅ Requisitos
 
-Home Assistant **2025.10.0** o superior (ver [`hacs.json`](./hacs.json)).
+Home Assistant **2025.10.0** o superior (ver [`hacs.json`](./hacs.json)).  
 No se garantiza compatibilidad con versiones anteriores.
 
 ---
@@ -100,15 +126,14 @@ Este proyecto está licenciado bajo **Apache License 2.0**.
 - Conservar el aviso de copyright y de licencia.
 - Indicar claramente si has modificado los archivos.
 
-Ver el texto legal completo en [`LICENSE`](./LICENSE) (inglés,
-vinculante) o su [traducción informativa](./LICENSE%20ES.md).
+Ver el texto legal completo en [`LICENSE`](./LICENSE) (inglés, vinculante) o su [traducción informativa](./LICENSE%20ES.md).
 
 ---
 
 ## Autor
 **@Jaguaza**
 
-**GitHub:** https://github.com/Jaguaza/Neon-Cards  
+**GitHub:** https://github.com/Jaguaza  
 **Telegram:** https://t.me/Jaguaza  
 **Grupo de Domótica:** https://t.me/DomoticaParaTodos
 
@@ -127,7 +152,7 @@ Minimalist switch with SVG animations, dynamic palettes, and modular architectur
 
 - **Cyber Emerald** *(Default)*  
   ![Neon Card - Cyber Emerald](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/1%20Ne%C3%B3n.jpg)
-  
+
 - **Cyberpunk Pink:** Pink, Crimson, Purple  
   ![Neon Card - Cyberpunk Pink](https://github.com/Jaguaza/Neon-Cards/blob/main/assets/screenshots/entity/2%20Ne%C3%B3n.jpg)
 
@@ -142,17 +167,44 @@ Minimalist switch with SVG animations, dynamic palettes, and modular architectur
 
 - **Custom:** Choose your own colors.
 
+### **Title and Subtitle**
+- **Title:** Includes selector for: custom title, entity name, etc.
+- **Subtitle:** Includes selector for: Name, Last changed, etc.
+
+---
+
+### **Neon Button Card**
+
+Minimalist button with SVG animations, dynamic palettes, and modular architecture.
+
+### **Available Palettes**
+
+- **Cyber Emerald** *(Default)*  
+- **Cyberpunk Pink:** Pink, Crimson, Purple  
+- **Electric Blue:** Cyan, Blue, Dark Blue  
+- **Sunset Amber:** Orange, Yellow, Pink  
+- **Toxic Purple:** Violet, Purple, Blue  
+- **Custom:** Choose your own colors.
+
+### **Title and Subtitle**
+- **Title:** Includes selector for: custom title, entity name, etc.
+- **Subtitle:** Includes selector for: Name, Last changed, etc.
+
+### **Sensor Selector**
+- **Free Sensor:** Sensor displayed right below the card subtitle.
+- **Sensor Group:** Located below the free sensor; you can add from 1 to 3 sensors.
+
 ---
 
 ## 🚀 Coming Soon
 
-Neon Cards is being designed as a complete collection of cards for Home Assistant.
+Neon Cards is being designed as a complete collection of cards for Home Assistant. More cards will be added over time.
 
 ---
 
 ## ✅ Requirements
 
-Home Assistant **2025.10.0** or later (see [`hacs.json`](./hacs.json)).
+Home Assistant **2025.10.0** or higher (see [`hacs.json`](./hacs.json)).  
 Compatibility with earlier versions is not guaranteed.
 
 ---
@@ -160,7 +212,7 @@ Compatibility with earlier versions is not guaranteed.
 ## 🛠 Installation via HACS
 
 1. Open **HACS**.
-2. Click the **⋮** menu → **Custom repositories**.
+2. Click the **⋮** menu (top right) → **Custom repositories**.
 3. Add the repository:
 
    **https://github.com/Jaguaza/Neon-Card-Home-Assistant**
@@ -177,7 +229,7 @@ Compatibility with earlier versions is not guaranteed.
 
 ## 📄 License
 
-This project is licensed under the **Apache License 2.0**.
+This project is licensed under **Apache License 2.0**.
 
 ### ✔ Allowed
 
@@ -188,19 +240,19 @@ This project is licensed under the **Apache License 2.0**.
 - Create forks, including for commercial purposes.
 - Use it in commercial products or services.
 
-### Required
+### You must
 
 - Keep the copyright and license notice.
-- Clearly state if you modified any files.
+- Clearly indicate if you have modified the files.
 
-See the full legal text in [`LICENSE`](./LICENSE) (English, binding) or
-its [informational translation](./LICENSE%20ES.md).
+See the full legal text in [`LICENSE`](./LICENSE) (English, binding) or its [informative translation](./LICENSE%20ES.md).
 
 ---
 
 ## Author
 **@Jaguaza**
 
-**GitHub:** https://github.com/Jaguaza/Neon-Cards  
+**GitHub:** https://github.com/Jaguaza  
 **Telegram:** https://t.me/Jaguaza  
 **Home Automation Group:** https://t.me/DomoticaParaTodos
+
