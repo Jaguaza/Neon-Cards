@@ -35,6 +35,7 @@ Interruptor minimalista con animaciones SVG, paletas dinámicas y arquitectura m
 <p align="center">
   <img src="https://github.com/Jaguaza/Neon-Cards/blob/feature/neon-button-card/assets/screenshots/entity/Entity%20completa.jpg" width="450" style="margin-right:20px;">
 </p>
+
 ### **Paletas disponibles**
 
 - **Cyber Emerald** *(Predeterminada)*  
@@ -66,6 +67,7 @@ Botón minimalista con animaciones SVG, paletas dinámicas y arquitectura modula
 <p align="center">
   <img src="https://github.com/Jaguaza/Neon-Cards/blob/feature/neon-button-card/assets/screenshots/button/Button%201.jpg" width="450" style="margin-right:20px;"><img src="https://github.com/Jaguaza/Neon-Cards/blob/feature/neon-button-card/assets/screenshots/button/Button%202.jpg" width="450" style="margin-right:20px;">
 </p>
+
 ### **Paletas disponibles**
 
 - **Cyber Emerald** *(Predeterminada)*  
@@ -162,6 +164,7 @@ Minimalist switch with SVG animations, dynamic palettes, and modular architectur
 <p align="center">
   <img src="https://github.com/Jaguaza/Neon-Cards/blob/feature/neon-button-card/assets/screenshots/entity/Entity%20completa.jpg" width="450" style="margin-right:20px;">
 </p>
+
 ### **Available Palettes**
 
 - **Cyber Emerald** *(Default)*  
@@ -193,6 +196,7 @@ Minimalist button with SVG animations, dynamic palettes, and modular architectur
 <p align="center">
   <img src="https://github.com/Jaguaza/Neon-Cards/blob/feature/neon-button-card/assets/screenshots/button/Button%201.jpg" width="450" style="margin-right:20px;"><img src="https://github.com/Jaguaza/Neon-Cards/blob/feature/neon-button-card/assets/screenshots/button/Button%202.jpg" width="450" style="margin-right:20px;">
 </p>
+
 ### **Available Palettes**
 
 - **Cyber Emerald** *(Default)*  
