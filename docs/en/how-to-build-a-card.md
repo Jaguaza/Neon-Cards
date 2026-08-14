@@ -19,7 +19,7 @@ Each card is an independent folder under `src/cards/<name>/`
 | `<name>.ts` | Main Lit component — extends `BaseNeonCard`, `render()`, `getCardSize()`, `getGridOptions()`. |
 | `<name>-editor.ts` | Visual editor (referenced by `static getConfigElement()`). |
 | `<name>.styles.ts` | The card's own `css`, kept separate from the component for size (agreement nº7). |
-| `types.ts` | The card's `Config` interface (extends the minimum from `ActionConfig` in `src/ha/types`). |
+| `types.ts` | The card's `Config` interface (extends the minimum from `ActionConfig` in `src/ha/types`; ends in `[key: string]: unknown` — needed so the editor's `_configChanged` compiles with a dynamic key, not filler "just in case". Document it the same way `src/cards/button/types.ts` does). |
 | `constants.ts` | Card-specific defaults; imports `NEON_CARDS_VERSION` from `../../version` for `CARD_VERSION`. |
 | `index.ts` | Registration: `customElements.define`, `window.customCards.push`, console banner. |
 | `README.md` | The card's bilingual spec and YAML config (same pattern as `src/cards/button/README.md`). |
