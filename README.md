@@ -162,6 +162,18 @@ Ver el texto legal completo en [`LICENSE`](./LICENSE) (inglés, vinculante) o su
 
 ---
 
+## ❤️ Apoya el proyecto
+
+<p align="center">
+  Si este proyecto te resulta útil y deseas apoyar su desarrollo:
+  <br><br>
+  <a href="https://paypal.me/NeonCardsHA" target="_blank">
+    <img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" alt="Donar con PayPal">
+  </a>
+</p>
+
+---
+
 # 🇬🇧 English
 <a name="readme-en"></a>
 
@@ -291,3 +303,14 @@ See the full legal text in [`LICENSE`](./LICENSE) (English, binding) or its [inf
 **Telegram:** https://t.me/Jaguaza  
 **Home Automation Group:** https://t.me/DomoticaParaTodos
 
+---
+
+## ❤️ Support the project
+
+<p align="center">
+  If you find this project useful and would like to support its development:
+  <br><br>
+  <a href="https://paypal.me/NeonCardsHA" target="_blank">
+    <img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" alt="Donate with PayPal">
+  </a>
+</p>
