@@ -102,7 +102,7 @@ Botón minimalista con animaciones SVG, paletas dinámicas y arquitectura modula
 
 Neon Cards se está diseñando como una colección completa de tarjetas para Home Assistant, se irán añadiendo más tarjetas.
 
-- **PRÓXIMA TARJETA / NEXT CARD: 🌡 TERMOSTATO / THERMOSTAT.**
+- **Próxima Tarjeta: 🌡 TERMOSTATO.**
 
 ---
 
