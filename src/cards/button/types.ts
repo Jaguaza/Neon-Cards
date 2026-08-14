@@ -1,4 +1,5 @@
 import type { ActionConfig } from '../../ha/types';
+import type { InfoOption } from '../../core';
 
 export interface SensorItemConfig {
   entity: string;
@@ -15,10 +16,14 @@ export interface NeonButtonCardConfig {
   name?: string;
   /**
    * 'custom' (por defecto, texto libre en `subtitle`) o cualquier
-   * InfoOption de src/core ('name'|'state'|'last-changed'|
-   * 'last-updated'|'none') — requiere `entity` para poder calcularse.
+   * InfoOption de src/core salvo 'none' ('name'|'state'|
+   * 'last-changed'|'last-updated') — requiere `entity` para poder
+   * calcularse. 'none' se excluye a propósito: en Button ese hueco ya
+   * lo cubre 'custom', y el editor nunca lo ofrece (ver
+   * neon-button-card-editor.ts, INFO_OPTIONS.filter(opt => opt !==
+   * 'none')).
    */
-  subtitle_type?: string;
+  subtitle_type?: 'custom' | Exclude<InfoOption, 'none'>;
   /** Texto libre cuando subtitle_type es 'custom' (o no se indica). */
   subtitle?: string;
   /** Sensor suelto, opcional, encima del divisor (sin agrupar). */

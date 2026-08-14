@@ -11,7 +11,7 @@ import {
   dispatchHassAction,
   computeInfoDisplay,
 } from '../../core';
-import type { GestureState, InfoOption } from '../../core';
+import type { GestureState } from '../../core';
 import {
   resolveGradientColors,
   NEON_HALO_STYLES,
@@ -218,7 +218,7 @@ export class NeonButtonCard extends BaseNeonCard {
     if (type === 'custom') return this._config?.subtitle || nothing;
     const stateObj = this._stateObj;
     if (!stateObj || !this.hass) return nothing;
-    return computeInfoDisplay(type as InfoOption, this._name, stateObj.state, stateObj, this.hass);
+    return computeInfoDisplay(type, this._name, stateObj.state, stateObj, this.hass);
   }
 
   private _handleAction(actionType: string): void {
