@@ -1,95 +1,14 @@
 import { css } from 'lit';
 
 /**
- * Estilos propios del editor de Button Card. Vive en su propio archivo
- * (Acuerdo 7: archivo ≤500 líneas) — mismo patrón que
- * `neon-button-card.styles.ts` para el componente principal.
+ * Estilos propios del editor de Button Card — solo lo específico de
+ * Button (bloque de sensor suelto/agrupado). La carcasa común del
+ * formulario (secciones, selects/inputs nativos, selector de color,
+ * bloque de acción) vive en `src/shared/editor-form.styles.ts` y se
+ * compone en `static styles` del editor (acuerdo nº4 — antes estaba
+ * duplicada aquí y en `neon-card-entity-editor.ts`).
  */
 export const NEON_BUTTON_CARD_EDITOR_STYLES = css`
-  .editor-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 4px 0;
-  }
-  .editor-section {
-    background: var(--card-background-color, rgba(255, 255, 255, 0.04));
-    border: 1px solid var(--divider-color, rgba(255, 255, 255, 0.1));
-    border-radius: 12px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .section-header {
-    font-weight: 600;
-    font-size: 14px;
-    color: var(--primary-text-color);
-    margin-bottom: 2px;
-  }
-  .action-item {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    background: rgba(0, 0, 0, 0.15);
-    padding: 12px;
-    border-radius: 8px;
-    border-left: 3px solid #39e07a;
-  }
-  .action-title {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--secondary-text-color);
-  }
-  .custom-colors-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-top: 6px;
-  }
-  .native-select-label {
-    font-size: 12px;
-    color: var(--secondary-text-color);
-    display: block;
-  }
-  .native-select {
-    width: 100%;
-    height: 40px;
-    border-radius: 8px;
-    border: 1px solid var(--divider-color, rgba(255, 255, 255, 0.2));
-    background: var(--card-background-color, #1c1c1c);
-    color: var(--primary-text-color, #e5e5e5);
-    padding: 0 10px;
-    font-size: 14px;
-    cursor: pointer;
-  }
-  .native-input {
-    width: 100%;
-    height: 40px;
-    border-radius: 8px;
-    border: 1px solid var(--divider-color, rgba(255, 255, 255, 0.2));
-    background: var(--card-background-color, #1c1c1c);
-    color: var(--primary-text-color, #e5e5e5);
-    padding: 0 10px;
-    font-size: 14px;
-    box-sizing: border-box;
-    font-family: inherit;
-  }
-  .color-picker-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 12px;
-    color: var(--secondary-text-color);
-  }
-  input[type='color'] {
-    border: none;
-    width: 100%;
-    height: 38px;
-    border-radius: 6px;
-    cursor: pointer;
-    background: transparent;
-  }
   .sensor-card {
     display: flex;
     flex-direction: column;

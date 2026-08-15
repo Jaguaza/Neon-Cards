@@ -1,7 +1,7 @@
 import { LitElement, html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import type { HomeAssistant } from '../../ha/types';
-import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, SHARED_TRANSLATIONS } from '../../shared';
+import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
 import { INFO_OPTIONS, getInfoLabels, localize } from '../../core';
 import { MAX_GROUPED_SENSORS } from './constants';
@@ -23,7 +23,7 @@ export class NeonButtonCardEditor extends LitElement {
   hass?: HomeAssistant;
   private _config?: NeonButtonCardConfig;
 
-  static styles = NEON_BUTTON_CARD_EDITOR_STYLES;
+  static styles = [NEON_EDITOR_FORM_STYLES, NEON_BUTTON_CARD_EDITOR_STYLES];
 
   setConfig(config: NeonButtonCardConfig): void {
     this._config = config;

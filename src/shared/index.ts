@@ -2,6 +2,7 @@ export { NEON_PRESETS, DEFAULT_PALETTE, resolveGradientColors, getPaletteName, g
 export type { NeonPreset, GradientColors, NeonPaletteConfig } from './neon-palette';
 export { SHARED_TRANSLATIONS } from './translations';
 export type { SharedTranslations } from './translations';
+export { NEON_EDITOR_FORM_STYLES } from './editor-form.styles';
 export {
   NEON_HALO_STYLES,
   NEON_RING_SPLIT_STYLES,
