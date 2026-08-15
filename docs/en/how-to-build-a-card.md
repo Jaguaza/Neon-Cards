@@ -23,6 +23,7 @@ Each card is an independent folder under `src/cards/<name>/`
 | `constants.ts` | Card-specific defaults; imports `NEON_CARDS_VERSION` from `../../version` for `CARD_VERSION`. |
 | `index.ts` | Registration: `customElements.define`, `window.customCards.push`, console banner. |
 | `README.md` | The card's bilingual spec and YAML config (same pattern as `src/cards/button/README.md`). |
+| `translations/` | All of this card's own visible text, in Spanish for now — `types.ts`+`es.ts`+`index.ts` — see section 4, "Translations". |
 
 One class, one responsibility (agreement nº8): if `<name>.ts` starts
 mixing, say, sensor computation with rendering, that computation gets
@@ -60,7 +61,58 @@ never copy it.
 2. Add one import line in `src/neon-cards.ts` — no automatic folder
    discovery (agreement nº10).
 
-## 4. Documentation (agreements nº13, nº14, nº16)
+## 4. Translations
+
+Right now the config UI (both visual editors) and a couple of
+runtime-visible strings (error messages, "unavailable") only exist in
+Spanish — but the infrastructure is already in place so more languages
+can be added later without touching any of this again.
+
+**Generic engine, no text inside it — `src/core/localize.ts`:**
+`resolveLocale(hass)` reads `hass.locale.language` and falls back to
+`DEFAULT_LOCALE` when it isn't supported; `localize(hass, dict, key)`
+looks up `key` in the resolved language's dictionary.
+
+**One dictionary per module, not one giant shared one** — each card
+owns its own text (agreement nº3):
+
+```
+src/cards/<name>/translations/
+  types.ts   — <Name>Translations interface with ALL keys
+  es.ts      — export const es: <Name>Translations = {...}
+  index.ts   — export const <NAME>_TRANSLATIONS: Record<Locale, ...> = { es }
+```
+
+In the component/editor:
+
+```ts
+private _t(key: keyof MyCardTranslations): string {
+  return localize(this.hass, MY_CARD_TRANSLATIONS, key);
+}
+```
+
+**Before adding a new string, check whether it already belongs to
+`src/shared`** — `src/shared/translations` holds text that is *the same
+widget with the same fixed text* across more than one card (today:
+palette preset names, the 3 gradient-stop labels in that same picker,
+the tap/hold/double_tap actions section). If your card also has a
+palette picker or an actions section, use those shared keys
+(`localize(this.hass, SHARED_TRANSLATIONS, 'action_tap')`, for example)
+instead of duplicating the text in your own dictionary — that's exactly
+the bug that got fixed the first time this was built (Button and Entity
+each had their own literal copy, already drifted apart). An
+*incidental* text match (two cards both calling their first section
+"Main Configuration" without it being the same concept) doesn't
+count — that stays in each card's own dictionary.
+
+**When the first new language arrives:** create `translations/en.ts` in
+every module that needs it (`core`, `shared`, and each card)
+implementing its interface — TypeScript throws a compile error if a key
+is missing, it won't let a half-translated Spanish string slip through
+— add it to each `index.ts`'s `Record<Locale, ...>`, and add `'en'` to
+`SUPPORTED_LOCALES` in `src/core/localize.ts`.
+
+## 5. Documentation (agreements nº13, nº14, nº16)
 
 All of it in Spanish **and** English, versioned in the repo:
 
@@ -75,7 +127,7 @@ All of it in Spanish **and** English, versioned in the repo:
 - `examples/README.md` — minimal YAML, advanced YAML, screenshot, GIF
   and explanation for the new card (agreement nº17).
 
-## 5. Development diagnostics (agreement nº22)
+## 6. Development diagnostics (agreement nº22)
 
 For warnings that only help while editing a card (malformed config, an
 entity of the wrong domain, something being silently truncated or
@@ -98,7 +150,7 @@ directly without going through rollup (like
 `scripts/perf-check.mjs`) need their own
 `globalThis.__DEV__ = false` at the top.
 
-## 6. Before merging into `main` (agreements nº18, nº20, nº21)
+## 7. Before merging into `main` (agreements nº18, nº20, nº21)
 
 Final checklist, all of it must pass before integrating:
 
@@ -116,9 +168,9 @@ Final checklist, all of it must pass before integrating:
 - [ ] Architecture, API, performance and documentation review
       (agreement nº20) before merging significant changes.
 
-## 7. Framework freeze (agreement nº25)
+## 8. Framework freeze (agreement nº25)
 
-This process (steps 1-5) is the one followed to build the Button Card on
+This process (steps 1-7) is the one followed to build the Button Card on
 top of the framework the Entity Card left behind. The framework is now
 frozen — see the [full declaration](./framework-freeze.md) for the exact
 baseline and what to do if a future bug forces breaking something

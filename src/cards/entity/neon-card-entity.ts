@@ -9,11 +9,13 @@ import {
   handleClick,
   dispatchHassAction,
   computeInfoDisplay,
+  localize,
 } from '../../core';
 import type { GestureState } from '../../core';
 import { resolveGradientColors } from '../../shared';
 import type { GradientColors } from '../../shared';
 import type { EntityItemConfig, NeonCardEntityConfig } from './types';
+import { ENTITY_TRANSLATIONS } from './translations';
 
 /**
  * Neón Card Entity
@@ -225,7 +227,11 @@ export class NeonCardEntity extends BaseNeonCard {
 
   setConfig(config: NeonCardEntityConfig): void {
     if (!config.entity && !config.entities) {
-      throw new Error("Debes definir 'entity' o 'entities' en la Neón Card Entity.");
+      // this.hass puede no estar listo todavía aquí (HA a veces llama
+      // setConfig antes de fijar hass) — localize() ya cae a
+      // DEFAULT_LOCALE cuando hass falta, así que esto es seguro sin
+      // comprobación extra.
+      throw new Error(localize(this.hass, ENTITY_TRANSLATIONS, 'config_error_missing_entity'));
     }
     this._config = config;
   }
@@ -362,7 +368,7 @@ export class NeonCardEntity extends BaseNeonCard {
     const primaryText =
       stateObj && this.hass
         ? computeInfoDisplay(primaryInfo, name, stateObj.state, stateObj, this.hass)
-        : `${ent.entity} (no disponible)`;
+        : `${ent.entity} ${localize(this.hass, ENTITY_TRANSLATIONS, 'entity_unavailable_suffix')}`;
     const hasSecondary = !!stateObj && !!this.hass && secondaryInfo !== 'none';
     const secondaryText = hasSecondary ? computeInfoDisplay(secondaryInfo, name, stateObj!.state, stateObj!, this.hass!) : nothing;
     const isSplit = (this._config?.card_orientation ?? 'left') === 'right';

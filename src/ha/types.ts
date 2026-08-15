@@ -14,6 +14,11 @@ export interface HassEntityState {
 
 export interface HomeAssistant {
   states: Record<string, HassEntityState>;
+  /** `language` es el código que HA usa para la propia UI del usuario
+      (p. ej. 'es', 'en', 'es-419') — de aquí sale el idioma que
+      localize() usa para las tarjetas. Opcional porque en algunos
+      contextos (tests, hass parcial) puede no estar. */
+  locale?: { language: string };
   callService(
     domain: string,
     service: string,
