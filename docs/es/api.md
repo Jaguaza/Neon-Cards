@@ -14,12 +14,15 @@ Ver también la versión en [inglés](../en/api.md).
   - [Gestos (`gestures.ts`)](#gestos-gesturests)
   - [Acciones (`actions.ts`)](#acciones-actionsts)
   - [Información primaria/secundaria (`info.ts`)](#información-primariasecundaria-infots)
+  - [Traducciones (`localize.ts`)](#traducciones-localizets)
 - [`src/ha` — Tipos de Home Assistant](#srcha--tipos-de-home-assistant)
   - [Sensores (`sensors.ts`)](#sensores-sensorsts)
 - [`src/shared` — Paleta y efectos neón compartidos](#srcshared--paleta-y-efectos-neón-compartidos)
   - [Paleta (`neon-palette.ts`)](#paleta-neon-palettets)
   - [Halo de icono (`glow.ts`)](#halo-de-icono-glowts)
   - [Aro partido (`glow.ts`)](#aro-partido-glowts)
+  - [Editor: carcasa común (`editor-form.styles.ts`)](#editor-carcasa-común-editor-formstylests)
+  - [Traducciones compartidas (`translations/`)](#traducciones-compartidas-translations)
 - [Neón Card Entity — Configuración YAML](#neón-card-entity--configuración-yaml)
 - [Neón Button Card — Configuración YAML](#neón-button-card--configuración-yaml)
 
@@ -184,13 +187,70 @@ sobrevivirían entre pulsaciones.
   const primaryText = computeInfoDisplay('last-changed', name, stateObj.state, stateObj, hass);
   ```
 
+#### `getInfoLabels(hass)`
+
+- **Descripción:** etiquetas de `INFO_OPTIONS` en el idioma resuelto de
+  `hass` — usadas por ambos editores para pintar el `<select>` de
+  información primaria/secundaria/subtítulo. Antes era `INFO_LABELS`, un
+  `Record` fijo en español; ahora es una función porque el idioma
+  depende de `hass.locale.language` en cada llamada (ver `localize` más
+  abajo).
+- **Parámetros:** `hass: HomeAssistant | undefined`.
+- **Devuelve:** `Record<InfoOption, string>`.
+- **Ejemplo:**
+  ```ts
+  getInfoLabels(hass).state; // 'Estado'
+  ```
+
+---
+
+### Traducciones (`localize.ts`)
+
+Motor de traducción genérico — ni un texto dentro, eso vive en
+`translations/<locale>.ts` de cada módulo (`src/core`,
+`src/shared`, y cada `src/cards/<nombre>`). Hoy solo hay diccionarios
+`es` poblados en todo el repo; la infraestructura ya está lista para
+cuando se añada `en` u otro idioma (ver "Cómo crear una tarjeta",
+sección 4, "Traducciones").
+
+#### `resolveLocale(hass)`
+
+- **Descripción:** resuelve qué locale usar a partir de
+  `hass.locale.language` (p. ej. `'es'`, `'en'`, `'es-419'` — se compara
+  solo la parte antes del guion).
+- **Parámetros:** `hass: HomeAssistant | undefined`.
+- **Devuelve:** `Locale` — cae a `DEFAULT_LOCALE` si no hay `hass`, si
+  `hass.locale` falta, o si el idioma no está entre `SUPPORTED_LOCALES`.
+- **Ejemplo:**
+  ```ts
+  resolveLocale(hass); // 'es'
+  ```
+
+#### `localize(hass, dict, key)`
+
+- **Descripción:** devuelve la traducción de `key` en el idioma resuelto
+  de `hass`, usando `dict` — el `Record<Locale, T>` del módulo que
+  llama.
+- **Parámetros:**
+  - `hass: HomeAssistant | undefined`.
+  - `dict: Record<Locale, T>` — p. ej. `CORE_TRANSLATIONS`,
+    `SHARED_TRANSLATIONS`, o el `<NOMBRE>_TRANSLATIONS` de una tarjeta.
+  - `key: keyof T`.
+- **Devuelve:** `string` — cae a `dict[DEFAULT_LOCALE][key]` si el
+  idioma resuelto no tiene esa clave (red de seguridad en runtime; no
+  debería pasar si el diccionario cumple su interfaz `T`).
+- **Ejemplo:**
+  ```ts
+  localize(hass, CORE_TRANSLATIONS, 'info_state'); // 'Estado'
+  ```
+
 #### Constantes y tipos
 
 | Nombre | Descripción |
 |---|---|
-| `INFO_OPTIONS` | `['name', 'state', 'last-changed', 'last-updated', 'none']` — las opciones válidas. |
-| `InfoOption` | Tipo TypeScript derivado de `INFO_OPTIONS`. |
-| `INFO_LABELS` | `Record<InfoOption, string>` — etiquetas en español para mostrar en el editor. |
+| `SUPPORTED_LOCALES` | `['es']` hoy — se amplía aquí cuando se añade un idioma nuevo. |
+| `Locale` | Tipo TypeScript derivado de `SUPPORTED_LOCALES`. |
+| `DEFAULT_LOCALE` | `'es'` — idioma usado cuando `hass.locale.language` falta o no está soportado. |
 
 ---
 
@@ -216,10 +276,15 @@ interface HassEntityState {
 ```ts
 interface HomeAssistant {
   states: Record<string, HassEntityState>;
+  locale?: { language: string };
   callService(domain: string, service: string, serviceData?: Record<string, unknown>): Promise<void>;
 }
 ```
 
+- **`locale?.language`** — el idioma de la UI de HA (p. ej. `'es'`,
+  `'en'`, `'es-419'`). De aquí sale el idioma que usa `localize` (ver
+  `src/core`) para las tarjetas. Opcional porque en algunos contextos
+  (tests, `hass` parcial) puede no estar.
 - **`callService(domain, service, serviceData)`** — llama a un servicio de Home Assistant.
   - `domain: string` — p. ej. `'light'`, `'switch'`, `'homeassistant'`.
   - `service: string` — p. ej. `'toggle'`, `'turn_on'`.
@@ -327,8 +392,33 @@ tarjeta (fondo, texto) sí lo hace a través de variables CSS de HA.
 |---|---|
 | `NEON_PRESETS` | `Record<string, NeonPreset>` — los 5 presets (`emerald`, `cyberpunk`, `electric`, `sunset`, `toxic`), cada uno con `{ name, c1, c2, c3 }`. |
 | `DEFAULT_PALETTE` | `'emerald'` — preset usado cuando no se indica `neon_palette` o el valor no existe. |
-| `NeonPreset` | `{ name: string; c1: string; c2: string; c3: string }`. |
+| `NeonPreset` | `{ name: string; c1: string; c2: string; c3: string }`. `name` es un campo congelado (acuerdo nº25) que **no** se usa para pintar la UI — para eso está `getPaletteName`, justo abajo. |
 | `GradientColors` | `{ c1: string; c2: string; c3: string }` — lo que devuelve `resolveGradientColors`. |
+
+#### `getPaletteName(hass, presetId)`
+
+- **Descripción:** nombre visible de un preset, en el idioma resuelto de
+  `hass` (ver `localize` en `src/core`) — la fuente real que ambos
+  editores usan para pintar el `<select>` de paleta. Distinto de
+  `NEON_PRESETS[x].name`: ese campo quedó congelado con el texto que
+  tenía en el momento del freeze y ya no lo lee nadie para renderizar.
+- **Parámetros:**
+  - `hass: HomeAssistant | undefined`
+  - `presetId: string` — p. ej. `'emerald'`.
+- **Devuelve:** `string` — el texto localizado, o el propio `presetId`
+  tal cual si no coincide con ningún preset conocido.
+- **Ejemplo:**
+  ```ts
+  getPaletteName(hass, 'cyberpunk'); // 'Cyberpunk Pink (Rosa / Carmesí / Púrpura)'
+  ```
+
+#### `getPaletteCustomLabel(hass)`
+
+- **Descripción:** texto de la opción `"custom"` del propio selector de
+  paleta — compartido entre tarjetas por el mismo motivo que
+  `getPaletteName`.
+- **Parámetros:** `hass: HomeAssistant | undefined`.
+- **Devuelve:** `string`.
 
 ---
 
@@ -401,6 +491,55 @@ coordenadas en unidades reales (el atributo `d` no admite `%` ni
 `static styles`, pone la clase `neon-ring-host` en el contenedor y
 `neon-halo-active` cuando el estado es activo (comparte la clase con
 `NEON_HALO_STYLES`).
+
+---
+
+### Editor: carcasa común (`editor-form.styles.ts`)
+
+#### `NEON_EDITOR_FORM_STYLES`
+
+- **Descripción:** hoja `css` (Lit) con la "carcasa" visual común a
+  cualquier editor de tarjeta con formulario de secciones —
+  `.editor-container`, `.editor-section`, `.section-header`,
+  `.action-item`/`.action-title`, `.custom-colors-grid`,
+  `.color-picker-wrapper`, `input[type=color]`, `.native-select-label`,
+  `.native-select`, `.native-input`. Antes Button y Entity tenían estas
+  11 reglas duplicadas byte a byte, cada una en su propio archivo de
+  estilos (acuerdo nº4).
+- **Uso:** el editor de una tarjeta la compone en `static styles` junto
+  a lo que sí es específico suyo:
+  ```ts
+  static styles = [NEON_EDITOR_FORM_STYLES, MI_TARJETA_EDITOR_STYLES];
+  ```
+  Lo que NO va aquí: clases específicas de una sola tarjeta (en Button,
+  `.sensor-card`/`.sensor-row`/`.field`; en Entity,
+  `.two-col-grid`/`.field-col`/`ha-formfield`) — esas se quedan en el
+  archivo de estilos propio de cada editor.
+
+---
+
+### Traducciones compartidas (`translations/`)
+
+Contenido textual que es **el mismo widget con el mismo texto fijo** en
+más de una tarjeta — no cualquier coincidencia textual (ver la regla
+completa en "Cómo crear una tarjeta", sección 4). Hoy: los nombres de
+preset de paleta y su opción "personalizado" (consumidos vía
+`getPaletteName`/`getPaletteCustomLabel`, arriba), los 3 stops de color
+del selector de paleta, y la sección de acciones tap/hold/double_tap.
+
+Se usa igual que cualquier otro diccionario de `localize` (ver
+`src/core`):
+
+```ts
+localize(hass, SHARED_TRANSLATIONS, 'action_tap'); // '1 Toque (Tap)'
+```
+
+#### Constantes y tipos
+
+| Nombre | Descripción |
+|---|---|
+| `SHARED_TRANSLATIONS` | `Record<Locale, SharedTranslations>` — hoy solo `{ es }`. |
+| `SharedTranslations` | Interfaz con las 13 claves: `palette_emerald`, `palette_cyberpunk`, `palette_electric`, `palette_sunset`, `palette_toxic`, `palette_custom`, `color_start`, `color_middle`, `color_end`, `section_actions`, `action_tap`, `action_hold`, `action_double_tap`. |
 
 ---
 

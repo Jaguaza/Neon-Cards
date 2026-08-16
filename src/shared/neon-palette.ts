@@ -16,40 +16,63 @@ import { localize } from '../core/localize';
 import { SHARED_TRANSLATIONS } from './translations';
 import type { SharedTranslations } from './translations';
 
-/**
- * Paleta de colores "neón" compartida por todas las tarjetas de la
- * colección (acuerdo nº4: lo reutilizable vive en `src/shared`, no se
- * copia por tarjeta). Nace en la Entity Card y se extrae aquí para que
- * la Button Card (y cualquier tarjeta futura) use exactamente los mismos
- * presets y la misma lógica de resolución de colores.
- *
- * Esto es intencionadamente independiente del tema de Home Assistant: la
- * identidad "neón" de la colección no depende del tema activo (ver
- * `docs/*​/api.md`), solo el resto de la tarjeta (fondo, texto) sí lo
- * hace a través de variables CSS de HA.
- */
-
 export interface NeonPreset {
+  /**
+   * Nombre fijo en español — parte de la API pública ya congelada
+   * (acuerdo nº25, línea base commit 12da870, docs/es/api.md lo
+   * documentaba como `{ name, c1, c2, c3 }`). No se usa para pintar la
+   * UI — para eso está `getPaletteName(hass, presetId)`, que sí
+   * resuelve por idioma — pero quitar este campo sería una ruptura de
+   * la API congelada sin pasar por el proceso de excepción
+   * (docs/es/framework-freeze.md), así que se mantiene tal cual estaba
+   * en el momento del freeze.
+   */
+  name: string;
   c1: string;
   c2: string;
   c3: string;
 }
 
 export const NEON_PRESETS: Record<string, NeonPreset> = {
-  emerald: { c1: '#39e07a', c2: '#2dd6b8', c3: '#1ecdf2' },
-  cyberpunk: { c1: '#ff2a85', c2: '#ff0055', c3: '#7a00ff' },
-  electric: { c1: '#00f2fe', c2: '#4facfe', c3: '#005bea' },
-  sunset: { c1: '#ffb347', c2: '#ffcc33', c3: '#ff1361' },
-  toxic: { c1: '#bf00ff', c2: '#7d12ff', c3: '#00d4ff' },
+  emerald: {
+    name: 'Cyber Emerald (Verde/Turquesa/Azul)',
+    c1: '#39e07a',
+    c2: '#2dd6b8',
+    c3: '#1ecdf2',
+  },
+  cyberpunk: {
+    name: 'Cyberpunk Pink (Rosa/Carmesí/Púrpura)',
+    c1: '#ff2a85',
+    c2: '#ff0055',
+    c3: '#7a00ff',
+  },
+  electric: {
+    name: 'Electric Blue (Cian/Azul/Oscuro)',
+    c1: '#00f2fe',
+    c2: '#4facfe',
+    c3: '#005bea',
+  },
+  sunset: {
+    name: 'Sunset Amber (Naranja/Amarillo/Rosa)',
+    c1: '#ffb347',
+    c2: '#ffcc33',
+    c3: '#ff1361',
+  },
+  toxic: {
+    name: 'Toxic Purple (Violeta/Púrpura/Azul)',
+    c1: '#bf00ff',
+    c2: '#7d12ff',
+    c3: '#00d4ff',
+  },
 };
 
 /**
- * Nombre visible de cada preset, en el idioma resuelto de `hass` — antes
- * vivía como `NEON_PRESETS[x].name`, un texto fijo en español que además
- * nadie leía nunca (los dos editores tenían su propia copia literal
- * duplicada, ya divergida en formato). Ahora hay una única fuente en
- * `src/shared/translations`, y ambos editores llaman a esta función en
- * vez de tener su copia.
+ * Nombre visible de cada preset, en el idioma resuelto de `hass` — la
+ * fuente real para pintar la UI. `NEON_PRESETS[x].name` (arriba) es un
+ * campo congelado que ya nadie lee para renderizar (los dos editores
+ * tenían su propia copia literal duplicada, ya divergida en formato
+ * respecto a él); esta función y `src/shared/translations` son la
+ * única fuente que ambos editores consultan de verdad.
  */
 const PALETTE_NAME_KEYS: Record<string, keyof SharedTranslations> = {
   emerald: 'palette_emerald',
@@ -98,11 +121,11 @@ export interface NeonPaletteConfig {
 export function resolveGradientColors(config: NeonPaletteConfig | undefined): GradientColors {
   const palette = config?.neon_palette || DEFAULT_PALETTE;
   if (palette !== 'custom' && NEON_PRESETS[palette]) {
-    // NeonPreset ya es exactamente {c1,c2,c3} (el nombre visible del
-    // preset vive aparte, en getPaletteName — ver el porqué en el
-    // comentario de esa función), así que esto ya es un GradientColors
-    // sin necesidad de filtrar nada.
-    return NEON_PRESETS[palette];
+    // Solo {c1,c2,c3} — NEON_PRESETS[palette] también trae `name`, que
+    // no forma parte de GradientColors y no debe filtrarse a quien
+    // llama (p. ej. a un JSON.stringify de la config resuelta).
+    const { c1, c2, c3 } = NEON_PRESETS[palette];
+    return { c1, c2, c3 };
   }
   return {
     c1: config?.neon_color1 || NEON_PRESETS[DEFAULT_PALETTE].c1,
