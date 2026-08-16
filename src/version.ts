@@ -6,4 +6,4 @@
  * constante en vez de declarar su propio número de versión — así todo el
  * proyecto sube de versión a la vez (release:patch|minor|major|beta).
  */
-export const NEON_CARDS_VERSION = '0.1.0';
+export const NEON_CARDS_VERSION = '0.1.1';
