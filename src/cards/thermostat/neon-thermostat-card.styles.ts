@@ -17,6 +17,16 @@ export const NEON_THERMOSTAT_CARD_STYLES = css`
     flex-direction: column;
     gap: 14px;
     box-sizing: border-box;
+    /* En el editor de Lovelace, HA a veces fija a la tarjeta una altura
+       menor que la de su contenido (ver comentario de flex-shrink más
+       abajo). Con flex-shrink:0 el contenido ya no se comprime, pero
+       sin esto se saldría visualmente de la propia tarjeta e invadiría
+       la tarjeta vecina (bug reportado con captura, solo en modo
+       edición — fuera de él todo cabe siempre). overflow:hidden
+       recorta ese sobrante dentro de sus propios bordes redondeados en
+       vez de dejarlo escapar; no afecta a nada cuando, como es el caso
+       normal, ya todo cabe. */
+    overflow: hidden;
   }
 
   /* En el editor de Lovelace, HA fija a la tarjeta una altura concreta
@@ -51,6 +61,17 @@ export const NEON_THERMOSTAT_CARD_STYLES = css`
     flex-direction: column;
     align-items: flex-start;
     gap: 2px;
+    width: 100%;
+  }
+
+  /* Sin esto, al no estirarse los hijos al ancho del header (por el
+     flex-start de arriba), el <span class="name"> con
+     white-space:nowrap no tiene contra qué ancho recortar su propio
+     texto y crece libre, saliéndose por el borde derecho de la
+     tarjeta (bug reportado con captura). */
+  .header--compact .name {
+    align-self: stretch;
+    min-width: 0;
   }
 
   .header-icons {
