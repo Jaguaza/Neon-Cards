@@ -16,7 +16,7 @@ export {
   DOUBLE_TAP_DELAY_MS,
 } from './gestures';
 export type { GestureState, TapHandlers } from './gestures';
-export { dispatchHassAction } from './actions';
+export { dispatchHassAction, openMoreInfo } from './actions';
 export { computeInfoDisplay, INFO_OPTIONS, getInfoLabels } from './info';
 export type { InfoOption } from './info';
 export { localize, resolveLocale, SUPPORTED_LOCALES, DEFAULT_LOCALE } from './localize';
