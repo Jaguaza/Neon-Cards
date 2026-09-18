@@ -19,6 +19,15 @@ export const NEON_THERMOSTAT_CARD_STYLES = css`
     box-sizing: border-box;
   }
 
+  /* En el editor de Lovelace, HA fija a la tarjeta una altura concreta
+     que puede ser menor que su contenido. Sin esto, los hijos flex se
+     comprimen y el contenido acaba montándose y saliéndose de la
+     tarjeta (se ve mal solo en modo edición, bien fuera de él). Con
+     flex-shrink:0 mantienen su tamaño natural. */
+  ha-card > *:not(.neon-ring-svg) {
+    flex-shrink: 0;
+  }
+
   /* Recortes de altura solo en la vista normal — no debería quedar más
      alta que la grande (bug reportado con capturas de las dos lado a
      lado). Menos separación vertical entre secciones y menos aire
@@ -33,6 +42,29 @@ export const NEON_THERMOSTAT_CARD_STYLES = css`
     display: flex;
     align-items: center;
     gap: 10px;
+  }
+
+  /* Cabecera de la vista compacta: en columna — arriba la fila de
+     iconos (modo + accesos a cada entidad), debajo el nombre (que solo
+     se renderiza si se ha configurado uno). */
+  .header--compact {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .header-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* En compacta los accesos vuelven a fila y pierden el margen
+     automático que en el resto de vistas los empuja a la derecha —
+     aquí van pegados al icono de modo. */
+  .header--compact .header-actions {
+    flex-direction: row;
+    margin-left: 0;
   }
 
   .header-actions {
@@ -401,12 +433,30 @@ export const NEON_THERMOSTAT_CARD_STYLES = css`
 
   /* El arco (semicírculo) y el texto de temperatura solo ocupan la
      mitad superior de este cuadrado — la mitad inferior queda vacía
-     por diseño (nada dibujado ahí) y es justo ese hueco el que
-     separaba de más la temperatura de la píldora de abajo. Recorte
-     solo en la vista normal (bug reportado con captura); la compacta,
-     que no lleva píldora debajo, se deja igual. */
+     por diseño. En vez de tirar de margin-bottom negativo para
+     recuperar ese hueco (lo que hacía que, al fijar el editor de
+     Lovelace una altura menor, el contenido se montara unos elementos
+     sobre otros y se saliera de la tarjeta), se recorta la ALTURA real
+     del contenedor a lo que de verdad se dibuja y se saca el <svg>
+     cuadrado del flujo con position:absolute — así desborda sin
+     reservar espacio y sin solaparse con nada. */
   ha-card[data-size='normal'] .ring-wrap {
-    margin-bottom: -68px;
+    height: 108px;
+  }
+
+  ha-card[data-size='normal'] .ring-svg {
+    height: var(--ring-size, 176px);
+  }
+
+  /* Con el contenedor recortado, el texto ya no puede centrarse con
+     flex (quedaría en el centro de los 108px, no en el del arco): se
+     ancla a la altura real del centro del semicírculo. */
+  ha-card[data-size='normal'] .ring-center {
+    position: absolute;
+    top: 88px;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
   }
 
   .ring-svg {
@@ -434,43 +484,6 @@ export const NEON_THERMOSTAT_CARD_STYLES = css`
   }
 
   .ring-dot {
-    fill: var(--current-color, var(--state-icon-color));
-    stroke: var(--card-background-color, #1c1c1c);
-    stroke-width: 1.5;
-    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--current-color, transparent) 90%, transparent));
-  }
-
-  /* ---- Indicador de línea (vista compacta): un punto que se desplaza
-     de izquierda a derecha según la temperatura actual, en vez del
-     semicírculo — no cabía con dignidad en un tamaño tan pequeño.
-     Mismo lenguaje visual que el resto de indicadores (degradado
-     transparente→color→transparente, punto con glow), puramente
-     decorativo — no arrastrable, sin espacio para acertar con el dedo,
-     igual que ya era el aro en compacta antes de este cambio. ---- */
-  .line-wrap {
-    width: 100%;
-    height: 20px;
-  }
-
-  .line-svg {
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-  }
-
-  .line-track {
-    stroke: rgba(255, 255, 255, 0.08);
-    stroke-width: 2;
-    stroke-linecap: round;
-  }
-
-  .line-progress {
-    stroke-width: 2;
-    stroke-linecap: round;
-    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--current-color, transparent) 75%, transparent));
-  }
-
-  .line-dot {
     fill: var(--current-color, var(--state-icon-color));
     stroke: var(--card-background-color, #1c1c1c);
     stroke-width: 1.5;
@@ -556,6 +569,22 @@ export const NEON_THERMOSTAT_CARD_STYLES = css`
      de 26px). */
   ha-card[data-size='normal'] .mode-selector-display {
     height: 20px;
+  }
+
+  /* En compacta, a juego con la píldora de temperatura (botones de
+     16px) — antes se quedaba en los 26px de la vista grande y quedaba
+     mucho más alta que su pareja. También se encogen icono, texto y
+     paddings para que la proporción acompañe. */
+  ha-card[data-size='compact'] .mode-selector-display {
+    height: 16px;
+    padding: 0 8px;
+    gap: 6px;
+    font-size: 11px;
+  }
+
+  ha-card[data-size='compact'] .mode-selector-display ha-icon,
+  ha-card[data-size='compact'] .mode-selector-display .chevron {
+    --mdc-icon-size: 12px;
   }
 
   .mode-selector-display ha-icon {
