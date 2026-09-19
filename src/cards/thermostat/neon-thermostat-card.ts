@@ -155,10 +155,11 @@ export class NeonThermostatCard extends BaseNeonCard {
   getCardSize(): number {
     switch (this._size) {
       case 'large':
-      default:
         return 5;
       case 'compact':
         return 4;
+      default:
+        return 6;
     }
   }
 
