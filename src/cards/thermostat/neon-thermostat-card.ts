@@ -123,12 +123,11 @@ export class NeonThermostatCard extends BaseNeonCard {
   private _ringForceTimer?: number;
 
   /** Último `hvac_mode` visto **por entidad** — para detectar, con 2
-      entidades configuradas, que una pasó de apagada a un modo activo
-      estando la otra YA activa. Dentro de la tarjeta la exclusión
-      mutua ya la fuerza `_handleModeSelect` al vuelo; esto cubre
-      cambios hechos FUERA de la tarjeta (diálogo nativo de la entidad,
-      otra tarjeta, una automatización...), que si no dejaban las dos
-      encendidas a la vez sin que la tarjeta hiciera nada. */
+      entidades configuradas, que una acaba de cambiar a un modo activo
+      distinto del de la otra (estando esta también activa). Dentro de
+      la tarjeta la exclusión ya la fuerza `_handleModeSelect` al
+      vuelo; esto cubre cambios hechos FUERA de la tarjeta (diálogo
+      nativo de la entidad, otra tarjeta, una automatización...). */
   private _prevEntityModes = new Map<string, HvacMode>();
 
   /** Última entidad configurada que estuvo activa (mode !== 'off') —
@@ -278,19 +277,22 @@ export class NeonThermostatCard extends BaseNeonCard {
     this._setTargetTemperature(climate.targetTemperature + direction * this._step);
   }
 
-  /** Con una sola entidad: comportamiento normal. Con dos: mutuamente
-      excluyentes — la entidad dueña del modo elegido pasa a ese modo y
-      CUALQUIER otra entidad configurada pasa a "off", nunca dos activas
-      a la vez. */
+  /** Con una sola entidad: comportamiento normal. Con dos: la entidad
+      dueña del modo elegido pasa a ese modo; el resto de entidades solo
+      se apagan si estaban en un modo DISTINTO al elegido — si ya
+      estaban en ese mismo modo (p. ej. las dos en "calor"), se dejan
+      como están, ambas activas a la vez. Solo se evita tener dos
+      entidades activas en modos DIFERENTES, nunca en el mismo. */
   private _handleModeSelect(mode: HvacMode): void {
     const combined = this._combined;
     if (!combined || !this.hass) return;
     const owner = combined.modeOwner.get(mode) ?? combined.entities[0];
     for (const e of combined.entities) {
-      this.hass.callService('climate', 'set_hvac_mode', {
-        entity_id: e.entity,
-        hvac_mode: e.entity === owner.entity ? mode : 'off',
-      });
+      if (e.entity === owner.entity) {
+        this.hass.callService('climate', 'set_hvac_mode', { entity_id: e.entity, hvac_mode: mode });
+      } else if (e.mode !== 'off' && e.mode !== mode) {
+        this.hass.callService('climate', 'set_hvac_mode', { entity_id: e.entity, hvac_mode: 'off' });
+      }
     }
   }
 
@@ -661,16 +663,20 @@ export class NeonThermostatCard extends BaseNeonCard {
       if (active) this._lastActiveEntity = active.entity;
 
       // Exclusión mutua con 2 entidades para cambios hechos FUERA de la
-      // tarjeta: si una entidad configurada acaba de pasar de apagada a
-      // un modo activo mientras la otra YA estaba activa, se apaga la
-      // que no acaba de cambiar (se conserva la recién activada).
+      // tarjeta: si una entidad configurada acaba de CAMBIAR de modo
+      // (a uno activo) mientras la otra YA estaba activa en un modo
+      // DISTINTO, se apaga esa otra — se conserva la que acaba de
+      // cambiar. Si las dos acaban en el MISMO modo se dejan tal cual,
+      // ambas activas a la vez; eso está permitido, solo se evitan
+      // modos diferentes simultáneos.
       if (this.hass && combined.entities.length > 1) {
-        const justActivated = combined.entities.find(
-          (e) => e.mode !== 'off' && this._prevEntityModes.get(e.entity) === 'off'
-        );
-        if (justActivated) {
+        const justChanged = combined.entities.find((e) => {
+          const prev = this._prevEntityModes.get(e.entity);
+          return prev !== undefined && prev !== e.mode && e.mode !== 'off';
+        });
+        if (justChanged) {
           for (const other of combined.entities) {
-            if (other.entity !== justActivated.entity && other.mode !== 'off') {
+            if (other.entity !== justChanged.entity && other.mode !== 'off' && other.mode !== justChanged.mode) {
               this.hass.callService('climate', 'set_hvac_mode', { entity_id: other.entity, hvac_mode: 'off' });
             }
           }
