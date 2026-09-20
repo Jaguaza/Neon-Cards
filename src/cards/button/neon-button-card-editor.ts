@@ -166,15 +166,13 @@ export class NeonButtonCardEditor extends LitElement {
               />
             `
           : html`<span class="native-select-label">${this._t('subtitle_computed_hint')}</span>`}
-        <label class="native-select-label" for="icon">${this._t('icon_label')}</label>
-        <input
+        <ha-icon-picker
           id="icon"
-          type="text"
-          class="native-input"
-          placeholder="mdi:sofa"
+          .hass=${this.hass}
           .value=${config.icon || ''}
-          @input=${(ev: InputEvent) => this._configChanged('icon', (ev.target as HTMLInputElement).value)}
-        />
+          label=${this._t('icon_label')}
+          @value-changed=${(ev: ValueChangedEvent) => this._configChanged('icon', ev.detail.value)}
+        ></ha-icon-picker>
       </div>
     `;
   }
@@ -256,15 +254,13 @@ export class NeonButtonCardEditor extends LitElement {
             ? html`
                 <div class="sensor-extra-fields">
                   <div class="field">
-                    <label class="field-label" for="top-sensor-icon">${this._t('sensor_icon_label')}</label>
-                    <input
+                    <ha-icon-picker
                       id="top-sensor-icon"
-                      type="text"
-                      class="native-input"
-                      placeholder="mdi:flash"
+                      .hass=${this.hass}
                       .value=${config.top_sensor.icon || ''}
-                      @input=${(ev: InputEvent) => this._topSensorFieldChanged('icon', (ev.target as HTMLInputElement).value)}
-                    />
+                      label=${this._t('sensor_icon_label')}
+                      @value-changed=${(ev: ValueChangedEvent) => this._topSensorFieldChanged('icon', ev.detail.value)}
+                    ></ha-icon-picker>
                   </div>
                   <div class="field decimals-field">
                     <label class="field-label" for="top-sensor-decimals">${this._t('sensor_decimals_label')}</label>
@@ -309,15 +305,13 @@ export class NeonButtonCardEditor extends LitElement {
               </div>
               <div class="sensor-extra-fields">
                 <div class="field">
-                  <label class="field-label" for="sensor-icon-${i}">${this._t('sensor_icon_label')}</label>
-                  <input
+                  <ha-icon-picker
                     id="sensor-icon-${i}"
-                    type="text"
-                    class="native-input"
-                    placeholder="mdi:thermometer"
+                    .hass=${this.hass}
                     .value=${s.icon || ''}
-                    @input=${(ev: InputEvent) => this._sensorFieldChanged(i, 'icon', (ev.target as HTMLInputElement).value)}
-                  />
+                    label=${this._t('sensor_icon_label')}
+                    @value-changed=${(ev: ValueChangedEvent) => this._sensorFieldChanged(i, 'icon', ev.detail.value)}
+                  ></ha-icon-picker>
                 </div>
                 <div class="field decimals-field">
                   <label class="field-label" for="sensor-decimals-${i}">${this._t('sensor_decimals_label')}</label>

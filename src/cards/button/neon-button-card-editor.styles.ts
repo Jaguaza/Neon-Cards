@@ -36,6 +36,13 @@ export const NEON_BUTTON_CARD_EDITOR_STYLES = css`
     gap: 4px;
     flex: 1;
   }
+  .field ha-icon-picker {
+    /* ha-icon-picker ya trae su propia label interna (como
+       ha-entity-picker) y su propia altura de campo Material — solo
+       necesita ocupar el ancho de .field, sin forzar la altura de
+       34px que sí llevan los <input> nativos de al lado. */
+    width: 100%;
+  }
   .field.decimals-field {
     flex: 0 0 90px;
   }
