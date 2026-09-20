@@ -24,59 +24,15 @@ import {
   DIAL_END_ANGLE,
 } from './constants';
 import { NEON_THERMOSTAT_CARD_STYLES } from './neon-thermostat-card.styles';
+import { THERMOSTAT_DIAL_STYLES } from './dial-styles';
+import { THERMOSTAT_TARGET_PILL_STYLES } from './target-pill-styles';
+import { THERMOSTAT_RING_STYLES } from './ring-styles';
+import { THERMOSTAT_MODE_FOOTER_STYLES } from './mode-footer-styles';
 import { THERMOSTAT_TRANSLATIONS } from './translations';
 import type { NeonThermostatCardConfig, ThermostatSize } from './types';
-
-/** Punto (x,y) sobre el aro para un ángulo dado, convención reloj
-    (0° = arriba, crece en sentido horario). */
-function pointOnDial(cx: number, cy: number, r: number, angleDeg: number): { x: number; y: number } {
-  const rad = (angleDeg * Math.PI) / 180;
-  return { x: cx + r * Math.sin(rad), y: cy - r * Math.cos(rad) };
-}
-
-/** Trazo SVG del arco entre dos ángulos. El barrido de esta tarjeta es
-    siempre exactamente 180° (DIAL_START_ANGLE a DIAL_END_ANGLE), así
-    que el flag de "arco grande" queda fijo en 0. */
-function dialArcPath(cx: number, cy: number, r: number, startAngle: number, endAngle: number): string {
-  const start = pointOnDial(cx, cy, r, startAngle);
-  const end = pointOnDial(cx, cy, r, endAngle);
-  return `M ${start.x} ${start.y} A ${r} ${r} 0 0 1 ${end.x} ${end.y}`;
-}
-
-/**
- * Vista combinada de 1 o 2 entidades `climate` configuradas —
- * `entities` en el orden de configuración (`entity`, luego `entity_2`
- * si existe), y `modeOwner` resuelve qué entidad concreta gestiona cada
- * modo del selector (reglas en `types.ts`, junto a `entity_2`).
- */
-interface CombinedClimate {
-  entities: ClimateState[];
-  modeOwner: Map<HvacMode, ClimateState>;
-}
-
-/** Construye el "estado mostrado" (mismo tipo `ClimateState` que usa
-    todo el resto del render): si hay una entidad activa se usa esa; si
-    las dos están en "off" se usa la última que estuvo activa (o la
-    primera configurada si nunca lo estuvo). `hvacModes` es siempre la
-    unión ya resuelta en `modeOwner`, y `mode` es "off" solo cuando
-    NINGUNA entidad configurada está activa. */
-function buildDisplayState(combined: CombinedClimate, lastActiveEntity: string | null): ClimateState {
-  const active = combined.entities.find((e) => e.mode !== 'off') ?? null;
-  const fallback = combined.entities.find((e) => e.entity === lastActiveEntity) ?? combined.entities[0];
-  const base = active ?? fallback;
-  return {
-    entity: base.entity,
-    mode: active ? active.mode : 'off',
-    hvacModes: Array.from(combined.modeOwner.keys()),
-    hvacAction: active ? active.hvacAction : null,
-    currentTemperature: base.currentTemperature,
-    targetTemperature: base.targetTemperature,
-    minTemp: base.minTemp,
-    maxTemp: base.maxTemp,
-    step: base.step,
-    available: base.available,
-  };
-}
+import { pointOnDial, dialArcPath } from './dial-geometry';
+import { combineClimates, buildDisplayState, findMutualExclusionTargets } from './combined-climate';
+import type { CombinedClimate } from './combined-climate';
 
 /**
  * Neón Thermostat Card
@@ -136,7 +92,15 @@ export class NeonThermostatCard extends BaseNeonCard {
       están en off. Se actualiza en `updated()`. */
   private _lastActiveEntity: string | null = null;
 
-  static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_THERMOSTAT_CARD_STYLES];
+  static styles = [
+    NEON_HALO_STYLES,
+    NEON_RING_SPLIT_STYLES,
+    NEON_THERMOSTAT_CARD_STYLES,
+    THERMOSTAT_DIAL_STYLES,
+    THERMOSTAT_TARGET_PILL_STYLES,
+    THERMOSTAT_RING_STYLES,
+    THERMOSTAT_MODE_FOOTER_STYLES,
+  ];
 
   static getConfigElement(): HTMLElement {
     return document.createElement('neon-thermostat-card-editor');
@@ -201,24 +165,7 @@ export class NeonThermostatCard extends BaseNeonCard {
       const secondary = getClimateState(this._config.entity_2, this.hass);
       if (secondary) entities.push(secondary);
     }
-
-    const modeOwner = new Map<HvacMode, ClimateState>();
-    for (const e of entities) {
-      for (const mode of e.hvacModes) {
-        if (!modeOwner.has(mode)) modeOwner.set(mode, e);
-      }
-    }
-    if (entities.length > 1 && this._config.mode_owner) {
-      for (const [modeKey, ownerIndex] of Object.entries(this._config.mode_owner)) {
-        const mode = modeKey as HvacMode;
-        const owner = entities[(ownerIndex as number) - 1];
-        if (owner && entities.every((e) => e.hvacModes.includes(mode))) {
-          modeOwner.set(mode, owner);
-        }
-      }
-    }
-
-    return { entities, modeOwner };
+    return combineClimates(entities, this._config.mode_owner);
   }
 
   /** Estado "a mostrar": con una sola entidad configurada es
@@ -668,18 +615,11 @@ export class NeonThermostatCard extends BaseNeonCard {
       // DISTINTO, se apaga esa otra — se conserva la que acaba de
       // cambiar. Si las dos acaban en el MISMO modo se dejan tal cual,
       // ambas activas a la vez; eso está permitido, solo se evitan
-      // modos diferentes simultáneos.
-      if (this.hass && combined.entities.length > 1) {
-        const justChanged = combined.entities.find((e) => {
-          const prev = this._prevEntityModes.get(e.entity);
-          return prev !== undefined && prev !== e.mode && e.mode !== 'off';
-        });
-        if (justChanged) {
-          for (const other of combined.entities) {
-            if (other.entity !== justChanged.entity && other.mode !== 'off' && other.mode !== justChanged.mode) {
-              this.hass.callService('climate', 'set_hvac_mode', { entity_id: other.entity, hvac_mode: 'off' });
-            }
-          }
+      // modos diferentes simultáneos. Decisión en combined-climate.ts
+      // (pura); aquí solo se ejecuta el efecto.
+      if (this.hass) {
+        for (const entityId of findMutualExclusionTargets(combined, this._prevEntityModes)) {
+          this.hass.callService('climate', 'set_hvac_mode', { entity_id: entityId, hvac_mode: 'off' });
         }
       }
       for (const e of combined.entities) this._prevEntityModes.set(e.entity, e.mode);
