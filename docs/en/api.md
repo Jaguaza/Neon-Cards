@@ -17,6 +17,7 @@ See also the [Spanish version](../es/api.md).
   - [Translations (`localize.ts`)](#translations-localizets)
 - [`src/ha` — Home Assistant types](#srcha--home-assistant-types)
   - [Sensors (`sensors.ts`)](#sensors-sensorsts)
+  - [Climate (`climate.ts`)](#climate-climatets)
 - [`src/shared` — Shared neon palette and effects](#srcshared--shared-neon-palette-and-effects)
   - [Palette (`neon-palette.ts`)](#palette-neon-palettets)
   - [Icon halo (`glow.ts`)](#icon-halo-glowts)
@@ -25,6 +26,7 @@ See also the [Spanish version](../es/api.md).
   - [Shared translations (`translations/`)](#shared-translations-translations)
 - [Neón Card Entity — YAML configuration](#neón-card-entity--yaml-configuration)
 - [Neón Button Card — YAML configuration](#neón-button-card--yaml-configuration)
+- [Neón Thermostat Card — YAML configuration](#neón-thermostat-card--yaml-configuration)
 
 ---
 
@@ -165,6 +167,24 @@ wouldn't survive between taps.
     hold_action: this._config.hold_action,
     double_tap_action: this._config.double_tap_action,
   }, 'tap');
+  ```
+
+#### `openMoreInfo(el, entityId)`
+
+- **Description:** opens HA's "more info" dialog for a specific entity
+  directly — without going through `tap_action` (a whole-card
+  configurable action meant for a single target). Useful for a fixed
+  access icon to one particular entity within the card (e.g. several
+  `climate` entities on the same card, each with its own button — see
+  the Neón Thermostat Card). Dispatches the standard `hass-more-info`
+  event, which HA's UI already listens for anywhere in the tree.
+- **Parameters:**
+  - `el: HTMLElement` — the element to dispatch from (`bubbles: true`, `composed: true`).
+  - `entityId: string`.
+- **Returns:** `void`.
+- **Example:**
+  ```ts
+  openMoreInfo(this, 'climate.living_room');
   ```
 
 ---
@@ -358,6 +378,80 @@ directly.
 | `SENSOR_DOMAINS` | `['sensor', 'binary_sensor']` — the only domains accepted by `getSensorDisplay`. |
 | `SensorDomain` | TypeScript type derived from `SENSOR_DOMAINS`. |
 | `DEFAULT_SENSOR_DECIMALS` | `1` — default decimals when a sensor doesn't specify its own. |
+
+---
+
+### Climate (`climate.ts`)
+
+Helpers for `climate` entities (agreement nº4: cards never read
+`hass.states` by hand for this). Used by the Neón Thermostat Card; any
+future climate-control card should reuse these instead of re-reading
+`hass.states` on its own.
+
+#### `getClimateState(entityId, hass)`
+
+- **Description:** reads state and capabilities of a `climate` entity —
+  current mode, supported modes, current/target temperature,
+  min/max/step (with a fallback when the entity doesn't expose them),
+  and availability.
+- **Parameters:**
+  - `entityId: string` — must start with `climate.`.
+  - `hass: HomeAssistant`.
+- **Returns:** `ClimateState | null` — `null` if `entityId` isn't in
+  the `climate` domain or doesn't exist in `hass.states`.
+  ```ts
+  interface ClimateState {
+    entity: string;
+    mode: HvacMode;
+    hvacModes: HvacMode[];
+    hvacAction: HvacAction | null;
+    currentTemperature: number | null;
+    targetTemperature: number | null;
+    minTemp: number; // falls back to 7 if the entity doesn't expose it
+    maxTemp: number; // falls back to 35
+    step: number; // falls back to 0.5
+    available: boolean; // false if unavailable/unknown
+  }
+  ```
+- **Example:**
+  ```ts
+  const c = getClimateState('climate.living_room', hass);
+  // c?.mode === 'heat', c?.targetTemperature === 21
+  ```
+
+#### `clampToStep(value, min, max, step)`
+
+- **Description:** rounds `value` to the nearest multiple of `step`,
+  within `[min, max]` — used by the −/+ controls and by dragging the
+  dial/ring.
+- **Parameters:** `value: number`, `min: number`, `max: number`, `step: number`.
+- **Returns:** `number`.
+- **Example:**
+  ```ts
+  clampToStep(21.3, 7, 35, 0.5); // 21.5
+  ```
+
+#### `isClimateRunning(state)`
+
+- **Description:** `true` if the equipment is actually running right
+  now, not just "selected on mode X". Uses `hvac_action` when the
+  entity exposes it; otherwise compares target vs. current temperature
+  based on the mode (`heat`: current < target; `cool`: current >
+  target).
+- **Parameters:** `state: ClimateState`.
+- **Returns:** `boolean` — always `false` in `'off'` mode.
+- **Example:**
+  ```ts
+  isClimateRunning(c); // true if it's actually heating
+  ```
+
+#### Constants and types
+
+| Name | Description |
+|---|---|
+| `HVAC_MODES` | `['off', 'heat', 'cool', 'heat_cool', 'auto', 'dry', 'fan_only']`. |
+| `HvacMode` | TypeScript type derived from `HVAC_MODES`. |
+| `HvacAction` | `'off' \| 'idle' \| 'preheating' \| 'heating' \| 'cooling' \| 'drying' \| 'fan'` — what the equipment is doing RIGHT NOW, distinct from the selected mode. |
 
 ---
 
@@ -651,4 +745,69 @@ sensors:
   - entity: sensor.living_room_temperature
   - entity: sensor.living_room_humidity
     icon: mdi:water-percent
+```
+
+---
+
+## Neón Thermostat Card — YAML configuration
+
+All keys of `NeonThermostatCardConfig`
+(`src/cards/thermostat/types.ts`). See full examples in
+[`examples/`](../../examples/README.md).
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `entity` | `string` | — (required) | Main `climate` entity. |
+| `entity_2` | `string` | — | Optional second `climate` entity — two separate units (e.g. heating + AC) instead of one that supports every mode. Without it, the card behaves exactly like it does with a single entity. |
+| `mode_owner` | `Partial<Record<HvacMode, 1 \| 2>>` | — | Only relevant with `entity_2`, and only for modes both entities support at once — `1` = `entity`, `2` = `entity_2`. With no entry for a mode, `entity` wins by default. |
+| `name` | `string` | entity's name | Card title. In the compact view, when unset, no name is shown at all (to save space). |
+| `size` | `'large' \| 'normal' \| 'compact'` | `'normal'` | Card size — see `getGridOptions()` below. |
+| `color` | `string \| { mode: 'state' } \| { mode: 'custom', heat?, cool?, heat_cool?, auto?, dry?, fan_only?, off? }` | `{ mode: 'state' }` | Dial/ring color per HVAC mode. `string`: a single color for every mode. `{ mode: 'state' }`: automatic semantic colors per mode (equivalent to leaving `color` unset). `{ mode: 'custom', ... }`: a color per mode; unset ones fall back to that mode's semantic default. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Palette of the card's PERIMETER ring (the border, not the dial — that follows `color` above). |
+| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | per palette | Perimeter ring gradient colors when `neon_palette: custom`. |
+| `step` | `number` | entity's `target_temp_step`, or `0.5` | Increment for the −/+ controls and dragging. |
+| `footer` | `FooterSensorConfig[]` (max 3) | `[]` | Only `sensor`/`binary_sensor` domains. No footer in the compact view (`size: compact`), regardless of what's configured here. |
+
+`FooterSensorConfig` (each item in `footer`):
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `entity` | `string` | — (required) | Only `sensor` or `binary_sensor` domains. |
+| `icon` | `string` | computed from `device_class` | Sensor's own icon. |
+
+There's no card-level `icon` field: the icon isn't configurable, it's
+always derived from the current HVAC mode (`HVAC_MODE_ICONS`).
+
+### `getGridOptions()` — size driven by `size`
+
+Unlike Button, the size isn't computed from content — it's chosen
+directly by the `size` key:
+
+| `size` | `columns` | `rows` |
+|---|---|---|
+| `'compact'` | `4` | `'auto'` |
+| `'normal'` (default) | `6` | `'auto'` |
+| `'large'` | `12` | `'auto'` |
+
+### Full example
+
+```yaml
+type: custom:neon-thermostat-card
+name: Living Room
+entity: climate.living_room_heat
+entity_2: climate.living_room_cool
+mode_owner:
+  heat_cool: 1
+size: large
+color:
+  mode: custom
+  heat: "#ff4500"
+  cool: "#0080ff"
+neon_palette: cyberpunk
+step: 0.5
+footer:
+  - entity: sensor.living_room_temperature
+  - entity: sensor.living_room_humidity
+  - entity: binary_sensor.living_room_motion
+    icon: mdi:motion-sensor
 ```
