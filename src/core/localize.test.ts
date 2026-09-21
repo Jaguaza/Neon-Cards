@@ -21,20 +21,26 @@ describe('resolveLocale', () => {
     expect(resolveLocale(hassWithLanguage('es'))).toBe('es');
   });
 
-  it('cae a DEFAULT_LOCALE si el idioma no está soportado (p. ej. inglés, todavía sin en.ts)', () => {
-    expect(resolveLocale(hassWithLanguage('en'))).toBe(DEFAULT_LOCALE);
+  it('resuelve inglés directamente, ya no cae a DEFAULT_LOCALE', () => {
+    expect(resolveLocale(hassWithLanguage('en'))).toBe('en');
   });
 
-  it('compara solo la parte antes del guion (es-419 -> es)', () => {
+  it('cae a DEFAULT_LOCALE si el idioma no está soportado (p. ej. francés)', () => {
+    expect(resolveLocale(hassWithLanguage('fr'))).toBe(DEFAULT_LOCALE);
+  });
+
+  it('compara solo la parte antes del guion (es-419 -> es, en-US -> en)', () => {
     expect(resolveLocale(hassWithLanguage('es-419'))).toBe('es');
+    expect(resolveLocale(hassWithLanguage('en-US'))).toBe('en');
   });
 });
 
 describe('localize', () => {
-  const dict = { es: { greeting: 'Hola' } };
+  const dict = { es: { greeting: 'Hola' }, en: { greeting: 'Hello' } };
 
   it('devuelve la traducción del idioma resuelto', () => {
     expect(localize(hassWithLanguage('es'), dict, 'greeting')).toBe('Hola');
+    expect(localize(hassWithLanguage('en'), dict, 'greeting')).toBe('Hello');
   });
 
   it('cae a DEFAULT_LOCALE sin hass', () => {
