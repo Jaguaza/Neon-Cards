@@ -17,7 +17,7 @@
  * script de benchmark (acuerdo nº4: reutilizable, no se copia).
  *
  * Uso: node scripts/perf-check.mjs [card] [numCards] [numUpdates]
- *   card: 'entity' | 'button' | 'all' (por defecto 'all')
+ *   card: 'entity' | 'button' | 'thermostat' | 'all' (por defecto 'all')
  */
 
 import { JSDOM } from 'jsdom';
@@ -46,9 +46,10 @@ globalThis.Document = dom.window.Document;
 globalThis.CustomEvent = dom.window.CustomEvent;
 globalThis.Event = dom.window.Event;
 globalThis.getComputedStyle = dom.window.getComputedStyle;
-// jsdom no implementa RAF (no hace pintado real) — Button Card lo usa
-// para medir su tamaño (_ringLoop, ver src/shared/glow.ts). Sin esto el
-// benchmark no puede montar/desmontar la tarjeta.
+// jsdom no implementa RAF (no hace pintado real) — Button y Thermostat
+// lo usan para medir su tamaño (_ringLoop, ver src/shared/glow.ts y
+// neon-thermostat-card.ts). Sin esto el benchmark no puede montar/
+// desmontar la tarjeta.
 globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(Date.now()), 16);
 globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
 // __DEV__ (acuerdo nº22) lo sustituye @rollup/plugin-replace en el
@@ -133,6 +134,57 @@ const CARD_PROFILES = {
       return { states, callService: async () => {} };
     },
   },
+  thermostat: {
+    elementName: 'neon-thermostat-card',
+    entry: 'src/cards/thermostat/neon-thermostat-card.ts',
+    exportName: 'NeonThermostatCard',
+    // getClimateState (src/ha/climate.ts) exige el dominio 'climate.' —
+    // sin esto el benchmark solo mediría la rama de "entidad no
+    // disponible", no el render real de la tarjeta.
+    entityDomain: 'climate',
+    makeConfig: (entityId) => ({
+      entity: entityId,
+      name: 'Salón',
+      size: 'normal',
+      footer: [{ entity: `sensor.${entityId.split('.')[1]}_temp` }, { entity: `sensor.${entityId.split('.')[1]}_hum` }],
+    }),
+    makeHass: (entityIds, tick) => {
+      const states = {};
+      for (const id of entityIds) {
+        states[id] = {
+          entity_id: id,
+          state: tick % 2 === 0 ? 'heat' : 'cool',
+          last_changed: new Date(Date.now() - tick * 1000).toISOString(),
+          last_updated: new Date(Date.now() - tick * 1000).toISOString(),
+          attributes: {
+            hvac_modes: ['off', 'heat', 'cool'],
+            current_temperature: 20 + (tick % 10) * 0.1,
+            temperature: 21 + (tick % 3) * 0.5,
+            min_temp: 7,
+            max_temp: 35,
+            target_temp_step: 0.5,
+            friendly_name: `Clima de prueba ${id}`,
+          },
+        };
+        const base = id.split('.')[1];
+        states[`sensor.${base}_temp`] = {
+          entity_id: `sensor.${base}_temp`,
+          state: String(20 + (tick % 5)),
+          last_changed: new Date().toISOString(),
+          last_updated: new Date().toISOString(),
+          attributes: { unit_of_measurement: '°C', device_class: 'temperature' },
+        };
+        states[`sensor.${base}_hum`] = {
+          entity_id: `sensor.${base}_hum`,
+          state: String(40 + (tick % 10)),
+          last_changed: new Date().toISOString(),
+          last_updated: new Date().toISOString(),
+          attributes: { unit_of_measurement: '%', device_class: 'humidity' },
+        };
+      }
+      return { states, callService: async () => {} };
+    },
+  },
 };
 
 async function loadCardClass(profile) {
@@ -196,7 +248,8 @@ async function runProfile(name, profile) {
 
   const timings = [];
   for (let i = 0; i < numCards; i++) {
-    const elapsed = await benchmarkCard(profile, `light.prueba_${name}_${i}`);
+    const entityId = `${profile.entityDomain ?? 'light'}.prueba_${name}_${i}`;
+    const elapsed = await benchmarkCard(profile, entityId);
     timings.push(elapsed);
   }
 
@@ -221,7 +274,7 @@ async function runProfile(name, profile) {
   // --- Prueba de resistencia: una tarjeta persistente, muchas actualizaciones ---
   console.log('\n--- Prueba de resistencia (fugas de memoria) ---');
   const enduranceUpdates = numUpdates * 20;
-  const persistentId = `light.resistencia_${name}`;
+  const persistentId = `${profile.entityDomain ?? 'light'}.resistencia_${name}`;
   const persistent = document.createElement(profile.elementName);
   document.body.appendChild(persistent);
   persistent.setConfig(profile.makeConfig(persistentId));
