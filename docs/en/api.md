@@ -233,10 +233,9 @@ wouldn't survive between taps.
 
 Generic translation engine — no text lives in here, that's in each
 module's `translations/<locale>.ts` (`src/core`, `src/shared`, and
-every `src/cards/<name>`). Today only `es` dictionaries are populated
-across the repo; the infrastructure is already in place for when `en`
-or another locale gets added (see "How to build a card", section 4,
-"Translations").
+every `src/cards/<name>`). `es` and `en` are populated across the
+repo's 5 dictionaries; adding a third locale follows the same pattern
+(see "How to build a card", section 4, "Translations").
 
 #### `resolveLocale(hass)`
 
@@ -274,7 +273,7 @@ or another locale gets added (see "How to build a card", section 4,
 
 | Name | Description |
 |---|---|
-| `SUPPORTED_LOCALES` | `['es']` today — extend this here when a new locale is added. |
+| `SUPPORTED_LOCALES` | `['es', 'en']` — extend this here when a new locale is added. |
 | `Locale` | TypeScript type derived from `SUPPORTED_LOCALES`. |
 | `DEFAULT_LOCALE` | `'es'` — used when `hass.locale.language` is missing or unsupported. |
 
