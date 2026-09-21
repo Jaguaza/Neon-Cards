@@ -114,6 +114,62 @@ sensores agrupados (`sensors`) bajo un divisor, con icono/estado/unidad
 calculados automáticamente. El tamaño de la tarjeta (ancho y alto en el
 grid de HA) se calcula solo según el contenido configurado.
 
+## Neón Thermostat Card (`custom:neon-thermostat-card`)
+
+### YAML mínimo
+
+```yaml
+type: custom:neon-thermostat-card
+entity: climate.salon
+```
+
+### YAML avanzado
+
+```yaml
+type: custom:neon-thermostat-card
+name: Salón
+entity: climate.salon_calor
+entity_2: climate.salon_frio
+mode_owner:
+  heat_cool: 1
+size: large
+color:
+  mode: custom
+  heat: "#ff4500"
+  cool: "#0080ff"
+neon_palette: cyberpunk
+footer:
+  - entity: sensor.salon_temperature
+  - entity: sensor.salon_humidity
+  - entity: binary_sensor.salon_presencia
+    icon: mdi:motion-sensor
+```
+
+### Capturas
+
+![Neón Thermostat Card, tamaño grande](../assets/screenshots/thermostat/Thermostat%20large.jpg)
+![Neón Thermostat Card, tamaño normal](../assets/screenshots/thermostat/Thermostat%20normal.jpg)
+![Neón Thermostat Card, tamaño compacto](../assets/screenshots/thermostat/Thermostat%20compact.jpg)
+
+### Explicación
+
+Neón Thermostat Card controla una entidad `climate` con un dial/aro
+semicircular (180°) arrastrable, coloreado según el modo HVAC activo.
+A diferencia de Button, su tamaño no se calcula del contenido — se
+elige con la clave `size` (`large`/`normal`/`compact`), cada uno con
+su propio layout: el dial completo solo aparece en `large`,
+`normal`/`compact` usan un indicador circular más pequeño, y
+`compact` no muestra footer de sensores. Admite opcionalmente una
+segunda entidad `climate` (`entity_2`) para representar dos equipos
+separados (p. ej. calefacción + aire acondicionado) como uno solo — el
+selector de modo muestra la unión de los modos de ambas entidades, y
+las dos nunca quedan activas en modos distintos a la vez (la exclusión
+mutua aplica da igual de dónde venga el cambio: la tarjeta, el diálogo
+de la propia entidad, o una automatización), mientras que estar
+activas juntas en el *mismo* modo sí está permitido. Igual que Button,
+admite un footer de sensores (dominios `sensor`/`binary_sensor`,
+máximo 3).
+
 ---
 
 <a id="examples-english"></a>
@@ -233,3 +289,57 @@ supports one ungrouped sensor (`top_sensor`) and up to 3 grouped sensors
 (`sensors`) below a divider, with icon/state/unit computed
 automatically. The card's size (width and height in HA's grid) is
 computed automatically from its configured content.
+
+## Neón Thermostat Card (`custom:neon-thermostat-card`)
+
+### Minimal YAML
+
+```yaml
+type: custom:neon-thermostat-card
+entity: climate.living_room
+```
+
+### Advanced YAML
+
+```yaml
+type: custom:neon-thermostat-card
+name: Living Room
+entity: climate.living_room_heat
+entity_2: climate.living_room_cool
+mode_owner:
+  heat_cool: 1
+size: large
+color:
+  mode: custom
+  heat: "#ff4500"
+  cool: "#0080ff"
+neon_palette: cyberpunk
+footer:
+  - entity: sensor.living_room_temperature
+  - entity: sensor.living_room_humidity
+  - entity: binary_sensor.living_room_motion
+    icon: mdi:motion-sensor
+```
+
+### Screenshots
+
+![Neón Thermostat Card, large size](../assets/screenshots/thermostat/Thermostat%20large.jpg)
+![Neón Thermostat Card, normal size](../assets/screenshots/thermostat/Thermostat%20normal.jpg)
+![Neón Thermostat Card, compact size](../assets/screenshots/thermostat/Thermostat%20compact.jpg)
+
+### Explanation
+
+Neón Thermostat Card controls a `climate` entity with a draggable
+semicircular (180°) dial/ring colored by the active HVAC mode. Unlike
+Button, its size isn't computed from content — it's chosen with the
+`size` key (`large`/`normal`/`compact`), each with its own layout: the
+full dial only appears in `large`, `normal`/`compact` use a smaller
+circular indicator, and `compact` shows no sensor footer. It optionally
+supports a second `climate` entity (`entity_2`) to represent two
+separate units (e.g. heating + AC) as one — the mode selector shows the
+union of both entities' modes, and the two are never left active in
+different modes at the same time (mutual exclusion applies no matter
+where the change comes from: the card, the entity's own dialog, or an
+automation), while being active in the *same* mode together is allowed.
+Like Button, it supports a sensor footer (`sensor`/`binary_sensor`
+domains, max 3).
