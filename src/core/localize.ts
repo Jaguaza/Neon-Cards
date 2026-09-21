@@ -4,21 +4,20 @@ import type { HomeAssistant } from '../ha/types';
  * Motor de traducción genérico (acuerdo nº4: vive en core, reutilizable
  * por cualquier tarjeta o por el propio core — sin un solo texto
  * hardcodeado aquí dentro, eso vive en `translations/<locale>.ts` de
- * cada módulo). Hoy solo hay diccionarios `es` poblados en todo el
- * repo — el resto de la infraestructura ya está lista para cuando se
- * añada `en` u otro idioma: basta con crear el archivo de traducción y
- * añadir el código a `SUPPORTED_LOCALES`, TypeScript avisa si falta
+ * cada módulo). `es` y `en` están poblados en los 5 diccionarios del
+ * repo (core, shared, entity, button, thermostat) — añadir un tercer
+ * idioma sigue el mismo patrón: crear el archivo de traducción en cada
+ * módulo y añadir el código aquí abajo, TypeScript avisa si falta
  * alguna clave (ver el tipo `Translations` de cada módulo).
  */
 
 /** Amplíar aquí cuando se añada un idioma nuevo, además de exportar su
     `translations/<locale>.ts` en cada módulo que lo soporte. */
-export const SUPPORTED_LOCALES = ['es'] as const;
+export const SUPPORTED_LOCALES = ['es', 'en'] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 
 /** Idioma usado cuando `hass.locale.language` falta o no está entre
-    los soportados — hoy es el único idioma que existe, así que
-    siempre resuelve a él. */
+    los soportados. */
 export const DEFAULT_LOCALE: Locale = 'es';
 
 /**
