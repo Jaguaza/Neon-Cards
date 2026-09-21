@@ -229,10 +229,9 @@ sobrevivirían entre pulsaciones.
 
 Motor de traducción genérico — ni un texto dentro, eso vive en
 `translations/<locale>.ts` de cada módulo (`src/core`,
-`src/shared`, y cada `src/cards/<nombre>`). Hoy solo hay diccionarios
-`es` poblados en todo el repo; la infraestructura ya está lista para
-cuando se añada `en` u otro idioma (ver "Cómo crear una tarjeta",
-sección 4, "Traducciones").
+`src/shared`, y cada `src/cards/<nombre>`). `es` y `en` están poblados
+en los 5 diccionarios del repo; añadir un tercer idioma sigue el mismo
+patrón (ver "Cómo crear una tarjeta", sección 4, "Traducciones").
 
 #### `resolveLocale(hass)`
 
@@ -269,7 +268,7 @@ sección 4, "Traducciones").
 
 | Nombre | Descripción |
 |---|---|
-| `SUPPORTED_LOCALES` | `['es']` hoy — se amplía aquí cuando se añade un idioma nuevo. |
+| `SUPPORTED_LOCALES` | `['es', 'en']` — se amplía aquí cuando se añade un idioma nuevo. |
 | `Locale` | Tipo TypeScript derivado de `SUPPORTED_LOCALES`. |
 | `DEFAULT_LOCALE` | `'es'` — idioma usado cuando `hass.locale.language` falta o no está soportado. |
 
