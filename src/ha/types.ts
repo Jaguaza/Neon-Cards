@@ -14,9 +14,36 @@ export interface HassEntityState {
 
 export interface HomeAssistant {
   states: Record<string, HassEntityState>;
+  /** `language` es el código que HA usa para la propia UI del usuario
+      (p. ej. 'es', 'en', 'es-419') — de aquí sale el idioma que
+      localize() usa para las tarjetas. Opcional porque en algunos
+      contextos (tests, hass parcial) puede no estar. */
+  locale?: { language: string };
   callService(
     domain: string,
     service: string,
     serviceData?: Record<string, unknown>
   ): Promise<void>;
 }
+
+/**
+ * Config de `tap_action`/`hold_action`/`double_tap_action`, común a
+ * cualquier tarjeta con acciones configurables (acuerdo nº4). Vive aquí
+ * en vez de en una tarjeta concreta porque ninguna tarjeta puede importar
+ * código de otra (ver `src/cards/README.md`).
+ */
+export type ActionType = 'more-info' | 'toggle' | 'navigate' | 'url' | 'call-service' | 'assist' | 'none';
+
+export interface ActionConfig {
+  action: ActionType | string;
+  [key: string]: unknown;
+}
+
+/**
+ * Evento `value-changed` que emiten los pickers/selectores de HA
+ * (ha-entity-picker, ha-selector, etc.) — común a cualquier editor de
+ * tarjeta. Antes duplicado literal en `cards/button/types.ts` y
+ * `cards/entity/types.ts` (violaba el acuerdo nº4); vive aquí por el
+ * mismo motivo que ActionConfig.
+ */
+export type ValueChangedEvent = CustomEvent<{ value: string }>;

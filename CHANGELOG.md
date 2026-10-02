@@ -9,6 +9,57 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-02
+
+Primera versión estable. Con la declaración del Framework Freeze
+(acuerdo nº25, ver [`docs/es/framework-freeze.md`](docs/es/framework-freeze.md))
+la arquitectura, la API pública y las convenciones quedan congeladas: a
+partir de aquí el framework evoluciona sin rediseñarse.
+
+### Added
+
+- **Neón Button Card** (`custom:neon-button-card`): botón de acción con
+  entidad principal opcional, icono protagonista y aro neón animado de
+  trazado partido. Subtítulo de texto libre o calculado desde la entidad,
+  sensor suelto (`top_sensor`) y hasta 3 sensores agrupados con icono y
+  decimales configurables, y tamaño de grid automático según el contenido.
+  Si la entidad configurada no existe o está `unavailable`/`unknown`, el
+  icono principal pasa a una X neón. Editor visual con selector de iconos
+  (`ha-icon-picker`).
+- Infraestructura de traducciones para la UI de configuración
+  (`src/core/localize` y traducciones por zona), por ahora solo en español.
+- `src/shared`: paleta neón, halo y aro compartidos, y la carcasa común de
+  los editores (`editor-form.styles.ts`).
+- Modo desarrollo/producción (acuerdo nº22) con la constante `__DEV__` y
+  el script `build:cards:dev`.
+- Vitest con suites para la paleta, los sensores, el aro, la información
+  calculada, la localización y la lógica pura de Button
+  (`button-state.ts`).
+- El workflow de CI ejecuta también `npm run perf` y la plantilla de PR
+  incluye la checklist de revisión (acuerdo nº20).
+- Documentación: acuerdos del repositorio, guía para crear una tarjeta,
+  referencia de API, ejemplos de Button (YAML mínimo y avanzado, capturas
+  y GIF) y secciones de cada tarjeta en el README.
+
+### Changed
+
+- Los editores de Button y Entity dividen su renderizado en métodos por
+  sección, y los métodos de más de 50 líneas del editor de Button se
+  parten en subplantillas (acuerdo nº7).
+- La lógica pura de Button (columnas del grid, filas, entidad rota,
+  estado activo e icono) vive en `button-state.ts`, con tests propios.
+- `subtitle_type` (Button) y `primary_info`/`secondary_info` (Entity) se
+  tipan con la unión real de `InfoOption` en vez de `string`.
+- El tamaño de la tarjeta Button se calcula solo (`getGridOptions()` con
+  filas automáticas y columnas según el número de sensores agrupados).
+
+### Fixed
+
+- `NeonPreset.name` restaurado: la infraestructura de traducciones había
+  roto la superficie congelada sin pasar por el proceso de excepción.
+
+## [0.1.1] - 2026-08-16
+
 ### Changed
 
 - Licencia: de PolyForm Noncommercial 1.0.0 a **Apache License 2.0**.
@@ -92,6 +143,56 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [1.0.0] - 2026-10-02
+
+First stable release. With the Framework Freeze declared (agreement nº25,
+see [`docs/en/framework-freeze.md`](docs/en/framework-freeze.md)) the
+architecture, the public API and the conventions are frozen: from here on
+the framework evolves without being redesigned.
+
+### Added
+
+- **Neón Button Card** (`custom:neon-button-card`): action button with an
+  optional main entity, a prominent icon and an animated neon ring drawn
+  in two halves. Subtitle as free text or computed from the entity, a
+  standalone sensor (`top_sensor`) and up to 3 grouped sensors with
+  configurable icon and decimals, and an automatic grid size based on its
+  content. If the configured entity does not exist or is
+  `unavailable`/`unknown`, the main icon switches to a neon X. Visual
+  editor with an icon picker (`ha-icon-picker`).
+- Translation infrastructure for the configuration UI (`src/core/localize`
+  and per-area translations), Spanish only for now.
+- `src/shared`: shared neon palette, halo and ring, and the common editor
+  shell (`editor-form.styles.ts`).
+- Development/production mode (agreement nº22) with the `__DEV__`
+  constant and the `build:cards:dev` script.
+- Vitest suites for the palette, sensors, ring, computed info,
+  localization and Button's pure logic (`button-state.ts`).
+- The CI workflow also runs `npm run perf`, and the PR template includes
+  the review checklist (agreement nº20).
+- Documentation: repository agreements, how-to-build-a-card guide, API
+  reference, Button examples (minimal and advanced YAML, screenshots and
+  GIF) and a section per card in the README.
+
+### Changed
+
+- The Button and Entity editors split their rendering into per-section
+  methods, and Button editor methods over 50 lines are split into smaller
+  sub-templates (agreement nº7).
+- Button's pure logic (grid columns, rows, broken entity, active state and
+  icon) lives in `button-state.ts`, with its own tests.
+- `subtitle_type` (Button) and `primary_info`/`secondary_info` (Entity)
+  are typed with the real `InfoOption` union instead of `string`.
+- The Button card size is computed automatically (`getGridOptions()` with
+  automatic rows and columns based on the number of grouped sensors).
+
+### Fixed
+
+- `NeonPreset.name` restored: the translation infrastructure had broken
+  the frozen surface without going through the exception process.
+
+## [0.1.1] - 2026-08-16
 
 ### Changed
 

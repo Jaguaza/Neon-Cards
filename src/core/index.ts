@@ -17,5 +17,7 @@ export {
 } from './gestures';
 export type { GestureState, TapHandlers } from './gestures';
 export { dispatchHassAction } from './actions';
-export { computeInfoDisplay, INFO_OPTIONS, INFO_LABELS } from './info';
+export { computeInfoDisplay, INFO_OPTIONS, getInfoLabels } from './info';
 export type { InfoOption } from './info';
+export { localize, resolveLocale, SUPPORTED_LOCALES, DEFAULT_LOCALE } from './localize';
+export type { Locale } from './localize';

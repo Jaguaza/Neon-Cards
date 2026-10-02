@@ -9,10 +9,13 @@ import {
   handleClick,
   dispatchHassAction,
   computeInfoDisplay,
+  localize,
 } from '../../core';
-import type { GestureState, InfoOption } from '../../core';
-import { CARD_AUTHOR, CARD_VERSION, NEON_PRESETS } from './constants';
-import type { EntityItemConfig, GradientColors, NeonCardEntityConfig } from './types';
+import type { GestureState } from '../../core';
+import { resolveGradientColors } from '../../shared';
+import type { GradientColors } from '../../shared';
+import type { EntityItemConfig, NeonCardEntityConfig } from './types';
+import { ENTITY_TRANSLATIONS } from './translations';
 
 /**
  * Neón Card Entity
@@ -224,7 +227,11 @@ export class NeonCardEntity extends BaseNeonCard {
 
   setConfig(config: NeonCardEntityConfig): void {
     if (!config.entity && !config.entities) {
-      throw new Error("Debes definir 'entity' o 'entities' en la Neón Card Entity.");
+      // this.hass puede no estar listo todavía aquí (HA a veces llama
+      // setConfig antes de fijar hass) — localize() ya cae a
+      // DEFAULT_LOCALE cuando hass falta, así que esto es seguro sin
+      // comprobación extra.
+      throw new Error(localize(this.hass, ENTITY_TRANSLATIONS, 'config_error_missing_entity'));
     }
     this._config = config;
   }
@@ -281,15 +288,7 @@ export class NeonCardEntity extends BaseNeonCard {
   }
 
   private _getGradientColors(): GradientColors {
-    const palette = this._config?.neon_palette || 'emerald';
-    if (palette !== 'custom' && NEON_PRESETS[palette]) {
-      return NEON_PRESETS[palette];
-    }
-    return {
-      c1: this._config?.neon_color1 || '#39e07a',
-      c2: this._config?.neon_color2 || '#2dd6b8',
-      c3: this._config?.neon_color3 || '#1ecdf2',
-    };
+    return resolveGradientColors(this._config);
   }
 
   private _gestureFor(entityId: string): GestureState {
@@ -301,17 +300,75 @@ export class NeonCardEntity extends BaseNeonCard {
     return state;
   }
 
+  private _renderSwitchPill(
+    ent: EntityItemConfig,
+    i: number,
+    c1: string,
+    c2: string,
+    c3: string,
+    isOn: boolean,
+    isUnavailable: boolean,
+    showDot: boolean
+  ): TemplateResult {
+    return html`
+      <label class="switch ${isUnavailable ? 'unavailable' : ''}">
+        <input
+          type="checkbox"
+          role="switch"
+          .checked=${isOn}
+          .disabled=${isUnavailable}
+          @change=${() => this._toggle(ent.entity)}
+        />
+        <span class="track"></span>
+        <span class="knob"></span>
+        <span class="error-ring"></span>
+        <svg class="neon" viewBox="0 0 64 34" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="neonGrad${i}" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color=${c1} />
+              <stop offset="50%" stop-color=${c2} />
+              <stop offset="100%" stop-color=${c3} />
+            </linearGradient>
+            <filter id="neonBlur${i}" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="0.8" result="b" />
+              <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+          </defs>
+          <path
+            class="ring-normal ring-normal-top"
+            pathLength="50"
+            d="M 1.5 17 A 15.5 15.5 0 0 1 17 1.5 L 47 1.5 A 15.5 15.5 0 0 1 62.5 17"
+            fill="none"
+            stroke="url(#neonGrad${i})"
+            stroke-width="1.6"
+            filter="url(#neonBlur${i})"
+          />
+          <path
+            class="ring-normal ring-normal-bottom"
+            pathLength="50"
+            d="M 1.5 17 A 15.5 15.5 0 0 0 17 32.5 L 47 32.5 A 15.5 15.5 0 0 0 62.5 17"
+            fill="none"
+            stroke="url(#neonGrad${i})"
+            stroke-width="1.6"
+            filter="url(#neonBlur${i})"
+          />
+        </svg>
+        ${showDot ? html`<span class="dot"></span>` : nothing}
+      </label>
+    `;
+  }
+
   private _renderItem(ent: EntityItemConfig, i: number, c1: string, c2: string, c3: string): TemplateResult {
     const stateObj = this.hass?.states[ent.entity];
     const isOn = !!stateObj && stateObj.state === 'on';
     const isUnavailable = !stateObj || stateObj.state === 'unavailable' || stateObj.state === 'unknown';
     const name = ent.name || stateObj?.attributes.friendly_name || ent.entity;
-    const primaryInfo = ((this._config?.primary_info as InfoOption) || 'name') as InfoOption;
-    const secondaryInfo = ((this._config?.secondary_info as InfoOption) || 'none') as InfoOption;
+    const primaryInfo = this._config?.primary_info || 'name';
+    const secondaryInfo = this._config?.secondary_info || 'none';
     const primaryText =
       stateObj && this.hass
         ? computeInfoDisplay(primaryInfo, name, stateObj.state, stateObj, this.hass)
-        : `${ent.entity} (no disponible)`;
+        : `${ent.entity} ${localize(this.hass, ENTITY_TRANSLATIONS, 'entity_unavailable_suffix')}`;
     const hasSecondary = !!stateObj && !!this.hass && secondaryInfo !== 'none';
     const secondaryText = hasSecondary ? computeInfoDisplay(secondaryInfo, name, stateObj!.state, stateObj!, this.hass!) : nothing;
     const isSplit = (this._config?.card_orientation ?? 'left') === 'right';
@@ -332,50 +389,7 @@ export class NeonCardEntity extends BaseNeonCard {
             hasDoubleTap,
           })}
       >
-        <label class="switch ${isUnavailable ? 'unavailable' : ''}">
-          <input
-            type="checkbox"
-            role="switch"
-            .checked=${isOn}
-            .disabled=${isUnavailable}
-            @change=${() => this._toggle(ent.entity)}
-          />
-          <span class="track"></span>
-          <span class="knob"></span>
-          <span class="error-ring"></span>
-          <svg class="neon" viewBox="0 0 64 34" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="neonGrad${i}" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stop-color=${c1} />
-                <stop offset="50%" stop-color=${c2} />
-                <stop offset="100%" stop-color=${c3} />
-              </linearGradient>
-              <filter id="neonBlur${i}" x="-60%" y="-60%" width="220%" height="220%">
-                <feGaussianBlur stdDeviation="0.8" result="b" />
-                <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
-              </filter>
-            </defs>
-            <path
-              class="ring-normal ring-normal-top"
-              pathLength="50"
-              d="M 1.5 17 A 15.5 15.5 0 0 1 17 1.5 L 47 1.5 A 15.5 15.5 0 0 1 62.5 17"
-              fill="none"
-              stroke="url(#neonGrad${i})"
-              stroke-width="1.6"
-              filter="url(#neonBlur${i})"
-            />
-            <path
-              class="ring-normal ring-normal-bottom"
-              pathLength="50"
-              d="M 1.5 17 A 15.5 15.5 0 0 0 17 32.5 L 47 32.5 A 15.5 15.5 0 0 0 62.5 17"
-              fill="none"
-              stroke="url(#neonGrad${i})"
-              stroke-width="1.6"
-              filter="url(#neonBlur${i})"
-            />
-          </svg>
-          ${showDot ? html`<span class="dot"></span>` : nothing}
-        </label>
+        ${this._renderSwitchPill(ent, i, c1, c2, c3, isOn, isUnavailable, showDot)}
         <div class="text">
           <span class="name">${primaryText}</span>
           ${hasSecondary ? html`<span class="secondary">${secondaryText}</span>` : nothing}
@@ -410,5 +424,3 @@ export class NeonCardEntity extends BaseNeonCard {
     }
   }
 }
-
-export { CARD_AUTHOR, CARD_VERSION };
