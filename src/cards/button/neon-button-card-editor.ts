@@ -138,34 +138,7 @@ export class NeonButtonCardEditor extends LitElement {
           .value=${config.name || ''}
           @input=${(ev: InputEvent) => this._configChanged('name', (ev.target as HTMLInputElement).value)}
         />
-        <label class="native-select-label" for="subtitle-type">${this._t('subtitle_label')}</label>
-        <select
-          id="subtitle-type"
-          class="native-select"
-          .value=${config.subtitle_type || 'custom'}
-          @change=${(ev: Event) => {
-            const value = (ev.target as HTMLSelectElement).value;
-            if (!value || value === (this._config?.subtitle_type || 'custom')) return;
-            this._configChanged('subtitle_type', value === 'custom' ? undefined : value);
-          }}
-        >
-          <option value="custom" ?selected=${(config.subtitle_type || 'custom') === 'custom'}>${this._t('subtitle_type_custom')}</option>
-          ${INFO_OPTIONS.filter((opt) => opt !== 'none').map(
-            (opt) => html`<option value=${opt} ?selected=${opt === config.subtitle_type}>${getInfoLabels(this.hass)[opt]}</option>`
-          )}
-        </select>
-        ${(config.subtitle_type || 'custom') === 'custom'
-          ? html`
-              <input
-                id="subtitle"
-                type="text"
-                class="native-input"
-                placeholder=${this._t('subtitle_placeholder')}
-                .value=${config.subtitle || ''}
-                @input=${(ev: InputEvent) => this._configChanged('subtitle', (ev.target as HTMLInputElement).value)}
-              />
-            `
-          : html`<span class="native-select-label">${this._t('subtitle_computed_hint')}</span>`}
+        ${this._renderSubtitleFields(config)}
         <ha-icon-picker
           id="icon"
           .hass=${this.hass}
@@ -177,10 +150,43 @@ export class NeonButtonCardEditor extends LitElement {
     `;
   }
 
+  private _renderSubtitleFields(config: NeonButtonCardConfig): TemplateResult {
+    const isCustom = (config.subtitle_type || 'custom') === 'custom';
+    return html`
+      <label class="native-select-label" for="subtitle-type">${this._t('subtitle_label')}</label>
+      <select
+        id="subtitle-type"
+        class="native-select"
+        .value=${config.subtitle_type || 'custom'}
+        @change=${(ev: Event) => {
+          const value = (ev.target as HTMLSelectElement).value;
+          if (!value || value === (this._config?.subtitle_type || 'custom')) return;
+          this._configChanged('subtitle_type', value === 'custom' ? undefined : value);
+        }}
+      >
+        <option value="custom" ?selected=${isCustom}>${this._t('subtitle_type_custom')}</option>
+        ${INFO_OPTIONS.filter((opt) => opt !== 'none').map(
+          (opt) => html`<option value=${opt} ?selected=${opt === config.subtitle_type}>${getInfoLabels(this.hass)[opt]}</option>`
+        )}
+      </select>
+      ${isCustom
+        ? html`
+            <input
+              id="subtitle"
+              type="text"
+              class="native-input"
+              placeholder=${this._t('subtitle_placeholder')}
+              .value=${config.subtitle || ''}
+              @input=${(ev: InputEvent) => this._configChanged('subtitle', (ev.target as HTMLInputElement).value)}
+            />
+          `
+        : html`<span class="native-select-label">${this._t('subtitle_computed_hint')}</span>`}
+    `;
+  }
+
   private _renderHaloSection(): TemplateResult {
     const config = this._config!;
     const currentPalette = config.neon_palette || DEFAULT_PALETTE;
-    const isCustom = currentPalette === 'custom';
     return html`
       <div class="editor-section">
         <div class="section-header">${this._t('section_halo')}</div>
@@ -202,36 +208,34 @@ export class NeonButtonCardEditor extends LitElement {
           <option value="toxic">${getPaletteName(this.hass, 'toxic')}</option>
           <option value="custom">${getPaletteCustomLabel(this.hass)}</option>
         </select>
-        ${isCustom
-          ? html`
-              <div class="custom-colors-grid">
-                <div class="color-picker-wrapper">
-                  <span>${this._ts('color_start')}</span>
-                  <input
-                    type="color"
-                    .value=${config.neon_color1 || '#39e07a'}
-                    @input=${(ev: Event) => this._configChanged('neon_color1', (ev.target as HTMLInputElement).value)}
-                  />
-                </div>
-                <div class="color-picker-wrapper">
-                  <span>${this._ts('color_middle')}</span>
-                  <input
-                    type="color"
-                    .value=${config.neon_color2 || '#2dd6b8'}
-                    @input=${(ev: Event) => this._configChanged('neon_color2', (ev.target as HTMLInputElement).value)}
-                  />
-                </div>
-                <div class="color-picker-wrapper">
-                  <span>${this._ts('color_end')}</span>
-                  <input
-                    type="color"
-                    .value=${config.neon_color3 || '#1ecdf2'}
-                    @input=${(ev: Event) => this._configChanged('neon_color3', (ev.target as HTMLInputElement).value)}
-                  />
-                </div>
-              </div>
-            `
-          : nothing}
+        ${currentPalette === 'custom' ? this._renderCustomColors(config) : nothing}
+      </div>
+    `;
+  }
+
+  private _renderCustomColors(config: NeonButtonCardConfig): TemplateResult {
+    return html`
+      <div class="custom-colors-grid">
+        ${this._renderColorPicker('color_start', 'neon_color1', config.neon_color1 || '#39e07a')}
+        ${this._renderColorPicker('color_middle', 'neon_color2', config.neon_color2 || '#2dd6b8')}
+        ${this._renderColorPicker('color_end', 'neon_color3', config.neon_color3 || '#1ecdf2')}
+      </div>
+    `;
+  }
+
+  private _renderColorPicker(
+    labelKey: 'color_start' | 'color_middle' | 'color_end',
+    configKey: 'neon_color1' | 'neon_color2' | 'neon_color3',
+    value: string
+  ): TemplateResult {
+    return html`
+      <div class="color-picker-wrapper">
+        <span>${this._ts(labelKey)}</span>
+        <input
+          type="color"
+          .value=${value}
+          @input=${(ev: Event) => this._configChanged(configKey, (ev.target as HTMLInputElement).value)}
+        />
       </div>
     `;
   }
@@ -251,35 +255,9 @@ export class NeonButtonCardEditor extends LitElement {
             @value-changed=${(ev: ValueChangedEvent) => this._topSensorChanged(ev.detail.value)}
           ></ha-entity-picker>
           ${config.top_sensor
-            ? html`
-                <div class="sensor-extra-fields">
-                  <div class="field">
-                    <ha-icon-picker
-                      id="top-sensor-icon"
-                      .hass=${this.hass}
-                      .value=${config.top_sensor.icon || ''}
-                      label=${this._t('sensor_icon_label')}
-                      @value-changed=${(ev: ValueChangedEvent) => this._topSensorFieldChanged('icon', ev.detail.value)}
-                    ></ha-icon-picker>
-                  </div>
-                  <div class="field decimals-field">
-                    <label class="field-label" for="top-sensor-decimals">${this._t('sensor_decimals_label')}</label>
-                    <input
-                      id="top-sensor-decimals"
-                      type="number"
-                      min="0"
-                      max="4"
-                      class="native-input"
-                      placeholder="1"
-                      .value=${config.top_sensor.decimals ?? ''}
-                      @input=${(ev: InputEvent) => {
-                        const raw = (ev.target as HTMLInputElement).value;
-                        this._topSensorFieldChanged('decimals', raw === '' ? undefined : Number(raw));
-                      }}
-                    />
-                  </div>
-                </div>
-              `
+            ? this._renderSensorExtraFields({ icon: 'top-sensor-icon', decimals: 'top-sensor-decimals' }, config.top_sensor, (field, value) =>
+                this._topSensorFieldChanged(field, value)
+              )
             : nothing}
         </div>
       </div>
@@ -290,52 +268,68 @@ export class NeonButtonCardEditor extends LitElement {
     return html`
       <div class="editor-section">
         <div class="section-header">${this._t('section_grouped_sensors').replace('{max}', String(MAX_GROUPED_SENSORS))}</div>
-        ${this._sensors.map(
-          (s, i) => html`
-            <div class="sensor-card">
-              <div class="sensor-row">
-                <ha-entity-picker
-                  .hass=${this.hass}
-                  .value=${s.entity}
-                  .includeDomains=${['sensor', 'binary_sensor']}
-                  allow-custom-entity
-                  @value-changed=${(ev: ValueChangedEvent) => this._sensorFieldChanged(i, 'entity', ev.detail.value)}
-                ></ha-entity-picker>
-                <button class="remove-sensor" @click=${() => this._removeSensor(i)} title=${this._t('remove_sensor_title')}>✕</button>
-              </div>
-              <div class="sensor-extra-fields">
-                <div class="field">
-                  <ha-icon-picker
-                    id="sensor-icon-${i}"
-                    .hass=${this.hass}
-                    .value=${s.icon || ''}
-                    label=${this._t('sensor_icon_label')}
-                    @value-changed=${(ev: ValueChangedEvent) => this._sensorFieldChanged(i, 'icon', ev.detail.value)}
-                  ></ha-icon-picker>
-                </div>
-                <div class="field decimals-field">
-                  <label class="field-label" for="sensor-decimals-${i}">${this._t('sensor_decimals_label')}</label>
-                  <input
-                    id="sensor-decimals-${i}"
-                    type="number"
-                    min="0"
-                    max="4"
-                    class="native-input"
-                    placeholder="1"
-                    .value=${s.decimals ?? ''}
-                    @input=${(ev: InputEvent) => {
-                      const raw = (ev.target as HTMLInputElement).value;
-                      this._sensorFieldChanged(i, 'decimals', raw === '' ? undefined : Number(raw));
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          `
-        )}
+        ${this._sensors.map((s, i) => this._renderGroupedSensorCard(s, i))}
         ${this._sensors.length < MAX_GROUPED_SENSORS
           ? html`<button class="add-sensor" @click=${() => this._addSensor()}>${this._t('add_sensor_button')}</button>`
           : html`<span class="native-select-label">${this._t('max_sensors_hint').replace('{max}', String(MAX_GROUPED_SENSORS))}</span>`}
+      </div>
+    `;
+  }
+
+  private _renderGroupedSensorCard(sensor: SensorItemConfig, index: number): TemplateResult {
+    return html`
+      <div class="sensor-card">
+        <div class="sensor-row">
+          <ha-entity-picker
+            .hass=${this.hass}
+            .value=${sensor.entity}
+            .includeDomains=${['sensor', 'binary_sensor']}
+            allow-custom-entity
+            @value-changed=${(ev: ValueChangedEvent) => this._sensorFieldChanged(index, 'entity', ev.detail.value)}
+          ></ha-entity-picker>
+          <button class="remove-sensor" @click=${() => this._removeSensor(index)} title=${this._t('remove_sensor_title')}>✕</button>
+        </div>
+        ${this._renderSensorExtraFields({ icon: `sensor-icon-${index}`, decimals: `sensor-decimals-${index}` }, sensor, (field, value) =>
+          this._sensorFieldChanged(index, field, value)
+        )}
+      </div>
+    `;
+  }
+
+  /** Icono + decimales de un sensor. Lo comparten el sensor suelto y los
+      agrupados; `ids` mantiene únicos los id de cada campo. */
+  private _renderSensorExtraFields(
+    ids: { icon: string; decimals: string },
+    sensor: SensorItemConfig,
+    onChange: (field: 'icon' | 'decimals', value: string | number | undefined) => void
+  ): TemplateResult {
+    return html`
+      <div class="sensor-extra-fields">
+        <div class="field">
+          <ha-icon-picker
+            id=${ids.icon}
+            .hass=${this.hass}
+            .value=${sensor.icon || ''}
+            label=${this._t('sensor_icon_label')}
+            @value-changed=${(ev: ValueChangedEvent) => onChange('icon', ev.detail.value)}
+          ></ha-icon-picker>
+        </div>
+        <div class="field decimals-field">
+          <label class="field-label" for=${ids.decimals}>${this._t('sensor_decimals_label')}</label>
+          <input
+            id=${ids.decimals}
+            type="number"
+            min="0"
+            max="4"
+            class="native-input"
+            placeholder="1"
+            .value=${sensor.decimals ?? ''}
+            @input=${(ev: InputEvent) => {
+              const raw = (ev.target as HTMLInputElement).value;
+              onChange('decimals', raw === '' ? undefined : Number(raw));
+            }}
+          />
+        </div>
       </div>
     `;
   }

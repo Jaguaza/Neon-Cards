@@ -19,21 +19,10 @@ import {
   neonHaloVars,
   neonRingSplitTemplate,
 } from '../../shared';
-import { DEFAULT_ICON, ERROR_ICON, MAX_GROUPED_SENSORS, RING_ANIMATION_MS } from './constants';
+import { MAX_GROUPED_SENSORS, RING_ANIMATION_MS } from './constants';
+import { cardSizeRows, gridColumnsFor, isButtonActive, isEntityBroken, resolveButtonIcon } from './button-state';
 import { NEON_BUTTON_CARD_STYLES } from './neon-button-card.styles';
 import type { NeonButtonCardConfig } from './types';
-
-/** Dominios cuyo estado "on" se interpreta como botón activo. */
-const ACTIVE_DOMAINS_ON_STATE = new Set([
-  'light',
-  'switch',
-  'fan',
-  'input_boolean',
-  'automation',
-  'media_player',
-  'binary_sensor',
-  'cover',
-]);
 
 /**
  * Neón Button Card
@@ -125,13 +114,9 @@ export class NeonButtonCard extends BaseNeonCard {
   }
 
   getCardSize(): number {
-    // Alto en filas de grid, calibrado contra capturas reales de HA (no
-    // solo el cálculo teórico de píxeles): sin sensores, 2 filas; con
-    // fila de sensores agrupados pero SIN sensor suelto, 2 filas; en
-    // cuanto hay sensor suelto (top_sensor) Y agrupados a la vez, hace
-    // falta una fila más (3) — esa combinación tiene una línea de
-    // contenido de más que el resto.
-    return this._sensorRows;
+    // Alto en filas de grid calibrado contra capturas reales de HA (ver
+    // cardSizeRows): 2 filas, 3 solo con sensor suelto y agrupados a la vez.
+    return cardSizeRows(this._config);
   }
 
   getGridOptions(): { rows: 'auto'; columns: number } {
@@ -146,27 +131,10 @@ export class NeonButtonCard extends BaseNeonCard {
     // igual que sin nada — la fila de top_sensor no necesita más ancho,
     // solo más alto, y eso ya lo da rows:'auto'). Con 1 solo sensor
     // agrupado tampoco hace falta más ancho que la base (3).
-    const groupedCount = this._config?.sensors?.length ?? 0;
-    let columns = 3; // sin agrupados, o con 1 solo (con o sin top_sensor/subtítulo)
-    if (groupedCount === 2) columns = 5;
-    if (groupedCount === 3) columns = 6;
-
     return {
       rows: 'auto',
-      columns,
+      columns: gridColumnsFor(this._config?.sensors?.length ?? 0),
     };
-  }
-
-  private get _needsAutoHeight(): boolean {
-    return !!this._config?.top_sensor && (this._config?.sensors?.length ?? 0) >= 1;
-  }
-
-  private get _sensorRows(): number {
-    // Sigue usándose en getCardSize() para vistas masonry antiguas que
-    // no entienden 'auto' (getGridOptions ya no lo usa, ver arriba).
-    // overlay del editor de HA, no en la tarjeta real gracias a
-    // ha-card height:auto) que contenido ilegible.
-    return this._needsAutoHeight ? 3 : 2;
   }
 
   private get _stateObj() {
@@ -174,32 +142,15 @@ export class NeonButtonCard extends BaseNeonCard {
   }
 
   private get _isActive(): boolean {
-    const stateObj = this._stateObj;
-    if (!stateObj) return false;
-    const domain = this._config!.entity!.split('.')[0];
-    if (!ACTIVE_DOMAINS_ON_STATE.has(domain)) return false;
-    return stateObj.state === 'on';
+    return isButtonActive(this._config, this.hass);
   }
 
-  /**
-   * `entity:` está configurada pero rota: no existe en `hass.states`
-   * (borrada, mal escrita) o su estado es `unavailable`/`unknown`
-   * (integración o dispositivo caído). Sin `entity:` configurada NO es
-   * un error — es el caso legítimo de botón de acción puro (punto 10
-   * de la spec), así que ahí siempre es `false`.
-   */
   private get _entityBroken(): boolean {
-    if (!this._config?.entity || !this.hass) return false;
-    const stateObj = this.hass.states[this._config.entity];
-    return !stateObj || stateObj.state === 'unavailable' || stateObj.state === 'unknown';
+    return isEntityBroken(this._config, this.hass);
   }
 
   private get _icon(): string {
-    // La entidad rota sustituye SIEMPRE al icono principal, incluso si
-    // hay un `icon:` explícito en la config — con la entidad caída el
-    // icono debe comunicar el problema, no la acción configurada.
-    if (this._entityBroken) return ERROR_ICON;
-    return this._config?.icon || (this._stateObj?.attributes.icon as string | undefined) || DEFAULT_ICON;
+    return resolveButtonIcon(this._config, this.hass);
   }
 
   private get _name(): string {
