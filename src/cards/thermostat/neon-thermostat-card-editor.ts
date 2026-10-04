@@ -234,217 +234,239 @@ export class NeonThermostatCardEditor extends LitElement {
 
   protected render(): TemplateResult | typeof nothing {
     if (!this.hass || !this._config) return nothing;
-
     const size: ThermostatSize = this._config.size ?? DEFAULT_SIZE;
-    const config = this._config;
-    const modes = this._supportedModes;
-    const sharedModes = this._sharedModes;
-    const currentPalette = this._config.neon_palette || DEFAULT_PALETTE;
-    const isCustomPalette = currentPalette === 'custom';
 
     return html`
       <div class="editor-container">
-        <div class="editor-section">
-          <div class="section-header">${this._t('section_main')}</div>
-          <ha-entity-picker
-            .hass=${this.hass}
-            .value=${this._config.entity || ''}
-            .includeDomains=${['climate']}
-            label=${this._t('entity_label')}
-            @value-changed=${(ev: ValueChangedEvent) => this._configChanged('entity', ev.detail.value)}
-          ></ha-entity-picker>
-          <ha-entity-picker
-            .hass=${this.hass}
-            .value=${this._config.entity_2 || ''}
-            .includeDomains=${['climate']}
-            label=${this._t('entity_2_label')}
-            @value-changed=${(ev: ValueChangedEvent) => this._configChanged('entity_2', ev.detail.value)}
-          ></ha-entity-picker>
-          <span class="hint">${this._t('entity_2_hint')}</span>
-          <label class="native-select-label" for="name">${this._t('name_label')}</label>
-          <input
-            id="name"
-            type="text"
-            class="native-input"
-            .value=${this._config.name || ''}
-            @input=${(ev: InputEvent) => this._configChanged('name', (ev.target as HTMLInputElement).value)}
-          />
-        </div>
+        ${this._renderMainSection()} ${this._renderAppearanceSection(size)} ${this._renderHaloSection()}
+        ${this._renderModeColorsSection()} ${this._renderModeOwnerSection()}
+        ${size !== 'compact' ? this._renderFooterSection() : nothing}
+      </div>
+    `;
+  }
 
-        <div class="editor-section">
-          <div class="section-header">${this._t('section_appearance')}</div>
-          <label class="native-select-label" for="size">${this._t('size_label')}</label>
-          <select
-            id="size"
-            class="native-select"
-            .value=${size}
-            @change=${(ev: Event) => this._configChanged('size', (ev.target as HTMLSelectElement).value)}
-          >
-            <option value="large">${this._t('size_large')}</option>
-            <option value="normal">${this._t('size_normal')}</option>
-            <option value="compact">${this._t('size_compact')}</option>
-          </select>
+  private _renderMainSection(): TemplateResult {
+    const config = this._config!;
+    return html`
+      <div class="editor-section">
+        <div class="section-header">${this._t('section_main')}</div>
+        <ha-entity-picker
+          .hass=${this.hass}
+          .value=${config.entity || ''}
+          .includeDomains=${['climate']}
+          label=${this._t('entity_label')}
+          @value-changed=${(ev: ValueChangedEvent) => this._configChanged('entity', ev.detail.value)}
+        ></ha-entity-picker>
+        <ha-entity-picker
+          .hass=${this.hass}
+          .value=${config.entity_2 || ''}
+          .includeDomains=${['climate']}
+          label=${this._t('entity_2_label')}
+          @value-changed=${(ev: ValueChangedEvent) => this._configChanged('entity_2', ev.detail.value)}
+        ></ha-entity-picker>
+        <span class="hint">${this._t('entity_2_hint')}</span>
+        <label class="native-select-label" for="name">${this._t('name_label')}</label>
+        <input
+          id="name"
+          type="text"
+          class="native-input"
+          .value=${config.name || ''}
+          @input=${(ev: InputEvent) => this._configChanged('name', (ev.target as HTMLInputElement).value)}
+        />
+      </div>
+    `;
+  }
 
-          <label class="native-select-label" for="step">${this._t('step_label')}</label>
-          <input
-            id="step"
-            type="number"
-            step="0.1"
-            min="0.1"
-            class="native-input"
-            placeholder="0.5"
-            .value=${this._config.step?.toString() || ''}
-            @input=${(ev: InputEvent) => {
-              const raw = (ev.target as HTMLInputElement).value;
-              this._configChanged('step', raw === '' ? undefined : Number(raw));
-            }}
-          />
-          <span class="hint">${this._t('step_auto_hint')}</span>
-        </div>
+  private _renderAppearanceSection(size: ThermostatSize): TemplateResult {
+    const config = this._config!;
+    return html`
+      <div class="editor-section">
+        <div class="section-header">${this._t('section_appearance')}</div>
+        <label class="native-select-label" for="size">${this._t('size_label')}</label>
+        <select
+          id="size"
+          class="native-select"
+          .value=${size}
+          @change=${(ev: Event) => this._configChanged('size', (ev.target as HTMLSelectElement).value)}
+        >
+          <option value="large">${this._t('size_large')}</option>
+          <option value="normal">${this._t('size_normal')}</option>
+          <option value="compact">${this._t('size_compact')}</option>
+        </select>
 
-        <div class="editor-section">
-          <div class="section-header">${this._t('section_halo')}</div>
-          <span class="hint">${this._t('halo_hint')}</span>
-          <label class="native-select-label" for="palette">${this._t('palette_label')}</label>
-          <select
-            id="palette"
-            class="native-select"
-            .value=${currentPalette}
-            @change=${(ev: Event) => {
-              const value = (ev.target as HTMLSelectElement).value;
-              if (!value || value === currentPalette) return;
-              this._configChanged('neon_palette', value);
-            }}
-          >
-            <option value="emerald">${getPaletteName(this.hass, 'emerald')}</option>
-            <option value="cyberpunk">${getPaletteName(this.hass, 'cyberpunk')}</option>
-            <option value="electric">${getPaletteName(this.hass, 'electric')}</option>
-            <option value="sunset">${getPaletteName(this.hass, 'sunset')}</option>
-            <option value="toxic">${getPaletteName(this.hass, 'toxic')}</option>
-            <option value="custom">${getPaletteCustomLabel(this.hass)}</option>
-          </select>
-          ${isCustomPalette
-            ? html`
-                <div class="custom-colors-grid">
-                  <div class="color-picker-wrapper">
-                    <span>${this._ts('color_start')}</span>
-                    <input
-                      type="color"
-                      .value=${this._config.neon_color1 || '#39e07a'}
-                      @input=${(ev: Event) => this._configChanged('neon_color1', (ev.target as HTMLInputElement).value)}
-                    />
-                  </div>
-                  <div class="color-picker-wrapper">
-                    <span>${this._ts('color_middle')}</span>
-                    <input
-                      type="color"
-                      .value=${this._config.neon_color2 || '#2dd6b8'}
-                      @input=${(ev: Event) => this._configChanged('neon_color2', (ev.target as HTMLInputElement).value)}
-                    />
-                  </div>
-                  <div class="color-picker-wrapper">
-                    <span>${this._ts('color_end')}</span>
-                    <input
-                      type="color"
-                      .value=${this._config.neon_color3 || '#1ecdf2'}
-                      @input=${(ev: Event) => this._configChanged('neon_color3', (ev.target as HTMLInputElement).value)}
-                    />
-                  </div>
-                </div>
-              `
-            : nothing}
-        </div>
+        <label class="native-select-label" for="step">${this._t('step_label')}</label>
+        <input
+          id="step"
+          type="number"
+          step="0.1"
+          min="0.1"
+          class="native-input"
+          placeholder="0.5"
+          .value=${config.step?.toString() || ''}
+          @input=${(ev: InputEvent) => {
+            const raw = (ev.target as HTMLInputElement).value;
+            this._configChanged('step', raw === '' ? undefined : Number(raw));
+          }}
+        />
+        <span class="hint">${this._t('step_auto_hint')}</span>
+      </div>
+    `;
+  }
 
-        <div class="editor-section">
-          <div class="section-header">${this._t('section_colors')}</div>
-          ${modes.length
-            ? html`
-                <span class="hint">${this._t('colors_hint')}</span>
-                <div class="mode-colors-grid">
-                  ${modes.map(
-                    (mode) => html`
-                      <div class="mode-color-cell">
-                        <span class="mode-color-cell-label">
-                          <ha-icon icon=${HVAC_MODE_ICONS[mode]}></ha-icon>
-                          ${this._modeLabel(mode)}
-                        </span>
-                        <input
-                          type="color"
-                          .value=${this._colorForMode(mode)}
-                          @input=${(ev: Event) => this._setModeColor(mode, (ev.target as HTMLInputElement).value)}
-                        />
-                      </div>
-                    `
-                  )}
-                </div>
-              `
-            : html`<span class="hint">${this._t('colors_no_entity_hint')}</span>`}
-        </div>
+  private _renderHaloSection(): TemplateResult {
+    const config = this._config!;
+    const currentPalette = config.neon_palette || DEFAULT_PALETTE;
+    return html`
+      <div class="editor-section">
+        <div class="section-header">${this._t('section_halo')}</div>
+        <span class="hint">${this._t('halo_hint')}</span>
+        <label class="native-select-label" for="palette">${this._t('palette_label')}</label>
+        <select
+          id="palette"
+          class="native-select"
+          .value=${currentPalette}
+          @change=${(ev: Event) => {
+            const value = (ev.target as HTMLSelectElement).value;
+            if (!value || value === currentPalette) return;
+            this._configChanged('neon_palette', value);
+          }}
+        >
+          <option value="emerald">${getPaletteName(this.hass, 'emerald')}</option>
+          <option value="cyberpunk">${getPaletteName(this.hass, 'cyberpunk')}</option>
+          <option value="electric">${getPaletteName(this.hass, 'electric')}</option>
+          <option value="sunset">${getPaletteName(this.hass, 'sunset')}</option>
+          <option value="toxic">${getPaletteName(this.hass, 'toxic')}</option>
+          <option value="custom">${getPaletteCustomLabel(this.hass)}</option>
+        </select>
+        ${currentPalette === 'custom' ? this._renderCustomColors(config) : nothing}
+      </div>
+    `;
+  }
 
-        ${sharedModes.length
+  private _renderCustomColors(config: NeonThermostatCardConfig): TemplateResult {
+    return html`
+      <div class="custom-colors-grid">
+        ${this._renderColorPicker('color_start', 'neon_color1', config.neon_color1 || '#39e07a')}
+        ${this._renderColorPicker('color_middle', 'neon_color2', config.neon_color2 || '#2dd6b8')}
+        ${this._renderColorPicker('color_end', 'neon_color3', config.neon_color3 || '#1ecdf2')}
+      </div>
+    `;
+  }
+
+  private _renderColorPicker(
+    labelKey: 'color_start' | 'color_middle' | 'color_end',
+    configKey: 'neon_color1' | 'neon_color2' | 'neon_color3',
+    value: string
+  ): TemplateResult {
+    return html`
+      <div class="color-picker-wrapper">
+        <span>${this._ts(labelKey)}</span>
+        <input
+          type="color"
+          .value=${value}
+          @input=${(ev: Event) => this._configChanged(configKey, (ev.target as HTMLInputElement).value)}
+        />
+      </div>
+    `;
+  }
+
+  private _renderModeColorsSection(): TemplateResult {
+    const modes = this._supportedModes;
+    return html`
+      <div class="editor-section">
+        <div class="section-header">${this._t('section_colors')}</div>
+        ${modes.length
           ? html`
-              <div class="editor-section">
-                <div class="section-header">${this._t('section_mode_owner')}</div>
-                <span class="hint">${this._t('mode_owner_hint')}</span>
-                ${sharedModes.map(
+              <span class="hint">${this._t('colors_hint')}</span>
+              <div class="mode-colors-grid">
+                ${modes.map(
                   (mode) => html`
-                    <label class="native-select-label" for="owner-${mode}">
-                      <ha-icon icon=${HVAC_MODE_ICONS[mode]}></ha-icon>
-                      ${this._modeLabel(mode)}
-                    </label>
-                    <select
-                      id="owner-${mode}"
-                      class="native-select"
-                      .value=${String(this._modeOwnerFor(mode))}
-                      @change=${(ev: Event) =>
-                        this._setModeOwner(mode, Number((ev.target as HTMLSelectElement).value) as 1 | 2)}
-                    >
-                      <option value="1">${config.entity}</option>
-                      <option value="2">${config.entity_2}</option>
-                    </select>
-                  `
-                )}
-              </div>
-            `
-          : nothing}
-
-        ${size !== 'compact'
-          ? html`
-              <div class="editor-section">
-                <div class="section-header">${this._t('section_footer')}</div>
-                ${this._footer.map(
-                  (item, i) => html`
-                    <div class="sensor-card">
-                      <div class="sensor-row">
-                        <ha-entity-picker
-                          .hass=${this.hass}
-                          .value=${item.entity}
-                          .includeDomains=${['sensor', 'binary_sensor']}
-                          label=${this._t('footer_sensor_label')}
-                          @value-changed=${(ev: ValueChangedEvent) => this._footerEntityChanged(i, ev.detail.value)}
-                        ></ha-entity-picker>
-                        <button class="remove-sensor" title=${this._t('remove_sensor_title')} @click=${() => this._removeFooterSensor(i)}>
-                          ✕
-                        </button>
-                      </div>
-                      <div class="field">
-                        <label class="field-label" for="footer-sensor-icon-${i}">${this._t('sensor_icon_label')}</label>
-                        <ha-icon-picker
-                          id="footer-sensor-icon-${i}"
-                          .hass=${this.hass}
-                          .value=${item.icon || ''}
-                          @value-changed=${(ev: ValueChangedEvent) => this._footerIconChanged(i, ev.detail.value)}
-                        ></ha-icon-picker>
-                      </div>
+                    <div class="mode-color-cell">
+                      <span class="mode-color-cell-label">
+                        <ha-icon icon=${HVAC_MODE_ICONS[mode]}></ha-icon>
+                        ${this._modeLabel(mode)}
+                      </span>
+                      <input
+                        type="color"
+                        .value=${this._colorForMode(mode)}
+                        @input=${(ev: Event) => this._setModeColor(mode, (ev.target as HTMLInputElement).value)}
+                      />
                     </div>
                   `
                 )}
-                ${this._footer.length < MAX_FOOTER_SENSORS
-                  ? html`<button class="add-sensor" @click=${() => this._addFooterSensor()}>${this._t('add_sensor_button')}</button>`
-                  : html`<span class="hint">${this._t('max_sensors_hint').replace('{max}', String(MAX_FOOTER_SENSORS))}</span>`}
               </div>
             `
-          : nothing}
+          : html`<span class="hint">${this._t('colors_no_entity_hint')}</span>`}
+      </div>
+    `;
+  }
+
+  private _renderModeOwnerSection(): TemplateResult | typeof nothing {
+    const sharedModes = this._sharedModes;
+    if (!sharedModes.length) return nothing;
+    const config = this._config!;
+    return html`
+      <div class="editor-section">
+        <div class="section-header">${this._t('section_mode_owner')}</div>
+        <span class="hint">${this._t('mode_owner_hint')}</span>
+        ${sharedModes.map(
+          (mode) => html`
+            <label class="native-select-label" for="owner-${mode}">
+              <ha-icon icon=${HVAC_MODE_ICONS[mode]}></ha-icon>
+              ${this._modeLabel(mode)}
+            </label>
+            <select
+              id="owner-${mode}"
+              class="native-select"
+              .value=${String(this._modeOwnerFor(mode))}
+              @change=${(ev: Event) =>
+                this._setModeOwner(mode, Number((ev.target as HTMLSelectElement).value) as 1 | 2)}
+            >
+              <option value="1">${config.entity}</option>
+              <option value="2">${config.entity_2}</option>
+            </select>
+          `
+        )}
+      </div>
+    `;
+  }
+
+  private _renderFooterSection(): TemplateResult {
+    return html`
+      <div class="editor-section">
+        <div class="section-header">${this._t('section_footer')}</div>
+        ${this._footer.map((item, i) => this._renderFooterSensorCard(item, i))}
+        ${this._footer.length < MAX_FOOTER_SENSORS
+          ? html`<button class="add-sensor" @click=${() => this._addFooterSensor()}>${this._t('add_sensor_button')}</button>`
+          : html`<span class="hint">${this._t('max_sensors_hint').replace('{max}', String(MAX_FOOTER_SENSORS))}</span>`}
+      </div>
+    `;
+  }
+
+  private _renderFooterSensorCard(item: { entity: string; icon?: string }, index: number): TemplateResult {
+    return html`
+      <div class="sensor-card">
+        <div class="sensor-row">
+          <ha-entity-picker
+            .hass=${this.hass}
+            .value=${item.entity}
+            .includeDomains=${['sensor', 'binary_sensor']}
+            label=${this._t('footer_sensor_label')}
+            @value-changed=${(ev: ValueChangedEvent) => this._footerEntityChanged(index, ev.detail.value)}
+          ></ha-entity-picker>
+          <button class="remove-sensor" title=${this._t('remove_sensor_title')} @click=${() => this._removeFooterSensor(index)}>
+            ✕
+          </button>
+        </div>
+        <div class="field">
+          <label class="field-label" for="footer-sensor-icon-${index}">${this._t('sensor_icon_label')}</label>
+          <ha-icon-picker
+            id="footer-sensor-icon-${index}"
+            .hass=${this.hass}
+            .value=${item.icon || ''}
+            @value-changed=${(ev: ValueChangedEvent) => this._footerIconChanged(index, ev.detail.value)}
+          ></ha-icon-picker>
+        </div>
       </div>
     `;
   }
