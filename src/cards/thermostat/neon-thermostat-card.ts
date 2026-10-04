@@ -1,5 +1,6 @@
 import { html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
+import { live } from 'lit/directives/live.js';
 import type { HomeAssistant } from '../../ha/types';
 import { getClimateState, clampToStep } from '../../ha/climate';
 import type { ClimateState, HvacMode } from '../../ha/climate';
@@ -426,6 +427,7 @@ export class NeonThermostatCard extends BaseNeonCard {
         <select
           class="mode-selector-native"
           aria-label=${this._modeLabel(climate.mode)}
+          .value=${live(climate.mode)}
           @change=${(ev: Event) => this._handleModeSelect((ev.target as HTMLSelectElement).value as HvacMode)}
         >
           ${climate.hvacModes.map(
