@@ -24,60 +24,12 @@ import {
   DIAL_END_ANGLE,
   LINE_X1,
 } from './constants';
+import { buildDisplayState } from './combined-climate';
+import type { CombinedClimate } from './combined-climate';
+import { dialArcPath, pointOnDial } from './dial-geometry';
 import { NEON_THERMOSTAT_CARD_STYLES } from './neon-thermostat-card.styles';
 import { THERMOSTAT_TRANSLATIONS } from './translations';
 import type { NeonThermostatCardConfig, ThermostatSize } from './types';
-
-/** Punto (x,y) sobre el aro para un ángulo dado, convención reloj
-    (0° = arriba, crece en sentido horario). */
-function pointOnDial(cx: number, cy: number, r: number, angleDeg: number): { x: number; y: number } {
-  const rad = (angleDeg * Math.PI) / 180;
-  return { x: cx + r * Math.sin(rad), y: cy - r * Math.cos(rad) };
-}
-
-/** Trazo SVG del arco entre dos ángulos. El barrido de esta tarjeta es
-    siempre exactamente 180° (DIAL_START_ANGLE a DIAL_END_ANGLE), así
-    que el flag de "arco grande" queda fijo en 0. */
-function dialArcPath(cx: number, cy: number, r: number, startAngle: number, endAngle: number): string {
-  const start = pointOnDial(cx, cy, r, startAngle);
-  const end = pointOnDial(cx, cy, r, endAngle);
-  return `M ${start.x} ${start.y} A ${r} ${r} 0 0 1 ${end.x} ${end.y}`;
-}
-
-/**
- * Vista combinada de 1 o 2 entidades `climate` configuradas —
- * `entities` en el orden de configuración (`entity`, luego `entity_2`
- * si existe), y `modeOwner` resuelve qué entidad concreta gestiona cada
- * modo del selector (reglas en `types.ts`, junto a `entity_2`).
- */
-interface CombinedClimate {
-  entities: ClimateState[];
-  modeOwner: Map<HvacMode, ClimateState>;
-}
-
-/** Construye el "estado mostrado" (mismo tipo `ClimateState` que usa
-    todo el resto del render): si hay una entidad activa se usa esa; si
-    las dos están en "off" se usa la última que estuvo activa (o la
-    primera configurada si nunca lo estuvo). `hvacModes` es siempre la
-    unión ya resuelta en `modeOwner`, y `mode` es "off" solo cuando
-    NINGUNA entidad configurada está activa. */
-function buildDisplayState(combined: CombinedClimate, lastActiveEntity: string | null): ClimateState {
-  const active = combined.entities.find((e) => e.mode !== 'off') ?? null;
-  const fallback = combined.entities.find((e) => e.entity === lastActiveEntity) ?? combined.entities[0];
-  const base = active ?? fallback;
-  return {
-    entity: base.entity,
-    mode: active ? active.mode : 'off',
-    hvacModes: Array.from(combined.modeOwner.keys()),
-    hvacAction: active ? active.hvacAction : null,
-    currentTemperature: base.currentTemperature,
-    targetTemperature: base.targetTemperature,
-    minTemp: base.minTemp,
-    maxTemp: base.maxTemp,
-    step: base.step,
-    available: base.available,
-  };
-}
 
 /**
  * Neón Thermostat Card
