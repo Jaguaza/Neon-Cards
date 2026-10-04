@@ -17,7 +17,7 @@
  * script de benchmark (acuerdo nº4: reutilizable, no se copia).
  *
  * Uso: node scripts/perf-check.mjs [card] [numCards] [numUpdates]
- *   card: 'entity' | 'button' | 'all' (por defecto 'all')
+ *   card: 'entity' | 'button' | 'thermostat' | 'all' (por defecto 'all')
  */
 
 import { JSDOM } from 'jsdom';
@@ -127,6 +127,71 @@ const CARD_PROFILES = {
           state: String(40 + (tick % 10)),
           last_changed: new Date().toISOString(),
           last_updated: new Date().toISOString(),
+          attributes: { unit_of_measurement: '%', device_class: 'humidity' },
+        };
+      }
+      return { states, callService: async () => {} };
+    },
+  },
+  thermostat: {
+    elementName: 'neon-thermostat-card',
+    entry: 'src/cards/thermostat/neon-thermostat-card.ts',
+    exportName: 'NeonThermostatCard',
+    // El benchmark genera ids `light.*`; el termostato necesita `climate.*`,
+    // así que se reutiliza solo el sufijo. Dos entidades + sensor de pie
+    // para recorrer también la ruta de estado combinado. El modo cambia
+    // cada 25 ticks (no en cada uno): un termostato real no conmuta
+    // miles de veces, y un cambio por tick deja pendientes los
+    // temporizadores de transición del aro y falsea la medida de memoria.
+    makeConfig: (entityId) => {
+      const base = entityId.split('.')[1];
+      return {
+        entity: `climate.${base}_calefaccion`,
+        entity_2: `climate.${base}_aire`,
+        name: 'Salón',
+        footer: [{ entity: `sensor.${base}_hum` }],
+      };
+    },
+    makeHass: (entityIds, tick) => {
+      const states = {};
+      const now = new Date().toISOString();
+      const heating = Math.floor(tick / 25) % 2 === 0;
+      for (const id of entityIds) {
+        const base = id.split('.')[1];
+        states[`climate.${base}_calefaccion`] = {
+          entity_id: `climate.${base}_calefaccion`,
+          state: heating ? 'heat' : 'off',
+          last_changed: now,
+          last_updated: now,
+          attributes: {
+            hvac_modes: ['off', 'heat', 'auto'],
+            hvac_action: heating ? 'heating' : 'off',
+            current_temperature: 19 + (tick % 5) * 0.5,
+            temperature: 22,
+            min_temp: 7,
+            max_temp: 35,
+            target_temp_step: 0.5,
+          },
+        };
+        states[`climate.${base}_aire`] = {
+          entity_id: `climate.${base}_aire`,
+          state: 'off',
+          last_changed: now,
+          last_updated: now,
+          attributes: {
+            hvac_modes: ['off', 'cool', 'dry', 'fan_only'],
+            current_temperature: 24,
+            temperature: 24,
+            min_temp: 16,
+            max_temp: 30,
+            target_temp_step: 1,
+          },
+        };
+        states[`sensor.${base}_hum`] = {
+          entity_id: `sensor.${base}_hum`,
+          state: String(40 + (tick % 10)),
+          last_changed: now,
+          last_updated: now,
           attributes: { unit_of_measurement: '%', device_class: 'humidity' },
         };
       }
