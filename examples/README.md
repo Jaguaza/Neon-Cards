@@ -43,7 +43,7 @@ card_orientation: right
 
 ### GIF
 
-![Neón Card Entity en acción](../assets/gifs/Ne%C3%B3n-Card.gif)
+![Neón Card Entity en acción](../assets/gifs/Neón%20Cards.gif)
 
 ### Explicación
 
@@ -163,7 +163,7 @@ card_orientation: right
 
 ### GIF
 
-![Neón Card Entity in action](../assets/gifs/Ne%C3%B3n-Card.gif)
+![Neón Card Entity in action](../assets/gifs/Neón%20Cards.gif)
 
 ### Explanation
 
