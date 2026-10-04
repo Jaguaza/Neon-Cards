@@ -17,6 +17,7 @@ Ver también la versión en [inglés](../en/api.md).
   - [Traducciones (`localize.ts`)](#traducciones-localizets)
 - [`src/ha` — Tipos de Home Assistant](#srcha--tipos-de-home-assistant)
   - [Sensores (`sensors.ts`)](#sensores-sensorsts)
+  - [Climate (`climate.ts`)](#climate-climatets)
 - [`src/shared` — Paleta y efectos neón compartidos](#srcshared--paleta-y-efectos-neón-compartidos)
   - [Paleta (`neon-palette.ts`)](#paleta-neon-palettets)
   - [Halo de icono (`glow.ts`)](#halo-de-icono-glowts)
@@ -25,6 +26,7 @@ Ver también la versión en [inglés](../en/api.md).
   - [Traducciones compartidas (`translations/`)](#traducciones-compartidas-translations)
 - [Neón Card Entity — Configuración YAML](#neón-card-entity--configuración-yaml)
 - [Neón Button Card — Configuración YAML](#neón-button-card--configuración-yaml)
+- [Neón Thermostat Card — Configuración YAML](#neón-thermostat-card--configuración-yaml)
 
 ---
 
@@ -166,6 +168,18 @@ sobrevivirían entre pulsaciones.
     hold_action: this._config.hold_action,
     double_tap_action: this._config.double_tap_action,
   }, 'tap');
+  ```
+
+#### `openMoreInfo(el, entityId)`
+
+- **Descripción:** abre el diálogo de «más información» de una entidad. Despacha el evento estándar `hass-more-info` (`bubbles` y `composed`), que la interfaz de HA escucha en cualquier parte del árbol. Sirve para tarjetas con varias entidades, cada una con su propio botón.
+- **Parámetros:**
+  - `el: HTMLElement` — el elemento desde el que se despacha (normalmente `this`).
+  - `entityId: string` — la entidad cuyo diálogo se abre.
+- **Devuelve:** `void`.
+- **Ejemplo:**
+  ```ts
+  openMoreInfo(this, 'climate.salon');
   ```
 
 ---
@@ -351,6 +365,64 @@ sensores contextuales debería reutilizarlos.
 | `SENSOR_DOMAINS` | `['sensor', 'binary_sensor']` — únicos dominios aceptados por `getSensorDisplay`. |
 | `SensorDomain` | Tipo TypeScript derivado de `SENSOR_DOMAINS`. |
 | `DEFAULT_SENSOR_DECIMALS` | `1` — decimales por defecto cuando el sensor no especifica los suyos. |
+
+---
+
+### Climate (`climate.ts`)
+
+Helpers de entidades `climate` (acuerdo nº4: las tarjetas nunca leen
+`hass.states` a mano). Hoy los usa la Thermostat Card.
+
+#### `getClimateState(entityId, hass)`
+
+- **Descripción:** lee estado y capacidades de una entidad `climate`. Descarta los modos de `hvac_modes` que no reconoce y elimina duplicados; un estado desconocido cae a `'off'`; `available` es `false` con `unavailable`/`unknown`. Cuando faltan atributos usa `minTemp: 7`, `maxTemp: 35` y `step: 0.5`.
+- **Parámetros:**
+  - `entityId: string` — p. ej. `'climate.salon'`.
+  - `hass: HomeAssistant`.
+- **Devuelve:** `ClimateState | null` — `null` si `entityId` no es del dominio `climate` o no existe en `hass.states`.
+  ```ts
+  interface ClimateState {
+    entity: string;
+    mode: HvacMode;
+    hvacModes: HvacMode[];
+    hvacAction: HvacAction | null;
+    currentTemperature: number | null;
+    targetTemperature: number | null;
+    minTemp: number;
+    maxTemp: number;
+    step: number;
+    available: boolean;
+  }
+  ```
+- **Ejemplo:**
+  ```ts
+  const c = getClimateState('climate.salon', hass);
+  // c?.mode === 'heat', c?.targetTemperature === 21
+  ```
+
+#### `clampToStep(value, min, max, step)`
+
+- **Descripción:** redondea `value` al múltiplo de `step` más cercano contando desde `min` y lo limita a `[min, max]`, sin arrastrar errores de coma flotante.
+- **Devuelve:** `number`.
+- **Ejemplo:**
+  ```ts
+  clampToStep(21.3, 7, 35, 0.5); // 21.5
+  clampToStep(99, 7, 35, 0.5); // 35
+  ```
+
+#### `isClimateRunning(state)`
+
+- **Descripción:** `true` si el equipo está funcionando ahora mismo (no solo seleccionado en un modo). Con `off` es siempre `false`; usa `hvacAction` si la entidad lo expone; si no, compara consigna y temperatura actual según el modo.
+- **Devuelve:** `boolean`.
+
+#### Constantes y tipos
+
+| Nombre | Descripción |
+|---|---|
+| `HVAC_MODES` | `['off', 'heat', 'cool', 'heat_cool', 'auto', 'dry', 'fan_only']` — modos reconocidos. |
+| `HvacMode` | Tipo derivado de `HVAC_MODES`. |
+| `HvacAction` | `'off' \| 'idle' \| 'preheating' \| 'heating' \| 'cooling' \| 'drying' \| 'fan'`. |
+| `ClimateState` | Estado ya normalizado de una entidad `climate` (ver arriba). |
 
 ---
 
@@ -646,4 +718,59 @@ sensors:
   - entity: sensor.salon_temperature
   - entity: sensor.salon_humidity
     icon: mdi:water-percent
+```
+
+## Neón Thermostat Card — Configuración YAML
+
+Todas las claves de `NeonThermostatCardConfig` (`src/cards/thermostat/types.ts`).
+Ver ejemplos completos en [`examples/`](../../examples/README.md) y la guía de la tarjeta en [`src/cards/thermostat`](../../src/cards/thermostat/README.md).
+
+| Clave | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `entity` | `string` | — (requerida) | Entidad `climate` principal. Sin ella, `setConfig` lanza un error. |
+| `entity_2` | `string` | — | Segunda entidad `climate` (dos equipos separados). Sin ella, la tarjeta se comporta igual que con una sola. |
+| `mode_owner` | `Partial<Record<HvacMode, 1 \| 2>>` | primera entidad | Solo para modos que soportan **ambas** entidades: `1` = `entity`, `2` = `entity_2`. |
+| `name` | `string` | `entity` | Título de la tarjeta. |
+| `size` | `'large' \| 'normal' \| 'compact'` | `'normal'` | Vista: dial grande, aro, o línea compacta. |
+| `color` | `string \| { mode: 'state' } \| { mode: 'custom', heat?, cool?, … }` | colores semánticos | Color por modo HVAC. `off` siempre usa el color de texto del tema. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta del aro perimetral de la tarjeta. |
+| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | según paleta | Colores del degradado cuando `neon_palette: custom`. |
+| `step` | `number` | `target_temp_step` de la entidad, o `0.5` | Salto de los controles −/+ y del arrastre. |
+| `footer` | `FooterSensorConfig[]` (máx. 3) | `[]` | Sensores bajo la tarjeta. No se muestran con `size: compact`. |
+
+`FooterSensorConfig`:
+
+| Clave | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `entity` | `string` | — (requerida) | Solo dominios `sensor` o `binary_sensor`. |
+| `icon` | `string` | calculado por `device_class` | Icono propio del sensor. |
+
+### `getGridOptions()` — tamaño automático
+
+| `size` | `columns` | `rows` |
+|---|---|---|
+| `large` | `12` | `'auto'` |
+| `normal` | `6` | `'auto'` |
+| `compact` | `4` | `'auto'` |
+
+### Ejemplo completo
+
+```yaml
+type: custom:neon-thermostat-card
+entity: climate.calefaccion
+entity_2: climate.aire_acondicionado
+name: Salón
+size: large
+mode_owner:
+  fan_only: 2
+color:
+  mode: custom
+  heat: "#ff4500"
+  cool: "#0080ff"
+step: 0.5
+neon_palette: cyberpunk
+footer:
+  - entity: sensor.salon_humidity
+  - entity: sensor.salon_power
+    icon: mdi:flash
 ```

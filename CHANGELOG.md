@@ -9,6 +9,34 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Neón Thermostat Card** (`custom:neon-thermostat-card`): tarjeta para
+  una o dos entidades `climate`, con vista grande (dial semicircular),
+  normal (aro alrededor de la temperatura) y compacta (línea), consigna
+  arrastrable o con píldora −/+, selector de modo HVAC, color por modo,
+  pie de sensores (hasta 3) y editor visual. Con `entity_2` reúne dos
+  equipos separados y `mode_owner` resuelve los modos compartidos.
+- `src/ha/climate.ts` (`getClimateState`, `clampToStep`,
+  `isClimateRunning`) y `openMoreInfo` en `src/core`, documentados en la
+  referencia de API.
+- Perfil `thermostat` en `npm run perf` y 18 tests nuevos (`climate`,
+  geometría del dial y estado combinado).
+- README de la tarjeta y entrada en `examples/` (YAML mínimo y
+  avanzado, explicación).
+
+### Changed
+
+- `render()` del editor del termostato dividido en métodos por sección
+  (acuerdo nº7), y la geometría del dial y el estado combinado extraídos
+  a `dial-geometry.ts` y `combined-climate.ts`.
+
+### Fixed
+
+- El selector de modo del termostato sincroniza su valor con el estado
+  real de la entidad (`live()`), para que no quede desfasado tras un
+  cambio externo.
+
 ## [1.0.0] - 2026-10-02
 
 Primera versión estable. Con la declaración del Framework Freeze
@@ -143,6 +171,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+### Added
+
+- **Neón Thermostat Card** (`custom:neon-thermostat-card`): card for one
+  or two `climate` entities, with a large (semicircular dial), normal
+  (ring around the temperature) and compact (line) view, a draggable
+  target or a −/+ pill, an HVAC mode selector, a color per mode, a sensor
+  footer (up to 3) and a visual editor. With `entity_2` it brings two
+  separate devices together and `mode_owner` resolves shared modes.
+- `src/ha/climate.ts` (`getClimateState`, `clampToStep`,
+  `isClimateRunning`) and `openMoreInfo` in `src/core`, documented in
+  the API reference.
+- A `thermostat` profile in `npm run perf` and 18 new tests (`climate`,
+  dial geometry and combined state).
+- Card README and an entry in `examples/` (minimal and advanced YAML,
+  explanation).
+
+### Changed
+
+- The thermostat editor's `render()` is split into per-section methods
+  (agreement nº7), and the dial geometry and combined state are
+  extracted to `dial-geometry.ts` and `combined-climate.ts`.
+
+### Fixed
+
+- The thermostat mode selector syncs its value with the entity's real
+  state (`live()`), so it no longer lags behind after an external change.
 
 ## [1.0.0] - 2026-10-02
 
