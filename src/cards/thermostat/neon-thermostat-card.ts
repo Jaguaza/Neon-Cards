@@ -22,6 +22,7 @@ import {
   HVAC_MODE_LABEL_KEYS,
   DIAL_START_ANGLE,
   DIAL_END_ANGLE,
+  LINE_X0,
   LINE_X1,
 } from './constants';
 import { buildDisplayState } from './combined-climate';
@@ -480,7 +481,7 @@ export class NeonThermostatCard extends BaseNeonCard {
     const fraction =
       range > 0 && displayTarget !== null ? Math.min(1, Math.max(0, (displayTarget - climate.minTemp) / range)) : 0;
     const y = 10;
-    const dotX = 6 + 88 * fraction;
+    const dotX = LINE_X0 + (LINE_X1 - LINE_X0) * fraction;
     const dotFraction = Math.min(0.92, Math.max(0.08, fraction));
     const gradientId = `line-grad-${climate.entity.replace(/[^a-zA-Z0-9]/g, '-')}`;
 
@@ -498,19 +499,19 @@ export class NeonThermostatCard extends BaseNeonCard {
           @pointercancel=${() => this._onDialPointerUp()}
         >
           <defs>
-            <linearGradient id=${gradientId} gradientUnits="userSpaceOnUse" x1=${6} y1=${y} x2=${LINE_X1} y2=${y}>
+            <linearGradient id=${gradientId} gradientUnits="userSpaceOnUse" x1=${LINE_X0} y1=${y} x2=${LINE_X1} y2=${y}>
               <stop offset="0%" stop-color=${color} stop-opacity="0"></stop>
               <stop offset="${dotFraction * 100}%" stop-color=${color} stop-opacity="1"></stop>
               <stop offset="100%" stop-color=${color} stop-opacity="0"></stop>
             </linearGradient>
           </defs>
-          <line class="line-track" x1=${6} y1=${y} x2=${LINE_X1} y2=${y}></line>
-          <line class="line-progress" x1=${6} y1=${y} x2=${LINE_X1} y2=${y} stroke="url(#${gradientId})"></line>
+          <line class="line-track" x1=${LINE_X0} y1=${y} x2=${LINE_X1} y2=${y}></line>
+          <line class="line-progress" x1=${LINE_X0} y1=${y} x2=${LINE_X1} y2=${y} stroke="url(#${gradientId})"></line>
           <circle class="line-dot" cx=${dotX} cy=${y} r="3.2"></circle>
           <!-- Zonas de toque invisibles, más anchas que el trazo/punto
                visibles — mismo motivo que en dial/aro, aquí más
                crítico todavía por lo reducido del tamaño compacto. -->
-          <line class="line-hit" x1=${6} y1=${y} x2=${LINE_X1} y2=${y}></line>
+          <line class="line-hit" x1=${LINE_X0} y1=${y} x2=${LINE_X1} y2=${y}></line>
           <ellipse class="line-hit-dot" cx=${dotX} cy=${y} rx="9" ry="9"></ellipse>
         </svg>
       </div>
