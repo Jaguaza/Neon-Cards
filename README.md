@@ -38,6 +38,7 @@ Collection of custom cards for Home Assistant with a modern neon‑inspired aest
 
 - 🪪**ENTITY.**  [Ir a Entity](#entity-card)
 - 🚾**BUTTON.**  [Ir a Button](#button-card)
+- 🌡 **TERMOSTATO.**  [Ir a Termostato](#termostato-card)
 
 <a name="entity-card"></a>
 ### **🪪 Neón Entity Card**
@@ -70,9 +71,37 @@ Interruptor minimalista con animaciones SVG, paletas dinámicas y arquitectura m
 - **Titulo:** Incluye selector de: título personalizado, nombre de la entidad, etc.
 - **Subtítulo:** Incluye selector de: Nombre, Último cambio, etc.
 
----
+  ---
 <a name="button-card"></a>
 ### **🚾 Neón Button Card**
+
+Botón minimalista con animaciones SVG, paletas dinámicas y arquitectura modular.
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/button/Button%201.jpg" width="450" style="margin-right:20px;"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/button/Button%202.jpg" width="450" style="margin-right:20px;">
+</p>
+
+### **Paletas disponibles**
+
+- **Cyber Emerald** *(Predeterminada)*  
+- **Cyberpunk Pink:** Rosa, Carmesí, Púrpura  
+- **Electric Blue:** Cian, Azul, Azul Oscuro  
+- **Sunset Amber:** Naranja, Amarillo, Rosa  
+- **Toxic Purple:** Violeta, Púrpura, Azul  
+- **Personalizado:** Elige tus propios colores.
+
+### **Titulo y Subtitulo**
+- **Titulo:** Incluye selector de: título personalizado, nombre de la entidad, etc.
+- **Subtítulo:** Incluye selector de: Nombre, Último cambio, etc.
+
+### **Selector de sensores**
+- **Sensor Libre:** Sensor que se encuentra justo debajo del subtítulo de la tarjeta.
+- **Grupo Sensores:** Situados debajo del sensor libre y se puede añadir desde 1 hasta 3 sensores.
+
+---
+
+---
+<a name="Termostato-card"></a>
+### **🌡 Neón Termostato Card.**
 
 Botón minimalista con animaciones SVG, paletas dinámicas y arquitectura modular.
 <p align="center">
@@ -102,7 +131,7 @@ Botón minimalista con animaciones SVG, paletas dinámicas y arquitectura modula
 
 Neon Cards se está diseñando como una colección completa de tarjetas para Home Assistant, se irán añadiendo más tarjetas.
 
-- **Próxima Tarjeta: 🌡 TERMOSTATO.**
+- **Próxima Tarjeta: 📈 SENSOR.**
 
 ---
 
