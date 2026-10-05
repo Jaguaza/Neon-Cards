@@ -32,6 +32,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 - En la interfaz de configuración de Entity y Thermostat, el término
   «aro» pasa a llamarse «halo», como en el resto del proyecto.
+- Los editores de Entity y Thermostat dividen su `render()` en métodos
+  por sección (acuerdo nº7); el DOM resultante es idéntico.
 - Los archivos del termostato que superaban las 500 líneas se dividen
   por responsabilidad (estilos del dial, del aro, de la píldora de
   consigna y del pie de modo), y la geometría del dial y el estado
@@ -196,6 +198,8 @@ and this project follows [Semantic Versioning](https://semver.org/).
 
 - In the Entity and Thermostat configuration UI, the term "ring" ("aro"
   in Spanish) is renamed "halo", as in the rest of the project.
+- The Entity and Thermostat editors split their `render()` into
+  per-section methods (agreement nº7); the resulting DOM is identical.
 - The thermostat files that exceeded 500 lines are split by
   responsibility (dial, ring, target pill and mode footer styles), and
   the dial geometry and combined state live in `dial-geometry.ts` and
