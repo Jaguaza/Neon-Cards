@@ -55,6 +55,9 @@ export const NEON_BUTTON_CARD_EDITOR_STYLES = css`
     font-size: 13px;
     width: 100%;
   }
+  .sensor-extra-fields ha-icon-picker {
+    width: 100%;
+  }
   .remove-sensor {
     background: none;
     border: none;

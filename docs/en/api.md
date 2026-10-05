@@ -171,10 +171,16 @@ wouldn't survive between taps.
 
 #### `openMoreInfo(el, entityId)`
 
-- **Description:** opens an entity's "more info" dialog. It dispatches the standard `hass-more-info` event (`bubbles` and `composed`), which the HA UI listens for anywhere in the tree. Meant for multi-entity cards, each with its own button.
+- **Description:** opens HA's "more info" dialog for a specific entity
+  directly — without going through `tap_action` (a whole-card
+  configurable action meant for a single target). Useful for a fixed
+  access icon to one particular entity within the card (e.g. several
+  `climate` entities on the same card, each with its own button — see
+  the Neón Thermostat Card). Dispatches the standard `hass-more-info`
+  event, which HA's UI already listens for anywhere in the tree.
 - **Parameters:**
-  - `el: HTMLElement` — the element to dispatch from (usually `this`).
-  - `entityId: string` — the entity whose dialog opens.
+  - `el: HTMLElement` — the element to dispatch from (`bubbles: true`, `composed: true`).
+  - `entityId: string`.
 - **Returns:** `void`.
 - **Example:**
   ```ts
@@ -227,10 +233,9 @@ wouldn't survive between taps.
 
 Generic translation engine — no text lives in here, that's in each
 module's `translations/<locale>.ts` (`src/core`, `src/shared`, and
-every `src/cards/<name>`). Today only `es` dictionaries are populated
-across the repo; the infrastructure is already in place for when `en`
-or another locale gets added (see "How to build a card", section 4,
-"Translations").
+every `src/cards/<name>`). `es` and `en` are populated across the
+repo's 5 dictionaries; adding a third locale follows the same pattern
+(see "How to build a card", section 4, "Translations").
 
 #### `resolveLocale(hass)`
 
@@ -268,7 +273,7 @@ or another locale gets added (see "How to build a card", section 4,
 
 | Name | Description |
 |---|---|
-| `SUPPORTED_LOCALES` | `['es']` today — extend this here when a new locale is added. |
+| `SUPPORTED_LOCALES` | `['es', 'en']` — extend this here when a new locale is added. |
 | `Locale` | TypeScript type derived from `SUPPORTED_LOCALES`. |
 | `DEFAULT_LOCALE` | `'es'` — used when `hass.locale.language` is missing or unsupported. |
 
@@ -378,15 +383,21 @@ directly.
 ### Climate (`climate.ts`)
 
 Helpers for `climate` entities (agreement nº4: cards never read
-`hass.states` by hand). Today the Thermostat Card uses them.
+`hass.states` by hand for this). Used by the Neón Thermostat Card; any
+future climate-control card should reuse these instead of re-reading
+`hass.states` on its own.
 
 #### `getClimateState(entityId, hass)`
 
-- **Description:** reads the state and capabilities of a `climate` entity. It drops any `hvac_modes` entry it does not recognise and removes duplicates; an unknown state falls back to `'off'`; `available` is `false` for `unavailable`/`unknown`. When attributes are missing it uses `minTemp: 7`, `maxTemp: 35` and `step: 0.5`.
+- **Description:** reads state and capabilities of a `climate` entity —
+  current mode, supported modes, current/target temperature,
+  min/max/step (with a fallback when the entity doesn't expose them),
+  and availability.
 - **Parameters:**
-  - `entityId: string` — e.g. `'climate.living_room'`.
+  - `entityId: string` — must start with `climate.`.
   - `hass: HomeAssistant`.
-- **Returns:** `ClimateState | null` — `null` if `entityId` is not in the `climate` domain or does not exist in `hass.states`.
+- **Returns:** `ClimateState | null` — `null` if `entityId` isn't in
+  the `climate` domain or doesn't exist in `hass.states`.
   ```ts
   interface ClimateState {
     entity: string;
@@ -395,10 +406,10 @@ Helpers for `climate` entities (agreement nº4: cards never read
     hvacAction: HvacAction | null;
     currentTemperature: number | null;
     targetTemperature: number | null;
-    minTemp: number;
-    maxTemp: number;
-    step: number;
-    available: boolean;
+    minTemp: number; // falls back to 7 if the entity doesn't expose it
+    maxTemp: number; // falls back to 35
+    step: number; // falls back to 0.5
+    available: boolean; // false if unavailable/unknown
   }
   ```
 - **Example:**
@@ -409,27 +420,37 @@ Helpers for `climate` entities (agreement nº4: cards never read
 
 #### `clampToStep(value, min, max, step)`
 
-- **Description:** rounds `value` to the nearest multiple of `step` counting from `min` and clamps it to `[min, max]`, without floating-point drift.
+- **Description:** rounds `value` to the nearest multiple of `step`,
+  within `[min, max]` — used by the −/+ controls and by dragging the
+  dial/ring.
+- **Parameters:** `value: number`, `min: number`, `max: number`, `step: number`.
 - **Returns:** `number`.
 - **Example:**
   ```ts
   clampToStep(21.3, 7, 35, 0.5); // 21.5
-  clampToStep(99, 7, 35, 0.5); // 35
   ```
 
 #### `isClimateRunning(state)`
 
-- **Description:** `true` if the device is actually running right now (not just selected in a mode). With `off` it is always `false`; it uses `hvacAction` if the entity exposes it; otherwise it compares target and current temperature according to the mode.
-- **Returns:** `boolean`.
+- **Description:** `true` if the equipment is actually running right
+  now, not just "selected on mode X". Uses `hvac_action` when the
+  entity exposes it; otherwise compares target vs. current temperature
+  based on the mode (`heat`: current < target; `cool`: current >
+  target).
+- **Parameters:** `state: ClimateState`.
+- **Returns:** `boolean` — always `false` in `'off'` mode.
+- **Example:**
+  ```ts
+  isClimateRunning(c); // true if it's actually heating
+  ```
 
 #### Constants and types
 
 | Name | Description |
 |---|---|
-| `HVAC_MODES` | `['off', 'heat', 'cool', 'heat_cool', 'auto', 'dry', 'fan_only']` — recognised modes. |
-| `HvacMode` | Type derived from `HVAC_MODES`. |
-| `HvacAction` | `'off' \| 'idle' \| 'preheating' \| 'heating' \| 'cooling' \| 'drying' \| 'fan'`. |
-| `ClimateState` | Normalised state of a `climate` entity (see above). |
+| `HVAC_MODES` | `['off', 'heat', 'cool', 'heat_cool', 'auto', 'dry', 'fan_only']`. |
+| `HvacMode` | TypeScript type derived from `HVAC_MODES`. |
+| `HvacAction` | `'off' \| 'idle' \| 'preheating' \| 'heating' \| 'cooling' \| 'drying' \| 'fan'` — what the equipment is doing RIGHT NOW, distinct from the selected mode. |
 
 ---
 
@@ -725,57 +746,67 @@ sensors:
     icon: mdi:water-percent
 ```
 
+---
+
 ## Neón Thermostat Card — YAML configuration
 
-All the keys of `NeonThermostatCardConfig` (`src/cards/thermostat/types.ts`).
-See full examples in [`examples/`](../../examples/README.md) and the card guide in [`src/cards/thermostat`](../../src/cards/thermostat/README.md).
+All keys of `NeonThermostatCardConfig`
+(`src/cards/thermostat/types.ts`). See full examples in
+[`examples/`](../../examples/README.md).
 
 | Key | Type | Default | Description |
 |---|---|---|---|
-| `entity` | `string` | — (required) | Main `climate` entity. Without it, `setConfig` throws an error. |
-| `entity_2` | `string` | — | Second `climate` entity (two separate devices). Without it, the card behaves exactly as with one. |
-| `mode_owner` | `Partial<Record<HvacMode, 1 \| 2>>` | first entity | Only for modes that **both** entities support: `1` = `entity`, `2` = `entity_2`. |
-| `name` | `string` | `entity` | Card title. |
-| `size` | `'large' \| 'normal' \| 'compact'` | `'normal'` | View: large dial, ring, or compact line. |
-| `color` | `string \| { mode: 'state' } \| { mode: 'custom', heat?, cool?, … }` | semantic colors | Color per HVAC mode. `off` always uses the theme's text color. |
-| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Palette of the card's perimeter ring. |
-| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | per palette | Gradient colors when `neon_palette: custom`. |
-| `step` | `number` | the entity's `target_temp_step`, or `0.5` | Step of the −/+ controls and of dragging. |
-| `footer` | `FooterSensorConfig[]` (max. 3) | `[]` | Sensors below the card. Not shown with `size: compact`. |
+| `entity` | `string` | — (required) | Main `climate` entity. |
+| `entity_2` | `string` | — | Optional second `climate` entity — two separate units (e.g. heating + AC) instead of one that supports every mode. Without it, the card behaves exactly like it does with a single entity. |
+| `mode_owner` | `Partial<Record<HvacMode, 1 \| 2>>` | — | Only relevant with `entity_2`, and only for modes both entities support at once — `1` = `entity`, `2` = `entity_2`. With no entry for a mode, `entity` wins by default. |
+| `name` | `string` | entity's name | Card title. In the compact view, when unset, no name is shown at all (to save space). |
+| `size` | `'large' \| 'normal' \| 'compact'` | `'normal'` | Card size — see `getGridOptions()` below. |
+| `color` | `string \| { mode: 'state' } \| { mode: 'custom', heat?, cool?, heat_cool?, auto?, dry?, fan_only?, off? }` | `{ mode: 'state' }` | Dial/ring color per HVAC mode. `string`: a single color for every mode. `{ mode: 'state' }`: automatic semantic colors per mode (equivalent to leaving `color` unset). `{ mode: 'custom', ... }`: a color per mode; unset ones fall back to that mode's semantic default. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Palette of the card's PERIMETER ring (the border, not the dial — that follows `color` above). |
+| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | per palette | Perimeter ring gradient colors when `neon_palette: custom`. |
+| `step` | `number` | entity's `target_temp_step`, or `0.5` | Increment for the −/+ controls and dragging. |
+| `footer` | `FooterSensorConfig[]` (max 3) | `[]` | Only `sensor`/`binary_sensor` domains. No footer in the compact view (`size: compact`), regardless of what's configured here. |
 
-`FooterSensorConfig`:
+`FooterSensorConfig` (each item in `footer`):
 
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `entity` | `string` | — (required) | Only `sensor` or `binary_sensor` domains. |
-| `icon` | `string` | computed from `device_class` | The sensor's own icon. |
+| `icon` | `string` | computed from `device_class` | Sensor's own icon. |
 
-### `getGridOptions()` — automatic sizing
+There's no card-level `icon` field: the icon isn't configurable, it's
+always derived from the current HVAC mode (`HVAC_MODE_ICONS`).
+
+### `getGridOptions()` — size driven by `size`
+
+Unlike Button, the size isn't computed from content — it's chosen
+directly by the `size` key:
 
 | `size` | `columns` | `rows` |
 |---|---|---|
-| `large` | `12` | `'auto'` |
-| `normal` | `6` | `'auto'` |
-| `compact` | `4` | `'auto'` |
+| `'compact'` | `4` | `'auto'` |
+| `'normal'` (default) | `6` | `'auto'` |
+| `'large'` | `12` | `'auto'` |
 
 ### Full example
 
 ```yaml
 type: custom:neon-thermostat-card
-entity: climate.heating
-entity_2: climate.air_conditioning
-name: Living room
-size: large
+name: Living Room
+entity: climate.living_room_heat
+entity_2: climate.living_room_cool
 mode_owner:
-  fan_only: 2
+  heat_cool: 1
+size: large
 color:
   mode: custom
   heat: "#ff4500"
   cool: "#0080ff"
-step: 0.5
 neon_palette: cyberpunk
+step: 0.5
 footer:
+  - entity: sensor.living_room_temperature
   - entity: sensor.living_room_humidity
-  - entity: sensor.living_room_power
-    icon: mdi:flash
+  - entity: binary_sensor.living_room_motion
+    icon: mdi:motion-sensor
 ```

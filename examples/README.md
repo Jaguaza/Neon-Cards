@@ -127,37 +127,48 @@ entity: climate.salon
 
 ```yaml
 type: custom:neon-thermostat-card
-entity: climate.calefaccion
-entity_2: climate.aire_acondicionado
 name: Salón
-size: large
+entity: climate.salon_calor
+entity_2: climate.salon_frio
 mode_owner:
-  fan_only: 2
+  heat_cool: 1
+size: large
 color:
   mode: custom
   heat: "#ff4500"
   cool: "#0080ff"
-step: 0.5
 neon_palette: cyberpunk
 footer:
+  - entity: sensor.salon_temperature
   - entity: sensor.salon_humidity
-  - entity: sensor.salon_power
-    icon: mdi:flash
+  - entity: binary_sensor.salon_presencia
+    icon: mdi:motion-sensor
 ```
+
+### Capturas
+
+![Neón Thermostat Card, tamaño grande](../assets/screenshots/thermostat/Thermostat%20large.jpg)
+![Neón Thermostat Card, tamaño normal](../assets/screenshots/thermostat/Thermostat%20normal.jpg)
+![Neón Thermostat Card, tamaño compacto](../assets/screenshots/thermostat/Thermostat%20compact.jpg)
 
 ### Explicación
 
-Neón Thermostat Card controla una o dos entidades `climate`. Según
-`size`, la consigna se maneja en un dial semicircular (`large`), en un
-aro alrededor de la temperatura actual (`normal`) o en una línea
-(`compact`); en las tres se puede arrastrar o ajustar con la píldora
-−/+, y el modo HVAC se cambia desde el selector inferior. Con
-`entity_2` reúne dos equipos separados (por ejemplo calefacción y aire
-acondicionado) en una sola tarjeta: el selector muestra la unión de sus
-modos y `mode_owner` decide cuál gestiona un modo que ambos soportan.
-Cada modo tiene su color (semántico por defecto, personalizable con
-`color`), y el aro perimetral usa la paleta neón de `neon_palette`. El
-pie de sensores (`footer`, hasta 3) no aparece en la vista compacta.
+Neón Thermostat Card controla una entidad `climate` con un dial/aro
+semicircular (180°) arrastrable, coloreado según el modo HVAC activo.
+A diferencia de Button, su tamaño no se calcula del contenido — se
+elige con la clave `size` (`large`/`normal`/`compact`), cada uno con
+su propio layout: el dial completo solo aparece en `large`,
+`normal`/`compact` usan un indicador circular más pequeño, y
+`compact` no muestra footer de sensores. Admite opcionalmente una
+segunda entidad `climate` (`entity_2`) para representar dos equipos
+separados (p. ej. calefacción + aire acondicionado) como uno solo — el
+selector de modo muestra la unión de los modos de ambas entidades, y
+las dos nunca quedan activas en modos distintos a la vez (la exclusión
+mutua aplica da igual de dónde venga el cambio: la tarjeta, el diálogo
+de la propia entidad, o una automatización), mientras que estar
+activas juntas en el *mismo* modo sí está permitido. Igual que Button,
+admite un footer de sensores (dominios `sensor`/`binary_sensor`,
+máximo 3).
 
 ---
 
@@ -292,35 +303,43 @@ entity: climate.living_room
 
 ```yaml
 type: custom:neon-thermostat-card
-entity: climate.heating
-entity_2: climate.air_conditioning
-name: Living room
-size: large
+name: Living Room
+entity: climate.living_room_heat
+entity_2: climate.living_room_cool
 mode_owner:
-  fan_only: 2
+  heat_cool: 1
+size: large
 color:
   mode: custom
   heat: "#ff4500"
   cool: "#0080ff"
-step: 0.5
 neon_palette: cyberpunk
 footer:
+  - entity: sensor.living_room_temperature
   - entity: sensor.living_room_humidity
-  - entity: sensor.living_room_power
-    icon: mdi:flash
+  - entity: binary_sensor.living_room_motion
+    icon: mdi:motion-sensor
 ```
+
+### Screenshots
+
+![Neón Thermostat Card, large size](../assets/screenshots/thermostat/Thermostat%20large.jpg)
+![Neón Thermostat Card, normal size](../assets/screenshots/thermostat/Thermostat%20normal.jpg)
+![Neón Thermostat Card, compact size](../assets/screenshots/thermostat/Thermostat%20compact.jpg)
 
 ### Explanation
 
-Neón Thermostat Card controls one or two `climate` entities. Depending
-on `size`, the target is handled on a semicircular dial (`large`), on a
-ring around the current temperature (`normal`) or on a line
-(`compact`); in all three it can be dragged or adjusted with the −/+
-pill, and the HVAC mode is changed from the selector below. With
-`entity_2` it brings two separate devices (for example heating and air
-conditioning) into a single card: the selector shows the union of their
-modes and `mode_owner` decides which one handles a mode both support.
-Each mode has its own color (semantic by default, customizable with
-`color`), and the perimeter ring uses the neon palette from
-`neon_palette`. The sensor footer (`footer`, up to 3) is not shown in
-the compact view.
+Neón Thermostat Card controls a `climate` entity with a draggable
+semicircular (180°) dial/ring colored by the active HVAC mode. Unlike
+Button, its size isn't computed from content — it's chosen with the
+`size` key (`large`/`normal`/`compact`), each with its own layout: the
+full dial only appears in `large`, `normal`/`compact` use a smaller
+circular indicator, and `compact` shows no sensor footer. It optionally
+supports a second `climate` entity (`entity_2`) to represent two
+separate units (e.g. heating + AC) as one — the mode selector shows the
+union of both entities' modes, and the two are never left active in
+different modes at the same time (mutual exclusion applies no matter
+where the change comes from: the card, the entity's own dialog, or an
+automation), while being active in the *same* mode together is allowed.
+Like Button, it supports a sensor footer (`sensor`/`binary_sensor`
+domains, max 3).

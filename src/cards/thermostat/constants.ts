@@ -49,12 +49,6 @@ export const HVAC_MODE_DEFAULT_COLORS: Record<HvacMode, string> = {
 export const DIAL_START_ANGLE = -90;
 export const DIAL_END_ANGLE = 90;
 
-/** Extremos horizontales (unidades del viewBox 0-100) de la línea de la
-    vista compacta — deja margen a los lados para que el punto nunca
-    llegue a tocar el borde del propio SVG. */
-export const LINE_X0 = 6;
-export const LINE_X1 = 94;
-
 /** Clave de traducción (`translations/*.ts`) para el nombre visible de
     cada modo HVAC, usada tanto en el header como en el selector único. */
 export const HVAC_MODE_LABEL_KEYS: Record<HvacMode, keyof ThermostatTranslations> = {

@@ -2,133 +2,100 @@
 
 🇪🇸 Español (esta sección) · 🇬🇧 [English below](#srccardsthermostat-english)
 
-`custom:neon-thermostat-card` — tarjeta para controlar una o dos
-entidades `climate` de Home Assistant con la identidad gráfica de Neón
-Cards. Reutiliza el mismo framework (`src/core`, `src/shared`, `src/ha`)
-que [Entity](../entity) y [Button](../button).
+`custom:neon-thermostat-card` — control de climatización para Home
+Assistant sobre una entidad `climate`, con la identidad visual de Neón
+Cards. Admite opcionalmente una segunda entidad `climate` (`entity_2`)
+para representar dos equipos separados (p. ej. calefacción + aire
+acondicionado) como si fueran uno solo.
 
-## Tamaños (`size`)
+Identidad visual: dial/aro semicircular (180°) arrastrable que
+controla la consigna, con el color del modo HVAC activo — reutiliza el
+mismo framework (`src/core`, `src/shared`, `src/ha`) que
+[Entity](../entity) y [Button](../button), sin copiar su diseño.
 
-| Valor | Vista | Columnas del grid |
-|---|---|---|
-| `large` | Dial semicircular de 180° con la consigna arrastrable | `12` |
-| `normal` (por defecto) | Aro semicircular alrededor de la temperatura actual, también arrastrable | `6` |
-| `compact` | Línea recta con un punto que se desplaza según la consigna, arrastrable | `4` |
+A diferencia de Button, el tamaño **no** se calcula del contenido:
+se elige con la clave `size` (`'large' | 'normal' | 'compact'`,
+por defecto `'normal'`), cada uno con su propio layout — el dial
+completo solo se ve en `large`; `normal`/`compact` usan un indicador
+circular más pequeño, y `compact` no muestra footer de sensores.
 
-En las tres vistas la consigna también se ajusta con la píldora **−/+**,
-y el selector de modo HVAC aparece debajo. El alto se calcula solo
-(`rows: 'auto'`); no hace falta indicar `grid_options` salvo para forzar
-otro tamaño. La vista `compact` no lleva pie de sensores.
-
-## Config
+## Config mínima
 
 ```yaml
 type: custom:neon-thermostat-card
 entity: climate.salon
-name: Salón
-size: normal
 ```
 
-Solo `entity` es obligatoria y debe ser del dominio `climate`; si falta,
-`setConfig` lanza un error.
-
-## Dos entidades (`entity_2`)
-
-Para dos equipos separados (por ejemplo calefacción + aire
-acondicionado) en una sola tarjeta:
+## Config avanzada — dos entidades
 
 ```yaml
 type: custom:neon-thermostat-card
-entity: climate.calefaccion
-entity_2: climate.aire_acondicionado
+name: Salón
+entity: climate.salon_calor
+entity_2: climate.salon_frio
 mode_owner:
-  fan_only: 2
+  heat_cool: 1
+size: large
+color:
+  mode: custom
+  heat: "#ff4500"
+  cool: "#0080ff"
+neon_palette: cyberpunk
+footer:
+  - entity: sensor.salon_temperature
+  - entity: sensor.salon_humidity
 ```
 
-- El selector muestra la unión de los modos de ambas entidades.
-- Cada modo lo gestiona la primera entidad que lo soporta. Solo si
-  **ambas** lo soportan, `mode_owner` (`1` = `entity`, `2` = `entity_2`)
-  decide cuál lo gestiona.
-- La tarjeta muestra la entidad activa; si las dos están en `off`, la
-  última que estuvo activa (o la primera configurada si ninguna lo
-  estuvo).
-- Cada entidad tiene arriba a la derecha un botón que abre su diálogo de
-  «más información».
+Con `entity_2`, el selector de modo muestra la UNIÓN de los modos de
+ambas entidades. Un modo que solo soporta una de las dos lo gestiona
+esa; uno que soportan las dos lo gestiona `entity` por defecto, con
+override por modo en `mode_owner` (`1` = `entity`, `2` = `entity_2`).
 
-## Colores por modo (`color`)
+**Exclusión mutua:** las dos entidades nunca quedan activas en modos
+**distintos** a la vez — si una cambia a un modo distinto del de la
+otra (desde la tarjeta, desde el diálogo nativo de la entidad, o desde
+una automatización), la tarjeta apaga automáticamente la que no acaba
+de cambiar. Si ambas acaban en el **mismo** modo, se dejan las dos
+activas sin tocar nada.
+
+## Paleta de colores
+
+`color` pinta el dial/aro según el modo HVAC — no confundir con
+`neon_palette`, que solo afecta al aro perimetral de la tarjeta:
 
 ```yaml
 color:
   mode: custom
   heat: "#ff4500"
   cool: "#0080ff"
+  # heat_cool / auto / dry / fan_only / off también aceptados;
+  # los modos no indicados caen al color semántico por defecto
 ```
 
-- `color: "#39e07a"` — un único color para todos los modos.
-- `color: { mode: state }` — colores semánticos por modo (equivale a no
-  indicar `color`).
-- `color: { mode: custom, <modo>: "#hex" }` — color propio por modo
-  (`heat`, `cool`, `heat_cool`, `auto`, `dry`, `fan_only`); los modos
-  sin color caen al semántico por defecto.
-
-El modo `off` usa siempre el color de texto del tema (neutro en reposo),
-con cualquier valor de `color`.
-
-El icono se deriva siempre del modo HVAC actual y no es configurable.
-Solo se ofrecen los modos que la entidad expone en `hvac_modes`.
-
-## Paso (`step`)
-
 ```yaml
-step: 0.5
-```
-
-Salto de los controles −/+ y del arrastre. Si no se indica, se usa el
-`target_temp_step` de la entidad, y si tampoco existe, `0.5`.
-
-## Pie de sensores (`footer`)
-
-```yaml
-footer:
-  - entity: sensor.salon_humidity
-  - entity: sensor.salon_power
-    icon: mdi:flash
-```
-
-Hasta 3 sensores (`sensor` o `binary_sensor`) bajo la tarjeta, con
-icono + estado + unidad leídos de Home Assistant. No se muestran en la
-vista `compact`.
-
-## Paleta del aro (`neon_palette`)
-
-```yaml
-neon_palette: emerald
+neon_palette: cyberpunk
 # emerald | cyberpunk | electric | sunset | toxic | custom
 neon_color1: "#39e07a"
 neon_color2: "#2dd6b8"
 neon_color3: "#1ecdf2"
 ```
 
-Es la paleta del **aro perimetral** de la tarjeta (el borde). El
-dial/aro de temperatura sigue su propio color por modo (`color`).
-`neon_color1/2/3` solo se leen con `neon_palette: custom`.
+## Footer de sensores
 
-## Archivos
+Igual que Button: solo dominios `sensor`/`binary_sensor`, máximo 3,
+icono calculado automáticamente por `device_class` si no se indica
+uno propio. No se muestra en la vista compacta.
 
-| Archivo | Responsabilidad |
-|---|---|
-| `neon-thermostat-card.ts` | Tarjeta (render, arrastre, estado del aro) |
-| `neon-thermostat-card.styles.ts` | Estilos de la tarjeta |
-| `neon-thermostat-card-editor.ts` | Editor visual |
-| `combined-climate.ts` | Estado mostrado cuando hay 1 o 2 entidades |
-| `dial-geometry.ts` | Geometría del arco (puntos y trazo SVG) |
-| `constants.ts` / `types.ts` | Constantes y tipos de configuración |
-| `translations/` | Textos de la interfaz de configuración (por ahora solo español) |
+```yaml
+footer:
+  - entity: sensor.salon_temperature
+  - entity: sensor.salon_humidity
+  - entity: binary_sensor.salon_presencia
+    icon: mdi:motion-sensor
+```
 
-La lógica de lectura de `climate` (`getClimateState`, `clampToStep`,
-`isClimateRunning`) vive en [`src/ha/climate.ts`](../../ha/climate.ts).
-Ver [`docs/es/api.md`](../../../docs/es/api.md) y los
-[ejemplos](../../../examples/README.md).
+Ver la [referencia de API completa](../../../docs/es/api.md) para el
+detalle de cada opción.
 
 ---
 
@@ -138,130 +105,98 @@ Ver [`docs/es/api.md`](../../../docs/es/api.md) y los
 
 🇬🇧 English (this section) · 🇪🇸 [Español arriba](#srccardsthermostat)
 
-`custom:neon-thermostat-card` — card to control one or two Home Assistant
-`climate` entities with the Neón Cards visual identity. It reuses the
+`custom:neon-thermostat-card` — climate control for Home Assistant on
+top of a `climate` entity, with the Neón Cards visual identity. It
+optionally supports a second `climate` entity (`entity_2`) to
+represent two separate units (e.g. heating + AC) as if they were one.
+
+Visual identity: a draggable semicircular (180°) dial/ring that
+controls the setpoint, colored by the active HVAC mode — reuses the
 same framework (`src/core`, `src/shared`, `src/ha`) as
-[Entity](../entity) and [Button](../button).
+[Entity](../entity) and [Button](../button), without copying their
+design.
 
-## Sizes (`size`)
+Unlike Button, the size is **not** computed from content: it's chosen
+with the `size` key (`'large' | 'normal' | 'compact'`, defaulting to
+`'normal'`), each with its own layout — the full dial only appears in
+`large`; `normal`/`compact` use a smaller circular indicator, and
+`compact` shows no sensor footer.
 
-| Value | View | Grid columns |
-|---|---|---|
-| `large` | 180° semicircular dial with a draggable target | `12` |
-| `normal` (default) | Semicircular ring around the current temperature, also draggable | `6` |
-| `compact` | Straight line with a dot that moves with the target, draggable | `4` |
-
-In all three views the target can also be adjusted with the **−/+**
-pill, and the HVAC mode selector sits below. The height is computed
-automatically (`rows: 'auto'`); `grid_options` is only needed to force a
-different size. The `compact` view has no sensor footer.
-
-## Config
+## Minimal config
 
 ```yaml
 type: custom:neon-thermostat-card
 entity: climate.living_room
-name: Living room
-size: normal
 ```
 
-Only `entity` is required and it must be in the `climate` domain; if it
-is missing, `setConfig` throws an error.
-
-## Two entities (`entity_2`)
-
-For two separate devices (for example heating + air conditioning) in a
-single card:
+## Advanced config — two entities
 
 ```yaml
 type: custom:neon-thermostat-card
-entity: climate.heating
-entity_2: climate.air_conditioning
+name: Living Room
+entity: climate.living_room_heat
+entity_2: climate.living_room_cool
 mode_owner:
-  fan_only: 2
+  heat_cool: 1
+size: large
+color:
+  mode: custom
+  heat: "#ff4500"
+  cool: "#0080ff"
+neon_palette: cyberpunk
+footer:
+  - entity: sensor.living_room_temperature
+  - entity: sensor.living_room_humidity
 ```
 
-- The selector shows the union of both entities' modes.
-- Each mode is handled by the first entity that supports it. Only when
-  **both** support it does `mode_owner` (`1` = `entity`, `2` =
-  `entity_2`) decide which one handles it.
-- The card shows the active entity; if both are `off`, the last one that
-  was active (or the first configured one if neither ever was).
-- Each entity has a button at the top right that opens its "more info"
-  dialog.
+With `entity_2`, the mode selector shows the UNION of both entities'
+modes. A mode only one of them supports is handled by that one; a mode
+both support defaults to `entity`, with a per-mode override in
+`mode_owner` (`1` = `entity`, `2` = `entity_2`).
 
-## Colors per mode (`color`)
+**Mutual exclusion:** the two entities are never left active in
+**different** modes at the same time — if one changes to a mode
+different from the other's (from the card, from the entity's native
+dialog, or from an automation), the card automatically turns off the
+one that didn't just change. If both end up in the **same** mode, both
+stay on untouched.
+
+## Color palette
+
+`color` paints the dial/ring based on the HVAC mode — not to be
+confused with `neon_palette`, which only affects the card's perimeter
+ring:
 
 ```yaml
 color:
   mode: custom
   heat: "#ff4500"
   cool: "#0080ff"
+  # heat_cool / auto / dry / fan_only / off are also accepted;
+  # modes left unset fall back to their semantic default color
 ```
 
-- `color: "#39e07a"` — a single color for every mode.
-- `color: { mode: state }` — semantic colors per mode (same as omitting
-  `color`).
-- `color: { mode: custom, <mode>: "#hex" }` — your own color per mode
-  (`heat`, `cool`, `heat_cool`, `auto`, `dry`, `fan_only`); modes without
-  a color fall back to their semantic default.
-
-The `off` mode always uses the theme's text color (neutral at rest),
-whatever the value of `color`.
-
-The icon is always derived from the current HVAC mode and is not
-configurable. Only the modes the entity exposes in `hvac_modes` are
-offered.
-
-## Step (`step`)
-
 ```yaml
-step: 0.5
-```
-
-Step of the −/+ controls and of dragging. If omitted, the entity's
-`target_temp_step` is used, and if that does not exist either, `0.5`.
-
-## Sensor footer (`footer`)
-
-```yaml
-footer:
-  - entity: sensor.living_room_humidity
-  - entity: sensor.living_room_power
-    icon: mdi:flash
-```
-
-Up to 3 sensors (`sensor` or `binary_sensor`) below the card, with icon
-+ state + unit read from Home Assistant. They are not shown in the
-`compact` view.
-
-## Ring palette (`neon_palette`)
-
-```yaml
-neon_palette: emerald
+neon_palette: cyberpunk
 # emerald | cyberpunk | electric | sunset | toxic | custom
 neon_color1: "#39e07a"
 neon_color2: "#2dd6b8"
 neon_color3: "#1ecdf2"
 ```
 
-This is the palette of the card's **perimeter ring** (the border). The
-temperature dial/ring follows its own per-mode color (`color`).
-`neon_color1/2/3` are only read with `neon_palette: custom`.
+## Sensor footer
 
-## Files
+Same as Button: only `sensor`/`binary_sensor` domains, max 3, icon
+computed automatically from `device_class` when none is given. Not
+shown in the compact view.
 
-| File | Responsibility |
-|---|---|
-| `neon-thermostat-card.ts` | Card (render, dragging, ring state) |
-| `neon-thermostat-card.styles.ts` | Card styles |
-| `neon-thermostat-card-editor.ts` | Visual editor |
-| `combined-climate.ts` | Displayed state when there are 1 or 2 entities |
-| `dial-geometry.ts` | Arc geometry (points and SVG path) |
-| `constants.ts` / `types.ts` | Constants and configuration types |
-| `translations/` | Configuration UI texts (Spanish only for now) |
+```yaml
+footer:
+  - entity: sensor.living_room_temperature
+  - entity: sensor.living_room_humidity
+  - entity: binary_sensor.living_room_motion
+    icon: mdi:motion-sensor
+```
 
-The `climate` reading logic (`getClimateState`, `clampToStep`,
-`isClimateRunning`) lives in [`src/ha/climate.ts`](../../ha/climate.ts).
-See [`docs/en/api.md`](../../../docs/en/api.md) and the
-[examples](../../../examples/README.md).
+See the [full API reference](../../../docs/en/api.md) for details on
+every option.

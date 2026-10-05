@@ -17,25 +17,26 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   arrastrable o con píldora −/+, selector de modo HVAC, color por modo,
   pie de sensores (hasta 3) y editor visual. Con `entity_2` reúne dos
   equipos separados y `mode_owner` resuelve los modos compartidos.
+- **Inglés** en las 5 zonas de texto del repositorio (núcleo, compartido,
+  Entity, Button y Thermostat): la interfaz de configuración se muestra
+  en el idioma de Home Assistant, con el español como respaldo.
 - `src/ha/climate.ts` (`getClimateState`, `clampToStep`,
   `isClimateRunning`) y `openMoreInfo` en `src/core`, documentados en la
   referencia de API.
-- Perfil `thermostat` en `npm run perf` y 18 tests nuevos (`climate`,
-  geometría del dial y estado combinado).
-- README de la tarjeta y entrada en `examples/` (YAML mínimo y
-  avanzado, explicación).
+- Perfil `thermostat` en `npm run perf` y tests nuevos para `climate`,
+  la geometría del dial y el estado combinado.
+- README de la tarjeta, capturas y entrada en `examples/` (YAML mínimo
+  y avanzado, explicación), en español e inglés.
 
 ### Changed
 
-- `render()` del editor del termostato dividido en métodos por sección
-  (acuerdo nº7), y la geometría del dial y el estado combinado extraídos
-  a `dial-geometry.ts` y `combined-climate.ts`.
-
-### Fixed
-
-- El selector de modo del termostato sincroniza su valor con el estado
-  real de la entidad (`live()`), para que no quede desfasado tras un
-  cambio externo.
+- En la interfaz de configuración de Entity y Thermostat, el término
+  «aro» pasa a llamarse «halo», como en el resto del proyecto.
+- Los archivos del termostato que superaban las 500 líneas se dividen
+  por responsabilidad (estilos del dial, del aro, de la píldora de
+  consigna y del pie de modo), y la geometría del dial y el estado
+  combinado viven en `dial-geometry.ts` y `combined-climate.ts`
+  (acuerdo nº7).
 
 ## [1.0.0] - 2026-10-02
 
@@ -180,24 +181,25 @@ and this project follows [Semantic Versioning](https://semver.org/).
   target or a −/+ pill, an HVAC mode selector, a color per mode, a sensor
   footer (up to 3) and a visual editor. With `entity_2` it brings two
   separate devices together and `mode_owner` resolves shared modes.
+- **English** in the repository's 5 text areas (core, shared, Entity,
+  Button and Thermostat): the configuration UI is shown in Home
+  Assistant's language, with Spanish as a fallback.
 - `src/ha/climate.ts` (`getClimateState`, `clampToStep`,
   `isClimateRunning`) and `openMoreInfo` in `src/core`, documented in
   the API reference.
-- A `thermostat` profile in `npm run perf` and 18 new tests (`climate`,
-  dial geometry and combined state).
-- Card README and an entry in `examples/` (minimal and advanced YAML,
-  explanation).
+- A `thermostat` profile in `npm run perf` and new tests for `climate`,
+  the dial geometry and the combined state.
+- Card README, screenshots and an entry in `examples/` (minimal and
+  advanced YAML, explanation), in Spanish and English.
 
 ### Changed
 
-- The thermostat editor's `render()` is split into per-section methods
-  (agreement nº7), and the dial geometry and combined state are
-  extracted to `dial-geometry.ts` and `combined-climate.ts`.
-
-### Fixed
-
-- The thermostat mode selector syncs its value with the entity's real
-  state (`live()`), so it no longer lags behind after an external change.
+- In the Entity and Thermostat configuration UI, the term "ring" ("aro"
+  in Spanish) is renamed "halo", as in the rest of the project.
+- The thermostat files that exceeded 500 lines are split by
+  responsibility (dial, ring, target pill and mode footer styles), and
+  the dial geometry and combined state live in `dial-geometry.ts` and
+  `combined-climate.ts` (agreement nº7).
 
 ## [1.0.0] - 2026-10-02
 
