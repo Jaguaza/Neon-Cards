@@ -80,6 +80,28 @@ neon_color2: "#2dd6b8"
 neon_color3: "#1ecdf2"
 ```
 
+## Preset y ventilador (vista grande)
+
+En la vista `large`, bajo la píldora de consigna, el selector de modo
+HVAC puede ir acompañado de otros dos si la entidad los soporta:
+
+| Píldora | Se muestra si la entidad expone… | Servicio |
+|---|---|---|
+| Modo HVAC | siempre | `climate.set_hvac_mode` |
+| Preset | `preset_modes` | `climate.set_preset_mode` |
+| Ventilador | `fan_modes` | `climate.set_fan_mode` |
+
+- Se reparten el ancho a partes iguales (1, 2 o 3 píldoras); con tres,
+  desaparece el chevron y los textos largos se cortan con «…».
+- Los nombres vienen traducidos por Home Assistant; si tu versión no
+  ofrece ese formateador, se muestra el valor crudo con la primera
+  letra en mayúscula.
+- Con `entity_2`, preset y ventilador son los de la entidad que se está
+  mostrando (la activa, o la última activa si las dos están apagadas):
+  cada equipo tiene los suyos y no se mezclan.
+- En `normal` y `compact` solo existe el selector de modo.
+- No hay clave de configuración: aparecen solas.
+
 ## Footer de sensores
 
 Igual que Button: solo dominios `sensor`/`binary_sensor`, máximo 3,
@@ -93,6 +115,24 @@ footer:
   - entity: binary_sensor.salon_presencia
     icon: mdi:motion-sensor
 ```
+
+## Estructura de archivos
+
+| Archivo | Responsabilidad |
+|---|---|
+| `neon-thermostat-card.ts` | Tarjeta: estado, servicios, arrastre y ciclo de vida |
+| `dial-views.ts` | Cuerpo de cada vista (dial grande, aro normal, compacta) |
+| `header.ts` · `footer.ts` | Cabecera con accesos «más información» y pie de sensores |
+| `target-pill.ts` · `selector-pill.ts` | Píldora −/+ de consigna y píldora-selector (modo, preset, ventilador) |
+| `combined-climate.ts` | Estado mostrado y exclusión mutua con 1 o 2 entidades |
+| `dial-geometry.ts` | Geometría pura del arco (ángulos, puntos, trazo SVG) |
+| `*-styles.ts` | Estilos por zona (tarjeta, dial, aro, píldora de consigna, modo y pie) |
+| `neon-thermostat-card-editor.ts` | Editor visual |
+| `constants.ts` · `types.ts` · `translations/` | Constantes, tipos y textos (es/en) |
+
+La lectura de `climate` (`getClimateState`, `clampToStep`,
+`isClimateRunning`, `formatClimateOption`) está en
+[`src/ha/climate.ts`](../../ha/climate.ts).
 
 Ver la [referencia de API completa](../../../docs/es/api.md) para el
 detalle de cada opción.
@@ -184,6 +224,28 @@ neon_color2: "#2dd6b8"
 neon_color3: "#1ecdf2"
 ```
 
+## Preset and fan (large view)
+
+In the `large` view, below the target pill, the HVAC mode selector can
+be joined by two more if the entity supports them:
+
+| Pill | Shown if the entity exposes… | Service |
+|---|---|---|
+| HVAC mode | always | `climate.set_hvac_mode` |
+| Preset | `preset_modes` | `climate.set_preset_mode` |
+| Fan | `fan_modes` | `climate.set_fan_mode` |
+
+- They share the width equally (1, 2 or 3 pills); with three, the
+  chevron disappears and long texts are cut with "…".
+- Names come translated by Home Assistant; if your version does not
+  offer that formatter, the raw value is shown with the first letter
+  capitalized.
+- With `entity_2`, preset and fan belong to the entity currently shown
+  (the active one, or the last active one if both are off): each device
+  has its own and they are not mixed.
+- In `normal` and `compact` only the mode selector exists.
+- There is no configuration key: they appear on their own.
+
 ## Sensor footer
 
 Same as Button: only `sensor`/`binary_sensor` domains, max 3, icon
@@ -197,6 +259,24 @@ footer:
   - entity: binary_sensor.living_room_motion
     icon: mdi:motion-sensor
 ```
+
+## File structure
+
+| File | Responsibility |
+|---|---|
+| `neon-thermostat-card.ts` | Card: state, services, dragging and lifecycle |
+| `dial-views.ts` | Body of each view (large dial, normal ring, compact) |
+| `header.ts` · `footer.ts` | Header with "more info" buttons and the sensor footer |
+| `target-pill.ts` · `selector-pill.ts` | −/+ target pill and selector pill (mode, preset, fan) |
+| `combined-climate.ts` | Displayed state and mutual exclusion with 1 or 2 entities |
+| `dial-geometry.ts` | Pure arc geometry (angles, points, SVG path) |
+| `*-styles.ts` | Styles per area (card, dial, ring, target pill, mode and footer) |
+| `neon-thermostat-card-editor.ts` | Visual editor |
+| `constants.ts` · `types.ts` · `translations/` | Constants, types and texts (es/en) |
+
+The `climate` reading logic (`getClimateState`, `clampToStep`,
+`isClimateRunning`, `formatClimateOption`) lives in
+[`src/ha/climate.ts`](../../ha/climate.ts).
 
 See the [full API reference](../../../docs/en/api.md) for details on
 every option.

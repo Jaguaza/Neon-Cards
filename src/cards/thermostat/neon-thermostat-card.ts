@@ -1,9 +1,8 @@
 import { html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import type { HomeAssistant } from '../../ha/types';
-import { getClimateState, clampToStep, formatClimateOption } from '../../ha/climate';
+import { getClimateState, clampToStep, formatClimateOption, isClimateRunning } from '../../ha/climate';
 import type { ClimateState, HvacMode } from '../../ha/climate';
-import { getSensorDisplay } from '../../ha/sensors';
 import { BaseNeonCard, localize, openMoreInfo } from '../../core';
 import {
   NEON_HALO_STYLES,
@@ -15,14 +14,11 @@ import {
 import {
   DEFAULT_SIZE,
   DEFAULT_TEMP_STEP,
-  MAX_FOOTER_SENSORS,
   HVAC_MODE_ICONS,
   PRESET_ICON,
   FAN_ICON,
   HVAC_MODE_DEFAULT_COLORS,
   HVAC_MODE_LABEL_KEYS,
-  DIAL_START_ANGLE,
-  DIAL_END_ANGLE,
 } from './constants';
 import { NEON_THERMOSTAT_CARD_STYLES } from './neon-thermostat-card.styles';
 import { THERMOSTAT_DIAL_STYLES } from './dial-styles';
@@ -31,7 +27,12 @@ import { THERMOSTAT_RING_STYLES } from './ring-styles';
 import { THERMOSTAT_MODE_FOOTER_STYLES } from './mode-footer-styles';
 import { THERMOSTAT_TRANSLATIONS } from './translations';
 import type { NeonThermostatCardConfig, ThermostatSize } from './types';
-import { pointOnDial, dialArcPath } from './dial-geometry';
+import { tempForAngle } from './dial-geometry';
+import { renderLargeBody, renderRingBody, renderCompactBody } from './dial-views';
+import { renderFooter } from './footer';
+import { renderHeader, renderCompactHeader, renderHeaderActions } from './header';
+import type { HeaderOptions } from './header';
+import { renderTargetPill } from './target-pill';
 import { renderSelectorPill } from './selector-pill';
 import { combineClimates, buildDisplayState, findMutualExclusionTargets } from './combined-climate';
 import type { CombinedClimate } from './combined-climate';
@@ -256,22 +257,12 @@ export class NeonThermostatCard extends BaseNeonCard {
     this.hass?.callService('climate', 'set_fan_mode', { entity_id: entity, fan_mode: fan });
   }
 
-  private _angleForTemp(temp: number, climate: ClimateState): number {
-    const range = climate.maxTemp - climate.minTemp;
-    const fraction = range <= 0 ? 0 : Math.min(1, Math.max(0, (temp - climate.minTemp) / range));
-    return DIAL_START_ANGLE + 180 * fraction;
-  }
-
   private _updateDragFromPointer(ev: PointerEvent, climate: ClimateState): void {
     const rect = (ev.currentTarget as Element).getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
-    const dx = ev.clientX - cx;
-    const dy = ev.clientY - cy;
-    const angle = Math.atan2(dx, -dy) * (180 / Math.PI);
-    const clampedAngle = Math.max(DIAL_START_ANGLE, Math.min(DIAL_END_ANGLE, angle));
-    const fraction = (clampedAngle - DIAL_START_ANGLE) / 180;
-    const rawTemp = climate.minTemp + fraction * (climate.maxTemp - climate.minTemp);
+    const angle = Math.atan2(ev.clientX - cx, -(ev.clientY - cy)) * (180 / Math.PI);
+    const rawTemp = tempForAngle(angle, climate.minTemp, climate.maxTemp);
     this._dragTemp = clampToStep(rawTemp, climate.minTemp, climate.maxTemp, this._step);
   }
 
@@ -293,97 +284,6 @@ export class NeonThermostatCard extends BaseNeonCard {
     this._dragging = false;
     if (this._dragTemp !== null) this._setTargetTemperature(this._dragTemp);
     this._dragTemp = null;
-  }
-
-  /** Climate "operativo" (funcionando de verdad ahora mismo) — usado
-      por el ARO PERIMETRAL de la tarjeta. Lógica: si expone
-      `hvac_action`, se confía en eso; si no, compara consigna vs.
-      actual según el modo. */
-  private _isActive(climate: ClimateState): boolean {
-    if (climate.mode === 'off') return false;
-    if (climate.hvacAction) return climate.hvacAction !== 'idle' && climate.hvacAction !== 'off';
-    if (climate.currentTemperature === null || climate.targetTemperature === null) return true;
-    if (climate.mode === 'heat') return climate.currentTemperature < climate.targetTemperature;
-    if (climate.mode === 'cool') return climate.currentTemperature > climate.targetTemperature;
-    return climate.currentTemperature !== climate.targetTemperature;
-  }
-
-  /** Simplemente "hay un modo HVAC seleccionado distinto de off" — sin
-      mirar si está funcionando de verdad ahora mismo. Usado por el
-      icono del header. */
-  private _isModeOn(climate: ClimateState): boolean {
-    return climate.mode !== 'off';
-  }
-
-  private _renderHeader(climate: ClimateState): TemplateResult {
-    if (this._size === 'compact') return this._renderCompactHeader(climate);
-    const name = this._config?.name || climate.entity;
-    const icon = HVAC_MODE_ICONS[climate.mode];
-    const modeOn = this._isModeOn(climate);
-    const color = this._colorFor(climate.mode);
-    return html`
-      <div class="header">
-        <span class="icon-halo-wrap ${modeOn ? 'neon-halo-active' : ''}" style="--neon-c1: ${color}">
-          <ha-icon class="header-icon neon-halo-icon" .icon=${icon}></ha-icon>
-        </span>
-        <div class="header-text">
-          <span class="name">${name}</span>
-        </div>
-        ${this._renderHeaderActions()}
-      </div>
-    `;
-  }
-
-  /** Cabecera de la vista compacta: en columna — fila de iconos (modo +
-      accesos a cada entidad) arriba, nombre debajo (solo si se ha
-      configurado uno; a diferencia del resto de vistas, aquí NO cae a
-      la entidad como nombre por defecto, para no ocupar espacio de
-      más). */
-  private _renderCompactHeader(climate: ClimateState): TemplateResult {
-    const name = this._config?.name;
-    const icon = HVAC_MODE_ICONS[climate.mode];
-    const modeOn = this._isModeOn(climate);
-    const color = this._colorFor(climate.mode);
-    return html`
-      <div class="header header--compact">
-        <div class="header-icons">
-          <span class="icon-halo-wrap ${modeOn ? 'neon-halo-active' : ''}" style="--neon-c1: ${color}">
-            <ha-icon class="header-icon neon-halo-icon" .icon=${icon}></ha-icon>
-          </span>
-          ${this._renderHeaderActions()}
-        </div>
-        ${name ? html`<span class="name">${name}</span>` : nothing}
-      </div>
-    `;
-  }
-
-  /** Uno o dos iconos pequeños arriba a la derecha (uno por cada
-      entidad climate configurada) para abrir su diálogo de "más
-      información" — icono = el propio modo de ESA entidad. */
-  private _renderHeaderActions(): TemplateResult | typeof nothing {
-    const combined = this._combined;
-    if (!combined || !this.hass) return nothing;
-    const hass = this.hass;
-    return html`
-      <div class="header-actions">
-        ${combined.entities.map((e) => {
-          const label = hass.states[e.entity]?.attributes.friendly_name || e.entity;
-          return html`
-            <button
-              class="header-action-btn"
-              title=${label}
-              aria-label=${label}
-              @click=${(ev: Event) => {
-                ev.stopPropagation();
-                openMoreInfo(this, e.entity);
-              }}
-            >
-              <ha-icon icon=${HVAC_MODE_ICONS[e.mode]}></ha-icon>
-            </button>
-          `;
-        })}
-      </div>
-    `;
   }
 
   /** Selectores bajo el cuerpo. Vista grande: modo HVAC y, si la
@@ -438,174 +338,35 @@ export class NeonThermostatCard extends BaseNeonCard {
     });
   }
 
-  private _renderTargetPill(
-    climate: ClimateState,
-    variant: 'large' | 'normal' | 'compact',
-    displayTarget: number | null
-  ): TemplateResult {
+  /** Píldora −/valor/+ de la consigna (la comparten las tres vistas). */
+  private _targetPill(climate: ClimateState, displayTarget: number | null): TemplateResult {
+    return renderTargetPill({
+      color: this._colorFor(climate.mode),
+      variant: this._size,
+      displayTarget,
+      onStep: (direction) => this._handleStep(direction),
+    });
+  }
+
+  /** Uno o dos iconos arriba a la derecha que abren el diálogo de «más
+      información» de cada entidad configurada. */
+  private _headerActions(): TemplateResult | typeof nothing {
+    const combined = this._combined;
+    if (!combined || !this.hass) return nothing;
+    return renderHeaderActions(combined.entities, this.hass, (entityId) => openMoreInfo(this, entityId));
+  }
+
+  private _renderBody(climate: ClimateState, size: ThermostatSize, displayTarget: number | null): TemplateResult {
     const color = this._colorFor(climate.mode);
-    return html`
-      <div class="target-pill target-pill--${variant}" style="--current-color: ${color}">
-        <button class="target-pill-btn" @click=${() => this._handleStep(-1)}>
-          <ha-icon icon="mdi:minus"></ha-icon>
-        </button>
-        <span class="target-value">${displayTarget ?? '--'}°</span>
-        <button class="target-pill-btn" @click=${() => this._handleStep(1)}>
-          <ha-icon icon="mdi:plus"></ha-icon>
-        </button>
-      </div>
-    `;
-  }
-
-  /** Dial arrastrable de la vista grande: un único arco continuo con un
-      halo que va de transparente en los dos extremos a color sólido en
-      el punto. Arrastrando el punto se cambia la temperatura objetivo. */
-  private _renderDial(climate: ClimateState, displayTarget: number | null): TemplateResult {
-    const color = this._colorFor(climate.mode);
-    const cx = 50;
-    const cy = 50;
-    const r = 42;
-    const fullPath = dialArcPath(cx, cy, r, DIAL_START_ANGLE, DIAL_END_ANGLE);
-    const targetAngle = displayTarget !== null ? this._angleForTemp(displayTarget, climate) : DIAL_START_ANGLE;
-    const dot = pointOnDial(cx, cy, r, targetAngle);
-    const start = pointOnDial(cx, cy, r, DIAL_START_ANGLE);
-    const end = pointOnDial(cx, cy, r, DIAL_END_ANGLE);
-    const dotFraction = Math.min(0.92, Math.max(0.08, (targetAngle - DIAL_START_ANGLE) / 180));
-    const gradientId = `dial-grad-${climate.entity.replace(/[^a-zA-Z0-9]/g, '-')}`;
-
-    return html`
-      <div class="dial-wrap" style="--current-color: ${color}">
-        <svg
-          class="dial-svg"
-          viewBox="0 0 100 100"
-          @pointerdown=${(ev: PointerEvent) => this._onDialPointerDown(ev, climate)}
-          @pointermove=${(ev: PointerEvent) => this._onDialPointerMove(ev, climate)}
-          @pointerup=${() => this._onDialPointerUp()}
-          @pointercancel=${() => this._onDialPointerUp()}
-        >
-          <defs>
-            <linearGradient id=${gradientId} gradientUnits="userSpaceOnUse" x1=${start.x} y1=${start.y} x2=${end.x} y2=${end.y}>
-              <stop offset="0%" stop-color=${color} stop-opacity="0"></stop>
-              <stop offset="${dotFraction * 100}%" stop-color=${color} stop-opacity="1"></stop>
-              <stop offset="100%" stop-color=${color} stop-opacity="0"></stop>
-            </linearGradient>
-          </defs>
-          <path class="dial-arc" d=${fullPath} stroke="url(#${gradientId})"></path>
-          <circle class="dial-dot" cx=${dot.x} cy=${dot.y} r="4.5"></circle>
-          <!-- Zona de toque invisible, más ancha que el trazo/punto
-               visibles (que se quedan finos a propósito) — sin esto el
-               control es muy difícil de acertar con el dedo. Extremo
-               recto (no redondeado) para no invadir la píldora de
-               abajo; el punto usa una elipse (más ancha que alta) por
-               el mismo motivo. -->
-          <path class="dial-hit" d=${fullPath}></path>
-          <ellipse class="dial-hit-dot" cx=${dot.x} cy=${dot.y} rx="11" ry="7"></ellipse>
-        </svg>
-      </div>
-    `;
-  }
-
-  private _renderLargeBody(climate: ClimateState): TemplateResult {
-    const color = this._colorFor(climate.mode);
-    const displayTarget = this._dragTemp ?? climate.targetTemperature;
-    return html`
-      <div class="dial-row">
-        <div class="current-temp-block" style="--current-color: ${color}">
-          <span class="current-temp-big">${climate.currentTemperature ?? '--'}<span class="unit">°</span></span>
-        </div>
-        ${this._renderDial(climate, displayTarget)}
-      </div>
-      ${this._renderTargetPill(climate, 'large', displayTarget)}
-    `;
-  }
-
-  /** Vista compacta: sin control arrastrable propio (ni dial ni línea) —
-      solo la temperatura actual y la píldora +/- de consigna, a juego
-      con el tamaño reducido de la tarjeta. */
-  private _renderCompactBody(climate: ClimateState, displayTarget: number | null): TemplateResult {
-    return html`
-      <div class="ring-center">
-        <span class="current-temp">${climate.currentTemperature ?? '--'}<span class="unit">°</span></span>
-      </div>
-      ${this._renderTargetPill(climate, 'compact', displayTarget)}
-    `;
-  }
-
-  /** Vista normal: mismo arco de 180° que el dial de la vista grande,
-      como aro alrededor de la temperatura actual, también arrastrable. */
-  private _renderRingBody(climate: ClimateState, displayTarget: number | null): TemplateResult {
-    const color = this._colorFor(climate.mode);
-    const cx = 50;
-    const cy = 50;
-    const r = 42;
-    const fullPath = dialArcPath(cx, cy, r, DIAL_START_ANGLE, DIAL_END_ANGLE);
-    const targetAngle = displayTarget !== null ? this._angleForTemp(displayTarget, climate) : DIAL_START_ANGLE;
-    const dot = pointOnDial(cx, cy, r, targetAngle);
-    const start = pointOnDial(cx, cy, r, DIAL_START_ANGLE);
-    const end = pointOnDial(cx, cy, r, DIAL_END_ANGLE);
-    const dotFraction = Math.min(0.92, Math.max(0.08, (targetAngle - DIAL_START_ANGLE) / 180));
-    const gradientId = `ring-grad-${climate.entity.replace(/[^a-zA-Z0-9]/g, '-')}`;
-
-    return html`
-      <div class="ring-wrap" style="--ring-size: 176px; --current-color: ${color}">
-        <svg
-          class="ring-svg"
-          viewBox="0 0 100 100"
-          @pointerdown=${(ev: PointerEvent) => this._onDialPointerDown(ev, climate)}
-          @pointermove=${(ev: PointerEvent) => this._onDialPointerMove(ev, climate)}
-          @pointerup=${() => this._onDialPointerUp()}
-          @pointercancel=${() => this._onDialPointerUp()}
-        >
-          <defs>
-            <linearGradient id=${gradientId} gradientUnits="userSpaceOnUse" x1=${start.x} y1=${start.y} x2=${end.x} y2=${end.y}>
-              <stop offset="0%" stop-color=${color} stop-opacity="0"></stop>
-              <stop offset="${dotFraction * 100}%" stop-color=${color} stop-opacity="1"></stop>
-              <stop offset="100%" stop-color=${color} stop-opacity="0"></stop>
-            </linearGradient>
-          </defs>
-          <path class="ring-arc" d=${fullPath} stroke="url(#${gradientId})"></path>
-          <circle class="ring-dot" cx=${dot.x} cy=${dot.y} r="3.2"></circle>
-          <!-- Zona de toque invisible más ancha, mismo motivo que en el
-               dial de la vista grande. Van DIRECTOS aquí dentro del
-               mismo <svg> (no en una sub-plantilla html anidada
-               condicionalmente) — lección aprendida: una plantilla
-               "html" anidada dentro de un <svg> no hereda el
-               namespace SVG y esos elementos dejan de responder al
-               toque. Al no anidar nada, no hay riesgo. -->
-          <path class="ring-hit" d=${fullPath}></path>
-          <ellipse class="ring-hit-dot" cx=${dot.x} cy=${dot.y} rx="11" ry="7"></ellipse>
-        </svg>
-        <div class="ring-center">
-          <span class="current-temp">${climate.currentTemperature ?? '--'}<span class="unit">°</span></span>
-        </div>
-      </div>
-      ${this._renderTargetPill(climate, 'normal', displayTarget)}
-    `;
-  }
-
-  private _renderFooter(size: ThermostatSize): TemplateResult | typeof nothing {
-    if (size === 'compact') return nothing;
-    const footer = this._config?.footer;
-    if (!footer?.length || !this.hass) return nothing;
-    const hass = this.hass;
-    const configured = footer.slice(0, MAX_FOOTER_SENSORS);
-    const displays = configured
-      .map((item) => getSensorDisplay(item.entity, hass, { icon: item.icon }))
-      .filter((d): d is NonNullable<typeof d> => d !== null);
-    if (!displays.length) return nothing;
-
-    return html`
-      <div class="footer ${displays.length === 1 ? 'footer-single' : ''}" style="grid-template-columns: repeat(${displays.length}, 1fr)">
-        ${displays.map(
-          (d, i) => html`
-            <div class="footer-item ${i > 0 ? 'footer-item--divided' : ''}">
-              <ha-icon icon=${d.icon}></ha-icon>
-              <span>${d.state}${d.unit}</span>
-            </div>
-          `
-        )}
-      </div>
-    `;
+    const pill = this._targetPill(climate, displayTarget);
+    if (size === 'compact') return renderCompactBody({ climate, pill });
+    const pointer = {
+      down: (ev: PointerEvent) => this._onDialPointerDown(ev, climate),
+      move: (ev: PointerEvent) => this._onDialPointerMove(ev, climate),
+      up: () => this._onDialPointerUp(),
+    };
+    const options = { climate, color, displayTarget, pill, pointer };
+    return size === 'large' ? renderLargeBody(options) : renderRingBody(options);
   }
 
   render(): TemplateResult {
@@ -615,20 +376,22 @@ export class NeonThermostatCard extends BaseNeonCard {
     }
 
     const size = this._size;
-    const active = this._isActive(climate) && !this._ringForcedOff;
+    const active = isClimateRunning(climate) && !this._ringForcedOff;
     const ringColors = resolveGradientColors(this._config);
     const displayTarget = this._dragTemp ?? climate.targetTemperature;
+    const header: HeaderOptions = {
+      climate,
+      configName: this._config?.name,
+      color: this._colorFor(climate.mode),
+      actions: this._headerActions(),
+    };
 
     return html`
       <ha-card data-size=${size} class="neon-ring-host ${active ? 'neon-halo-active' : ''}" style=${neonHaloVars(ringColors)}>
         ${neonRingSplitTemplate(this._ringUid, this._ringSize.width, this._ringSize.height, this._ringSize.radius)}
-        ${this._renderHeader(climate)}
-        ${size === 'large'
-          ? this._renderLargeBody(climate)
-          : size === 'compact'
-            ? this._renderCompactBody(climate, displayTarget)
-            : this._renderRingBody(climate, displayTarget)}
-        ${this._renderModeSelectors(climate, size)} ${this._renderFooter(size)}
+        ${size === 'compact' ? renderCompactHeader(header) : renderHeader(header)}
+        ${this._renderBody(climate, size, displayTarget)} ${this._renderModeSelectors(climate, size)}
+        ${renderFooter(this._config?.footer, this.hass, size)}
       </ha-card>
     `;
   }
