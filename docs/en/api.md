@@ -410,12 +410,31 @@ future climate-control card should reuse these instead of re-reading
     maxTemp: number; // falls back to 35
     step: number; // falls back to 0.5
     available: boolean; // false if unavailable/unknown
+    presetMode: string | null; // current `preset_mode`
+    presetModes: string[]; // `preset_modes`; [] = no presets
+    fanMode: string | null; // current `fan_mode`
+    fanModes: string[]; // `fan_modes`; [] = no fan
   }
   ```
+  The lists drop duplicates and non-text values.
 - **Example:**
   ```ts
   const c = getClimateState('climate.living_room', hass);
   // c?.mode === 'heat', c?.targetTemperature === 21
+  ```
+
+#### `formatClimateOption(hass, entityId, attribute, value)`
+
+- **Description:** human-readable name of a `preset_mode` or `fan_mode` value. It uses `hass.formatEntityAttributeValue` when available (already translated to the user's language); otherwise, or if it returns an empty string, it humanizes the raw value (`away_mode` → `Away mode`).
+- **Parameters:**
+  - `hass: HomeAssistant | undefined`.
+  - `entityId: string`.
+  - `attribute: 'preset_mode' | 'fan_mode'`.
+  - `value: string`.
+- **Returns:** `string`.
+- **Example:**
+  ```ts
+  formatClimateOption(hass, 'climate.living_room', 'fan_mode', 'medium_high'); // 'Medium high' (without HA's formatter)
   ```
 
 #### `clampToStep(value, min, max, step)`
