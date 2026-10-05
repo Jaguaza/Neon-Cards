@@ -404,12 +404,31 @@ reutilizarlos en vez de releer `hass.states` por su cuenta.
     maxTemp: number; // fallback 35
     step: number; // fallback 0.5
     available: boolean; // false si unavailable/unknown
+    presetMode: string | null; // `preset_mode` actual
+    presetModes: string[]; // `preset_modes`; [] = sin presets
+    fanMode: string | null; // `fan_mode` actual
+    fanModes: string[]; // `fan_modes`; [] = sin ventilador
   }
   ```
+  Las listas descartan duplicados y valores que no sean texto.
 - **Ejemplo:**
   ```ts
   const c = getClimateState('climate.salon', hass);
   // c?.mode === 'heat', c?.targetTemperature === 21
+  ```
+
+#### `formatClimateOption(hass, entityId, attribute, value)`
+
+- **Descripción:** nombre legible de un valor de `preset_mode` o `fan_mode`. Usa `hass.formatEntityAttributeValue` si existe (ya viene traducido al idioma del usuario); si no, o si devuelve un texto vacío, humaniza el valor crudo (`away_mode` → `Away mode`).
+- **Parámetros:**
+  - `hass: HomeAssistant | undefined`.
+  - `entityId: string`.
+  - `attribute: 'preset_mode' | 'fan_mode'`.
+  - `value: string`.
+- **Devuelve:** `string`.
+- **Ejemplo:**
+  ```ts
+  formatClimateOption(hass, 'climate.salon', 'fan_mode', 'medium_high'); // 'Medium high' (sin formateador de HA)
   ```
 
 #### `clampToStep(value, min, max, step)`

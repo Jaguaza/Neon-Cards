@@ -16,12 +16,14 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   normal (aro alrededor de la temperatura) y compacta (línea), consigna
   arrastrable o con píldora −/+, selector de modo HVAC, color por modo,
   pie de sensores (hasta 3) y editor visual. Con `entity_2` reúne dos
-  equipos separados y `mode_owner` resuelve los modos compartidos.
+  equipos separados y `mode_owner` resuelve los modos compartidos. En
+  la vista grande, el selector de modo se acompaña de uno de **preset**
+  y otro de **ventilador** cuando la entidad los expone.
 - **Inglés** en las 5 zonas de texto del repositorio (núcleo, compartido,
   Entity, Button y Thermostat): la interfaz de configuración se muestra
   en el idioma de Home Assistant, con el español como respaldo.
 - `src/ha/climate.ts` (`getClimateState`, `clampToStep`,
-  `isClimateRunning`) y `openMoreInfo` en `src/core`, documentados en la
+  `isClimateRunning`, `formatClimateOption`) y `openMoreInfo` en `src/core`, documentados en la
   referencia de API.
 - Perfil `thermostat` en `npm run perf` y tests nuevos para `climate`,
   la geometría del dial y el estado combinado.
@@ -35,10 +37,11 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Los editores de Entity y Thermostat dividen su `render()` en métodos
   por sección (acuerdo nº7); el DOM resultante es idéntico.
 - Los archivos del termostato que superaban las 500 líneas se dividen
-  por responsabilidad (estilos del dial, del aro, de la píldora de
-  consigna y del pie de modo), y la geometría del dial y el estado
-  combinado viven en `dial-geometry.ts` y `combined-climate.ts`
-  (acuerdo nº7).
+  por responsabilidad: estilos por zona, y la tarjeta (de 700 a menos
+  de 500 líneas) delega la presentación en `dial-views.ts`, `header.ts`,
+  `footer.ts`, `target-pill.ts` y `selector-pill.ts`, y el cálculo en
+  `dial-geometry.ts` y `combined-climate.ts` (acuerdo nº7). El DOM, el
+  arrastre y las llamadas a servicios resultan idénticos.
 
 ## [1.0.0] - 2026-10-02
 
@@ -182,12 +185,14 @@ and this project follows [Semantic Versioning](https://semver.org/).
   (ring around the temperature) and compact (line) view, a draggable
   target or a −/+ pill, an HVAC mode selector, a color per mode, a sensor
   footer (up to 3) and a visual editor. With `entity_2` it brings two
-  separate devices together and `mode_owner` resolves shared modes.
+  separate devices together and `mode_owner` resolves shared modes. In
+  the large view, the mode selector is joined by a **preset** and a
+  **fan** selector when the entity exposes them.
 - **English** in the repository's 5 text areas (core, shared, Entity,
   Button and Thermostat): the configuration UI is shown in Home
   Assistant's language, with Spanish as a fallback.
 - `src/ha/climate.ts` (`getClimateState`, `clampToStep`,
-  `isClimateRunning`) and `openMoreInfo` in `src/core`, documented in
+  `isClimateRunning`, `formatClimateOption`) and `openMoreInfo` in `src/core`, documented in
   the API reference.
 - A `thermostat` profile in `npm run perf` and new tests for `climate`,
   the dial geometry and the combined state.
@@ -201,9 +206,11 @@ and this project follows [Semantic Versioning](https://semver.org/).
 - The Entity and Thermostat editors split their `render()` into
   per-section methods (agreement nº7); the resulting DOM is identical.
 - The thermostat files that exceeded 500 lines are split by
-  responsibility (dial, ring, target pill and mode footer styles), and
-  the dial geometry and combined state live in `dial-geometry.ts` and
-  `combined-climate.ts` (agreement nº7).
+  responsibility: styles per area, and the card (from 700 to under 500
+  lines) delegates presentation to `dial-views.ts`, `header.ts`,
+  `footer.ts`, `target-pill.ts` and `selector-pill.ts`, and computation
+  to `dial-geometry.ts` and `combined-climate.ts` (agreement nº7). The
+  DOM, dragging and service calls come out identical.
 
 ## [1.0.0] - 2026-10-02
 
