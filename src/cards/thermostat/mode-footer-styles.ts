@@ -74,6 +74,39 @@ export const THERMOSTAT_MODE_FOOTER_STYLES = css`
     border: none;
   }
 
+  /* ---- Fila de selectores (vista grande con preset y/o ventilador).
+     Con una sola píldora no existe esta fila: el selector de modo va
+     directo en la tarjeta, igual que en las demás vistas. ---- */
+  .mode-selector-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .mode-selector-row .mode-selector-wrap {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .mode-selector-row .mode-selector-display {
+    min-width: 0;
+    padding: 0 10px;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  .mode-selector-row .mode-selector-display span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Con tres píldoras no cabe el chevron: el texto manda. */
+  .mode-selector-row--3 .chevron {
+    display: none;
+  }
+
   /* ---- Footer de sensores: misma cuadrícula de columnas iguales +
      divisor vertical que Button Card, tope MAX_FOOTER_SENSORS. ---- */
   .footer {

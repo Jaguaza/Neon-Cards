@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { clampToStep, getClimateState, isClimateRunning } from './climate';
+import { clampToStep, formatClimateOption, getClimateState, isClimateRunning } from './climate';
 import type { ClimateState } from './climate';
 import type { HomeAssistant } from './types';
 
@@ -22,6 +22,10 @@ function climate(overrides: Partial<ClimateState> = {}): ClimateState {
     maxTemp: 35,
     step: 0.5,
     available: true,
+    presetMode: null,
+    presetModes: [],
+    fanMode: null,
+    fanModes: [],
     ...overrides,
   };
 }
@@ -53,6 +57,10 @@ describe('getClimateState', () => {
       maxTemp: 30,
       step: 1,
       available: true,
+      presetMode: null,
+      presetModes: [],
+      fanMode: null,
+      fanModes: [],
     });
   });
 
@@ -65,6 +73,38 @@ describe('getClimateState', () => {
     expect(state.targetTemperature).toBeNull();
     expect(state.hvacAction).toBeNull();
     expect(state.hvacModes).toEqual([]);
+    expect(state.presetMode).toBeNull();
+    expect(state.presetModes).toEqual([]);
+    expect(state.fanMode).toBeNull();
+    expect(state.fanModes).toEqual([]);
+  });
+
+  it('lee preset y ventilador actuales y sus listas', () => {
+    const hass = hassWith('climate.salon', 'heat', {
+      preset_mode: 'eco',
+      preset_modes: ['none', 'eco', 'comfort'],
+      fan_mode: 'auto',
+      fan_modes: ['auto', 'low', 'high'],
+    });
+    const state = getClimateState('climate.salon', hass)!;
+    expect(state.presetMode).toBe('eco');
+    expect(state.presetModes).toEqual(['none', 'eco', 'comfort']);
+    expect(state.fanMode).toBe('auto');
+    expect(state.fanModes).toEqual(['auto', 'low', 'high']);
+  });
+
+  it('descarta valores que no son texto, vacíos y duplicados en preset y ventilador', () => {
+    const hass = hassWith('climate.salon', 'heat', {
+      preset_mode: 3,
+      preset_modes: ['eco', 'eco', '', 7, 'away'],
+      fan_mode: '',
+      fan_modes: 'auto',
+    });
+    const state = getClimateState('climate.salon', hass)!;
+    expect(state.presetMode).toBeNull();
+    expect(state.presetModes).toEqual(['eco', 'away']);
+    expect(state.fanMode).toBeNull();
+    expect(state.fanModes).toEqual([]);
   });
 
   it('ignora modos desconocidos y elimina duplicados de hvac_modes', () => {
@@ -121,5 +161,34 @@ describe('isClimateRunning', () => {
     expect(isClimateRunning(climate({ mode: 'cool', currentTemperature: 22, targetTemperature: 24 }))).toBe(false);
     expect(isClimateRunning(climate({ mode: 'auto', currentTemperature: 21, targetTemperature: 22 }))).toBe(true);
     expect(isClimateRunning(climate({ mode: 'auto', currentTemperature: 22, targetTemperature: 22 }))).toBe(false);
+  });
+});
+
+describe('formatClimateOption', () => {
+  const stateObj = { entity_id: 'climate.salon', state: 'heat', last_changed: '', last_updated: '', attributes: {} };
+
+  it('usa el formateador de Home Assistant cuando existe', () => {
+    const hass: HomeAssistant = {
+      states: { 'climate.salon': stateObj },
+      callService: async () => undefined,
+      formatEntityAttributeValue: (_s, attribute, value) => `${attribute}:${String(value)}:traducido`,
+    };
+    expect(formatClimateOption(hass, 'climate.salon', 'preset_mode', 'eco')).toBe('preset_mode:eco:traducido');
+  });
+
+  it('humaniza el valor si no hay formateador, hass o entidad', () => {
+    const sinFormateador = hassWith('climate.salon', 'heat');
+    expect(formatClimateOption(sinFormateador, 'climate.salon', 'fan_mode', 'medium_high')).toBe('Medium high');
+    expect(formatClimateOption(undefined, 'climate.salon', 'preset_mode', 'eco')).toBe('Eco');
+    expect(formatClimateOption(sinFormateador, 'climate.no_existe', 'preset_mode', 'away')).toBe('Away');
+  });
+
+  it('cae a la humanización si el formateador devuelve un texto vacío', () => {
+    const hass: HomeAssistant = {
+      states: { 'climate.salon': stateObj },
+      callService: async () => undefined,
+      formatEntityAttributeValue: () => '',
+    };
+    expect(formatClimateOption(hass, 'climate.salon', 'preset_mode', 'comfort')).toBe('Comfort');
   });
 });

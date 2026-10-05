@@ -34,4 +34,6 @@ export const es: ThermostatTranslations = {
   hvac_mode_dry: "Seco",
   hvac_mode_fan_only: "Ventilador",
   hvac_mode_off: "Off",
+  preset_label: "Preajuste",
+  fan_label: "Ventilador",
 };
