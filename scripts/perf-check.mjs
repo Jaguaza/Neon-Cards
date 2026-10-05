@@ -46,9 +46,10 @@ globalThis.Document = dom.window.Document;
 globalThis.CustomEvent = dom.window.CustomEvent;
 globalThis.Event = dom.window.Event;
 globalThis.getComputedStyle = dom.window.getComputedStyle;
-// jsdom no implementa RAF (no hace pintado real) — Button Card lo usa
-// para medir su tamaño (_ringLoop, ver src/shared/glow.ts). Sin esto el
-// benchmark no puede montar/desmontar la tarjeta.
+// jsdom no implementa RAF (no hace pintado real) — Button y Thermostat
+// lo usan para medir su tamaño (_ringLoop, ver src/shared/glow.ts y
+// neon-thermostat-card.ts). Sin esto el benchmark no puede montar/
+// desmontar la tarjeta.
 globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(Date.now()), 16);
 globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
 // __DEV__ (acuerdo nº22) lo sustituye @rollup/plugin-replace en el
@@ -137,61 +138,51 @@ const CARD_PROFILES = {
     elementName: 'neon-thermostat-card',
     entry: 'src/cards/thermostat/neon-thermostat-card.ts',
     exportName: 'NeonThermostatCard',
-    // El benchmark genera ids `light.*`; el termostato necesita `climate.*`,
-    // así que se reutiliza solo el sufijo. Dos entidades + sensor de pie
-    // para recorrer también la ruta de estado combinado. El modo cambia
-    // cada 25 ticks (no en cada uno): un termostato real no conmuta
-    // miles de veces, y un cambio por tick deja pendientes los
-    // temporizadores de transición del aro y falsea la medida de memoria.
-    makeConfig: (entityId) => {
-      const base = entityId.split('.')[1];
-      return {
-        entity: `climate.${base}_calefaccion`,
-        entity_2: `climate.${base}_aire`,
-        name: 'Salón',
-        footer: [{ entity: `sensor.${base}_hum` }],
-      };
-    },
+    // getClimateState (src/ha/climate.ts) exige el dominio 'climate.' —
+    // sin esto el benchmark solo mediría la rama de "entidad no
+    // disponible", no el render real de la tarjeta.
+    entityDomain: 'climate',
+    makeConfig: (entityId) => ({
+      entity: entityId,
+      name: 'Salón',
+      size: 'normal',
+      footer: [{ entity: `sensor.${entityId.split('.')[1]}_temp` }, { entity: `sensor.${entityId.split('.')[1]}_hum` }],
+    }),
     makeHass: (entityIds, tick) => {
       const states = {};
-      const now = new Date().toISOString();
-      const heating = Math.floor(tick / 25) % 2 === 0;
       for (const id of entityIds) {
-        const base = id.split('.')[1];
-        states[`climate.${base}_calefaccion`] = {
-          entity_id: `climate.${base}_calefaccion`,
-          state: heating ? 'heat' : 'off',
-          last_changed: now,
-          last_updated: now,
+        states[id] = {
+          entity_id: id,
+          // El modo cambia cada 25 ticks, no en cada uno: un termostato real
+          // no conmuta miles de veces, y un cambio por tick deja pendientes
+          // los temporizadores de transición del aro y falsea la medida de
+          // memoria (crece mientras corren y se recupera al terminar).
+          state: Math.floor(tick / 25) % 2 === 0 ? 'heat' : 'cool',
+          last_changed: new Date(Date.now() - tick * 1000).toISOString(),
+          last_updated: new Date(Date.now() - tick * 1000).toISOString(),
           attributes: {
-            hvac_modes: ['off', 'heat', 'auto'],
-            hvac_action: heating ? 'heating' : 'off',
-            current_temperature: 19 + (tick % 5) * 0.5,
-            temperature: 22,
+            hvac_modes: ['off', 'heat', 'cool'],
+            current_temperature: 20 + (tick % 10) * 0.1,
+            temperature: 21 + (tick % 3) * 0.5,
             min_temp: 7,
             max_temp: 35,
             target_temp_step: 0.5,
+            friendly_name: `Clima de prueba ${id}`,
           },
         };
-        states[`climate.${base}_aire`] = {
-          entity_id: `climate.${base}_aire`,
-          state: 'off',
-          last_changed: now,
-          last_updated: now,
-          attributes: {
-            hvac_modes: ['off', 'cool', 'dry', 'fan_only'],
-            current_temperature: 24,
-            temperature: 24,
-            min_temp: 16,
-            max_temp: 30,
-            target_temp_step: 1,
-          },
+        const base = id.split('.')[1];
+        states[`sensor.${base}_temp`] = {
+          entity_id: `sensor.${base}_temp`,
+          state: String(20 + (tick % 5)),
+          last_changed: new Date().toISOString(),
+          last_updated: new Date().toISOString(),
+          attributes: { unit_of_measurement: '°C', device_class: 'temperature' },
         };
         states[`sensor.${base}_hum`] = {
           entity_id: `sensor.${base}_hum`,
           state: String(40 + (tick % 10)),
-          last_changed: now,
-          last_updated: now,
+          last_changed: new Date().toISOString(),
+          last_updated: new Date().toISOString(),
           attributes: { unit_of_measurement: '%', device_class: 'humidity' },
         };
       }
@@ -261,7 +252,8 @@ async function runProfile(name, profile) {
 
   const timings = [];
   for (let i = 0; i < numCards; i++) {
-    const elapsed = await benchmarkCard(profile, `light.prueba_${name}_${i}`);
+    const entityId = `${profile.entityDomain ?? 'light'}.prueba_${name}_${i}`;
+    const elapsed = await benchmarkCard(profile, entityId);
     timings.push(elapsed);
   }
 
@@ -286,7 +278,7 @@ async function runProfile(name, profile) {
   // --- Prueba de resistencia: una tarjeta persistente, muchas actualizaciones ---
   console.log('\n--- Prueba de resistencia (fugas de memoria) ---');
   const enduranceUpdates = numUpdates * 20;
-  const persistentId = `light.resistencia_${name}`;
+  const persistentId = `${profile.entityDomain ?? 'light'}.resistencia_${name}`;
   const persistent = document.createElement(profile.elementName);
   document.body.appendChild(persistent);
   persistent.setConfig(profile.makeConfig(persistentId));

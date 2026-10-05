@@ -22,15 +22,17 @@ import {
   HVAC_MODE_LABEL_KEYS,
   DIAL_START_ANGLE,
   DIAL_END_ANGLE,
-  LINE_X0,
-  LINE_X1,
 } from './constants';
-import { buildDisplayState } from './combined-climate';
-import type { CombinedClimate } from './combined-climate';
-import { dialArcPath, pointOnDial } from './dial-geometry';
 import { NEON_THERMOSTAT_CARD_STYLES } from './neon-thermostat-card.styles';
+import { THERMOSTAT_DIAL_STYLES } from './dial-styles';
+import { THERMOSTAT_TARGET_PILL_STYLES } from './target-pill-styles';
+import { THERMOSTAT_RING_STYLES } from './ring-styles';
+import { THERMOSTAT_MODE_FOOTER_STYLES } from './mode-footer-styles';
 import { THERMOSTAT_TRANSLATIONS } from './translations';
 import type { NeonThermostatCardConfig, ThermostatSize } from './types';
+import { pointOnDial, dialArcPath } from './dial-geometry';
+import { combineClimates, buildDisplayState, findMutualExclusionTargets } from './combined-climate';
+import type { CombinedClimate } from './combined-climate';
 
 /**
  * Neón Thermostat Card
@@ -77,12 +79,28 @@ export class NeonThermostatCard extends BaseNeonCard {
   private _ringForcedOff = false;
   private _ringForceTimer?: number;
 
+  /** Último `hvac_mode` visto **por entidad** — para detectar, con 2
+      entidades configuradas, que una acaba de cambiar a un modo activo
+      distinto del de la otra (estando esta también activa). Dentro de
+      la tarjeta la exclusión ya la fuerza `_handleModeSelect` al
+      vuelo; esto cubre cambios hechos FUERA de la tarjeta (diálogo
+      nativo de la entidad, otra tarjeta, una automatización...). */
+  private _prevEntityModes = new Map<string, HvacMode>();
+
   /** Última entidad configurada que estuvo activa (mode !== 'off') —
       se usa como "climate a mostrar" cuando TODAS las configuradas
       están en off. Se actualiza en `updated()`. */
   private _lastActiveEntity: string | null = null;
 
-  static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_THERMOSTAT_CARD_STYLES];
+  static styles = [
+    NEON_HALO_STYLES,
+    NEON_RING_SPLIT_STYLES,
+    NEON_THERMOSTAT_CARD_STYLES,
+    THERMOSTAT_DIAL_STYLES,
+    THERMOSTAT_TARGET_PILL_STYLES,
+    THERMOSTAT_RING_STYLES,
+    THERMOSTAT_MODE_FOOTER_STYLES,
+  ];
 
   static getConfigElement(): HTMLElement {
     return document.createElement('neon-thermostat-card-editor');
@@ -105,16 +123,17 @@ export class NeonThermostatCard extends BaseNeonCard {
       throw new Error('neon-thermostat-card: falta "entity" (debe ser una entidad climate).');
     }
     this._config = config;
+    this._prevEntityModes.clear();
   }
 
   getCardSize(): number {
     switch (this._size) {
       case 'large':
-        return 4;
+        return 5;
       case 'compact':
-        return 2;
+        return 4;
       default:
-        return 3;
+        return 6;
     }
   }
 
@@ -146,24 +165,7 @@ export class NeonThermostatCard extends BaseNeonCard {
       const secondary = getClimateState(this._config.entity_2, this.hass);
       if (secondary) entities.push(secondary);
     }
-
-    const modeOwner = new Map<HvacMode, ClimateState>();
-    for (const e of entities) {
-      for (const mode of e.hvacModes) {
-        if (!modeOwner.has(mode)) modeOwner.set(mode, e);
-      }
-    }
-    if (entities.length > 1 && this._config.mode_owner) {
-      for (const [modeKey, ownerIndex] of Object.entries(this._config.mode_owner)) {
-        const mode = modeKey as HvacMode;
-        const owner = entities[(ownerIndex as number) - 1];
-        if (owner && entities.every((e) => e.hvacModes.includes(mode))) {
-          modeOwner.set(mode, owner);
-        }
-      }
-    }
-
-    return { entities, modeOwner };
+    return combineClimates(entities, this._config.mode_owner);
   }
 
   /** Estado "a mostrar": con una sola entidad configurada es
@@ -223,19 +225,22 @@ export class NeonThermostatCard extends BaseNeonCard {
     this._setTargetTemperature(climate.targetTemperature + direction * this._step);
   }
 
-  /** Con una sola entidad: comportamiento normal. Con dos: mutuamente
-      excluyentes — la entidad dueña del modo elegido pasa a ese modo y
-      CUALQUIER otra entidad configurada pasa a "off", nunca dos activas
-      a la vez. */
+  /** Con una sola entidad: comportamiento normal. Con dos: la entidad
+      dueña del modo elegido pasa a ese modo; el resto de entidades solo
+      se apagan si estaban en un modo DISTINTO al elegido — si ya
+      estaban en ese mismo modo (p. ej. las dos en "calor"), se dejan
+      como están, ambas activas a la vez. Solo se evita tener dos
+      entidades activas en modos DIFERENTES, nunca en el mismo. */
   private _handleModeSelect(mode: HvacMode): void {
     const combined = this._combined;
     if (!combined || !this.hass) return;
     const owner = combined.modeOwner.get(mode) ?? combined.entities[0];
     for (const e of combined.entities) {
-      this.hass.callService('climate', 'set_hvac_mode', {
-        entity_id: e.entity,
-        hvac_mode: e.entity === owner.entity ? mode : 'off',
-      });
+      if (e.entity === owner.entity) {
+        this.hass.callService('climate', 'set_hvac_mode', { entity_id: e.entity, hvac_mode: mode });
+      } else if (e.mode !== 'off' && e.mode !== mode) {
+        this.hass.callService('climate', 'set_hvac_mode', { entity_id: e.entity, hvac_mode: 'off' });
+      }
     }
   }
 
@@ -278,28 +283,6 @@ export class NeonThermostatCard extends BaseNeonCard {
     this._dragTemp = null;
   }
 
-  /** Igual que `_updateDragFromPointer` pero para la línea recta de la
-      vista compacta: fracción horizontal en vez de ángulo. */
-  private _updateLineDragFromPointer(ev: PointerEvent, climate: ClimateState): void {
-    const rect = (ev.currentTarget as Element).getBoundingClientRect();
-    const xPct = ((ev.clientX - rect.left) / rect.width) * 100;
-    const fraction = Math.min(1, Math.max(0, (xPct - 6) / 88));
-    const rawTemp = climate.minTemp + fraction * (climate.maxTemp - climate.minTemp);
-    this._dragTemp = clampToStep(rawTemp, climate.minTemp, climate.maxTemp, this._step);
-  }
-
-  private _onLinePointerDown(ev: PointerEvent, climate: ClimateState): void {
-    ev.preventDefault();
-    (ev.currentTarget as Element).setPointerCapture(ev.pointerId);
-    this._dragging = true;
-    this._updateLineDragFromPointer(ev, climate);
-  }
-
-  private _onLinePointerMove(ev: PointerEvent, climate: ClimateState): void {
-    if (!this._dragging) return;
-    this._updateLineDragFromPointer(ev, climate);
-  }
-
   /** Climate "operativo" (funcionando de verdad ahora mismo) — usado
       por el ARO PERIMETRAL de la tarjeta. Lógica: si expone
       `hvac_action`, se confía en eso; si no, compara consigna vs.
@@ -321,6 +304,7 @@ export class NeonThermostatCard extends BaseNeonCard {
   }
 
   private _renderHeader(climate: ClimateState): TemplateResult {
+    if (this._size === 'compact') return this._renderCompactHeader(climate);
     const name = this._config?.name || climate.entity;
     const icon = HVAC_MODE_ICONS[climate.mode];
     const modeOn = this._isModeOn(climate);
@@ -332,9 +316,31 @@ export class NeonThermostatCard extends BaseNeonCard {
         </span>
         <div class="header-text">
           <span class="name">${name}</span>
-          <span class="hvac-state">${this._modeLabel(climate.mode)}</span>
         </div>
         ${this._renderHeaderActions()}
+      </div>
+    `;
+  }
+
+  /** Cabecera de la vista compacta: en columna — fila de iconos (modo +
+      accesos a cada entidad) arriba, nombre debajo (solo si se ha
+      configurado uno; a diferencia del resto de vistas, aquí NO cae a
+      la entidad como nombre por defecto, para no ocupar espacio de
+      más). */
+  private _renderCompactHeader(climate: ClimateState): TemplateResult {
+    const name = this._config?.name;
+    const icon = HVAC_MODE_ICONS[climate.mode];
+    const modeOn = this._isModeOn(climate);
+    const color = this._colorFor(climate.mode);
+    return html`
+      <div class="header header--compact">
+        <div class="header-icons">
+          <span class="icon-halo-wrap ${modeOn ? 'neon-halo-active' : ''}" style="--neon-c1: ${color}">
+            <ha-icon class="header-icon neon-halo-icon" .icon=${icon}></ha-icon>
+          </span>
+          ${this._renderHeaderActions()}
+        </div>
+        ${name ? html`<span class="name">${name}</span>` : nothing}
       </div>
     `;
   }
@@ -383,9 +389,7 @@ export class NeonThermostatCard extends BaseNeonCard {
           .value=${live(climate.mode)}
           @change=${(ev: Event) => this._handleModeSelect((ev.target as HTMLSelectElement).value as HvacMode)}
         >
-          ${climate.hvacModes.map(
-            (mode) => html`<option value=${mode} ?selected=${mode === climate.mode}>${this._modeLabel(mode)}</option>`
-          )}
+          ${climate.hvacModes.map((mode) => html`<option value=${mode}>${this._modeLabel(mode)}</option>`)}
         </select>
       </div>
     `;
@@ -472,48 +476,13 @@ export class NeonThermostatCard extends BaseNeonCard {
     `;
   }
 
-  /** Vista compacta: línea recta con un punto que se desplaza
-      izquierda↔derecha según la consigna — arrastrable igual que el
-      dial/aro, pero con matemática lineal en vez de angular. */
+  /** Vista compacta: sin control arrastrable propio (ni dial ni línea) —
+      solo la temperatura actual y la píldora +/- de consigna, a juego
+      con el tamaño reducido de la tarjeta. */
   private _renderCompactBody(climate: ClimateState, displayTarget: number | null): TemplateResult {
-    const color = this._colorFor(climate.mode);
-    const range = climate.maxTemp - climate.minTemp;
-    const fraction =
-      range > 0 && displayTarget !== null ? Math.min(1, Math.max(0, (displayTarget - climate.minTemp) / range)) : 0;
-    const y = 10;
-    const dotX = LINE_X0 + (LINE_X1 - LINE_X0) * fraction;
-    const dotFraction = Math.min(0.92, Math.max(0.08, fraction));
-    const gradientId = `line-grad-${climate.entity.replace(/[^a-zA-Z0-9]/g, '-')}`;
-
     return html`
       <div class="ring-center">
         <span class="current-temp">${climate.currentTemperature ?? '--'}<span class="unit">°</span></span>
-      </div>
-      <div class="line-wrap" style="--current-color: ${color}">
-        <svg
-          class="line-svg"
-          viewBox="0 0 100 20"
-          @pointerdown=${(ev: PointerEvent) => this._onLinePointerDown(ev, climate)}
-          @pointermove=${(ev: PointerEvent) => this._onLinePointerMove(ev, climate)}
-          @pointerup=${() => this._onDialPointerUp()}
-          @pointercancel=${() => this._onDialPointerUp()}
-        >
-          <defs>
-            <linearGradient id=${gradientId} gradientUnits="userSpaceOnUse" x1=${LINE_X0} y1=${y} x2=${LINE_X1} y2=${y}>
-              <stop offset="0%" stop-color=${color} stop-opacity="0"></stop>
-              <stop offset="${dotFraction * 100}%" stop-color=${color} stop-opacity="1"></stop>
-              <stop offset="100%" stop-color=${color} stop-opacity="0"></stop>
-            </linearGradient>
-          </defs>
-          <line class="line-track" x1=${LINE_X0} y1=${y} x2=${LINE_X1} y2=${y}></line>
-          <line class="line-progress" x1=${LINE_X0} y1=${y} x2=${LINE_X1} y2=${y} stroke="url(#${gradientId})"></line>
-          <circle class="line-dot" cx=${dotX} cy=${y} r="3.2"></circle>
-          <!-- Zonas de toque invisibles, más anchas que el trazo/punto
-               visibles — mismo motivo que en dial/aro, aquí más
-               crítico todavía por lo reducido del tamaño compacto. -->
-          <line class="line-hit" x1=${LINE_X0} y1=${y} x2=${LINE_X1} y2=${y}></line>
-          <ellipse class="line-hit-dot" cx=${dotX} cy=${y} rx="9" ry="9"></ellipse>
-        </svg>
       </div>
       ${this._renderTargetPill(climate, 'compact', displayTarget)}
     `;
@@ -639,6 +608,21 @@ export class NeonThermostatCard extends BaseNeonCard {
     if (combined) {
       const active = combined.entities.find((e) => e.mode !== 'off');
       if (active) this._lastActiveEntity = active.entity;
+
+      // Exclusión mutua con 2 entidades para cambios hechos FUERA de la
+      // tarjeta: si una entidad configurada acaba de CAMBIAR de modo
+      // (a uno activo) mientras la otra YA estaba activa en un modo
+      // DISTINTO, se apaga esa otra — se conserva la que acaba de
+      // cambiar. Si las dos acaban en el MISMO modo se dejan tal cual,
+      // ambas activas a la vez; eso está permitido, solo se evitan
+      // modos diferentes simultáneos. Decisión en combined-climate.ts
+      // (pura); aquí solo se ejecuta el efecto.
+      if (this.hass) {
+        for (const entityId of findMutualExclusionTargets(combined, this._prevEntityModes)) {
+          this.hass.callService('climate', 'set_hvac_mode', { entity_id: entityId, hvac_mode: 'off' });
+        }
+      }
+      for (const e of combined.entities) this._prevEntityModes.set(e.entity, e.mode);
     }
 
     const climate = this._climate;

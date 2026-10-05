@@ -1,3 +1,10 @@
+/**
+ * Geometría pura del dial/arco de la Thermostat Card — sin `this`, sin
+ * `hass`, sin lit: solo trigonometría. Extraído de
+ * `neon-thermostat-card.ts` (acuerdo nº7/nº8, ver "Una clase, una
+ * responsabilidad" en `como-crear-una-tarjeta.md`).
+ */
+
 /** Punto (x,y) sobre el aro para un ángulo dado, convención reloj
     (0° = arriba, crece en sentido horario). */
 export function pointOnDial(cx: number, cy: number, r: number, angleDeg: number): { x: number; y: number } {
