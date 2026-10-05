@@ -34,4 +34,6 @@ export const en: ThermostatTranslations = {
   hvac_mode_dry: 'Dry',
   hvac_mode_fan_only: 'Fan',
   hvac_mode_off: 'Off',
+  preset_label: 'Preset',
+  fan_label: 'Fan',
 };

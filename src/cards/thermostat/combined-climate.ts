@@ -74,7 +74,9 @@ export function findMutualExclusionTargets(
     las dos están en "off" se usa la última que estuvo activa (o la
     primera configurada si nunca lo estuvo). `hvacModes` es siempre la
     unión ya resuelta en `modeOwner`, y `mode` es "off" solo cuando
-    NINGUNA entidad configurada está activa. */
+    NINGUNA entidad configurada está activa. Preset y ventilador son
+    siempre los de la entidad mostrada (`entity`): cada equipo tiene los
+    suyos y no se mezclan. */
 export function buildDisplayState(combined: CombinedClimate, lastActiveEntity: string | null): ClimateState {
   const active = combined.entities.find((e) => e.mode !== 'off') ?? null;
   const fallback = combined.entities.find((e) => e.entity === lastActiveEntity) ?? combined.entities[0];
@@ -90,5 +92,9 @@ export function buildDisplayState(combined: CombinedClimate, lastActiveEntity: s
     maxTemp: base.maxTemp,
     step: base.step,
     available: base.available,
+    presetMode: base.presetMode,
+    presetModes: base.presetModes,
+    fanMode: base.fanMode,
+    fanModes: base.fanModes,
   };
 }

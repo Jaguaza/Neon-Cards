@@ -23,6 +23,14 @@ export interface ClimateState {
   maxTemp: number;
   step: number;
   available: boolean;
+  /** `preset_mode` actual y `preset_modes` que ofrece la entidad. Lista
+      vacía = la entidad no soporta presets (no se muestra selector). */
+  presetMode: string | null;
+  presetModes: string[];
+  /** `fan_mode` actual y `fan_modes` que ofrece la entidad. Lista vacía
+      = la entidad no soporta ventilador (no se muestra selector). */
+  fanMode: string | null;
+  fanModes: string[];
 }
 
 const DEFAULT_MIN_TEMP = 7;
@@ -31,6 +39,17 @@ const DEFAULT_STEP = 0.5;
 
 function isHvacMode(value: unknown): value is HvacMode {
   return typeof value === 'string' && (HVAC_MODES as readonly string[]).includes(value);
+}
+
+/** Lista de cadenas sin duplicados ni valores que no sean texto; `[]`
+    si el atributo no es una lista. */
+function readStringList(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value.filter((v): v is string => typeof v === 'string' && v !== ''))];
+}
+
+function readString(value: unknown): string | null {
+  return typeof value === 'string' && value !== '' ? value : null;
 }
 
 /**
@@ -72,7 +91,31 @@ export function getClimateState(entityId: string, hass: HomeAssistant): ClimateS
     maxTemp,
     step,
     available,
+    presetMode: readString(attrs.preset_mode),
+    presetModes: readStringList(attrs.preset_modes),
+    fanMode: readString(attrs.fan_mode),
+    fanModes: readStringList(attrs.fan_modes),
   };
+}
+
+/**
+ * Nombre legible de un valor de `preset_mode`/`fan_mode`. Usa el
+ * formateador de HA si existe (ya viene traducido al idioma del usuario);
+ * si no, humaniza el valor crudo (`away_mode` → `Away mode`).
+ */
+export function formatClimateOption(
+  hass: HomeAssistant | undefined,
+  entityId: string,
+  attribute: 'preset_mode' | 'fan_mode',
+  value: string
+): string {
+  const stateObj = hass?.states[entityId];
+  if (stateObj && hass?.formatEntityAttributeValue) {
+    const formatted = hass.formatEntityAttributeValue(stateObj, attribute, value);
+    if (formatted) return formatted;
+  }
+  const spaced = value.replace(/_/g, ' ');
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 
 /** Redondea `value` al múltiplo de `step` más cercano dentro de

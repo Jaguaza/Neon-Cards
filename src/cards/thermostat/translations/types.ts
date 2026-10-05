@@ -32,4 +32,6 @@ export interface ThermostatTranslations {
   hvac_mode_dry: string;
   hvac_mode_fan_only: string;
   hvac_mode_off: string;
+  preset_label: string;
+  fan_label: string;
 }

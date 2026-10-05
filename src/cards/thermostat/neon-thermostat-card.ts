@@ -1,8 +1,7 @@
 import { html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
-import { live } from 'lit/directives/live.js';
 import type { HomeAssistant } from '../../ha/types';
-import { getClimateState, clampToStep } from '../../ha/climate';
+import { getClimateState, clampToStep, formatClimateOption } from '../../ha/climate';
 import type { ClimateState, HvacMode } from '../../ha/climate';
 import { getSensorDisplay } from '../../ha/sensors';
 import { BaseNeonCard, localize, openMoreInfo } from '../../core';
@@ -18,6 +17,8 @@ import {
   DEFAULT_TEMP_STEP,
   MAX_FOOTER_SENSORS,
   HVAC_MODE_ICONS,
+  PRESET_ICON,
+  FAN_ICON,
   HVAC_MODE_DEFAULT_COLORS,
   HVAC_MODE_LABEL_KEYS,
   DIAL_START_ANGLE,
@@ -31,6 +32,7 @@ import { THERMOSTAT_MODE_FOOTER_STYLES } from './mode-footer-styles';
 import { THERMOSTAT_TRANSLATIONS } from './translations';
 import type { NeonThermostatCardConfig, ThermostatSize } from './types';
 import { pointOnDial, dialArcPath } from './dial-geometry';
+import { renderSelectorPill } from './selector-pill';
 import { combineClimates, buildDisplayState, findMutualExclusionTargets } from './combined-climate';
 import type { CombinedClimate } from './combined-climate';
 
@@ -244,6 +246,16 @@ export class NeonThermostatCard extends BaseNeonCard {
     }
   }
 
+  /** Preset y ventilador siempre van a la entidad que se está
+      mostrando (`climate.entity`): cada equipo tiene los suyos. */
+  private _handlePresetSelect(entity: string, preset: string): void {
+    this.hass?.callService('climate', 'set_preset_mode', { entity_id: entity, preset_mode: preset });
+  }
+
+  private _handleFanSelect(entity: string, fan: string): void {
+    this.hass?.callService('climate', 'set_fan_mode', { entity_id: entity, fan_mode: fan });
+  }
+
   private _angleForTemp(temp: number, climate: ClimateState): number {
     const range = climate.maxTemp - climate.minTemp;
     const fraction = range <= 0 ? 0 : Math.min(1, Math.max(0, (temp - climate.minTemp) / range));
@@ -374,25 +386,56 @@ export class NeonThermostatCard extends BaseNeonCard {
     `;
   }
 
-  private _renderModeSelector(climate: ClimateState): TemplateResult {
+  /** Selectores bajo el cuerpo. Vista grande: modo HVAC y, si la
+      entidad los expone, preset y ventilador, repartidos en una fila
+      (1, 2 o 3 píldoras). Resto de vistas: solo el de modo. */
+  private _renderModeSelectors(climate: ClimateState, size: ThermostatSize): TemplateResult {
     const color = this._colorFor(climate.mode);
-    return html`
-      <div class="mode-selector-wrap" style="--current-color: ${color}">
-        <div class="mode-selector-display">
-          <ha-icon icon=${HVAC_MODE_ICONS[climate.mode]}></ha-icon>
-          <span>${this._modeLabel(climate.mode)}</span>
-          <ha-icon class="chevron" icon="mdi:chevron-down"></ha-icon>
-        </div>
-        <select
-          class="mode-selector-native"
-          aria-label=${this._modeLabel(climate.mode)}
-          .value=${live(climate.mode)}
-          @change=${(ev: Event) => this._handleModeSelect((ev.target as HTMLSelectElement).value as HvacMode)}
-        >
-          ${climate.hvacModes.map((mode) => html`<option value=${mode}>${this._modeLabel(mode)}</option>`)}
-        </select>
-      </div>
-    `;
+    const pills = [this._renderModePill(climate, color)];
+    if (size === 'large') {
+      if (climate.presetModes.length) pills.push(this._renderPresetPill(climate, color));
+      if (climate.fanModes.length) pills.push(this._renderFanPill(climate, color));
+    }
+    if (pills.length === 1) return pills[0];
+    return html`<div class="mode-selector-row mode-selector-row--${pills.length}">${pills}</div>`;
+  }
+
+  private _renderModePill(climate: ClimateState, color: string): TemplateResult {
+    return renderSelectorPill({
+      icon: HVAC_MODE_ICONS[climate.mode],
+      display: this._modeLabel(climate.mode),
+      ariaLabel: this._modeLabel(climate.mode),
+      value: climate.mode,
+      options: climate.hvacModes.map((mode) => ({ value: mode, label: this._modeLabel(mode) })),
+      color,
+      onSelect: (value) => this._handleModeSelect(value as HvacMode),
+    });
+  }
+
+  private _renderPresetPill(climate: ClimateState, color: string): TemplateResult {
+    const label = (value: string) => formatClimateOption(this.hass, climate.entity, 'preset_mode', value);
+    return renderSelectorPill({
+      icon: PRESET_ICON,
+      display: climate.presetMode ? label(climate.presetMode) : '—',
+      ariaLabel: localize(this.hass, THERMOSTAT_TRANSLATIONS, 'preset_label'),
+      value: climate.presetMode ?? '',
+      options: climate.presetModes.map((value) => ({ value, label: label(value) })),
+      color,
+      onSelect: (value) => this._handlePresetSelect(climate.entity, value),
+    });
+  }
+
+  private _renderFanPill(climate: ClimateState, color: string): TemplateResult {
+    const label = (value: string) => formatClimateOption(this.hass, climate.entity, 'fan_mode', value);
+    return renderSelectorPill({
+      icon: FAN_ICON,
+      display: climate.fanMode ? label(climate.fanMode) : '—',
+      ariaLabel: localize(this.hass, THERMOSTAT_TRANSLATIONS, 'fan_label'),
+      value: climate.fanMode ?? '',
+      options: climate.fanModes.map((value) => ({ value, label: label(value) })),
+      color,
+      onSelect: (value) => this._handleFanSelect(climate.entity, value),
+    });
   }
 
   private _renderTargetPill(
@@ -585,7 +628,7 @@ export class NeonThermostatCard extends BaseNeonCard {
           : size === 'compact'
             ? this._renderCompactBody(climate, displayTarget)
             : this._renderRingBody(climate, displayTarget)}
-        ${this._renderModeSelector(climate)} ${this._renderFooter(size)}
+        ${this._renderModeSelectors(climate, size)} ${this._renderFooter(size)}
       </ha-card>
     `;
   }

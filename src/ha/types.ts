@@ -24,6 +24,10 @@ export interface HomeAssistant {
     service: string,
     serviceData?: Record<string, unknown>
   ): Promise<void>;
+  /** Formateador de atributos de HA (nombres de preset/ventilador ya
+      traducidos al idioma del usuario). Opcional: no existe en HA
+      antiguo ni en los `hass` parciales de los tests. */
+  formatEntityAttributeValue?(stateObj: HassEntityState, attribute: string, value?: unknown): string;
 }
 
 /**

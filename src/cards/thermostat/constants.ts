@@ -28,6 +28,10 @@ export const HVAC_MODE_ICONS: Record<HvacMode, string> = {
   off: 'mdi:power',
 };
 
+/** Iconos de los selectores de preset y ventilador de la vista grande. */
+export const PRESET_ICON = 'mdi:tune-variant';
+export const FAN_ICON = 'mdi:fan';
+
 /** Color semántico por defecto de cada modo — paleta viva, saturación a
     juego con `src/shared/neon-palette.ts`. heat_cool con hue propio
     (índigo/violeta) para no confundirse con el naranja de heat; dry en
