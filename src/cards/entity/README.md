@@ -17,7 +17,7 @@ Construida con [Lit](https://lit.dev) sobre `BaseNeonCard`
 - `neon-card-entity.ts` — la tarjeta (extiende `BaseNeonCard`).
 - `neon-card-entity-editor.ts` — el editor visual (Lit, bindings
   declarativos sobre `ha-entity-picker` / `hui-action-editor`).
-- `index.ts` — registra ambos custom elements y el banner de consola.
+- `index.ts` — registra ambos custom elements y llama a `logCardBanner` (banner solo en modo desarrollo).
 
 ## Build
 
@@ -56,7 +56,7 @@ Built with [Lit](https://lit.dev) on top of `BaseNeonCard`
 - `neon-card-entity.ts` — the card (extends `BaseNeonCard`).
 - `neon-card-entity-editor.ts` — the visual editor (Lit, declarative
   bindings over `ha-entity-picker` / `hui-action-editor`).
-- `index.ts` — registers both custom elements and the console banner.
+- `index.ts` — registers both custom elements and calls `logCardBanner` (banner only in development mode).
 
 ## Build
 
