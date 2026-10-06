@@ -34,6 +34,10 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 - En la interfaz de configuración de Entity y Thermostat, el término
   «aro» pasa a llamarse «halo», como en el resto del proyecto.
+- El CI (`ci.yml`) se ejecuta en cualquier push a cualquier rama y en
+  las PR hacia `main`, no solo en `main`: antes una rama de trabajo solo
+  pasaba por la validación de HACS y nadie comprobaba ESLint,
+  TypeScript, tests, build ni rendimiento hasta llegar a `main`.
 - Los editores de Entity y Thermostat dividen su `render()` en métodos
   por sección (acuerdo nº7); el DOM resultante es idéntico.
 - Los archivos del termostato que superaban las 500 líneas se dividen
@@ -203,6 +207,10 @@ and this project follows [Semantic Versioning](https://semver.org/).
 
 - In the Entity and Thermostat configuration UI, the term "ring" ("aro"
   in Spanish) is renamed "halo", as in the rest of the project.
+- CI (`ci.yml`) runs on any push to any branch and on pull requests to
+  `main`, not only on `main`: before, a working branch only went through
+  the HACS validation and nobody checked ESLint, TypeScript, tests, build
+  or performance until it reached `main`.
 - The Entity and Thermostat editors split their `render()` into
   per-section methods (agreement nº7); the resulting DOM is identical.
 - The thermostat files that exceeded 500 lines are split by
