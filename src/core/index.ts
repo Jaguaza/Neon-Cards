@@ -17,6 +17,7 @@ export {
 } from './gestures';
 export type { GestureState, TapHandlers } from './gestures';
 export { dispatchHassAction, openMoreInfo } from './actions';
+export { logCardBanner } from './banner';
 export { computeInfoDisplay, INFO_OPTIONS, getInfoLabels } from './info';
 export type { InfoOption } from './info';
 export { localize, resolveLocale, SUPPORTED_LOCALES, DEFAULT_LOCALE } from './localize';

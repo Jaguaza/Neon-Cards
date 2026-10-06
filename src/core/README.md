@@ -15,6 +15,8 @@ usamos la forma clásica `static properties` para respetar el acuerdo nº10
   el archivo).
 - `actions.ts` — despacho del evento `hass-action` para `tap_action` /
   `hold_action` / `double_tap_action`.
+- `banner.ts` — `logCardBanner`, el banner de versión de cada tarjeta; solo se
+  escribe en modo desarrollo (acuerdo nº22).
 - `info.ts` — `computeInfoDisplay`, calcula qué mostrar según
   `primary_info` / `secondary_info` (nombre, estado, último cambio...).
 
@@ -48,6 +50,8 @@ we use the classic `static properties` form to respect agreement nº10
   comment in the file).
 - `actions.ts` — dispatches the `hass-action` event for `tap_action` /
   `hold_action` / `double_tap_action`.
+- `banner.ts` — `logCardBanner`, each card's version banner; only written in
+  development mode (agreement nº22).
 - `info.ts` — `computeInfoDisplay`, computes what to show based on
   `primary_info` / `secondary_info` (name, state, last changed...).
 
