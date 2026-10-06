@@ -21,7 +21,7 @@ Cada tarjeta es una carpeta independiente en `src/cards/<nombre>/`
 | `<nombre>.styles.ts` | `css` propio de la tarjeta, separado del componente por tamaño (acuerdo nº7). |
 | `types.ts` | Interfaz `Config` de la tarjeta (extiende lo mínimo de `ActionConfig` de `src/ha/types`; termina en `[key: string]: unknown` — necesario para que `_configChanged` del editor compile con clave dinámica, no relleno "por si acaso". Documéntalo igual que en `src/cards/button/types.ts`). |
 | `constants.ts` | Valores por defecto propios; importa `NEON_CARDS_VERSION` de `../../version` para `CARD_VERSION`. |
-| `index.ts` | Registro: `customElements.define`, `window.customCards.push`, banner de consola. |
+| `index.ts` | Registro: `customElements.define`, `window.customCards.push` y `logCardBanner(...)` (el banner solo se escribe en modo desarrollo). |
 | `README.md` | Spec y config YAML bilingüe de la tarjeta (mismo patrón que `src/cards/button/README.md`). |
 | `translations/` | Todo el texto visible en español de esta tarjeta, `types.ts`+`es.ts`+`index.ts` — ver sección 4, "Traducciones". |
 

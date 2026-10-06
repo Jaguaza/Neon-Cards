@@ -14,6 +14,7 @@ Ver también la versión en [inglés](../en/api.md).
   - [Gestos (`gestures.ts`)](#gestos-gesturests)
   - [Acciones (`actions.ts`)](#acciones-actionsts)
   - [Información primaria/secundaria (`info.ts`)](#información-primariasecundaria-infots)
+  - [Banner de versión (`banner.ts`)](#banner-de-versión-bannerts)
   - [Traducciones (`localize.ts`)](#traducciones-localizets)
 - [`src/ha` — Tipos de Home Assistant](#srcha--tipos-de-home-assistant)
   - [Sensores (`sensors.ts`)](#sensores-sensorsts)
@@ -187,6 +188,23 @@ sobrevivirían entre pulsaciones.
 - **Ejemplo:**
   ```ts
   openMoreInfo(this, 'climate.salon');
+  ```
+
+---
+
+### Banner de versión (`banner.ts`)
+
+#### `logCardBanner(cardName, author, version)`
+
+- **Descripción:** escribe en la consola el banner de versión de una tarjeta (`NEON BUTTON CARD · By Jaguaza · v1.0.0`). Es un log, así que sigue el acuerdo nº22: **solo existe en modo desarrollo** (`npm run build:cards:dev`). En producción `__DEV__` vale `false`, el bundle no incluye ni el código ni los textos del banner, y la consola del usuario queda en silencio. Es el único punto del repositorio que escribe este mensaje: cada tarjeta lo llama una vez desde su `index.ts`.
+- **Parámetros:**
+  - `cardName: string` — nombre visible en mayúsculas, p. ej. `'NEON BUTTON CARD'`.
+  - `author: string`.
+  - `version: string`.
+- **Devuelve:** `void`.
+- **Ejemplo:**
+  ```ts
+  logCardBanner('NEON BUTTON CARD', CARD_AUTHOR, CARD_VERSION);
   ```
 
 ---
