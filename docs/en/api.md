@@ -14,6 +14,7 @@ See also the [Spanish version](../es/api.md).
   - [Gestures (`gestures.ts`)](#gestures-gesturests)
   - [Actions (`actions.ts`)](#actions-actionsts)
   - [Primary/secondary info (`info.ts`)](#primarysecondary-info-infots)
+  - [Version banner (`banner.ts`)](#version-banner-bannerts)
   - [Translations (`localize.ts`)](#translations-localizets)
 - [`src/ha` — Home Assistant types](#srcha--home-assistant-types)
   - [Sensors (`sensors.ts`)](#sensors-sensorsts)
@@ -185,6 +186,23 @@ wouldn't survive between taps.
 - **Example:**
   ```ts
   openMoreInfo(this, 'climate.living_room');
+  ```
+
+---
+
+### Version banner (`banner.ts`)
+
+#### `logCardBanner(cardName, author, version)`
+
+- **Description:** writes a card's version banner to the console (`NEON BUTTON CARD · By Jaguaza · v1.0.0`). It is a log, so it follows agreement nº22: **it only exists in development mode** (`npm run build:cards:dev`). In production `__DEV__` is `false`, the bundle includes neither the code nor the banner texts, and the user's console stays silent. It is the only place in the repository that writes this message: each card calls it once from its `index.ts`.
+- **Parameters:**
+  - `cardName: string` — display name in capitals, e.g. `'NEON BUTTON CARD'`.
+  - `author: string`.
+  - `version: string`.
+- **Returns:** `void`.
+- **Example:**
+  ```ts
+  logCardBanner('NEON BUTTON CARD', CARD_AUTHOR, CARD_VERSION);
   ```
 
 ---

@@ -38,6 +38,11 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   las PR hacia `main`, no solo en `main`: antes una rama de trabajo solo
   pasaba por la validación de HACS y nadie comprobaba ESLint,
   TypeScript, tests, build ni rendimiento hasta llegar a `main`.
+- El banner de versión de las tarjetas (Entity, Button y Thermostat) pasa
+  a `logCardBanner` (nuevo, en `src/core`) y solo se escribe en modo
+  desarrollo (acuerdo nº22): el bundle de producción ya no escribe nada
+  en la consola del usuario, ni incluye los textos del banner. Antes cada
+  tarjeta tenía su propio `console.info` sin proteger.
 - Los editores de Entity y Thermostat dividen su `render()` en métodos
   por sección (acuerdo nº7); el DOM resultante es idéntico.
 - Los archivos del termostato que superaban las 500 líneas se dividen
@@ -211,6 +216,11 @@ and this project follows [Semantic Versioning](https://semver.org/).
   `main`, not only on `main`: before, a working branch only went through
   the HACS validation and nobody checked ESLint, TypeScript, tests, build
   or performance until it reached `main`.
+- The cards' version banner (Entity, Button and Thermostat) moves to
+  `logCardBanner` (new, in `src/core`) and is only written in development
+  mode (agreement nº22): the production bundle no longer writes anything
+  to the user's console, nor includes the banner texts. Before, each card
+  had its own unguarded `console.info`.
 - The Entity and Thermostat editors split their `render()` into
   per-section methods (agreement nº7); the resulting DOM is identical.
 - The thermostat files that exceeded 500 lines are split by

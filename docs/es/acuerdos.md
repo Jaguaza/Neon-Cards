@@ -117,6 +117,9 @@ No se publica una versión si falla ESLint, TypeScript, tests o build.
 Dos modos: desarrollo (logs, avisos, diagnóstico) y producción (sin código
 de depuración, máximo rendimiento).
 
+Esto incluye el banner de versión: es un log y solo se escribe en desarrollo
+(`logCardBanner`). El bundle de producción no escribe nada en la consola.
+
 ## 23. Feature Flags internas
 
 Las funcionalidades experimentales se activan mediante flags internas. Nunca
