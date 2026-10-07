@@ -23,6 +23,7 @@ Ver también la versión en [inglés](../en/api.md).
   - [Paleta (`neon-palette.ts`)](#paleta-neon-palettets)
   - [Halo de icono (`glow.ts`)](#halo-de-icono-glowts)
   - [Aro partido (`glow.ts`)](#aro-partido-glowts)
+  - [Tamaño del aro (`ring-size.ts`)](#tamaño-del-aro-ring-sizets)
   - [Editor: carcasa común (`editor-form.styles.ts`)](#editor-carcasa-común-editor-formstylests)
   - [Traducciones compartidas (`translations/`)](#traducciones-compartidas-translations)
 - [Neón Card Entity — Configuración YAML](#neón-card-entity--configuración-yaml)
@@ -614,13 +615,39 @@ coordenadas en unidades reales (el atributo `d` no admite `%` ni
 - **Devuelve:** `TemplateResult` (Lit).
 - **Ejemplo:**
   ```ts
-  neonRingSplitTemplate(this._ringUid, this._ringSize.width, this._ringSize.height, this._ringSize.radius)
+  neonRingSplitTemplate(this._ringUid, this._ring.size.width, this._ring.size.height, this._ring.size.radius)
   ```
 
 **Uso:** la tarjeta anfitriona añade `NEON_RING_SPLIT_STYLES` a su
 `static styles`, pone la clase `neon-ring-host` en el contenedor y
 `neon-halo-active` cuando el estado es activo (comparte la clase con
 `NEON_HALO_STYLES`).
+
+---
+
+### Tamaño del aro (`ring-size.ts`)
+
+#### `RingSizeController`
+
+- **Descripción:** controlador reactivo de Lit que mantiene al día el tamaño real de `ha-card` (ancho, alto y radio de borde), que `neonRingSplitTemplate` necesita porque el atributo `d` de un `<path>` no admite porcentajes. Sustituye al bucle `requestAnimationFrame` continuo que usaban Button y Thermostat (60 callbacks por segundo y tarjeta, también en reposo). Mide solo cuando puede haber cambiado algo:
+  1. `ResizeObserver` sobre el `ha-card` **actual**: si Lit lo sustituye (p. ej. al pasar de «entidad no disponible» a la vista normal), se vuelve a observar el nuevo, porque un observer atado a un nodo descartado no avisa más.
+  2. Una medida tras cada renderizado, fusionada en un único frame, que recoge lo que el observer no ve (el radio de borde del tema).
+  3. Una ráfaga corta de medidas al conectar (30 frames, ~0,5 s) para la carrera de layout cuando el editor de HA crea o mueve la tarjeta.
+
+  Al desconectar se cancela todo, y al reconectar se crea un observer nuevo. En reposo no queda ningún callback programado.
+- **Constructor:** `new RingSizeController(host, selector = 'ha-card')`, con `host` una `ReactiveElement` (se registra solo con `addController`).
+- **Propiedad:** `size: RingSize` — `{ width, height, radius }`, última medida válida. Se descartan las lecturas menores de 4 px (tarjeta oculta o sin layout).
+- **Efecto:** cuando la medida cambia, llama a `host.requestUpdate()`; la tarjeta solo tiene que leer `size` en `render()`.
+- **Requisito:** `ResizeObserver` solo informa de elementos con caja (`display` distinto de `inline`). El `ha-card` de Home Assistant la tiene; si una tarjeta usa otro elemento, su CSS debe darle `display: block` o `flex`.
+- **Ejemplo:**
+  ```ts
+  private readonly _ring = new RingSizeController(this);
+
+  render() {
+    const { width, height, radius } = this._ring.size;
+    return html`<ha-card>${neonRingSplitTemplate(this._ringUid, width, height, radius)}…</ha-card>`;
+  }
+  ```
 
 ---
 

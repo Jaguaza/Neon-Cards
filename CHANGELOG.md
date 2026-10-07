@@ -38,6 +38,16 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   las PR hacia `main`, no solo en `main`: antes una rama de trabajo solo
   pasaba por la validación de HACS y nadie comprobaba ESLint,
   TypeScript, tests, build ni rendimiento hasta llegar a `main`.
+- Button y Thermostat ya no ejecutan un `requestAnimationFrame` continuo
+  (60 callbacks por segundo y tarjeta, incluso en reposo) para medir el
+  aro. Lo sustituye `RingSizeController` (nuevo, en `src/shared`):
+  `ResizeObserver` sobre el `ha-card` actual, una medida tras cada
+  renderizado y una ráfaga corta al conectar. Con 10 tarjetas en reposo,
+  de 600 callbacks por segundo y ~30 ms de CPU por segundo a 0 y 0,3 ms;
+  con actualizaciones de Home Assistant, el coste queda acotado por su
+  frecuencia. El aro sigue el tamaño en los mismos casos que antes
+  (redimensionar, cambiar el contenido, mover la tarjeta, tarjeta
+  oculta, cambio de radio del tema).
 - El banner de versión de las tarjetas (Entity, Button y Thermostat) pasa
   a `logCardBanner` (nuevo, en `src/core`) y solo se escribe en modo
   desarrollo (acuerdo nº22): el bundle de producción ya no escribe nada
@@ -216,6 +226,16 @@ and this project follows [Semantic Versioning](https://semver.org/).
   `main`, not only on `main`: before, a working branch only went through
   the HACS validation and nobody checked ESLint, TypeScript, tests, build
   or performance until it reached `main`.
+- Button and Thermostat no longer run a continuous
+  `requestAnimationFrame` (60 callbacks per second per card, even at
+  rest) to measure the ring. `RingSizeController` (new, in `src/shared`)
+  replaces it: `ResizeObserver` on the current `ha-card`, a measurement
+  after each render and a short burst on connect. With 10 cards at rest,
+  from 600 callbacks per second and ~30 ms of CPU per second to 0 and
+  0.3 ms; with Home Assistant updates, the cost is bounded by their
+  frequency. The ring follows the size in the same cases as before
+  (resizing, content changes, moving the card, hidden card, theme radius
+  change).
 - The cards' version banner (Entity, Button and Thermostat) moves to
   `logCardBanner` (new, in `src/core`) and is only written in development
   mode (agreement nº22): the production bundle no longer writes anything
