@@ -103,29 +103,7 @@ Botón minimalista con animaciones SVG, paletas dinámicas y arquitectura modula
 <a name="Termostato-card"></a>
 ### **🌡 Neón Termostato Card.**
 
-Botón minimalista con animaciones SVG, paletas dinámicas y arquitectura modular.
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/button/Button%201.jpg" width="450" style="margin-right:20px;"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/button/Button%202.jpg" width="450" style="margin-right:20px;">
-</p>
 
-### **Paletas disponibles**
-
-- **Cyber Emerald** *(Predeterminada)*  
-- **Cyberpunk Pink:** Rosa, Carmesí, Púrpura  
-- **Electric Blue:** Cian, Azul, Azul Oscuro  
-- **Sunset Amber:** Naranja, Amarillo, Rosa  
-- **Toxic Purple:** Violeta, Púrpura, Azul  
-- **Personalizado:** Elige tus propios colores.
-
-### **Titulo y Subtitulo**
-- **Titulo:** Incluye selector de: título personalizado, nombre de la entidad, etc.
-- **Subtítulo:** Incluye selector de: Nombre, Último cambio, etc.
-
-### **Selector de sensores**
-- **Sensor Libre:** Sensor que se encuentra justo debajo del subtítulo de la tarjeta.
-- **Grupo Sensores:** Situados debajo del sensor libre y se puede añadir desde 1 hasta 3 sensores.
-
----
 
 ## 🚀 Próximamente
 
