@@ -9,6 +9,7 @@ import {
   NEON_RING_SPLIT_STYLES,
   neonHaloVars,
   neonRingSplitTemplate,
+  RingSizeController,
   resolveGradientColors,
 } from '../../shared';
 import {
@@ -51,7 +52,6 @@ export class NeonThermostatCard extends BaseNeonCard {
     ...BaseNeonCard.properties,
     _config: { state: true },
     _dragTemp: { state: true },
-    _ringSize: { state: true },
     _ringForcedOff: { state: true },
   };
 
@@ -62,13 +62,11 @@ export class NeonThermostatCard extends BaseNeonCard {
   private _dragging = false;
 
   /** Aro perimetral de la tarjeta (borde): id estable por instancia
-      para el <linearGradient>, tamaño real medido con
-      requestAnimationFrame en bucle continuo mientras la tarjeta esté
-      conectada (un ResizeObserver no disparaba de forma fiable tras
-      crear/mover tarjetas en el editor de HA). */
+      para el <linearGradient>, y tamaño real de ha-card, que mantiene al
+      día `RingSizeController` con ResizeObserver, una medida tras cada
+      renderizado y una ráfaga corta al conectar: nada corre en reposo. */
   private readonly _ringUid = Math.random().toString(36).slice(2);
-  private _ringSize = { width: 0, height: 0, radius: 12 };
-  private _ringRafId?: number;
+  private readonly _ring = new RingSizeController(this);
 
   /** Último `hvac_mode` visto — para detectar un CAMBIO de modo (no
       solo de actividad). Sin esto, pasar de un modo activo a otro que
@@ -388,7 +386,7 @@ export class NeonThermostatCard extends BaseNeonCard {
 
     return html`
       <ha-card data-size=${size} class="neon-ring-host ${active ? 'neon-halo-active' : ''}" style=${neonHaloVars(ringColors)}>
-        ${neonRingSplitTemplate(this._ringUid, this._ringSize.width, this._ringSize.height, this._ringSize.radius)}
+        ${neonRingSplitTemplate(this._ringUid, this._ring.size.width, this._ring.size.height, this._ring.size.radius)}
         ${size === 'compact' ? renderCompactHeader(header) : renderHeader(header)}
         ${this._renderBody(climate, size, displayTarget)} ${this._renderModeSelectors(climate, size)}
         ${renderFooter(this._config?.footer, this.hass, size)}
@@ -396,14 +394,8 @@ export class NeonThermostatCard extends BaseNeonCard {
     `;
   }
 
-  connectedCallback(): void {
-    super.connectedCallback();
-    this._ringLoop();
-  }
-
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    cancelAnimationFrame(this._ringRafId ?? -1);
     clearTimeout(this._ringForceTimer);
   }
 
@@ -446,20 +438,5 @@ export class NeonThermostatCard extends BaseNeonCard {
     this._ringForceTimer = window.setTimeout(() => {
       this._ringForcedOff = false;
     }, 950);
-  }
-
-  private _ringLoop(): void {
-    const cardEl = this.renderRoot?.querySelector('ha-card') as HTMLElement | null;
-    if (cardEl) {
-      const width = cardEl.offsetWidth;
-      const height = cardEl.offsetHeight;
-      if (width >= 4 && height >= 4) {
-        const radius = parseFloat(getComputedStyle(cardEl).borderTopLeftRadius) || 12;
-        if (width !== this._ringSize.width || height !== this._ringSize.height || radius !== this._ringSize.radius) {
-          this._ringSize = { width, height, radius };
-        }
-      }
-    }
-    this._ringRafId = requestAnimationFrame(() => this._ringLoop());
   }
 }
