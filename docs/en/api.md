@@ -23,6 +23,7 @@ See also the [Spanish version](../es/api.md).
   - [Palette (`neon-palette.ts`)](#palette-neon-palettets)
   - [Icon halo (`glow.ts`)](#icon-halo-glowts)
   - [Split ring (`glow.ts`)](#split-ring-glowts)
+  - [Ring size (`ring-size.ts`)](#ring-size-ring-sizets)
   - [Editor: shared shell (`editor-form.styles.ts`)](#editor-shared-shell-editor-formstylests)
   - [Shared translations (`translations/`)](#shared-translations-translations)
 - [Neón Card Entity — YAML configuration](#neón-card-entity--yaml-configuration)
@@ -619,13 +620,39 @@ attribute doesn't support `%` or `calc()`).
 - **Returns:** `TemplateResult` (Lit).
 - **Example:**
   ```ts
-  neonRingSplitTemplate(this._ringUid, this._ringSize.width, this._ringSize.height, this._ringSize.radius)
+  neonRingSplitTemplate(this._ringUid, this._ring.size.width, this._ring.size.height, this._ring.size.radius)
   ```
 
 **Usage:** the host card adds `NEON_RING_SPLIT_STYLES` to its `static
 styles`, puts the `neon-ring-host` class on the container, and
 `neon-halo-active` when the state is active (shared class with
 `NEON_HALO_STYLES`).
+
+---
+
+### Ring size (`ring-size.ts`)
+
+#### `RingSizeController`
+
+- **Description:** Lit reactive controller that keeps the real size of `ha-card` (width, height and border radius) up to date, which `neonRingSplitTemplate` needs because a `<path>`'s `d` attribute does not accept percentages. It replaces the continuous `requestAnimationFrame` loop Button and Thermostat used (60 callbacks per second per card, even at rest). It only measures when something may have changed:
+  1. `ResizeObserver` on the **current** `ha-card`: if Lit replaces it (e.g. going from "entity unavailable" to the normal view), the new one is observed again, because an observer bound to a discarded node never notifies again.
+  2. A measurement after each render, coalesced into a single frame, which picks up what the observer cannot see (the theme's border radius).
+  3. A short burst of measurements on connect (30 frames, ~0.5 s) for the layout race when the HA editor creates or moves the card.
+
+  On disconnect everything is cancelled, and on reconnect a new observer is created. At rest no callback is left scheduled.
+- **Constructor:** `new RingSizeController(host, selector = 'ha-card')`, with `host` a `ReactiveElement` (it registers itself with `addController`).
+- **Property:** `size: RingSize` — `{ width, height, radius }`, the last valid measurement. Readings under 4 px (hidden card or no layout) are discarded.
+- **Effect:** when the measurement changes, it calls `host.requestUpdate()`; the card only has to read `size` in `render()`.
+- **Requirement:** `ResizeObserver` only reports elements with a box (`display` other than `inline`). Home Assistant's `ha-card` has one; if a card uses another element, its CSS must give it `display: block` or `flex`.
+- **Example:**
+  ```ts
+  private readonly _ring = new RingSizeController(this);
+
+  render() {
+    const { width, height, radius } = this._ring.size;
+    return html`<ha-card>${neonRingSplitTemplate(this._ringUid, width, height, radius)}…</ha-card>`;
+  }
+  ```
 
 ---
 
