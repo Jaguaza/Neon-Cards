@@ -152,7 +152,7 @@ footer:
 
 ### GIF
 
-![Neón Card Entity en acción](../assets/gifs/Termostato%20Gif.gif)
+![Neón Thermostat Card en acción](../assets/gifs/Termostato%20Gif.gif)
 
 ### Explicación
 
@@ -324,14 +324,14 @@ footer:
     icon: mdi:motion-sensor
 ```
 
-### Capturas
+### Screenshots
 
-![Neón Thermostat Card, Card in standby mode](../assets/screenshots/termostato/thermostat-views.jpg)
-![Neón Thermostat Card, Card active](../assets/screenshots/termostato/thermostat-views1.jpg)
+![Neón Thermostat Card, standby](../assets/screenshots/termostato/thermostat-views.jpg)
+![Neón Thermostat Card, active](../assets/screenshots/termostato/thermostat-views1.jpg)
 
 ### GIF
 
-![Neón Card Entity en acción](../assets/gifs/Termostato%20Gif.gif)
+![Neón Thermostat Card in action](../assets/gifs/Termostato%20Gif.gif)
 
 ### Explanation
 
