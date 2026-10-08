@@ -189,6 +189,36 @@ const CARD_PROFILES = {
       return { states, callService: async () => {} };
     },
   },
+  sensor: {
+    elementName: 'neon-sensor-card',
+    entry: 'src/cards/sensor/neon-sensor-card.ts',
+    exportName: 'NeonSensorCard',
+    entityDomain: 'sensor',
+    makeConfig: (entityId) => ({
+      entity: entityId,
+      name: 'Temperatura exterior',
+      warning_above: 25,
+      critical_above: 30,
+    }),
+    makeHass: (entityIds, tick) => {
+      const states = {};
+      for (const id of entityIds) {
+        states[id] = {
+          entity_id: id,
+          state: String(18 + (tick % 15)),
+          last_changed: new Date().toISOString(),
+          last_updated: new Date().toISOString(),
+          attributes: { unit_of_measurement: '°C', device_class: 'temperature', friendly_name: `Sensor de prueba ${id}` },
+        };
+      }
+      // callWS simula el histórico para que el gráfico se pinte de verdad.
+      const callWS = async (msg) => {
+        const now = Date.now() / 1000;
+        return { [msg.entity_ids[0]]: Array.from({ length: 30 }, (_, i) => ({ s: String(15 + (i % 9)), lu: now - (30 - i) * 600 })) };
+      };
+      return { states, callService: async () => {}, callWS };
+    },
+  },
 };
 
 async function loadCardClass(profile) {
