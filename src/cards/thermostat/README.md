@@ -16,8 +16,10 @@ mismo framework (`src/core`, `src/shared`, `src/ha`) que
 A diferencia de Button, el tamaño **no** se calcula del contenido:
 se elige con la clave `size` (`'large' | 'normal' | 'compact'`,
 por defecto `'normal'`), cada uno con su propio layout — el dial
-completo solo se ve en `large`; `normal`/`compact` usan un indicador
-circular más pequeño, y `compact` no muestra footer de sensores.
+semicircular completo solo se ve en `large`; `normal` usa un aro
+alrededor de la temperatura actual, y `compact` no dibuja ningún
+indicador (solo la temperatura y la píldora −/+) ni muestra footer de
+sensores.
 
 ## Config mínima
 
@@ -158,9 +160,10 @@ design.
 
 Unlike Button, the size is **not** computed from content: it's chosen
 with the `size` key (`'large' | 'normal' | 'compact'`, defaulting to
-`'normal'`), each with its own layout — the full dial only appears in
-`large`; `normal`/`compact` use a smaller circular indicator, and
-`compact` shows no sensor footer.
+`'normal'`), each with its own layout — the full semicircular dial only
+appears in `large`; `normal` uses a ring around the current
+temperature, and `compact` draws no indicator at all (just the
+temperature and the −/+ pill) and shows no sensor footer.
 
 ## Minimal config
 
