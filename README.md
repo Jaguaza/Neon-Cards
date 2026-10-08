@@ -178,12 +178,6 @@ Termostato con dial neón arrastrable, color por modo y soporte para **una o dos
 
 La consigna se ajusta arrastrando el dial o el aro (en `large` y `normal`) o con la píldora **−/+** (en las tres vistas). El salto lo marca `step`; si no lo indicas, se usa el de la entidad y, si no tiene, 0,5 °.
 
-<!--
-  📸 FOTO 2 — Vista GRANDE con las tres píldoras (modo + preset + ventilador) en una entidad que las soporte
-  Archivo sugerido: assets/screenshots/thermostat/thermostat-large.jpg
-  Para activarla, borra estas líneas de comentario y deja solo esta:
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/thermostat/thermostat-large.jpg" width="450"></p>
--->
 
 ### **Modos y colores**
 
@@ -199,12 +193,6 @@ Cada modo HVAC tiene su color. Solo aparecen los modos que tu entidad expone en 
 
 Puedes usar un único color para todos los modos o elegir el de cada uno (`color`, también desde el editor). El icono de la cabecera cambia solo según el modo.
 
-<!--
-  📸 FOTO 3 — Collage con el dial en varios modos (calor, frío, auto, seco, ventilador) para mostrar los colores
-  Archivo sugerido: assets/screenshots/thermostat/thermostat-colors.jpg
-  Para activarla, borra estas líneas de comentario y deja solo esta:
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/thermostat/thermostat-colors.jpg" width="450"></p>
--->
 
 ### **Una o dos entidades**
 
@@ -215,12 +203,6 @@ Con `entity_2` la tarjeta junta dos equipos separados:
 - **Nunca trabajan a la vez en modos distintos:** al activar un modo en una, la otra se apaga sola.
 - Arriba a la derecha hay un botón por entidad que abre su diálogo de más información.
 
-<!--
-  📸 FOTO 4 — Tarjeta con dos entidades (calefacción + aire acondicionado): selector con la unión de modos y los dos botones de la cabecera
-  Archivo sugerido: assets/screenshots/thermostat/thermostat-two-entities.jpg
-  Para activarla, borra estas líneas de comentario y deja solo esta:
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/thermostat/thermostat-two-entities.jpg" width="450"></p>
--->
 
 ### **Preset y ventilador (vista grande)**
 
@@ -234,12 +216,6 @@ El aro neón del borde de la tarjeta **solo se enciende cuando el equipo está f
 
 Hasta 3 sensores bajo la tarjeta (temperatura, humedad, consumo…), cada uno con su icono y su estado. No se muestran en la vista compacta.
 
-<!--
-  📸 FOTO 5 — Vista grande o normal con 2 o 3 sensores de pie (humedad, consumo…)
-  Archivo sugerido: assets/screenshots/thermostat/thermostat-footer.jpg
-  Para activarla, borra estas líneas de comentario y deja solo esta:
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/thermostat/thermostat-footer.jpg" width="450"></p>
--->
 
 ### **Configuración mínima**
 
@@ -259,19 +235,8 @@ size: large
 footer:
   - entity: sensor.salon_humidity
 ```
-
-<!--
-  📸 FOTO 6 — Editor visual del termostato (la sección de la entidad y el selector de tamaño)
-  Archivo sugerido: assets/screenshots/thermostat/thermostat-editor.jpg
-  Para activarla, borra estas líneas de comentario y deja solo esta:
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/thermostat/thermostat-editor.jpg" width="450"></p>
--->
-<!--
-  📸 FOTO 7 (OPCIONAL) — GIF corto arrastrando el dial y cambiando de modo
-  Archivo sugerido: assets/gifs/thermostat.gif
-  Para activarlo, borra estas líneas de comentario y deja solo esta:
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/thermostat.gif" width="450"></p>
--->
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/Termostato%20Gif.gif" width="450"></p>
+  
 
 ## 🚀 Próximamente
 
@@ -475,25 +440,14 @@ name: Living room
 icon: mdi:sofa
 ```
 
-<!--
-  📸 FOTO OPCIONAL B — Button con la entidad no disponible (icono ✕) o con sensores agrupados (misma imagen que en la sección en español)
-  Archivo sugerido: assets/screenshots/button/button-unavailable.jpg
-  Para activarla, borra estas líneas de comentario y deja solo esta:
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/button/button-unavailable.jpg" width="450"></p>
--->
-
 ---
 <a name="thermostat-card-gb"></a>
 ### **🌡 Neon Thermostat Card**
 
 Thermostat with a draggable neon dial, a color per mode and support for **one or two `climate` entities**: a single device, or two separate ones (for example heating and air conditioning) working as a single card.
 
-<!--
-  📸 FOTO 1 — HÉROE: las tres vistas (grande, normal y compacta) juntas (misma imagen que en la sección en español)
-  Archivo sugerido: assets/screenshots/thermostat/thermostat-views.jpg
-  Para activarla, borra estas líneas de comentario y deja solo esta:
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/thermostat/thermostat-views.jpg" width="450"></p>
--->
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/termostato/thermostat-views.jpg" width="450"></p>
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/termostato/thermostat-views1.jpg" width="450"></p>
 
 ### **Three views**
 
@@ -504,13 +458,6 @@ Thermostat with a draggable neon dial, a color per mode and support for **one or
 | `compact` | Current temperature and a −/+ pill, with no graphic indicator or sensor footer | 4 columns |
 
 The target is adjusted by dragging the dial or ring (in `large` and `normal`) or with the **−/+** pill (in all three views). The jump is set by `step`; if you omit it, the entity's own step is used and, if it has none, 0.5°.
-
-<!--
-  📸 FOTO 2 — Vista GRANDE con las tres píldoras (modo + preset + ventilador) (misma imagen que en la sección en español)
-  Archivo sugerido: assets/screenshots/thermostat/thermostat-large.jpg
-  Para activarla, borra estas líneas de comentario y deja solo esta:
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/thermostat/thermostat-large.jpg" width="450"></p>
--->
 
 ### **Modes and colors**
 
@@ -526,12 +473,6 @@ Each HVAC mode has its own color. Only the modes your entity exposes in `hvac_mo
 
 You can use a single color for every mode or pick one per mode (`color`, also from the editor). The header icon follows the mode on its own.
 
-<!--
-  📸 FOTO 3 — Collage con el dial en varios modos (misma imagen que en la sección en español)
-  Archivo sugerido: assets/screenshots/thermostat/thermostat-colors.jpg
-  Para activarla, borra estas líneas de comentario y deja solo esta:
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/thermostat/thermostat-colors.jpg" width="450"></p>
--->
 
 ### **One or two entities**
 
@@ -542,12 +483,6 @@ With `entity_2` the card brings two separate devices together:
 - **They never run at the same time in different modes:** turning on a mode in one switches the other off on its own.
 - At the top right there is a button per entity that opens its more-info dialog.
 
-<!--
-  📸 FOTO 4 — Tarjeta con dos entidades (calefacción + aire acondicionado) (misma imagen que en la sección en español)
-  Archivo sugerido: assets/screenshots/thermostat/thermostat-two-entities.jpg
-  Para activarla, borra estas líneas de comentario y deja solo esta:
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/thermostat/thermostat-two-entities.jpg" width="450"></p>
--->
 
 ### **Preset and fan (large view)**
 
@@ -561,12 +496,6 @@ The neon ring around the card's border **only lights up when the device is actua
 
 Up to 3 sensors below the card (temperature, humidity, power…), each with its icon and state. They are not shown in the compact view.
 
-<!--
-  📸 FOTO 5 — Vista grande o normal con 2 o 3 sensores de pie (misma imagen que en la sección en español)
-  Archivo sugerido: assets/screenshots/thermostat/thermostat-footer.jpg
-  Para activarla, borra estas líneas de comentario y deja solo esta:
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/thermostat/thermostat-footer.jpg" width="450"></p>
--->
 
 ### **Minimal configuration**
 
@@ -586,14 +515,7 @@ size: large
 footer:
   - entity: sensor.living_room_humidity
 ```
-
-<!--
-  📸 FOTO 6 — Editor visual del termostato (misma imagen que en la sección en español)
-  Archivo sugerido: assets/screenshots/thermostat/thermostat-editor.jpg
-  Para activarla, borra estas líneas de comentario y deja solo esta:
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/thermostat/thermostat-editor.jpg" width="450"></p>
--->
-
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/Termostato%20Gif.gif" width="450"></p>
 ---
 
 ## 🚀 Coming Soon
