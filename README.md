@@ -164,12 +164,9 @@ icon: mdi:sofa
 
 Termostato con dial neón arrastrable, color por modo y soporte para **una o dos entidades `climate`**: un único equipo, o dos separados (por ejemplo calefacción y aire acondicionado) funcionando como una sola tarjeta.
 
-<!--
-  📸 FOTO 1 — HÉROE: las tres vistas (grande, normal y compacta) juntas, en un panel real
-  Archivo sugerido: assets/screenshots/thermostat/thermostat-views.jpg
-  Para activarla, borra estas líneas de comentario y deja solo esta:
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/thermostat/thermostat-views.jpg" width="450"></p>
--->
+
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/termostato/thermostat-views.jpg" width="450"></p>
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/termostato/thermostat-views1.jpg" width="450"></p>
 
 ### **Tres vistas**
 
