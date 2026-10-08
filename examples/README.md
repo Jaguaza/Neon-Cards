@@ -147,9 +147,8 @@ footer:
 
 ### Capturas
 
-![Neón Thermostat Card, tamaño grande](../assets/screenshots/thermostat/Thermostat%20large.jpg)
-![Neón Thermostat Card, tamaño normal](../assets/screenshots/thermostat/Thermostat%20normal.jpg)
-![Neón Thermostat Card, tamaño compacto](../assets/screenshots/thermostat/Thermostat%20compact.jpg)
+![Neón Thermostat Card, en reposo](../assets/screenshots/termostato/thermostat-views.jpg)
+![Neón Thermostat Card, activada](../assets/screenshots/termostato/thermostat-views1.jpg)
 
 ### Explicación
 
@@ -323,9 +322,8 @@ footer:
 
 ### Screenshots
 
-![Neón Thermostat Card, large size](../assets/screenshots/thermostat/Thermostat%20large.jpg)
-![Neón Thermostat Card, normal size](../assets/screenshots/thermostat/Thermostat%20normal.jpg)
-![Neón Thermostat Card, compact size](../assets/screenshots/thermostat/Thermostat%20compact.jpg)
+![Neón Thermostat Card, en reposo](../assets/screenshots/termostato/thermostat-views.jpg)
+![Neón Thermostat Card, activada](../assets/screenshots/termostato/thermostat-views1.jpg)
 
 ### Explanation
 
