@@ -11,6 +11,17 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
+- **Neón Sensor Card** (`custom:neon-sensor-card`): tarjeta de solo
+  lectura para una entidad `sensor` o `binary_sensor` (cualquier otro
+  dominio se rechaza). Muestra valor, unidad y estado (Normal / Alto /
+  Bajo / Crítico / Sin señal por umbrales), con tres tamaños según el
+  ancho real, tres modos de color (uno, por estado o personalizado por
+  estado) y un gráfico del histórico con trazo tipo monitor de
+  constantes vitales y halo de color. Sin pie de sensores. Editor visual.
+- `src/ha/history.ts` (`fetchHistory`, `parseHistory`) y `callWS`
+  opcional en `HomeAssistant`, documentados en la referencia de API.
+- Perfil `sensor` en `npm run perf` y tests nuevos para el estado, los
+  colores, el trazo y el histórico.
 - **Neón Thermostat Card** (`custom:neon-thermostat-card`): tarjeta para
   una o dos entidades `climate`, con vista grande (dial semicircular),
   normal (aro alrededor de la temperatura) y compacta (línea), consigna
@@ -199,6 +210,17 @@ and this project follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **Neón Sensor Card** (`custom:neon-sensor-card`): read-only card for
+  a `sensor` or `binary_sensor` entity (any other domain is rejected).
+  Shows value, unit and status (Normal / High / Low / Critical / No
+  signal from thresholds), with three sizes based on real width, three
+  color modes (single, per state or custom per state) and a history
+  graph with a vital-signs-monitor trace and colored glow. No sensor
+  footer. Visual editor.
+- `src/ha/history.ts` (`fetchHistory`, `parseHistory`) and an optional
+  `callWS` on `HomeAssistant`, documented in the API reference.
+- `sensor` profile in `npm run perf` and new tests for status, colors,
+  the trace and history.
 - **Neón Thermostat Card** (`custom:neon-thermostat-card`): card for one
   or two `climate` entities, with a large (semicircular dial), normal
   (ring around the temperature) and compact (line) view, a draggable

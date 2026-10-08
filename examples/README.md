@@ -173,6 +173,60 @@ activas juntas en el *mismo* modo sí está permitido. Igual que Button,
 admite un footer de sensores (dominios `sensor`/`binary_sensor`,
 máximo 3).
 
+
+---
+
+## Neón Sensor Card (`custom:neon-sensor-card`)
+
+### YAML mínimo
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.temperatura_exterior
+```
+
+### YAML avanzado
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.temperatura_exterior
+name: Temperatura Exterior
+icon: mdi:thermometer
+show_graph: true
+graph_hours: 24
+color_mode: custom_state
+state_colors:
+  normal: "#1ecdf2"
+  warning: "#ffb347"
+  critical: "#ff3d5a"
+warning_above: 25
+critical_above: 30
+tap_action:
+  action: more-info
+```
+
+Con un sensor binario:
+
+```yaml
+type: custom:neon-sensor-card
+entity: binary_sensor.puerta_entrada
+alert_state: "on"
+color_mode: state
+```
+
+### Explicación
+
+Neón Sensor Card muestra una única entidad `sensor` o `binary_sensor`
+(cualquier otro dominio se rechaza): nombre, icono, valor con unidad y
+estado (Normal / Alto / Bajo / Crítico / Sin señal, según los umbrales
+configurados). Con `show_graph` dibuja el histórico como el trazo de un
+monitor de constantes vitales: una ventana luminosa barre la línea de
+izquierda a derecha con su estela y el halo del color de la tarjeta. El
+color puede ser uno solo (paleta), automático por estado o propio por
+estado. El tamaño (compacta, normal, grande) sale del ancho real de la
+tarjeta en el grid; la compacta no muestra gráfico. No lleva pie de
+sensores.
+
 ---
 
 <a id="examples-english"></a>
@@ -349,3 +403,56 @@ where the change comes from: the card, the entity's own dialog, or an
 automation), while being active in the *same* mode together is allowed.
 Like Button, it supports a sensor footer (`sensor`/`binary_sensor`
 domains, max 3).
+
+
+---
+
+## Neón Sensor Card (`custom:neon-sensor-card`)
+
+### Minimal YAML
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.outdoor_temperature
+```
+
+### Advanced YAML
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.outdoor_temperature
+name: Outdoor Temperature
+icon: mdi:thermometer
+show_graph: true
+graph_hours: 24
+color_mode: custom_state
+state_colors:
+  normal: "#1ecdf2"
+  warning: "#ffb347"
+  critical: "#ff3d5a"
+warning_above: 25
+critical_above: 30
+tap_action:
+  action: more-info
+```
+
+With a binary sensor:
+
+```yaml
+type: custom:neon-sensor-card
+entity: binary_sensor.front_door
+alert_state: "on"
+color_mode: state
+```
+
+### Explanation
+
+Neón Sensor Card shows a single `sensor` or `binary_sensor` entity (any
+other domain is rejected): name, icon, value with unit and status
+(Normal / High / Low / Critical / No signal, based on the configured
+thresholds). With `show_graph` it draws the history like the trace of a
+vital-signs monitor: a bright window sweeps the line left to right with
+its trail and the glow of the card's color. Color can be a single one
+(palette), automatic per state or your own per state. Size (compact,
+normal, large) comes from the card's real width in the grid; compact
+shows no graph. It has no sensor footer.
