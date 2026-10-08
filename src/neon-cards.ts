@@ -11,3 +11,4 @@
  */
 import './cards/entity';
 import './cards/button';
+import './cards/thermostat';

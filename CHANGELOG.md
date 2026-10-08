@@ -9,6 +9,59 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Neón Thermostat Card** (`custom:neon-thermostat-card`): tarjeta para
+  una o dos entidades `climate`, con vista grande (dial semicircular),
+  normal (aro alrededor de la temperatura) y compacta (línea), consigna
+  arrastrable o con píldora −/+, selector de modo HVAC, color por modo,
+  pie de sensores (hasta 3) y editor visual. Con `entity_2` reúne dos
+  equipos separados y `mode_owner` resuelve los modos compartidos. En
+  la vista grande, el selector de modo se acompaña de uno de **preset**
+  y otro de **ventilador** cuando la entidad los expone.
+- **Inglés** en las 5 zonas de texto del repositorio (núcleo, compartido,
+  Entity, Button y Thermostat): la interfaz de configuración se muestra
+  en el idioma de Home Assistant, con el español como respaldo.
+- `src/ha/climate.ts` (`getClimateState`, `clampToStep`,
+  `isClimateRunning`, `formatClimateOption`) y `openMoreInfo` en `src/core`, documentados en la
+  referencia de API.
+- Perfil `thermostat` en `npm run perf` y tests nuevos para `climate`,
+  la geometría del dial y el estado combinado.
+- README de la tarjeta, capturas y entrada en `examples/` (YAML mínimo
+  y avanzado, explicación), en español e inglés.
+
+### Changed
+
+- En la interfaz de configuración de Entity y Thermostat, el término
+  «aro» pasa a llamarse «halo», como en el resto del proyecto.
+- El CI (`ci.yml`) se ejecuta en cualquier push a cualquier rama y en
+  las PR hacia `main`, no solo en `main`: antes una rama de trabajo solo
+  pasaba por la validación de HACS y nadie comprobaba ESLint,
+  TypeScript, tests, build ni rendimiento hasta llegar a `main`.
+- Button y Thermostat ya no ejecutan un `requestAnimationFrame` continuo
+  (60 callbacks por segundo y tarjeta, incluso en reposo) para medir el
+  aro. Lo sustituye `RingSizeController` (nuevo, en `src/shared`):
+  `ResizeObserver` sobre el `ha-card` actual, una medida tras cada
+  renderizado y una ráfaga corta al conectar. Con 10 tarjetas en reposo,
+  de 600 callbacks por segundo y ~30 ms de CPU por segundo a 0 y 0,3 ms;
+  con actualizaciones de Home Assistant, el coste queda acotado por su
+  frecuencia. El aro sigue el tamaño en los mismos casos que antes
+  (redimensionar, cambiar el contenido, mover la tarjeta, tarjeta
+  oculta, cambio de radio del tema).
+- El banner de versión de las tarjetas (Entity, Button y Thermostat) pasa
+  a `logCardBanner` (nuevo, en `src/core`) y solo se escribe en modo
+  desarrollo (acuerdo nº22): el bundle de producción ya no escribe nada
+  en la consola del usuario, ni incluye los textos del banner. Antes cada
+  tarjeta tenía su propio `console.info` sin proteger.
+- Los editores de Entity y Thermostat dividen su `render()` en métodos
+  por sección (acuerdo nº7); el DOM resultante es idéntico.
+- Los archivos del termostato que superaban las 500 líneas se dividen
+  por responsabilidad: estilos por zona, y la tarjeta (de 700 a menos
+  de 500 líneas) delega la presentación en `dial-views.ts`, `header.ts`,
+  `footer.ts`, `target-pill.ts` y `selector-pill.ts`, y el cálculo en
+  `dial-geometry.ts` y `combined-climate.ts` (acuerdo nº7). El DOM, el
+  arrastre y las llamadas a servicios resultan idénticos.
+
 ## [1.0.0] - 2026-10-02
 
 Primera versión estable. Con la declaración del Framework Freeze
@@ -143,6 +196,59 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+### Added
+
+- **Neón Thermostat Card** (`custom:neon-thermostat-card`): card for one
+  or two `climate` entities, with a large (semicircular dial), normal
+  (ring around the temperature) and compact (line) view, a draggable
+  target or a −/+ pill, an HVAC mode selector, a color per mode, a sensor
+  footer (up to 3) and a visual editor. With `entity_2` it brings two
+  separate devices together and `mode_owner` resolves shared modes. In
+  the large view, the mode selector is joined by a **preset** and a
+  **fan** selector when the entity exposes them.
+- **English** in the repository's 5 text areas (core, shared, Entity,
+  Button and Thermostat): the configuration UI is shown in Home
+  Assistant's language, with Spanish as a fallback.
+- `src/ha/climate.ts` (`getClimateState`, `clampToStep`,
+  `isClimateRunning`, `formatClimateOption`) and `openMoreInfo` in `src/core`, documented in
+  the API reference.
+- A `thermostat` profile in `npm run perf` and new tests for `climate`,
+  the dial geometry and the combined state.
+- Card README, screenshots and an entry in `examples/` (minimal and
+  advanced YAML, explanation), in Spanish and English.
+
+### Changed
+
+- In the Entity and Thermostat configuration UI, the term "ring" ("aro"
+  in Spanish) is renamed "halo", as in the rest of the project.
+- CI (`ci.yml`) runs on any push to any branch and on pull requests to
+  `main`, not only on `main`: before, a working branch only went through
+  the HACS validation and nobody checked ESLint, TypeScript, tests, build
+  or performance until it reached `main`.
+- Button and Thermostat no longer run a continuous
+  `requestAnimationFrame` (60 callbacks per second per card, even at
+  rest) to measure the ring. `RingSizeController` (new, in `src/shared`)
+  replaces it: `ResizeObserver` on the current `ha-card`, a measurement
+  after each render and a short burst on connect. With 10 cards at rest,
+  from 600 callbacks per second and ~30 ms of CPU per second to 0 and
+  0.3 ms; with Home Assistant updates, the cost is bounded by their
+  frequency. The ring follows the size in the same cases as before
+  (resizing, content changes, moving the card, hidden card, theme radius
+  change).
+- The cards' version banner (Entity, Button and Thermostat) moves to
+  `logCardBanner` (new, in `src/core`) and is only written in development
+  mode (agreement nº22): the production bundle no longer writes anything
+  to the user's console, nor includes the banner texts. Before, each card
+  had its own unguarded `console.info`.
+- The Entity and Thermostat editors split their `render()` into
+  per-section methods (agreement nº7); the resulting DOM is identical.
+- The thermostat files that exceeded 500 lines are split by
+  responsibility: styles per area, and the card (from 700 to under 500
+  lines) delegates presentation to `dial-views.ts`, `header.ts`,
+  `footer.ts`, `target-pill.ts` and `selector-pill.ts`, and computation
+  to `dial-geometry.ts` and `combined-climate.ts` (agreement nº7). The
+  DOM, dragging and service calls come out identical.
 
 ## [1.0.0] - 2026-10-02
 

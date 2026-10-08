@@ -59,11 +59,9 @@ export const NEON_HALO_STYLES = css`
  * Requiere JavaScript: un `<path>` con arcos de esquina necesita
  * coordenadas en unidades reales — el atributo `d` no admite `%` ni
  * `calc()` — así que recibe el ancho/alto real medido de la tarjeta.
- * (Ver Button Card: en vez de `ResizeObserver`, que resultó no
- * disparar de forma fiable tras crear/mover tarjetas en el editor de
- * HA, se mide con `requestAnimationFrame` en bucle continuo mientras
- * la tarjeta está montada — no depende de que ningún evento "avise"
- * del cambio, así que no puede quedarse desincronizado.)
+ * (El tamaño lo mantiene al día `RingSizeController`, en `ring-size.ts`,
+ * con `ResizeObserver` + una medida tras cada renderizado — nada corre en
+ * reposo.)
  *
  * Cada mitad usa `pathLength="50"` + `stroke-dasharray: 50` +
  * `stroke-dashoffset` 50→0, exactamente la misma técnica que usan los

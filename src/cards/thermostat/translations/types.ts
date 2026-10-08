@@ -1,0 +1,37 @@
+export interface ThermostatTranslations {
+  section_main: string;
+  entity_label: string;
+  entity_2_label: string;
+  entity_2_hint: string;
+  section_mode_owner: string;
+  mode_owner_hint: string;
+  name_label: string;
+  section_appearance: string;
+  size_label: string;
+  size_large: string;
+  size_normal: string;
+  size_compact: string;
+  section_colors: string;
+  colors_hint: string;
+  section_halo: string;
+  halo_hint: string;
+  palette_label: string;
+  colors_no_entity_hint: string;
+  step_label: string;
+  step_auto_hint: string;
+  section_footer: string;
+  footer_sensor_label: string;
+  add_sensor_button: string;
+  remove_sensor_title: string;
+  sensor_icon_label: string;
+  max_sensors_hint: string;
+  hvac_mode_heat: string;
+  hvac_mode_cool: string;
+  hvac_mode_heat_cool: string;
+  hvac_mode_auto: string;
+  hvac_mode_dry: string;
+  hvac_mode_fan_only: string;
+  hvac_mode_off: string;
+  preset_label: string;
+  fan_label: string;
+}

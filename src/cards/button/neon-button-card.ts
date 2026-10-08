@@ -18,6 +18,7 @@ import {
   NEON_RING_SPLIT_STYLES,
   neonHaloVars,
   neonRingSplitTemplate,
+  RingSizeController,
 } from '../../shared';
 import { MAX_GROUPED_SENSORS, RING_ANIMATION_MS } from './constants';
 import { cardSizeRows, gridColumnsFor, isButtonActive, isEntityBroken, resolveButtonIcon } from './button-state';
@@ -38,7 +39,6 @@ export class NeonButtonCard extends BaseNeonCard {
   static properties = {
     ...BaseNeonCard.properties,
     _config: { state: true },
-    _ringSize: { state: true },
     _tapFlash: { state: true },
   };
 
@@ -48,14 +48,11 @@ export class NeonButtonCard extends BaseNeonCard {
       colisiones cuando hay varias Button Card en el mismo dashboard. */
   private readonly _ringUid = Math.random().toString(36).slice(2);
   /** Tamaño real de ha-card, necesario porque el <path> del aro partido
-      no admite porcentajes (a diferencia de un <rect> con CSS). Se mide
-      con requestAnimationFrame en bucle continuo (ver _ringLoop) en vez
-      de ResizeObserver: éste dejaba de disparar de forma fiable al
-      crear/mover tarjetas en el editor de HA, dejando el aro con un
-      tamaño incorrecto hasta recargar la página. Midiendo cada
-      fotograma no hay evento que "esperar" — nunca puede desincronizarse. */
-  private _ringSize = { width: 0, height: 0, radius: 12 };
-  private _ringRafId?: number;
+      no admite porcentajes (a diferencia de un <rect> con CSS). Lo
+      mantiene al día `RingSizeController` con ResizeObserver, una medida
+      tras cada renderizado y una ráfaga corta al conectar: nada corre en
+      reposo. */
+  private readonly _ring = new RingSizeController(this);
   /** "Flash" del aro al pulsar/mantener/doble-toque sin `entity`
       configurada — sin entidad `_isActive` es siempre false, así que el
       aro nunca se dispara solo; esto lo fuerza y retrasa la acción real
@@ -293,7 +290,7 @@ export class NeonButtonCard extends BaseNeonCard {
             hasDoubleTap,
           })}
       >
-        ${neonRingSplitTemplate(this._ringUid, this._ringSize.width, this._ringSize.height, this._ringSize.radius)}
+        ${neonRingSplitTemplate(this._ringUid, this._ring.size.width, this._ring.size.height, this._ring.size.radius)}
         <div class="content">
           <ha-icon class="neon-halo-icon" icon=${this._icon}></ha-icon>
           <div class="text">
@@ -310,40 +307,8 @@ export class NeonButtonCard extends BaseNeonCard {
     `;
   }
 
-  connectedCallback(): void {
-    super.connectedCallback();
-    this._ringLoop();
-  }
-
   disconnectedCallback(): void {
     super.disconnectedCallback();
     clearTimeout(this._tapFlashTimer);
-    cancelAnimationFrame(this._ringRafId ?? -1);
-  }
-
-  /** Mide ha-card cada fotograma mientras la tarjeta está conectada, en
-      vez de esperar a un ResizeObserver (ver el porqué en el comentario
-      de _ringSize). Barato: solo offsetWidth/Height + un
-      getComputedStyle, y solo actualiza el estado reactivo (dispara
-      re-render) si el valor realmente cambió. */
-  private _ringLoop(): void {
-    const cardEl = this.renderRoot?.querySelector('ha-card') as HTMLElement | null;
-    if (cardEl) {
-      const width = cardEl.offsetWidth;
-      const height = cardEl.offsetHeight;
-      // Descarta lecturas degeneradas (0×0), típicas de un frame
-      // intermedio antes de que el elemento tenga layout asignado.
-      if (width >= 4 && height >= 4) {
-        const radius = parseFloat(getComputedStyle(cardEl).borderTopLeftRadius) || 12;
-        if (
-          width !== this._ringSize.width ||
-          height !== this._ringSize.height ||
-          radius !== this._ringSize.radius
-        ) {
-          this._ringSize = { width, height, radius };
-        }
-      }
-    }
-    this._ringRafId = requestAnimationFrame(() => this._ringLoop());
   }
 }

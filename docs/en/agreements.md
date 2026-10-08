@@ -117,6 +117,10 @@ A version is not published if ESLint, TypeScript, tests, or the build fail.
 Two modes: development (logs, warnings, diagnostics) and production (no
 debug code, maximum performance).
 
+This includes the version banner: it is a log and is only written in
+development (`logCardBanner`). The production bundle writes nothing to the
+console.
+
 ## 23. Internal feature flags
 
 Experimental features can be enabled via internal flags. They never reach
