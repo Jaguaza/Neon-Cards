@@ -1,10 +1,25 @@
 name: CI
 
+# Se ejecuta en CUALQUIER push a cualquier rama (no solo main) y en las PR
+# hacia main. Antes solo cubría main, así que una rama de trabajo como
+# `neon-termostato-card` solo pasaba por `validate.yml` (HACS) y nadie
+# comprobaba ESLint, TypeScript, tests, build ni rendimiento hasta
+# llegar a main. Los tags `v*` los gestiona release.yml.
 on:
   push:
-    branches: [main]
+    branches: ['**']
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
+# Pushes seguidos a la misma rama cancelan la ejecución anterior, que ya
+# no sirve: solo importa el último commit.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   verify:

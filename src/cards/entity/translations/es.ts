@@ -5,7 +5,7 @@ export const es: EntityTranslations = {
   entity_label: 'Entidad (Requerida)',
   name_label: 'Nombre personalizado (Opcional)',
   section_appearance: 'Apariencia',
-  palette_label: 'Estilo de degradado del aro',
+  palette_label: 'Estilo de degradado del halo',
   primary_info_label: 'Información primaria',
   secondary_info_label: 'Información secundaria',
   show_status_dot_label: 'Mostrar punto de estado',

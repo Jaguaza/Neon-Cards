@@ -14,17 +14,21 @@ Ver también la versión en [inglés](../en/api.md).
   - [Gestos (`gestures.ts`)](#gestos-gesturests)
   - [Acciones (`actions.ts`)](#acciones-actionsts)
   - [Información primaria/secundaria (`info.ts`)](#información-primariasecundaria-infots)
+  - [Banner de versión (`banner.ts`)](#banner-de-versión-bannerts)
   - [Traducciones (`localize.ts`)](#traducciones-localizets)
 - [`src/ha` — Tipos de Home Assistant](#srcha--tipos-de-home-assistant)
   - [Sensores (`sensors.ts`)](#sensores-sensorsts)
+  - [Climate (`climate.ts`)](#climate-climatets)
 - [`src/shared` — Paleta y efectos neón compartidos](#srcshared--paleta-y-efectos-neón-compartidos)
   - [Paleta (`neon-palette.ts`)](#paleta-neon-palettets)
   - [Halo de icono (`glow.ts`)](#halo-de-icono-glowts)
   - [Aro partido (`glow.ts`)](#aro-partido-glowts)
+  - [Tamaño del aro (`ring-size.ts`)](#tamaño-del-aro-ring-sizets)
   - [Editor: carcasa común (`editor-form.styles.ts`)](#editor-carcasa-común-editor-formstylests)
   - [Traducciones compartidas (`translations/`)](#traducciones-compartidas-translations)
 - [Neón Card Entity — Configuración YAML](#neón-card-entity--configuración-yaml)
 - [Neón Button Card — Configuración YAML](#neón-button-card--configuración-yaml)
+- [Neón Thermostat Card — Configuración YAML](#neón-thermostat-card--configuración-yaml)
 
 ---
 
@@ -168,6 +172,42 @@ sobrevivirían entre pulsaciones.
   }, 'tap');
   ```
 
+#### `openMoreInfo(el, entityId)`
+
+- **Descripción:** abre el diálogo "más información" de HA para una
+  entidad concreta, directamente — sin pasar por `tap_action` (que es
+  una acción configurable de toda la tarjeta, pensada para un único
+  objetivo). Útil para un icono de acceso fijo a una entidad puntual
+  dentro de la tarjeta (p. ej. varias entidades `climate` en la misma
+  tarjeta, cada una con su propio botón — ver Neón Thermostat Card).
+  Despacha el evento estándar `hass-more-info`, que la interfaz de HA
+  ya escucha en cualquier parte del árbol.
+- **Parámetros:**
+  - `el: HTMLElement` — el elemento desde el que se despacha (`bubbles: true`, `composed: true`).
+  - `entityId: string`.
+- **Devuelve:** `void`.
+- **Ejemplo:**
+  ```ts
+  openMoreInfo(this, 'climate.salon');
+  ```
+
+---
+
+### Banner de versión (`banner.ts`)
+
+#### `logCardBanner(cardName, author, version)`
+
+- **Descripción:** escribe en la consola el banner de versión de una tarjeta (`NEON BUTTON CARD · By Jaguaza · v1.0.0`). Es un log, así que sigue el acuerdo nº22: **solo existe en modo desarrollo** (`npm run build:cards:dev`). En producción `__DEV__` vale `false`, el bundle no incluye ni el código ni los textos del banner, y la consola del usuario queda en silencio. Es el único punto del repositorio que escribe este mensaje: cada tarjeta lo llama una vez desde su `index.ts`.
+- **Parámetros:**
+  - `cardName: string` — nombre visible en mayúsculas, p. ej. `'NEON BUTTON CARD'`.
+  - `author: string`.
+  - `version: string`.
+- **Devuelve:** `void`.
+- **Ejemplo:**
+  ```ts
+  logCardBanner('NEON BUTTON CARD', CARD_AUTHOR, CARD_VERSION);
+  ```
+
 ---
 
 ### Información primaria/secundaria (`info.ts`)
@@ -208,10 +248,9 @@ sobrevivirían entre pulsaciones.
 
 Motor de traducción genérico — ni un texto dentro, eso vive en
 `translations/<locale>.ts` de cada módulo (`src/core`,
-`src/shared`, y cada `src/cards/<nombre>`). Hoy solo hay diccionarios
-`es` poblados en todo el repo; la infraestructura ya está lista para
-cuando se añada `en` u otro idioma (ver "Cómo crear una tarjeta",
-sección 4, "Traducciones").
+`src/shared`, y cada `src/cards/<nombre>`). `es` y `en` están poblados
+en los 5 diccionarios del repo; añadir un tercer idioma sigue el mismo
+patrón (ver "Cómo crear una tarjeta", sección 4, "Traducciones").
 
 #### `resolveLocale(hass)`
 
@@ -248,7 +287,7 @@ sección 4, "Traducciones").
 
 | Nombre | Descripción |
 |---|---|
-| `SUPPORTED_LOCALES` | `['es']` hoy — se amplía aquí cuando se añade un idioma nuevo. |
+| `SUPPORTED_LOCALES` | `['es', 'en']` — se amplía aquí cuando se añade un idioma nuevo. |
 | `Locale` | Tipo TypeScript derivado de `SUPPORTED_LOCALES`. |
 | `DEFAULT_LOCALE` | `'es'` — idioma usado cuando `hass.locale.language` falta o no está soportado. |
 
@@ -351,6 +390,98 @@ sensores contextuales debería reutilizarlos.
 | `SENSOR_DOMAINS` | `['sensor', 'binary_sensor']` — únicos dominios aceptados por `getSensorDisplay`. |
 | `SensorDomain` | Tipo TypeScript derivado de `SENSOR_DOMAINS`. |
 | `DEFAULT_SENSOR_DECIMALS` | `1` — decimales por defecto cuando el sensor no especifica los suyos. |
+
+---
+
+### Climate (`climate.ts`)
+
+Helpers de entidades `climate` (acuerdo nº4: las tarjetas nunca leen
+`hass.states` a mano para esto). Los usa la Neón Thermostat Card;
+cualquier tarjeta futura que controle climatización debería
+reutilizarlos en vez de releer `hass.states` por su cuenta.
+
+#### `getClimateState(entityId, hass)`
+
+- **Descripción:** lee estado y capacidades de una entidad `climate` —
+  modo actual, modos soportados, temperaturas actual/consigna,
+  min/max/step (con fallback si la entidad no los expone), y si está
+  disponible.
+- **Parámetros:**
+  - `entityId: string` — debe empezar por `climate.`.
+  - `hass: HomeAssistant`.
+- **Devuelve:** `ClimateState | null` — `null` si `entityId` no es del
+  dominio `climate` o no existe en `hass.states`.
+  ```ts
+  interface ClimateState {
+    entity: string;
+    mode: HvacMode;
+    hvacModes: HvacMode[];
+    hvacAction: HvacAction | null;
+    currentTemperature: number | null;
+    targetTemperature: number | null;
+    minTemp: number; // fallback 7 si la entidad no lo expone
+    maxTemp: number; // fallback 35
+    step: number; // fallback 0.5
+    available: boolean; // false si unavailable/unknown
+    presetMode: string | null; // `preset_mode` actual
+    presetModes: string[]; // `preset_modes`; [] = sin presets
+    fanMode: string | null; // `fan_mode` actual
+    fanModes: string[]; // `fan_modes`; [] = sin ventilador
+  }
+  ```
+  Las listas descartan duplicados y valores que no sean texto.
+- **Ejemplo:**
+  ```ts
+  const c = getClimateState('climate.salon', hass);
+  // c?.mode === 'heat', c?.targetTemperature === 21
+  ```
+
+#### `formatClimateOption(hass, entityId, attribute, value)`
+
+- **Descripción:** nombre legible de un valor de `preset_mode` o `fan_mode`. Usa `hass.formatEntityAttributeValue` si existe (ya viene traducido al idioma del usuario); si no, o si devuelve un texto vacío, humaniza el valor crudo (`away_mode` → `Away mode`).
+- **Parámetros:**
+  - `hass: HomeAssistant | undefined`.
+  - `entityId: string`.
+  - `attribute: 'preset_mode' | 'fan_mode'`.
+  - `value: string`.
+- **Devuelve:** `string`.
+- **Ejemplo:**
+  ```ts
+  formatClimateOption(hass, 'climate.salon', 'fan_mode', 'medium_high'); // 'Medium high' (sin formateador de HA)
+  ```
+
+#### `clampToStep(value, min, max, step)`
+
+- **Descripción:** redondea `value` al múltiplo de `step` más cercano,
+  dentro de `[min, max]` — usado por los controles −/+ y por el
+  arrastre del dial/aro.
+- **Parámetros:** `value: number`, `min: number`, `max: number`, `step: number`.
+- **Devuelve:** `number`.
+- **Ejemplo:**
+  ```ts
+  clampToStep(21.3, 7, 35, 0.5); // 21.5
+  ```
+
+#### `isClimateRunning(state)`
+
+- **Descripción:** `true` si el equipo está funcionando de verdad ahora
+  mismo, no solo "seleccionado en modo X". Usa `hvac_action` si la
+  entidad lo expone; si no, compara consigna vs. temperatura actual
+  según el modo (`heat`: actual < consigna; `cool`: actual > consigna).
+- **Parámetros:** `state: ClimateState`.
+- **Devuelve:** `boolean` — siempre `false` en modo `'off'`.
+- **Ejemplo:**
+  ```ts
+  isClimateRunning(c); // true si está calentando de verdad
+  ```
+
+#### Constantes y tipos
+
+| Nombre | Descripción |
+|---|---|
+| `HVAC_MODES` | `['off', 'heat', 'cool', 'heat_cool', 'auto', 'dry', 'fan_only']`. |
+| `HvacMode` | Tipo TypeScript derivado de `HVAC_MODES`. |
+| `HvacAction` | `'off' \| 'idle' \| 'preheating' \| 'heating' \| 'cooling' \| 'drying' \| 'fan'` — lo que el equipo está haciendo AHORA, distinto del modo seleccionado. |
 
 ---
 
@@ -484,13 +615,39 @@ coordenadas en unidades reales (el atributo `d` no admite `%` ni
 - **Devuelve:** `TemplateResult` (Lit).
 - **Ejemplo:**
   ```ts
-  neonRingSplitTemplate(this._ringUid, this._ringSize.width, this._ringSize.height, this._ringSize.radius)
+  neonRingSplitTemplate(this._ringUid, this._ring.size.width, this._ring.size.height, this._ring.size.radius)
   ```
 
 **Uso:** la tarjeta anfitriona añade `NEON_RING_SPLIT_STYLES` a su
 `static styles`, pone la clase `neon-ring-host` en el contenedor y
 `neon-halo-active` cuando el estado es activo (comparte la clase con
 `NEON_HALO_STYLES`).
+
+---
+
+### Tamaño del aro (`ring-size.ts`)
+
+#### `RingSizeController`
+
+- **Descripción:** controlador reactivo de Lit que mantiene al día el tamaño real de `ha-card` (ancho, alto y radio de borde), que `neonRingSplitTemplate` necesita porque el atributo `d` de un `<path>` no admite porcentajes. Sustituye al bucle `requestAnimationFrame` continuo que usaban Button y Thermostat (60 callbacks por segundo y tarjeta, también en reposo). Mide solo cuando puede haber cambiado algo:
+  1. `ResizeObserver` sobre el `ha-card` **actual**: si Lit lo sustituye (p. ej. al pasar de «entidad no disponible» a la vista normal), se vuelve a observar el nuevo, porque un observer atado a un nodo descartado no avisa más.
+  2. Una medida tras cada renderizado, fusionada en un único frame, que recoge lo que el observer no ve (el radio de borde del tema).
+  3. Una ráfaga corta de medidas al conectar (30 frames, ~0,5 s) para la carrera de layout cuando el editor de HA crea o mueve la tarjeta.
+
+  Al desconectar se cancela todo, y al reconectar se crea un observer nuevo. En reposo no queda ningún callback programado.
+- **Constructor:** `new RingSizeController(host, selector = 'ha-card')`, con `host` una `ReactiveElement` (se registra solo con `addController`).
+- **Propiedad:** `size: RingSize` — `{ width, height, radius }`, última medida válida. Se descartan las lecturas menores de 4 px (tarjeta oculta o sin layout).
+- **Efecto:** cuando la medida cambia, llama a `host.requestUpdate()`; la tarjeta solo tiene que leer `size` en `render()`.
+- **Requisito:** `ResizeObserver` solo informa de elementos con caja (`display` distinto de `inline`). El `ha-card` de Home Assistant la tiene; si una tarjeta usa otro elemento, su CSS debe darle `display: block` o `flex`.
+- **Ejemplo:**
+  ```ts
+  private readonly _ring = new RingSizeController(this);
+
+  render() {
+    const { width, height, radius } = this._ring.size;
+    return html`<ha-card>${neonRingSplitTemplate(this._ringUid, width, height, radius)}…</ha-card>`;
+  }
+  ```
 
 ---
 
@@ -647,3 +804,69 @@ sensors:
   - entity: sensor.salon_humidity
     icon: mdi:water-percent
 ```
+
+---
+
+## Neón Thermostat Card — Configuración YAML
+
+Todas las claves de `NeonThermostatCardConfig`
+(`src/cards/thermostat/types.ts`). Ver ejemplos completos en
+[`examples/`](../../examples/README.md).
+
+| Clave | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `entity` | `string` | — (requerida) | Entidad `climate` principal. |
+| `entity_2` | `string` | — | Segunda entidad `climate` opcional — dos equipos separados (p. ej. calefacción + aire acondicionado) en vez de uno solo que soporte todos los modos. Sin ella, la tarjeta se comporta exactamente igual que con una sola entidad. |
+| `mode_owner` | `Partial<Record<HvacMode, 1 \| 2>>` | — | Solo relevante con `entity_2` y solo para modos que soportan AMBAS entidades a la vez — `1` = `entity`, `2` = `entity_2`. Sin entrada para un modo, gana `entity` por defecto. |
+| `name` | `string` | nombre de la entidad | Título de la tarjeta. En la vista compacta, si no se indica, no se muestra ningún nombre (para no ocupar espacio). |
+| `size` | `'large' \| 'normal' \| 'compact'` | `'normal'` | Tamaño de la tarjeta — ver `getGridOptions()` más abajo. |
+| `color` | `string \| { mode: 'state' } \| { mode: 'custom', heat?, cool?, heat_cool?, auto?, dry?, fan_only?, off? }` | `{ mode: 'state' }` | Color del dial/aro por modo HVAC. `string`: un único color para todos los modos. `{ mode: 'state' }`: colores semánticos automáticos por modo (equivalente a no indicar `color`). `{ mode: 'custom', ... }`: color propio por modo; los no indicados caen al semántico por defecto de ese modo. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta del ARO PERIMETRAL de la tarjeta (el borde, no el dial — ese sigue `color` arriba). |
+| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | según paleta | Colores del degradado del aro perimetral cuando `neon_palette: custom`. |
+| `step` | `number` | `target_temp_step` de la entidad, o `0.5` | Incremento de los controles −/+ y del arrastre. |
+| `footer` | `FooterSensorConfig[]` (máx. 3) | `[]` | Solo dominios `sensor`/`binary_sensor`. Sin footer en la vista compacta (`size: compact`), da igual lo que se configure aquí. |
+
+`FooterSensorConfig` (cada elemento de `footer`):
+
+| Clave | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `entity` | `string` | — (requerida) | Solo dominios `sensor` o `binary_sensor`. |
+| `icon` | `string` | calculado por `device_class` | Icono propio del sensor. |
+
+No hay campo `icon` a nivel de tarjeta: el icono no es configurable,
+siempre se deriva del modo HVAC actual (`HVAC_MODE_ICONS`).
+
+### `getGridOptions()` — tamaño según `size`
+
+A diferencia de Button, el tamaño no se calcula del contenido — lo
+elige directamente la clave `size`:
+
+| `size` | `columns` | `rows` |
+|---|---|---|
+| `'compact'` | `4` | `'auto'` |
+| `'normal'` (por defecto) | `6` | `'auto'` |
+| `'large'` | `12` | `'auto'` |
+
+### Ejemplo completo
+
+```yaml
+type: custom:neon-thermostat-card
+name: Salón
+entity: climate.salon_calor
+entity_2: climate.salon_frio
+mode_owner:
+  heat_cool: 1
+size: large
+color:
+  mode: custom
+  heat: "#ff4500"
+  cool: "#0080ff"
+neon_palette: cyberpunk
+step: 0.5
+footer:
+  - entity: sensor.salon_temperature
+  - entity: sensor.salon_humidity
+  - entity: binary_sensor.salon_presencia
+    icon: mdi:motion-sensor
+```
+
