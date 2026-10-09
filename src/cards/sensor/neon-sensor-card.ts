@@ -1,4 +1,4 @@
-import { html, nothing } from 'lit';
+import { html, nothing, svg } from 'lit';
 import type { TemplateResult } from 'lit';
 import type { HomeAssistant } from '../../ha/types';
 import { getSensorDisplay } from '../../ha/sensors';
@@ -137,7 +137,9 @@ export class NeonSensorCard extends BaseNeonCard {
     const d = this._domain === 'binary_sensor' ? buildStepPath(values) : buildTracePath(values);
     if (!d) return nothing;
     const gradId = `${this._uid}-trace`;
-    const trace = (cls: string) => html`<path class="trace ${cls}" d=${d} stroke="url(#${gradId})"></path>`;
+    // Fragmento SVG suelto dentro de otra plantilla: tiene que usar `svg`, no
+    // `html`; si no, Lit lo crea en el namespace HTML y el navegador no lo pinta.
+    const trace = (cls: string) => svg`<path class="trace ${cls}" d=${d} stroke="url(#${gradId})"></path>`;
     const viewBox = `0 0 ${TRACE_WIDTH} ${TRACE_HEIGHT}`;
     return html`
       <div class="graph" aria-hidden="true">
