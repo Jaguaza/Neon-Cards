@@ -43,15 +43,18 @@ export class HistoryController implements ReactiveController {
     this._stop();
   }
 
-  /** Se llama en cada actualización de la tarjeta; solo actúa si cambia
-      la entidad, las horas o el interruptor del gráfico. */
+  /** Se llama en cada actualización de la tarjeta. Si cambia la entidad,
+      las horas o el interruptor del gráfico, reinicia la serie. Además
+      intenta arrancar siempre: HA suele entregar `setConfig` antes que
+      `hass`, y sin `hass` la consulta no puede empezar todavía. */
   sync(request: HistoryRequest): void {
     this._request = request;
     const key = request.enabled && request.entity ? `${request.entity}|${request.hours}` : '';
-    if (key === this._key) return;
-    this._stop();
-    this._key = key;
-    this.values = [];
+    if (key !== this._key) {
+      this._stop();
+      this._key = key;
+      this.values = [];
+    }
     this._start();
   }
 
