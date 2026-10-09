@@ -127,7 +127,7 @@ export const NEON_SENSOR_CARD_STYLES = css`
   }
   .trace {
     fill: none;
-    stroke-width: 2px;
+    stroke-width: 3px;
     stroke-linejoin: round;
     stroke-linecap: round;
     vector-effect: non-scaling-stroke;
@@ -206,6 +206,9 @@ export const NEON_SENSOR_CARD_STYLES = css`
     }
     .graph {
       height: 64px;
+    }
+    .trace {
+      stroke-width: 3.5px;
     }
   }
 `;
