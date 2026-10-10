@@ -920,15 +920,16 @@ examples in [`examples/`](../../examples/README.md).
 | `name` | `string` | the entity's `friendly_name` | Card title. |
 | `icon` | `string` | computed from `device_class` | Custom icon. |
 | `decimals` | `number` | `1` | Value decimals (numeric `sensor` only). |
-| `show_graph` | `boolean` | `true` | `false` = simple mode, no graph and no history query. |
-| `graph_hours` | `number` | `24` | Hours of history the graph covers. |
-| `color_mode` | `'single' \| 'state' \| 'custom_state'` | `'single'` | One color (palette), automatic color per state, or your own color per state. |
-| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Palette, only with `color_mode: single`. |
+| `graph_hours` | `number` | `24` | Hours of history the graph covers. The graph is always visible. |
+| `neon_effect` | `'normal' \| 'halo' \| 'single'` | `'halo'` | Color effect: `halo` = three-color ring and a three-color graph with the sweep; `single` = one color with the sweep; `normal` = theme color, no sweep. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Palette, only with `neon_effect: halo`. |
 | `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | per palette | Colors when `neon_palette: custom`. |
-| `state_colors` | `{ normal?, warning?, critical?, unavailable? }` | automatic colors | Only with `color_mode: custom_state`; unset ones fall back to that state's automatic color. |
-| `warning_above` / `warning_below` | `number` | — | Warning threshold (High/Low) for a numeric `sensor`. |
-| `critical_above` / `critical_below` | `number` | — | Critical threshold; wins over warning. |
-| `alert_state` | `'on' \| 'off'` | — | `binary_sensor` only: the state considered critical. |
+| `neon_color` | `string` (hex) | `#1ecdf2` | Color of the `single` effect. |
+| `thresholds_enabled` | `boolean` | `false` | Enables the Low / OK / High rating. |
+| `threshold_low` | `number` | — | Numeric `sensor`: below this value is Low. |
+| `threshold_high` | `number` | — | Numeric `sensor`: above this value is High. In between (limits included) is OK. |
+| `threshold_colors` | `{ low?, ok?, high? }` | blue / green / red | Color of each level; replaces the effect's color while thresholds are on. |
+| `alert_state` | `'on' \| 'off'` | — | `binary_sensor` only, with thresholds on: the state considered High (alert). |
 | `tap_action` | `ActionConfig` | `{ action: more-info }` | Tap action. |
 | `hold_action` | `ActionConfig` | `{ action: none }` | Hold action. |
 | `double_tap_action` | `ActionConfig` | `{ action: none }` | Double-tap action. |
@@ -947,16 +948,16 @@ type: custom:neon-sensor-card
 entity: sensor.outdoor_temperature
 name: Outdoor Temperature
 icon: mdi:thermometer
-decimals: 1
-show_graph: true
 graph_hours: 24
-color_mode: custom_state
-state_colors:
-  normal: "#1ecdf2"
-  warning: "#ffb347"
-  critical: "#ff3d5a"
-warning_above: 25
-critical_above: 30
+neon_effect: halo
+neon_palette: electric
+thresholds_enabled: true
+threshold_low: 22
+threshold_high: 26
+threshold_colors:
+  low: "#4facfe"
+  ok: "#39e07a"
+  high: "#ff3d5a"
 tap_action:
   action: more-info
 ```

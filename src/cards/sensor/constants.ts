@@ -1,5 +1,5 @@
 import { NEON_CARDS_VERSION } from '../../version';
-import type { SensorLevel } from './types';
+import type { ThresholdLevel } from './types';
 
 export const CARD_AUTHOR = 'Jaguaza';
 export const CARD_VERSION = NEON_CARDS_VERSION;
@@ -13,11 +13,18 @@ export const GRAPH_BUCKETS = 48;
 /** Cada cuánto se relee el histórico (ms). Una llamada WS por tarjeta. */
 export const HISTORY_REFRESH_MS = 120_000;
 
-/** Colores automáticos por estado (modo `state`) y valores de partida
-    del modo `custom_state`. `unavailable` es siempre neutro. */
-export const DEFAULT_STATE_COLORS: Record<SensorLevel, string> = {
-  normal: '#1ecdf2',
-  warning: '#ffb347',
-  critical: '#ff3d5a',
-  unavailable: '#e6e9f2',
+/** Color del efecto `single` si no se elige otro. */
+export const DEFAULT_SINGLE_COLOR = '#1ecdf2';
+
+/** Colores de partida de cada nivel de los umbrales. */
+export const DEFAULT_THRESHOLD_COLORS: Record<ThresholdLevel, string> = {
+  low: '#4facfe',
+  ok: '#39e07a',
+  high: '#ff3d5a',
 };
+
+/** Sin señal: neutro en todos los efectos. */
+export const UNAVAILABLE_COLOR = '#e6e9f2';
+
+/** Color del tema de HA que usa el efecto `normal`. */
+export const THEME_COLOR = 'var(--primary-color)';

@@ -197,8 +197,9 @@ const CARD_PROFILES = {
     makeConfig: (entityId) => ({
       entity: entityId,
       name: 'Temperatura exterior',
-      warning_above: 25,
-      critical_above: 30,
+      thresholds_enabled: true,
+      threshold_low: 18,
+      threshold_high: 25,
     }),
     makeHass: (entityIds, tick) => {
       const states = {};

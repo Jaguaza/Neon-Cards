@@ -10,30 +10,24 @@ import {
   NEON_EDITOR_FORM_STYLES,
 } from '../../shared';
 import type { SharedTranslations } from '../../shared';
-import { DEFAULT_GRAPH_HOURS, DEFAULT_STATE_COLORS } from './constants';
+import { DEFAULT_GRAPH_HOURS, DEFAULT_SINGLE_COLOR, DEFAULT_THRESHOLD_COLORS } from './constants';
 import { ALLOWED_DOMAINS } from './sensor-state';
 import { SENSOR_TRANSLATIONS } from './translations';
 import type { SensorTranslations } from './translations';
-import type { ColorMode, NeonSensorCardConfig, SensorLevel } from './types';
+import { resolveEffect } from './sensor-colors';
+import type { NeonEffect, NeonSensorCardConfig, ThresholdLevel } from './types';
 
 const ALLOWED_ACTIONS = ['more-info', 'toggle', 'navigate', 'url', 'call-service', 'assist', 'none'];
 const PALETTES = ['emerald', 'cyberpunk', 'electric', 'sunset', 'toxic'];
-const COLOR_MODES: Array<[ColorMode, keyof SensorTranslations]> = [
-  ['single', 'color_mode_single'],
-  ['state', 'color_mode_state'],
-  ['custom_state', 'color_mode_custom_state'],
+const EFFECTS: Array<[NeonEffect, keyof SensorTranslations]> = [
+  ['normal', 'effect_normal'],
+  ['halo', 'effect_halo'],
+  ['single', 'effect_single'],
 ];
-const STATE_COLOR_LABELS: Array<[SensorLevel, keyof SensorTranslations]> = [
-  ['normal', 'color_normal'],
-  ['warning', 'color_warning'],
-  ['critical', 'color_critical'],
-  ['unavailable', 'color_unavailable'],
-];
-const THRESHOLDS: Array<[string, keyof SensorTranslations]> = [
-  ['warning_above', 'warning_above_label'],
-  ['warning_below', 'warning_below_label'],
-  ['critical_above', 'critical_above_label'],
-  ['critical_below', 'critical_below_label'],
+const LEVEL_LABELS: Array<[ThresholdLevel, keyof SensorTranslations]> = [
+  ['low', 'level_low'],
+  ['ok', 'level_ok'],
+  ['high', 'level_high'],
 ];
 
 export class NeonSensorCardEditor extends LitElement {
@@ -64,9 +58,9 @@ export class NeonSensorCardEditor extends LitElement {
     this._emit(next);
   }
 
-  private _stateColorChanged(level: SensorLevel, value: string): void {
+  private _thresholdColorChanged(level: ThresholdLevel, value: string): void {
     if (!this._config) return;
-    this._configChanged('state_colors', { ...this._config.state_colors, [level]: value });
+    this._configChanged('threshold_colors', { ...this._config.threshold_colors, [level]: value });
   }
 
   private _t(key: keyof SensorTranslations): string {
@@ -166,12 +160,12 @@ export class NeonSensorCardEditor extends LitElement {
     `;
   }
 
-  private _renderStateColors(config: NeonSensorCardConfig): TemplateResult {
+  private _renderThresholdColors(config: NeonSensorCardConfig, levels: ThresholdLevel[]): TemplateResult {
     return html`
       <div class="custom-colors-grid">
-        ${STATE_COLOR_LABELS.map(([level, labelKey]) =>
-          this._colorPicker(this._t(labelKey), config.state_colors?.[level] || DEFAULT_STATE_COLORS[level], (v) =>
-            this._stateColorChanged(level, v)
+        ${LEVEL_LABELS.filter(([level]) => levels.includes(level)).map(([level, labelKey]) =>
+          this._colorPicker(this._t(labelKey), config.threshold_colors?.[level] || DEFAULT_THRESHOLD_COLORS[level], (v) =>
+            this._thresholdColorChanged(level, v)
           )
         )}
       </div>
@@ -179,60 +173,71 @@ export class NeonSensorCardEditor extends LitElement {
   }
 
   private _renderAppearance(config: NeonSensorCardConfig): TemplateResult {
-    const mode = config.color_mode ?? 'single';
-    const graphOn = config.show_graph !== false;
+    const effect = resolveEffect(config);
     return html`
       <div class="editor-section">
         <div class="section-header">${this._t('section_appearance')}</div>
-        <label class="native-select-label">
-          <input
-            type="checkbox"
-            .checked=${graphOn}
-            @change=${(ev: Event) => this._configChanged('show_graph', (ev.target as HTMLInputElement).checked ? undefined : false)}
-          />
-          ${this._t('show_graph_label')}
-        </label>
-        ${graphOn
-          ? this._numberField('graph-hours', this._t('graph_hours_label'), 'graph_hours', config.graph_hours ?? DEFAULT_GRAPH_HOURS, 1, 168)
-          : nothing}
-        <label class="native-select-label" for="color-mode">${this._t('color_mode_label')}</label>
+        ${this._numberField('graph-hours', this._t('graph_hours_label'), 'graph_hours', config.graph_hours ?? DEFAULT_GRAPH_HOURS, 1, 168)}
+        <label class="native-select-label" for="effect">${this._t('effect_label')}</label>
         <select
-          id="color-mode"
+          id="effect"
           class="native-select"
-          .value=${mode}
+          .value=${effect}
           @change=${(ev: Event) => {
             const value = (ev.target as HTMLSelectElement).value;
-            this._configChanged('color_mode', value === 'single' ? undefined : value);
+            this._configChanged('neon_effect', value === 'halo' ? undefined : value);
           }}
         >
-          ${COLOR_MODES.map(([id, key]) => html`<option value=${id} ?selected=${id === mode}>${this._t(key)}</option>`)}
+          ${EFFECTS.map(([id, key]) => html`<option value=${id} ?selected=${id === effect}>${this._t(key)}</option>`)}
         </select>
-        ${mode === 'single' ? this._renderPalette(config) : nothing}
-        ${mode === 'custom_state' ? this._renderStateColors(config) : nothing}
+        ${effect === 'halo' ? this._renderPalette(config) : nothing}
+        ${effect === 'single'
+          ? html`<div class="custom-colors-grid">
+              ${this._colorPicker(this._t('single_color_label'), config.neon_color || DEFAULT_SINGLE_COLOR, (v) =>
+                this._configChanged('neon_color', v)
+              )}
+            </div>`
+          : nothing}
       </div>
     `;
   }
 
   private _renderThresholds(config: NeonSensorCardConfig): TemplateResult {
     const isBinary = (config.entity ?? '').startsWith('binary_sensor.');
+    const enabled = config.thresholds_enabled === true;
     return html`
       <div class="editor-section">
         <div class="section-header">${this._t('section_thresholds')}</div>
-        ${isBinary
-          ? html`
-              <label class="native-select-label" for="alert-state">${this._t('alert_state_label')}</label>
-              <select
-                id="alert-state"
-                class="native-select"
-                .value=${config.alert_state || ''}
-                @change=${(ev: Event) => this._configChanged('alert_state', (ev.target as HTMLSelectElement).value)}
-              >
-                <option value="" ?selected=${!config.alert_state}>${this._t('alert_state_none')}</option>
-                <option value="on" ?selected=${config.alert_state === 'on'}>${this._t('alert_state_on')}</option>
-                <option value="off" ?selected=${config.alert_state === 'off'}>${this._t('alert_state_off')}</option>
-              </select>
-            `
-          : THRESHOLDS.map(([key, labelKey]) => this._numberField(`th-${key}`, this._t(labelKey), key, config[key]))}
+        <label class="native-select-label">
+          <input
+            type="checkbox"
+            .checked=${enabled}
+            @change=${(ev: Event) => this._configChanged('thresholds_enabled', (ev.target as HTMLInputElement).checked ? true : undefined)}
+          />
+          ${this._t('thresholds_enable_label')}
+        </label>
+        ${enabled
+          ? isBinary
+            ? html`
+                <label class="native-select-label" for="alert-state">${this._t('alert_state_label')}</label>
+                <select
+                  id="alert-state"
+                  class="native-select"
+                  .value=${config.alert_state || ''}
+                  @change=${(ev: Event) => this._configChanged('alert_state', (ev.target as HTMLSelectElement).value)}
+                >
+                  <option value="" ?selected=${!config.alert_state}>${this._t('alert_state_none')}</option>
+                  <option value="on" ?selected=${config.alert_state === 'on'}>${this._t('alert_state_on')}</option>
+                  <option value="off" ?selected=${config.alert_state === 'off'}>${this._t('alert_state_off')}</option>
+                </select>
+                ${this._renderThresholdColors(config, ['ok', 'high'])}
+              `
+            : html`
+                ${this._numberField('th-low', this._t('threshold_low_label'), 'threshold_low', config.threshold_low)}
+                ${this._numberField('th-high', this._t('threshold_high_label'), 'threshold_high', config.threshold_high)}
+                ${this._renderThresholdColors(config, ['low', 'ok', 'high'])}
+              `
+          : nothing}
       </div>
     `;
   }

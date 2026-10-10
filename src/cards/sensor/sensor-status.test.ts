@@ -1,49 +1,58 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { computeSensorStatus } from './sensor-status';
-import { resolveCardColors } from './sensor-colors';
-import { DEFAULT_STATE_COLORS } from './constants';
+import type { NeonSensorCardConfig } from './types';
 
-const s = (state: string, domain = 'sensor', available = true) => ({ domain, state, available });
+const sensor = (state: string, available = true) => ({ domain: 'sensor', state, available });
+const binary = (state: string, available = true) => ({ domain: 'binary_sensor', state, available });
+const temp: NeonSensorCardConfig = { thresholds_enabled: true, threshold_low: 22, threshold_high: 26 };
 
 describe('computeSensorStatus', () => {
-  it('no disponible → unavailable', () => {
-    expect(computeSensorStatus(s('unavailable', 'sensor', false), {}).level).toBe('unavailable');
+  it('sin datos: unavailable, estén o no activados los umbrales', () => {
+    expect(computeSensorStatus(sensor('unavailable', false), temp).level).toBe('unavailable');
+    expect(computeSensorStatus(sensor('20', false), {}).level).toBe('unavailable');
   });
-  it('sin umbrales → normal', () => {
-    expect(computeSensorStatus(s('99'), {})).toEqual({ level: 'normal', direction: null });
-  });
-  it('aviso y crítico por arriba; crítico gana', () => {
-    const c = { warning_above: 25, critical_above: 30 };
-    expect(computeSensorStatus(s('24.9'), c).level).toBe('normal');
-    expect(computeSensorStatus(s('25'), c)).toEqual({ level: 'warning', direction: 'high' });
-    expect(computeSensorStatus(s('31'), c)).toEqual({ level: 'critical', direction: 'high' });
-  });
-  it('umbrales por debajo', () => {
-    const c = { warning_below: 20, critical_below: 10 };
-    expect(computeSensorStatus(s('15'), c)).toEqual({ level: 'warning', direction: 'low' });
-    expect(computeSensorStatus(s('5'), c)).toEqual({ level: 'critical', direction: 'low' });
-  });
-  it('estado no numérico → normal', () => {
-    expect(computeSensorStatus(s('cloudy'), { critical_above: 1 }).level).toBe('normal');
-  });
-  it('binary_sensor: crítico solo si coincide con alert_state', () => {
-    expect(computeSensorStatus(s('on', 'binary_sensor'), {}).level).toBe('normal');
-    expect(computeSensorStatus(s('on', 'binary_sensor'), { alert_state: 'on' }).level).toBe('critical');
-    expect(computeSensorStatus(s('off', 'binary_sensor'), { alert_state: 'on' }).level).toBe('normal');
-  });
-});
 
-describe('resolveCardColors', () => {
-  it('single: usa la paleta; unavailable siempre neutro', () => {
-    expect(resolveCardColors({ neon_palette: 'electric' }, 'critical').c1).toBe('#00f2fe');
-    expect(resolveCardColors({}, 'unavailable').c1).toBe(DEFAULT_STATE_COLORS.unavailable);
+  it('umbrales desactivados: siempre normal', () => {
+    const off: NeonSensorCardConfig = { thresholds_enabled: false, threshold_low: 22, threshold_high: 26 };
+    expect(computeSensorStatus(sensor('10'), off).level).toBe('normal');
+    expect(computeSensorStatus(sensor('40'), off).level).toBe('normal');
+    expect(computeSensorStatus(sensor('10'), {}).level).toBe('normal');
   });
-  it('state: color automático por nivel', () => {
-    expect(resolveCardColors({ color_mode: 'state' }, 'warning').c1).toBe(DEFAULT_STATE_COLORS.warning);
+
+  it('por debajo del mínimo es bajo', () => {
+    expect(computeSensorStatus(sensor('21.9'), temp).level).toBe('low');
   });
-  it('custom_state: respeta el color del usuario y cae al por defecto', () => {
-    const cfg = { color_mode: 'custom_state' as const, state_colors: { critical: '#ff0000' } };
-    expect(resolveCardColors(cfg, 'critical')).toEqual({ c1: '#ff0000', c2: '#ff0000', c3: '#ff0000' });
-    expect(resolveCardColors(cfg, 'normal').c1).toBe(DEFAULT_STATE_COLORS.normal);
+
+  it('por encima del máximo es alto', () => {
+    expect(computeSensorStatus(sensor('26.1'), temp).level).toBe('high');
+  });
+
+  it('entre los dos umbrales (límites incluidos) es correcto', () => {
+    expect(computeSensorStatus(sensor('22'), temp).level).toBe('ok');
+    expect(computeSensorStatus(sensor('24'), temp).level).toBe('ok');
+    expect(computeSensorStatus(sensor('26'), temp).level).toBe('ok');
+  });
+
+  it('con un solo límite definido, el otro lado no se evalúa', () => {
+    expect(computeSensorStatus(sensor('-50'), { thresholds_enabled: true, threshold_high: 26 }).level).toBe('ok');
+    expect(computeSensorStatus(sensor('99'), { thresholds_enabled: true, threshold_low: 22 }).level).toBe('ok');
+    expect(computeSensorStatus(sensor('30'), { thresholds_enabled: true, threshold_high: 26 }).level).toBe('high');
+  });
+
+  it('activados pero sin ningún límite: correcto', () => {
+    expect(computeSensorStatus(sensor('5'), { thresholds_enabled: true }).level).toBe('ok');
+  });
+
+  it('un estado no numérico se queda en normal', () => {
+    expect(computeSensorStatus(sensor('hola'), temp).level).toBe('normal');
+    expect(computeSensorStatus(sensor(''), temp).level).toBe('normal');
+  });
+
+  it('binary_sensor: alto si coincide con alert_state, correcto si no', () => {
+    const cfg: NeonSensorCardConfig = { thresholds_enabled: true, alert_state: 'on' };
+    expect(computeSensorStatus(binary('on'), cfg).level).toBe('high');
+    expect(computeSensorStatus(binary('off'), cfg).level).toBe('ok');
+    expect(computeSensorStatus(binary('on'), { thresholds_enabled: true }).level).toBe('ok');
+    expect(computeSensorStatus(binary('on'), { alert_state: 'on' }).level).toBe('normal');
   });
 });

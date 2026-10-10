@@ -4,10 +4,9 @@
 
 `custom:neon-sensor-card` — tarjeta de solo lectura para **una** entidad
 `sensor` o `binary_sensor`. Muestra nombre, icono, valor con unidad,
-estado (Normal / Alto / Bajo / Crítico / Sin señal) y, opcionalmente, un
-gráfico del histórico dibujado como el trazo de un monitor de constantes
-vitales: una ventana luminosa barre la línea de izquierda a derecha,
-dejando una estela que se apaga y el halo del color de la tarjeta.
+estado y un gráfico del histórico dibujado como el trazo de un monitor
+de constantes vitales. **El gráfico siempre está visible**: lo que se
+elige es el efecto de color.
 
 **Solo admite `sensor.*` y `binary_sensor.*`.** Con cualquier otro
 dominio (`light.*`, `switch.*`, `climate.*`…) la tarjeta no se carga y
@@ -19,9 +18,9 @@ No lleva pie de sensores: es una tarjeta de una sola entidad.
 ## Tamaños
 
 El tamaño se adapta solo al ancho real de la tarjeta en el grid de HA
-(no hay clave `size`): **compacta** (< 230 px: sin gráfico), **normal**
-y **grande** (≥ 380 px: icono, valor y gráfico mayores). Con
-`show_graph: false` se obtiene el modo simple en cualquier tamaño.
+(no hay clave `size`): **compacta** (< 230 px: el espacio no da para el
+gráfico y se oculta), **normal** y **grande** (≥ 380 px: icono, valor y
+gráfico mayores).
 
 ## Config
 
@@ -29,8 +28,6 @@ y **grande** (≥ 380 px: icono, valor y gráfico mayores). Con
 type: custom:neon-sensor-card
 entity: sensor.temperatura_exterior
 name: Temperatura Exterior
-warning_above: 25
-critical_above: 30
 ```
 
 ```yaml
@@ -38,45 +35,59 @@ type: custom:neon-sensor-card
 entity: sensor.temperatura_exterior
 icon: mdi:thermometer
 decimals: 1
-show_graph: true
 graph_hours: 24
-color_mode: custom_state
-state_colors:
-  normal: "#1ecdf2"
-  warning: "#ffb347"
-  critical: "#ff3d5a"
-warning_above: 25
-critical_above: 30
+neon_effect: halo
+neon_palette: electric
+thresholds_enabled: true
+threshold_low: 22
+threshold_high: 26
+threshold_colors:
+  low: "#4facfe"
+  ok: "#39e07a"
+  high: "#ff3d5a"
 tap_action:
   action: more-info
 ```
 
-Para un `binary_sensor`, `alert_state` indica qué estado es crítico:
+Para un `binary_sensor`, `alert_state` indica qué estado es la alerta:
 
 ```yaml
 type: custom:neon-sensor-card
 entity: binary_sensor.puerta_entrada
+thresholds_enabled: true
 alert_state: "on"
-color_mode: state
 ```
 
-## Modos de color (`color_mode`)
+## Efecto de color (`neon_effect`)
 
-- `single` (por defecto): un solo color con la paleta (`neon_palette`,
-  `neon_color1/2/3` — ver la [Button Card](../button)).
-- `state`: color automático por estado (cian / ámbar / rojo).
-- `custom_state`: color propio por estado con `state_colors`
-  (`normal`, `warning`, `critical`, `unavailable`).
+- `halo` (por defecto): halo de tres colores como en el resto de
+  tarjetas Neón (aro de tres colores alrededor de la tarjeta). Se elige
+  con `neon_palette` / `neon_color1/2/3` (ver la [Button Card](../button)).
+  El gráfico se ve en esos tres colores de principio a fin, con efecto
+  de desplazamiento.
+- `single`: un único color (`neon_color`, por defecto `#1ecdf2`) con
+  borde resplandeciente y el mismo efecto de desplazamiento.
+- `normal`: sin efecto de desplazamiento y con el color del tema de HA
+  (`--primary-color`); la tarjeta no añade halo ni resplandor.
 
-"Sin señal" es siempre neutro salvo que lo definas en `state_colors`
-con `custom_state`.
+## Umbrales de estado (opcionales)
 
-## Estados y umbrales
+Con `thresholds_enabled: true` la lectura se valora como **Bajo**,
+**Correcto** o **Alto**:
 
-`sensor`: `warning_above` / `warning_below` marcan Alto/Bajo;
-`critical_above` / `critical_below` marcan Crítico (gana sobre el aviso).
-Sin umbrales el sensor siempre está en Normal. Un estado no numérico
-(texto) también. `unavailable`/`unknown` → Sin señal.
+- `sensor`: por debajo de `threshold_low` es Bajo; por encima de
+  `threshold_high` es Alto; entre ambos (los límites incluidos) es
+  Correcto. Un límite sin definir no se evalúa. Ejemplo con 22 y 26:
+  21,9 → Bajo · 22, 24 y 26 → Correcto · 26,1 → Alto.
+- `binary_sensor`: Alto (texto «Alerta») si su estado coincide con
+  `alert_state`; si no, Correcto.
+- `threshold_colors` (`low`, `ok`, `high`): un color por nivel. El
+  color del nivel sustituye al del efecto en la tarjeta y el gráfico
+  (también en `halo`, donde pasa a ser de un solo color).
+
+Con los umbrales desactivados (por defecto) el estado es «Normal» y se
+usan los colores del efecto. Un estado no numérico (texto) también es
+«Normal». `unavailable`/`unknown` → «Sin señal», con color neutro.
 
 ## Gráfico
 
@@ -84,8 +95,10 @@ Lee el histórico con la llamada WebSocket `history/history_during_period`
 (`src/ha/history.ts`): una consulta al empezar y otra cada 2 minutos por
 tarjeta, que se detiene al desconectarla. Un `sensor` dibuja la curva
 con aristas vivas (sin suavizar); un `binary_sensor`, una onda cuadrada
-on/off. Con `prefers-reduced-motion` el trazo se muestra completo y
-quieto. La tarjeta solo se repinta cuando cambia su propia entidad.
+on/off. En `halo` y `single` una ventana luminosa barre la línea de
+izquierda a derecha dejando una estela que se apaga; con
+`prefers-reduced-motion` el trazo se muestra completo y quieto. La
+tarjeta solo se repinta cuando cambia su propia entidad.
 
 ---
 
@@ -97,10 +110,8 @@ quieto. La tarjeta solo se repinta cuando cambia su propia entidad.
 
 `custom:neon-sensor-card` — a read-only card for **one** `sensor` or
 `binary_sensor` entity. It shows name, icon, value with unit, status
-(Normal / High / Low / Critical / No signal) and, optionally, a history
-graph drawn like the trace of a vital-signs monitor: a bright window
-sweeps the line left to right, leaving a fading trail and the glow of
-the card's color.
+and a history graph drawn like the trace of a vital-signs monitor.
+**The graph is always visible**: what you choose is the color effect.
 
 **Only `sensor.*` and `binary_sensor.*` are accepted.** Any other domain
 (`light.*`, `switch.*`, `climate.*`…) makes the card fail to load and HA
@@ -112,9 +123,9 @@ It has no sensor footer: it is a single-entity card.
 ## Sizes
 
 Size adapts to the card's real width in the HA grid (there is no `size`
-key): **compact** (< 230 px: no graph), **normal** and **large**
-(≥ 380 px: bigger icon, value and graph). `show_graph: false` gives the
-simple mode at any size.
+key): **compact** (< 230 px: there is no room for the graph, so it is
+hidden), **normal** and **large** (≥ 380 px: bigger icon, value and
+graph).
 
 ## Config
 
@@ -122,8 +133,6 @@ simple mode at any size.
 type: custom:neon-sensor-card
 entity: sensor.outdoor_temperature
 name: Outdoor Temperature
-warning_above: 25
-critical_above: 30
 ```
 
 ```yaml
@@ -131,45 +140,58 @@ type: custom:neon-sensor-card
 entity: sensor.outdoor_temperature
 icon: mdi:thermometer
 decimals: 1
-show_graph: true
 graph_hours: 24
-color_mode: custom_state
-state_colors:
-  normal: "#1ecdf2"
-  warning: "#ffb347"
-  critical: "#ff3d5a"
-warning_above: 25
-critical_above: 30
+neon_effect: halo
+neon_palette: electric
+thresholds_enabled: true
+threshold_low: 22
+threshold_high: 26
+threshold_colors:
+  low: "#4facfe"
+  ok: "#39e07a"
+  high: "#ff3d5a"
 tap_action:
   action: more-info
 ```
 
-For a `binary_sensor`, `alert_state` says which state is critical:
+For a `binary_sensor`, `alert_state` says which state is the alert:
 
 ```yaml
 type: custom:neon-sensor-card
 entity: binary_sensor.front_door
+thresholds_enabled: true
 alert_state: "on"
-color_mode: state
 ```
 
-## Color modes (`color_mode`)
+## Color effect (`neon_effect`)
 
-- `single` (default): one color from the palette (`neon_palette`,
-  `neon_color1/2/3` — see the [Button Card](../button)).
-- `state`: automatic color per state (cyan / amber / red).
-- `custom_state`: your own color per state via `state_colors`
-  (`normal`, `warning`, `critical`, `unavailable`).
+- `halo` (default): three-color halo like the other Neón cards (a
+  three-color ring around the card). Chosen with `neon_palette` /
+  `neon_color1/2/3` (see the [Button Card](../button)). The graph is
+  drawn in those three colors from start to end, with the sweep effect.
+- `single`: one color (`neon_color`, default `#1ecdf2`) with a glowing
+  border and the same sweep effect.
+- `normal`: no sweep effect and the HA theme color (`--primary-color`);
+  the card adds no halo or glow.
 
-"No signal" is always neutral unless you set it in `state_colors` with
-`custom_state`.
+## State thresholds (optional)
 
-## Status and thresholds
+With `thresholds_enabled: true` the reading is rated **Low**, **OK** or
+**High**:
 
-`sensor`: `warning_above` / `warning_below` flag High/Low;
-`critical_above` / `critical_below` flag Critical (wins over warning).
-Without thresholds the sensor is always Normal, and so is a non-numeric
-(text) state. `unavailable`/`unknown` → No signal.
+- `sensor`: below `threshold_low` is Low; above `threshold_high` is
+  High; in between (limits included) is OK. An unset limit is not
+  evaluated. Example with 22 and 26: 21.9 → Low · 22, 24 and 26 → OK ·
+  26.1 → High.
+- `binary_sensor`: High (text "Alert") when its state matches
+  `alert_state`; otherwise OK.
+- `threshold_colors` (`low`, `ok`, `high`): one color per level. The
+  level color replaces the effect's color on the card and the graph
+  (also in `halo`, where it becomes a single color).
+
+With thresholds disabled (default) the status is "Normal" and the
+effect's colors are used. A non-numeric (text) state is also "Normal".
+`unavailable`/`unknown` → "No signal", in a neutral color.
 
 ## Graph
 
@@ -177,5 +199,7 @@ It reads history through the `history/history_during_period` WebSocket
 call (`src/ha/history.ts`): one query on start and another every 2
 minutes per card, stopped when the card disconnects. A `sensor` draws a
 sharp-edged curve (not smoothed); a `binary_sensor` draws an on/off
-square wave. With `prefers-reduced-motion` the full trace is shown
-still. The card only re-renders when its own entity changes.
+square wave. In `halo` and `single` a bright window sweeps the line left
+to right, leaving a fading trail; with `prefers-reduced-motion` the full
+trace is shown still. The card only re-renders when its own entity
+changes.

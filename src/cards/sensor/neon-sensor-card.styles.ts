@@ -20,12 +20,17 @@ export const NEON_SENSOR_CARD_STYLES = css`
     flex-direction: column;
     gap: 6px;
     cursor: pointer;
+    transition: border-color 300ms ease-out, box-shadow 300ms ease-out;
+  }
+  /* Efecto "un color": borde y resplandor de un único color. El efecto
+     "halo" dibuja el aro de tres colores compartido (NEON_RING_SPLIT_STYLES)
+     y el "normal" no añade nada: queda el borde del tema. */
+  ha-card.neon-effect-single {
     border: 1.5px solid var(--neon-c1);
     box-shadow:
       0 0 6px color-mix(in srgb, var(--neon-c1) 55%, transparent),
       0 0 18px color-mix(in srgb, var(--neon-c1) 22%, transparent),
       inset 0 0 14px color-mix(in srgb, var(--neon-c1) 10%, transparent);
-    transition: border-color 300ms ease-out, box-shadow 300ms ease-out;
   }
 
   .header {
@@ -38,9 +43,12 @@ export const NEON_SENSOR_CARD_STYLES = css`
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    border: 1.5px solid var(--neon-c1);
+    border: 1.5px solid var(--divider-color, rgba(127, 127, 127, 0.4));
     display: grid;
     place-items: center;
+  }
+  .neon-halo-active .icon-ring {
+    border-color: var(--neon-c1);
     box-shadow: 0 0 8px color-mix(in srgb, var(--neon-c1) 40%, transparent);
   }
   .icon-ring ha-icon {
@@ -110,6 +118,9 @@ export const NEON_SENSOR_CARD_STYLES = css`
     background: var(--neon-c1);
     box-shadow: 0 0 6px var(--neon-c1);
   }
+  .neon-effect-normal .dot {
+    box-shadow: none;
+  }
 
   /* ---- Gráfico: trazo de monitor de constantes vitales ---- */
   .graph {
@@ -136,6 +147,10 @@ export const NEON_SENSOR_CARD_STYLES = css`
      vuelve a encender. */
   .trace-base {
     opacity: 0.2;
+  }
+  /* Efecto "normal": trazo fijo y completo, sin barrido. */
+  .graph--static .trace-base {
+    opacity: 1;
   }
   /* Capa viva: se extiende más allá del gráfico para que el halo no se
      recorte con la máscara. La máscara deja ver solo una ventana que

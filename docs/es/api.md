@@ -916,15 +916,16 @@ Todas las claves de `NeonSensorCardConfig`
 | `name` | `string` | `friendly_name` de la entidad | Título de la tarjeta. |
 | `icon` | `string` | calculado por `device_class` | Icono propio. |
 | `decimals` | `number` | `1` | Decimales del valor (solo `sensor` numérico). |
-| `show_graph` | `boolean` | `true` | `false` = modo simple, sin gráfico ni consulta de histórico. |
-| `graph_hours` | `number` | `24` | Horas de histórico del gráfico. |
-| `color_mode` | `'single' \| 'state' \| 'custom_state'` | `'single'` | Un color (paleta), color automático por estado o color propio por estado. |
-| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta, solo con `color_mode: single`. |
+| `graph_hours` | `number` | `24` | Horas de histórico del gráfico. El gráfico siempre está visible. |
+| `neon_effect` | `'normal' \| 'halo' \| 'single'` | `'halo'` | Efecto de color: `halo` = aro de tres colores y gráfico en tres colores con desplazamiento; `single` = un solo color con desplazamiento; `normal` = color del tema, sin desplazamiento. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta, solo con `neon_effect: halo`. |
 | `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | según paleta | Colores cuando `neon_palette: custom`. |
-| `state_colors` | `{ normal?, warning?, critical?, unavailable? }` | colores automáticos | Solo con `color_mode: custom_state`; los no indicados caen al color automático de ese estado. |
-| `warning_above` / `warning_below` | `number` | — | Umbral de aviso (Alto/Bajo) para un `sensor` numérico. |
-| `critical_above` / `critical_below` | `number` | — | Umbral crítico; gana sobre el aviso. |
-| `alert_state` | `'on' \| 'off'` | — | Solo `binary_sensor`: estado que se considera crítico. |
+| `neon_color` | `string` (hex) | `#1ecdf2` | Color del efecto `single`. |
+| `thresholds_enabled` | `boolean` | `false` | Activa la valoración Bajo / Correcto / Alto. |
+| `threshold_low` | `number` | — | `sensor` numérico: por debajo de este valor es Bajo. |
+| `threshold_high` | `number` | — | `sensor` numérico: por encima de este valor es Alto. Entre ambos (límites incluidos) es Correcto. |
+| `threshold_colors` | `{ low?, ok?, high? }` | azul / verde / rojo | Color de cada nivel; sustituye al color del efecto cuando los umbrales están activos. |
+| `alert_state` | `'on' \| 'off'` | — | Solo `binary_sensor` con umbrales activos: estado que se considera Alto (alerta). |
 | `tap_action` | `ActionConfig` | `{ action: more-info }` | Acción al pulsar. |
 | `hold_action` | `ActionConfig` | `{ action: none }` | Acción al mantener. |
 | `double_tap_action` | `ActionConfig` | `{ action: none }` | Acción al doble toque. |
@@ -943,16 +944,16 @@ type: custom:neon-sensor-card
 entity: sensor.temperatura_exterior
 name: Temperatura Exterior
 icon: mdi:thermometer
-decimals: 1
-show_graph: true
 graph_hours: 24
-color_mode: custom_state
-state_colors:
-  normal: "#1ecdf2"
-  warning: "#ffb347"
-  critical: "#ff3d5a"
-warning_above: 25
-critical_above: 30
+neon_effect: halo
+neon_palette: electric
+thresholds_enabled: true
+threshold_low: 22
+threshold_high: 26
+threshold_colors:
+  low: "#4facfe"
+  ok: "#39e07a"
+  high: "#ff3d5a"
 tap_action:
   action: more-info
 ```

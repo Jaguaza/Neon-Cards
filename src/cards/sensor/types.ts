@@ -1,14 +1,25 @@
 import type { ActionConfig } from '../../ha/types';
 import type { NeonPaletteConfig } from '../../shared';
 
-/** Nivel de severidad de la lectura; decide color y texto de estado. */
-export type SensorLevel = 'normal' | 'warning' | 'critical' | 'unavailable';
+/**
+ * Nivel de la lectura. `normal` = umbrales desactivados (sin valoración);
+ * `low` / `ok` / `high` solo existen con los umbrales activados.
+ */
+export type SensorLevel = 'normal' | 'low' | 'ok' | 'high' | 'unavailable';
 
-/** `single`: un color (paleta). `state`: color automático por estado.
-    `custom_state`: color elegido por el usuario para cada estado. */
-export type ColorMode = 'single' | 'state' | 'custom_state';
+/** Niveles que tienen color propio configurable en los umbrales. */
+export type ThresholdLevel = 'low' | 'ok' | 'high';
 
-export type StateColors = Partial<Record<SensorLevel, string>>;
+/**
+ * Efecto de color de la tarjeta (el gráfico está siempre visible):
+ * - `normal`: sin efecto de desplazamiento, color del tema de HA.
+ * - `halo`: halo de tres colores (paleta como en el resto de tarjetas),
+ *   gráfico en tres colores con efecto de desplazamiento.
+ * - `single`: un único color elegido, con efecto de desplazamiento.
+ */
+export type NeonEffect = 'normal' | 'halo' | 'single';
+
+export type ThresholdColors = Partial<Record<ThresholdLevel, string>>;
 
 export interface NeonSensorCardConfig extends NeonPaletteConfig {
   type?: string;
@@ -17,18 +28,21 @@ export interface NeonSensorCardConfig extends NeonPaletteConfig {
   name?: string;
   icon?: string;
   decimals?: number;
-  /** Gráfico de histórico. Por defecto `true`; `false` = modo simple. */
-  show_graph?: boolean;
   /** Horas de histórico que cubre el gráfico. */
   graph_hours?: number;
-  color_mode?: ColorMode;
-  state_colors?: StateColors;
-  /** Umbrales numéricos (solo `sensor`). Crítico gana sobre aviso. */
-  warning_above?: number;
-  warning_below?: number;
-  critical_above?: number;
-  critical_below?: number;
-  /** Solo `binary_sensor`: estado que se considera crítico. */
+  /** Efecto de color. Por defecto `halo`. */
+  neon_effect?: NeonEffect;
+  /** Color del efecto `single`. */
+  neon_color?: string;
+  /** Activa la valoración Bajo / Correcto / Alto. Por defecto desactivado. */
+  thresholds_enabled?: boolean;
+  /** Numérico: por debajo de este valor la lectura es `low`. */
+  threshold_low?: number;
+  /** Numérico: por encima de este valor la lectura es `high`. */
+  threshold_high?: number;
+  /** Un color por nivel; los no indicados usan su valor por defecto. */
+  threshold_colors?: ThresholdColors;
+  /** Solo `binary_sensor`: estado que se considera `high` (alerta). */
   alert_state?: 'on' | 'off';
   tap_action?: ActionConfig;
   hold_action?: ActionConfig;

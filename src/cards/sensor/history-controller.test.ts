@@ -44,13 +44,13 @@ describe('HistoryController', () => {
     ctrl.hostConnected();
 
     // Primera actualización: ya hay entidad pero todavía no hay hass.
-    ctrl.sync({ entity: 'sensor.temp', hours: 24, enabled: true });
+    ctrl.sync({ entity: 'sensor.temp', hours: 24 });
     await vi.advanceTimersByTimeAsync(0);
     expect(ctrl.values).toEqual([]);
 
     // Segunda actualización: llega hass con la misma entidad y horas.
     const hass = makeHass(Date.now());
-    ctrl.sync({ hass, entity: 'sensor.temp', hours: 24, enabled: true });
+    ctrl.sync({ hass, entity: 'sensor.temp', hours: 24 });
     await vi.advanceTimersByTimeAsync(0);
 
     expect(hass.callWS).toHaveBeenCalledTimes(1);
@@ -63,7 +63,7 @@ describe('HistoryController', () => {
     const ctrl = new HistoryController(host);
     ctrl.hostConnected();
     const hass = makeHass(Date.now());
-    const request = { hass, entity: 'sensor.temp', hours: 24, enabled: true };
+    const request = { hass, entity: 'sensor.temp', hours: 24 };
 
     ctrl.sync(request);
     ctrl.sync(request);
@@ -74,13 +74,13 @@ describe('HistoryController', () => {
     ctrl.hostDisconnected();
   });
 
-  it('no consulta si el gráfico está desactivado', async () => {
+  it('no consulta si todavía no hay entidad configurada', async () => {
     const host = makeHost();
     const ctrl = new HistoryController(host);
     ctrl.hostConnected();
     const hass = makeHass(Date.now());
 
-    ctrl.sync({ hass, entity: 'sensor.temp', hours: 24, enabled: false });
+    ctrl.sync({ hass, hours: 24 });
     await vi.advanceTimersByTimeAsync(0);
 
     expect(hass.callWS).not.toHaveBeenCalled();
