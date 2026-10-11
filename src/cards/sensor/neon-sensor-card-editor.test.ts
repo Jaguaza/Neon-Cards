@@ -32,7 +32,7 @@ describe('NeonSensorCardEditor', () => {
   it('el selector de efecto ofrece normal, halo y un color; halo por defecto con paleta', async () => {
     const { el } = await mount({ entity: 'sensor.temp' });
     const select = q(el, '#effect') as HTMLSelectElement;
-    expect([...select.options].map((o) => o.value)).toEqual(['normal', 'halo', 'single']);
+    expect(Array.from(select.options).map((o) => o.value)).toEqual(['normal', 'halo', 'single']);
     expect(select.value).toBe('halo');
     expect(q(el, '#palette')).not.toBeNull();
   });
@@ -160,9 +160,9 @@ describe('NeonSensorCardEditor', () => {
   it('selector de tamaño: grande, mediano y pequeño; mediano por defecto', async () => {
     const { el } = await mount({ entity: 'sensor.temp' });
     const select = q(el, '#size') as HTMLSelectElement;
-    expect([...select.options].map((o) => o.value)).toEqual(['large', 'normal', 'compact']);
+    expect(Array.from(select.options).map((o) => o.value)).toEqual(['large', 'normal', 'compact']);
     expect(select.value).toBe('normal');
-    expect([...select.options].map((o) => o.text)).toEqual([
+    expect(Array.from(select.options).map((o) => o.text)).toEqual([
       'Grande (ancho máximo, con gráfico)',
       'Mediano (con gráfico)',
       'Pequeño (sin gráfico)',

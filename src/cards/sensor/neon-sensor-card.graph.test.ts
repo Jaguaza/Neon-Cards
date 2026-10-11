@@ -52,7 +52,7 @@ describe('NeonSensorCard · gráfico', () => {
     const el = await mount({});
     const paths = qa(el, '.trace, .glow-path');
     expect(paths.length).toBe(3);
-    for (const p of paths) expect(p.namespaceURI).toBe(SVG_NS);
+    Array.from(paths).forEach((p) => expect(p.namespaceURI).toBe(SVG_NS));
   });
 
   it('el gráfico siempre se muestra, también con show_graph: false heredado de una config antigua', async () => {
@@ -63,7 +63,7 @@ describe('NeonSensorCard · gráfico', () => {
 
   it('el degradado reparte los tres colores en tramos propios (ninguno queda reducido a un punto de paso)', async () => {
     const el = await mount({});
-    const stops = [...qa(el, 'linearGradient stop')].map((n) => (n as SVGElement).getAttribute('style') ?? '');
+    const stops = Array.from(qa(el, 'linearGradient stop')).map((n) => (n as SVGElement).getAttribute('style') ?? '');
     expect(stops.length).toBe(6);
     const vars = stops.map((st) => /--neon-c([123])/.exec(st)![1]);
     expect(vars).toEqual(['1', '1', '2', '2', '3', '3']);

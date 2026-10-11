@@ -514,6 +514,11 @@ Sensor Card for its graph.
 - **Returns:** `Promise<HistoryPoint[]>`, where
   `HistoryPoint = { time: number /* ms */; state: string }`. Returns
   `[]` if `hass.callWS` is missing.
+- **Example:**
+  ```ts
+  const points = await fetchHistory(hass, 'sensor.outdoor_temperature', 24);
+  // [{ time: 1790000000000, state: '21.4' }, { time: 1790000600000, state: '21.6' }, …]
+  ```
 
 #### `parseHistory(raw, entityId)`
 
@@ -521,6 +526,15 @@ Sensor Card for its graph.
   accepts the compressed format (`s`/`lu`/`lc`, seconds) and the long
   one (`state`/`last_updated`, ISO or seconds); entries without a state
   or a valid date are dropped.
+- **Parameters:** `raw` — the `hass.callWS` response (an object
+  `{ [entityId]: entries[] }`, or `undefined`); `entityId: string`.
+- **Returns:** `HistoryPoint[]` sorted by time; `[]` if the response
+  does not include that entity.
+- **Example:**
+  ```ts
+  parseHistory({ 'sensor.t': [{ s: '21.4', lu: 1790000000 }, { s: '21.6', lu: 1790000600 }] }, 'sensor.t');
+  // [{ time: 1790000000000, state: '21.4' }, { time: 1790000600000, state: '21.6' }]
+  ```
 
 ---
 

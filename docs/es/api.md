@@ -229,6 +229,13 @@ sobrevivirían entre pulsaciones.
   const primaryText = computeInfoDisplay('last-changed', name, stateObj.state, stateObj, hass);
   ```
 
+#### Constantes y tipos
+
+| Nombre | Descripción |
+|---|---|
+| `INFO_OPTIONS` | `['name', 'state', 'last-changed', 'last-updated', 'none']` — las opciones válidas. |
+| `InfoOption` | Tipo TypeScript derivado de `INFO_OPTIONS`. |
+
 #### `getInfoLabels(hass)`
 
 - **Descripción:** etiquetas de `INFO_OPTIONS` en el idioma resuelto de
@@ -507,6 +514,11 @@ Sensor Card para su gráfico.
 - **Devuelve:** `Promise<HistoryPoint[]>`, con
   `HistoryPoint = { time: number /* ms */; state: string }`. Devuelve
   `[]` si `hass.callWS` no existe.
+- **Ejemplo:**
+  ```ts
+  const points = await fetchHistory(hass, 'sensor.temperatura_exterior', 24);
+  // [{ time: 1790000000000, state: '21.4' }, { time: 1790000600000, state: '21.6' }, …]
+  ```
 
 #### `parseHistory(raw, entityId)`
 
@@ -514,6 +526,15 @@ Sensor Card para su gráfico.
   Acepta el formato comprimido (`s`/`lu`/`lc`, segundos) y el largo
   (`state`/`last_updated`, ISO o segundos); descarta entradas sin estado
   o sin fecha válida.
+- **Parámetros:** `raw` — la respuesta de `hass.callWS` (un objeto
+  `{ [entityId]: entradas[] }`, o `undefined`); `entityId: string`.
+- **Devuelve:** `HistoryPoint[]` ordenado por tiempo; `[]` si la
+  respuesta no trae esa entidad.
+- **Ejemplo:**
+  ```ts
+  parseHistory({ 'sensor.t': [{ s: '21.4', lu: 1790000000 }, { s: '21.6', lu: 1790000600 }] }, 'sensor.t');
+  // [{ time: 1790000000000, state: '21.4' }, { time: 1790000600000, state: '21.6' }]
+  ```
 
 ---
 

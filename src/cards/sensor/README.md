@@ -122,6 +122,13 @@ hay una valoración (Bajo / Correcto / Alto): sin datos
 (`unavailable`/`unknown`) o con un estado de texto no hay etiqueta, pero
 el perímetro sí conserva su color (neutro si no hay datos).
 
+## Acciones
+
+`tap_action`, `hold_action` y `double_tap_action` funcionan como en el
+resto de tarjetas. Por defecto, tocar la tarjeta abre «más información»
+de la entidad; mantener pulsado y el doble toque no hacen nada. El menú
+⋮ abre siempre «más información».
+
 ## Gráfico
 
 Lee el histórico con la llamada WebSocket `history/history_during_period`
@@ -258,6 +265,12 @@ label. With thresholds on, the label only appears when there is a
 rating (Low / OK / High): with no data (`unavailable`/`unknown`) or a
 text state there is no label, but the perimeter keeps its color
 (neutral when there is no data).
+
+## Actions
+
+`tap_action`, `hold_action` and `double_tap_action` work as in the other
+cards. By default, tapping the card opens the entity's "more info";
+hold and double tap do nothing. The ⋮ menu always opens "more info".
 
 ## Graph
 

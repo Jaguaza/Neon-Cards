@@ -219,6 +219,24 @@ thresholds_enabled: true
 alert_state: "on"
 ```
 
+Con un solo color y tamaño grande:
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.temperatura_garaje
+size: large
+neon_effect: single
+neon_color: "#ff9f1a"
+```
+
+### Capturas
+
+![Neón Sensor Card, efectos de color y umbrales](../assets/screenshots/sensor/Neon_Sensor_Cards.png)
+
+### GIF
+
+![Neón Sensor Card en acción](../assets/gifs/Sensor.gif)
+
 ### Explicación
 
 Neón Sensor Card muestra una única entidad `sensor` o `binary_sensor`
@@ -460,6 +478,24 @@ entity: binary_sensor.front_door
 thresholds_enabled: true
 alert_state: "on"
 ```
+
+With a single color and large size:
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.garage_temperature
+size: large
+neon_effect: single
+neon_color: "#ff9f1a"
+```
+
+### Screenshots
+
+![Neón Sensor Card, color effects and thresholds](../assets/screenshots/sensor/Neon_Sensor_Cards.png)
+
+### GIF
+
+![Neón Sensor Card in action](../assets/gifs/Sensor.gif)
 
 ### Explanation
 

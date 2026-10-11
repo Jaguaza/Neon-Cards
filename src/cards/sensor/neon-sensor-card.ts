@@ -34,6 +34,21 @@ function isRated(level: SensorStatus['level']): level is ThresholdLevel {
   return level === 'low' || level === 'ok' || level === 'high';
 }
 
+/** Datos ya resueltos que consume la plantilla (ver `_buildView`). */
+interface SensorView {
+  entityId?: string;
+  display: SensorDisplay | null;
+  /** La entidad no existe en `hass.states`. */
+  broken: boolean;
+  colors: ReturnType<typeof resolveCardColors>;
+  edge: string | null;
+  effect: NeonEffect;
+  size: ReturnType<typeof resolveSize>;
+  rated: ThresholdLevel | null;
+  name: string;
+  unit: string;
+}
+
 /**
  * Neón Sensor Card
  * ------------------------------------------------------------
@@ -193,9 +208,8 @@ export class NeonSensorCard extends BaseNeonCard {
     `;
   }
 
-  protected render(): TemplateResult | typeof nothing {
-    const config = this._config;
-    if (!config) return nothing;
+  /** Todo lo que la plantilla necesita, calculado una sola vez por pintado. */
+  private _buildView(config: NeonSensorCardConfig): SensorView {
     const entityId = config.entity;
     const display =
       entityId && this.hass ? getSensorDisplay(entityId, this.hass, { icon: config.icon, decimals: config.decimals }) : null;
@@ -204,24 +218,77 @@ export class NeonSensorCard extends BaseNeonCard {
       { domain: this._domain, state: stateObj?.state ?? 'unavailable', available: !!display?.available },
       config
     );
-    const broken = !stateObj;
-    const colors = resolveCardColors(config, status.level);
-    // El perímetro lo marcan solo los umbrales; sin ellos, borde normal.
-    const edge = resolveEdgeColor(config, status.level);
-    const effect = resolveEffect(config);
-    const size = resolveSize(config);
-    // Etiqueta solo con umbrales activados y una valoración real (bajo /
-    // correcto / alto). Sin datos o sin valorar no hay etiqueta, pero el
-    // color del perímetro (`edge`) sí se mantiene.
-    const rated = config.thresholds_enabled && isRated(status.level) ? status.level : null;
-    const name = config.name || (stateObj?.attributes.friendly_name as string | undefined) || entityId || '';
-    const hasDoubleTap = !!config.double_tap_action && config.double_tap_action.action !== 'none';
-    const unit = display?.available && this._domain !== 'binary_sensor' ? display.unit : '';
+    return {
+      entityId,
+      display,
+      broken: !stateObj,
+      colors: resolveCardColors(config, status.level),
+      // El perímetro lo marcan solo los umbrales; sin ellos, borde normal.
+      edge: resolveEdgeColor(config, status.level),
+      effect: resolveEffect(config),
+      size: resolveSize(config),
+      // Etiqueta solo con umbrales activados y una valoración real (bajo /
+      // correcto / alto). Sin datos o sin valorar no hay etiqueta, pero el
+      // color del perímetro (`edge`) sí se mantiene.
+      rated: config.thresholds_enabled && isRated(status.level) ? status.level : null,
+      name: config.name || (stateObj?.attributes.friendly_name as string | undefined) || entityId || '',
+      unit: display?.available && this._domain !== 'binary_sensor' ? display.unit : '',
+    };
+  }
 
+  private _cardClass(view: SensorView): string {
+    return [
+      `size-${view.size}`,
+      `neon-effect-${view.effect}`,
+      view.edge ? 'has-edge' : '',
+      view.effect === 'normal' ? '' : 'neon-halo-active',
+      view.broken ? 'neon-halo-error' : '',
+    ].join(' ');
+  }
+
+  private _renderHeader(view: SensorView): TemplateResult {
+    const iconName = view.broken ? ERROR_ICON : (view.display?.icon ?? ERROR_ICON);
+    const kind = this._t(this._domain === 'binary_sensor' ? 'kind_binary_sensor' : 'kind_sensor');
+    return html`
+      <div class="header">
+        <ha-icon class="icon neon-halo-icon" .icon=${iconName}></ha-icon>
+        <div class="texts">
+          <span class="name">${view.name}</span>
+          <span class="kind">${kind}</span>
+        </div>
+        <button
+          class="menu"
+          type="button"
+          aria-label=${this._t('more_info_label')}
+          @click=${() => view.entityId && openMoreInfo(this, view.entityId)}
+        >
+          <ha-icon icon="mdi:dots-vertical"></ha-icon>
+        </button>
+      </div>
+    `;
+  }
+
+  private _renderBody(view: SensorView): TemplateResult {
+    return html`
+      <div class="body">
+        <div class="reading">
+          <span class="value">${this._valueText(view.display)}</span>
+          ${view.unit ? html`<span class="unit">${view.unit}</span>` : nothing}
+        </div>
+        ${hasGraph(view.size) ? this._renderGraph(view.effect) : nothing}
+      </div>
+    `;
+  }
+
+  protected render(): TemplateResult | typeof nothing {
+    const config = this._config;
+    if (!config) return nothing;
+    const view = this._buildView(config);
+    const hasDoubleTap = !!config.double_tap_action && config.double_tap_action.action !== 'none';
     return html`
       <ha-card
-        class="size-${size} neon-effect-${effect} ${edge ? 'has-edge' : ''} ${effect === 'normal' ? '' : 'neon-halo-active'} ${broken ? 'neon-halo-error' : ''}"
-        style=${neonHaloVars(colors) + (edge ? ` --neon-edge: ${edge};` : '')}
+        class=${this._cardClass(view)}
+        style=${neonHaloVars(view.colors) + (view.edge ? ` --neon-edge: ${view.edge};` : '')}
         @pointerdown=${(ev: PointerEvent) => handlePointerDown(this._gesture, ev, '.menu', () => this._dispatchAction('hold'))}
         @pointerup=${() => cancelHold(this._gesture)}
         @pointercancel=${() => cancelHold(this._gesture)}
@@ -232,29 +299,8 @@ export class NeonSensorCard extends BaseNeonCard {
             hasDoubleTap,
           })}
       >
-        <div class="header">
-          <ha-icon class="icon neon-halo-icon" .icon=${broken ? ERROR_ICON : (display?.icon ?? ERROR_ICON)}></ha-icon>
-          <div class="texts">
-            <span class="name">${name}</span>
-            <span class="kind">${this._t(this._domain === 'binary_sensor' ? 'kind_binary_sensor' : 'kind_sensor')}</span>
-          </div>
-          <button
-            class="menu"
-            type="button"
-            aria-label=${this._t('more_info_label')}
-            @click=${() => entityId && openMoreInfo(this, entityId)}
-          >
-            <ha-icon icon="mdi:dots-vertical"></ha-icon>
-          </button>
-        </div>
-        <div class="body">
-          <div class="reading">
-            <span class="value">${this._valueText(display)}</span>
-            ${unit ? html`<span class="unit">${unit}</span>` : nothing}
-          </div>
-          ${hasGraph(size) ? this._renderGraph(effect) : nothing}
-        </div>
-        ${rated ? html`<div class="status"><span class="dot"></span>${this._statusLabel(rated)}</div>` : nothing}
+        ${this._renderHeader(view)} ${this._renderBody(view)}
+        ${view.rated ? html`<div class="status"><span class="dot"></span>${this._statusLabel(view.rated)}</div>` : nothing}
       </ha-card>
     `;
   }

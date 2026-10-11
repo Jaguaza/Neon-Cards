@@ -39,11 +39,12 @@ Collection of custom cards for Home Assistant with a modern neon‑inspired aest
 - 🪪**ENTITY.**  [Ir a Entity](#entity-card)
 - 🚾**BUTTON.**  [Ir a Button](#button-card)
 - 🌡 **TERMOSTATO.**  [Ir a Termostato](#termostato-card)
+- 📈 **SENSOR.**  [Ir a Sensor](#sensor-card)
 
 ### 🔌 Características comunes
 
 - **Se adaptan a tu tema:** toman el radio de las esquinas y los colores del tema activo.
-- **Editor visual** en las tres tarjetas, sin necesidad de escribir YAML.
+- **Editor visual** en las cuatro tarjetas, sin necesidad de escribir YAML.
 - **Interfaz de configuración en español e inglés**, según el idioma de tu Home Assistant.
 - **Paletas neón** (Cyber Emerald, Cyberpunk Pink, Electric Blue, Sunset Amber, Toxic Purple o colores propios).
 - **Tamaño automático** en el grid de Home Assistant: no hace falta indicar `grid_options`.
@@ -236,13 +237,76 @@ footer:
   - entity: sensor.salon_humidity
 ```
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/Termostato%20Gif.gif" width="450"></p>
-  
+
+---
+
+<a name="sensor-card"></a>
+### **📈 Neón Sensor Card**
+
+Tarjeta de solo lectura para **una** entidad `sensor` o `binary_sensor`: nombre, icono, valor con su unidad y un **gráfico del histórico** dibujado como el trazo de un monitor de constantes vitales. El gráfico está siempre visible; lo que eliges es su efecto de color. Los umbrales de estado son opcionales y son los que marcan el perímetro de la tarjeta. Cualquier otra entidad (`light`, `switch`, `climate`…) se rechaza.
+
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/sensor/Neon_Sensor_Cards.png" width="450"></p>
+
+### **Tres tamaños**
+
+| Tamaño (`size`) | Qué muestra | Ancho en el grid |
+|---|---|---|
+| `large` | Valor y gráfico, a todo el ancho | 12 columnas |
+| `normal` *(predeterminado)* | Valor y gráfico, en lo más reducido en que caben juntos (si no caben, el gráfico pasa a su propia línea) | 6 columnas |
+| `compact` | Nombre, valor, unidad y etiqueta, sin gráfico ni menú ⋮ | 3 columnas |
+
+En ningún tamaño se corta nada fuera de la tarjeta: los textos se ajustan en varias líneas.
+
+### **Efecto de color del gráfico**
+
+Se elige con `neon_effect` y afecta al **gráfico y al icono**:
+
+- **`halo`** *(predeterminado)*: el gráfico en los tres colores de la paleta (`neon_palette`, igual que en las otras tarjetas), cada uno en su tramo de la línea, con un resplandor de esos mismos colores y efecto de desplazamiento.
+- **`single`**: un único color (`neon_color`) con el mismo efecto de desplazamiento.
+- **`normal`**: el color de tu tema, sin desplazamiento ni resplandor.
+
+### **Umbrales de estado (opcionales)**
+
+Con `thresholds_enabled: true` la lectura se valora como **Bajo**, **Correcto** o **Alto** con dos números: por debajo de `threshold_low` es Bajo, por encima de `threshold_high` es Alto y entre ambos (límites incluidos) es Correcto. Por ejemplo, con 22 y 26: 21,9 es Bajo, 24 es Correcto y 26,1 es Alto.
+
+- Cada nivel tiene su **color** (`threshold_colors`) y su **nombre** (`threshold_names`).
+- El color del nivel marca el **perímetro de la tarjeta** (borde y resplandor) y la etiqueta de estado bajo el valor. El gráfico y el icono no cambian con el nivel.
+- Sin umbrales no hay etiqueta y el perímetro se ve normal, sea cual sea el efecto de color.
+- En un `binary_sensor`, `alert_state` indica qué estado es la alerta.
+
+### **Gráfico del histórico**
+
+Lee el histórico de Home Assistant (24 horas por defecto, con `graph_hours`) y se actualiza cada 2 minutos. Un `sensor` dibuja la curva; un `binary_sensor`, una onda cuadrada on/off. Con `prefers-reduced-motion` el trazo se muestra quieto.
+
+### **Configuración mínima**
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.temperatura_exterior
+```
+
+### **Con umbrales**
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.temperatura_exterior
+name: Temperatura Exterior
+size: large
+neon_effect: halo
+neon_palette: electric
+thresholds_enabled: true
+threshold_low: 22
+threshold_high: 26
+threshold_names:
+  low: Frío
+  ok: Confort
+  high: Calor
+```
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/Sensor.gif" width="450"></p>
 
 ## 🚀 Próximamente
 
 Neon Cards se está diseñando como una colección completa de tarjetas para Home Assistant, se irán añadiendo más tarjetas.
-
-- **Próxima Tarjeta: 📈 SENSOR.**
 
 ---
 
@@ -330,11 +394,12 @@ Ver el texto legal completo en [`LICENSE`](./LICENSE) (inglés, vinculante) o su
 - 🪪**ENTITY.**  [Go to Entity](#entity-card-gb)
 - 🚾**BUTTON.**  [Go to Button](#button-card-gb)
 - 🌡 **THERMOSTAT.**  [Go to Thermostat](#thermostat-card-gb)
+- 📈 **SENSOR.**  [Go to Sensor](#sensor-card-gb)
 
 ### 🔌 Common features
 
 - **They adapt to your theme:** they take the corner radius and colors of the active theme.
-- **Visual editor** in all three cards, no YAML needed.
+- **Visual editor** in all four cards, no YAML needed.
 - **Configuration UI in Spanish and English**, following your Home Assistant language.
 - **Neon palettes** (Cyber Emerald, Cyberpunk Pink, Electric Blue, Sunset Amber, Toxic Purple or your own colors).
 - **Automatic size** in Home Assistant's grid: no need to set `grid_options`.
@@ -440,6 +505,13 @@ name: Living room
 icon: mdi:sofa
 ```
 
+<!--
+  📸 OPTIONAL PHOTO B — Button with the entity unavailable (✕ icon) or with grouped sensors (same image as in the Spanish section)
+  Suggested file: assets/screenshots/button/button-unavailable.jpg
+  To enable it, delete these comment lines and keep only this one:
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/button/button-unavailable.jpg" width="450"></p>
+-->
+
 ---
 <a name="thermostat-card-gb"></a>
 ### **🌡 Neon Thermostat Card**
@@ -516,13 +588,76 @@ footer:
   - entity: sensor.living_room_humidity
 ```
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/Termostato%20Gif.gif" width="450"></p>
+
 ---
+
+<a name="sensor-card-gb"></a>
+### **📈 Neon Sensor Card**
+
+Read-only card for **one** `sensor` or `binary_sensor` entity: name, icon, value with its unit and a **history graph** drawn like the trace of a vital-signs monitor. The graph is always visible; what you choose is its color effect. State thresholds are optional and are what marks the card's perimeter. Any other entity (`light`, `switch`, `climate`…) is rejected.
+
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/sensor/Neon_Sensor_Cards.png" width="450"></p>
+
+### **Three sizes**
+
+| Size (`size`) | What it shows | Width in the grid |
+|---|---|---|
+| `large` | Value and graph, at full width | 12 columns |
+| `normal` *(default)* | Value and graph, as narrow as they fit together (if they don't, the graph moves to its own line) | 6 columns |
+| `compact` | Name, value, unit and label, with no graph or ⋮ menu | 3 columns |
+
+At no size is anything cut off outside the card: texts wrap onto several lines.
+
+### **Graph color effect**
+
+Chosen with `neon_effect`; it affects the **graph and the icon**:
+
+- **`halo`** *(default)*: the graph in the three palette colors (`neon_palette`, same as the other cards), each one on its own stretch of the line, with a glow in those same colors and a sweep effect.
+- **`single`**: one color (`neon_color`) with the same sweep effect.
+- **`normal`**: your theme color, with no sweep or glow.
+
+### **State thresholds (optional)**
+
+With `thresholds_enabled: true` the reading is rated **Low**, **OK** or **High** using two numbers: below `threshold_low` is Low, above `threshold_high` is High and in between (limits included) is OK. For example, with 22 and 26: 21.9 is Low, 24 is OK and 26.1 is High.
+
+- Each level has its own **color** (`threshold_colors`) and **name** (`threshold_names`).
+- The level's color marks the **card's perimeter** (border and glow) and the status label under the value. The graph and the icon do not change with the level.
+- Without thresholds there is no label and the perimeter looks normal, whatever the color effect.
+- On a `binary_sensor`, `alert_state` says which state is the alert.
+
+### **History graph**
+
+It reads Home Assistant's history (24 hours by default, with `graph_hours`) and refreshes every 2 minutes. A `sensor` draws the curve; a `binary_sensor` draws an on/off square wave. With `prefers-reduced-motion` the trace is shown still.
+
+### **Minimal configuration**
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.outdoor_temperature
+```
+
+### **With thresholds**
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.outdoor_temperature
+name: Outdoor Temperature
+size: large
+neon_effect: halo
+neon_palette: electric
+thresholds_enabled: true
+threshold_low: 22
+threshold_high: 26
+threshold_names:
+  low: Cold
+  ok: Comfort
+  high: Hot
+```
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/Sensor.gif" width="450"></p>
 
 ## 🚀 Coming Soon
 
 Neon Cards is being designed as a complete collection of cards for Home Assistant. More cards will be added over time.
-
-- **NEXT CARD: 📈 SENSOR.**
 
 ---
 

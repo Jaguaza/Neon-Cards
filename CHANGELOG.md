@@ -27,6 +27,10 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   opcional en `HomeAssistant`, documentados en la referencia de API.
 - Perfil `sensor` en `npm run perf` y tests nuevos para el estado, los
   colores, el trazo y el histórico.
+- README de la tarjeta Sensor, sección en el README principal, capturas
+  (`assets/screenshots/sensor`), GIF (`assets/gifs/Sensor.gif`) y entrada
+  en `examples/` (YAML mínimo y avanzado, capturas, GIF y explicación),
+  en español e inglés.
 - **Neón Thermostat Card** (`custom:neon-thermostat-card`): tarjeta para
   una o dos entidades `climate`, con vista grande (dial semicircular),
   normal (aro alrededor de la temperatura) y compacta (línea), consigna
@@ -77,6 +81,12 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   `footer.ts`, `target-pill.ts` y `selector-pill.ts`, y el cálculo en
   `dial-geometry.ts` y `combined-climate.ts` (acuerdo nº7). El DOM, el
   arrastre y las llamadas a servicios resultan idénticos.
+- La referencia de API en español incluye la tabla «Constantes y tipos»
+  de `info.ts`, que solo estaba en inglés. Los README de `src/cards` y
+  `src/ha` listan ahora el termostato, el sensor y la lectura del
+  histórico.
+- La Neón Sensor Card divide su `render()` en métodos por zona
+  (acuerdo nº7); el DOM resultante es idéntico.
 
 ## [1.0.0] - 2026-10-02
 
@@ -230,6 +240,10 @@ and this project follows [Semantic Versioning](https://semver.org/).
   `callWS` on `HomeAssistant`, documented in the API reference.
 - `sensor` profile in `npm run perf` and new tests for status, colors,
   the trace and history.
+- Sensor card README, a section in the main README, screenshots
+  (`assets/screenshots/sensor`), a GIF (`assets/gifs/Sensor.gif`) and an
+  entry in `examples/` (minimal and advanced YAML, screenshots, GIF and
+  explanation), in Spanish and English.
 - **Neón Thermostat Card** (`custom:neon-thermostat-card`): card for one
   or two `climate` entities, with a large (semicircular dial), normal
   (ring around the temperature) and compact (line) view, a draggable
@@ -280,6 +294,11 @@ and this project follows [Semantic Versioning](https://semver.org/).
   `footer.ts`, `target-pill.ts` and `selector-pill.ts`, and computation
   to `dial-geometry.ts` and `combined-climate.ts` (agreement nº7). The
   DOM, dragging and service calls come out identical.
+- The Spanish API reference includes the "Constants and types" table of
+  `info.ts`, which was only in English. The `src/cards` and `src/ha`
+  READMEs now list the thermostat, the sensor and history reading.
+- The Neón Sensor Card splits its `render()` into per-area methods
+  (agreement nº7); the resulting DOM is identical.
 
 ## [1.0.0] - 2026-10-02
 

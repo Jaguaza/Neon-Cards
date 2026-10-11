@@ -19,6 +19,12 @@ Una tarjeta:
 - [`button`](./button) — `custom:neon-button-card`, botón de acción con
   entidad opcional, icono protagonista y aro neón animado en estado
   activo. Ver [ejemplo](../../examples/README.md).
+- [`thermostat`](./thermostat) — `custom:neon-thermostat-card`, termostato
+  con dial neón arrastrable para una o dos entidades `climate`. Ver
+  [ejemplo](../../examples/README.md).
+- [`sensor`](./sensor) — `custom:neon-sensor-card`, tarjeta de solo
+  lectura para un `sensor` o `binary_sensor`, con gráfico del histórico y
+  umbrales de estado opcionales. Ver [ejemplo](../../examples/README.md).
 
 ---
 
@@ -45,3 +51,9 @@ A card:
 - [`button`](./button) — `custom:neon-button-card`, an action button
   with an optional entity, a hero icon, and an animated neon ring when
   active. See the [example](../../examples/README.md).
+- [`thermostat`](./thermostat) — `custom:neon-thermostat-card`, a
+  thermostat with a draggable neon dial for one or two `climate`
+  entities. See the [example](../../examples/README.md).
+- [`sensor`](./sensor) — `custom:neon-sensor-card`, a read-only card for
+  a `sensor` or `binary_sensor`, with a history graph and optional state
+  thresholds. See the [example](../../examples/README.md).
