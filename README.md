@@ -100,13 +100,6 @@ type: custom:neon-card-entity
 entity: light.salon
 ```
 
-<!--
-  📸 FOTO OPCIONAL A — Entity en modo multi-entidad (varias entidades con su nombre en columnas)
-  Archivo sugerido: assets/screenshots/entity/entity-multi.jpg
-  Para activarla, borra estas líneas de comentario y deja solo esta:
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/entity/entity-multi.jpg" width="450"></p>
--->
-
   ---
 <a name="button-card"></a>
 ### **🚾 Neón Button Card**
@@ -150,13 +143,6 @@ type: custom:neon-button-card
 name: Salón
 icon: mdi:sofa
 ```
-
-<!--
-  📸 FOTO OPCIONAL B — Button con la entidad no disponible (icono ✕) o con sensores agrupados
-  Archivo sugerido: assets/screenshots/button/button-unavailable.jpg
-  Para activarla, borra estas líneas de comentario y deja solo esta:
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/button/button-unavailable.jpg" width="450"></p>
--->
 
 ---
 
@@ -460,13 +446,6 @@ type: custom:neon-card-entity
 entity: light.living_room
 ```
 
-<!--
-  📸 FOTO OPCIONAL A — Entity en modo multi-entidad (misma imagen que en la sección en español)
-  Archivo sugerido: assets/screenshots/entity/entity-multi.jpg
-  Para activarla, borra estas líneas de comentario y deja solo esta:
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/entity/entity-multi.jpg" width="450"></p>
--->
-
 ---
 <a name="button-card-gb"></a>
 ### **🚾 Neon Button Card**
@@ -510,13 +489,6 @@ type: custom:neon-button-card
 name: Living room
 icon: mdi:sofa
 ```
-
-<!--
-  📸 OPTIONAL PHOTO B — Button with the entity unavailable (✕ icon) or with grouped sensors (same image as in the Spanish section)
-  Suggested file: assets/screenshots/button/button-unavailable.jpg
-  To enable it, delete these comment lines and keep only this one:
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/button/button-unavailable.jpg" width="450"></p>
--->
 
 ---
 <a name="thermostat-card-gb"></a>
