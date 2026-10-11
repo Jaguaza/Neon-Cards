@@ -916,26 +916,39 @@ Todas las claves de `NeonSensorCardConfig`
 | `name` | `string` | `friendly_name` de la entidad | Título de la tarjeta. |
 | `icon` | `string` | calculado por `device_class` | Icono propio. |
 | `decimals` | `number` | `1` | Decimales del valor (solo `sensor` numérico). |
-| `graph_hours` | `number` | `24` | Horas de histórico del gráfico. El gráfico siempre está visible. |
-| `neon_effect` | `'normal' \| 'halo' \| 'single'` | `'halo'` | Efecto de color: `halo` = aro de tres colores y gráfico en tres colores con desplazamiento; `single` = un solo color con desplazamiento; `normal` = color del tema, sin desplazamiento. |
+| `size` | `'large' \| 'normal' \| 'compact'` | `'normal'` | Tamaño: `large` = grande, ancho máximo (12 columnas) con gráfico; `normal` = mediano (6 columnas) con gráfico; `compact` = pequeño (3 columnas), sin gráfico ni consulta de histórico. Ver `getGridOptions()`. |
+| `graph_hours` | `number` | `24` | Horas de histórico del gráfico. Solo con `size` `normal` o `large`. |
+| `neon_effect` | `'normal' \| 'halo' \| 'single'` | `'halo'` | Efecto de color del gráfico y del icono (no del perímetro): `halo` = gráfico y resplandor en tres colores con desplazamiento; `single` = un solo color con desplazamiento; `normal` = color del tema, sin desplazamiento. |
 | `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta, solo con `neon_effect: halo`. |
 | `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | según paleta | Colores cuando `neon_palette: custom`. |
 | `neon_color` | `string` (hex) | `#1ecdf2` | Color del efecto `single`. |
-| `thresholds_enabled` | `boolean` | `false` | Activa la valoración Bajo / Correcto / Alto. |
+| `thresholds_enabled` | `boolean` | `false` | Activa la valoración Bajo / Correcto / Alto y muestra la etiqueta de estado bajo el valor. Desactivado (por defecto) no hay etiqueta. |
 | `threshold_low` | `number` | — | `sensor` numérico: por debajo de este valor es Bajo. |
 | `threshold_high` | `number` | — | `sensor` numérico: por encima de este valor es Alto. Entre ambos (límites incluidos) es Correcto. |
-| `threshold_colors` | `{ low?, ok?, high? }` | azul / verde / rojo | Color de cada nivel; sustituye al color del efecto cuando los umbrales están activos. |
+| `threshold_colors` | `{ low?, ok?, high? }` | azul / verde / rojo | Color de cada nivel. Con los umbrales activos marca el perímetro de la tarjeta (borde y resplandor) y el texto de estado; no cambia el gráfico ni el icono. Con los umbrales desactivados el perímetro queda normal (borde del tema). |
+| `threshold_names` | `{ low?, ok?, high? }` | Bajo / Correcto / Alto (Alerta en `binary_sensor`) | Nombre de cada nivel en la etiqueta de estado. Un nombre ausente o vacío usa el texto por defecto. Sin datos o sin valorar no hay etiqueta. Solo se ve con `thresholds_enabled`. |
 | `alert_state` | `'on' \| 'off'` | — | Solo `binary_sensor` con umbrales activos: estado que se considera Alto (alerta). |
 | `tap_action` | `ActionConfig` | `{ action: more-info }` | Acción al pulsar. |
 | `hold_action` | `ActionConfig` | `{ action: none }` | Acción al mantener. |
 | `double_tap_action` | `ActionConfig` | `{ action: none }` | Acción al doble toque. |
 
-No hay clave `size` ni pie de sensores: el tamaño sale del ancho real de
-la tarjeta (compacta < 230 px sin gráfico, normal, grande ≥ 380 px).
+No lleva pie de sensores.
 
-### `getGridOptions()`
+### `getGridOptions()` — tamaño según `size`
 
-`{ rows: 'auto', columns: 6, min_columns: 3 }`.
+Igual que la Thermostat Card, el tamaño se elige con `size`. Las columnas
+salen de `SIZE_COLUMNS` (`src/cards/sensor/constants.ts`) y el alto es
+automático; `min_columns` es `3` en todos.
+
+| `size` | Tamaño | Gráfico | `columns` | `rows` |
+|---|---|---|---|---|
+| `'compact'` | Pequeño | No | `3` | `'auto'` |
+| `'normal'` (por defecto) | Mediano | Sí | `6` | `'auto'` |
+| `'large'` | Grande (ancho máximo) | Sí | `12` | `'auto'` |
+
+Nada se corta fuera de la tarjeta: los textos se ajustan en varias líneas
+y, si en el mediano el gráfico no cabe junto al valor, pasa a su propia
+línea.
 
 ### Ejemplo completo
 
@@ -954,6 +967,10 @@ threshold_colors:
   low: "#4facfe"
   ok: "#39e07a"
   high: "#ff3d5a"
+threshold_names:
+  low: "Frío"
+  ok: "Confort"
+  high: "Calor"
 tap_action:
   action: more-info
 ```

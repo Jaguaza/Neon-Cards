@@ -920,26 +920,39 @@ examples in [`examples/`](../../examples/README.md).
 | `name` | `string` | the entity's `friendly_name` | Card title. |
 | `icon` | `string` | computed from `device_class` | Custom icon. |
 | `decimals` | `number` | `1` | Value decimals (numeric `sensor` only). |
-| `graph_hours` | `number` | `24` | Hours of history the graph covers. The graph is always visible. |
-| `neon_effect` | `'normal' \| 'halo' \| 'single'` | `'halo'` | Color effect: `halo` = three-color ring and a three-color graph with the sweep; `single` = one color with the sweep; `normal` = theme color, no sweep. |
+| `size` | `'large' \| 'normal' \| 'compact'` | `'normal'` | Size: `large` = full width (12 columns) with graph; `normal` = medium (6 columns) with graph; `compact` = small (3 columns), no graph and no history query. See `getGridOptions()`. |
+| `graph_hours` | `number` | `24` | Hours of history the graph covers. Only with `size` `normal` or `large`. |
+| `neon_effect` | `'normal' \| 'halo' \| 'single'` | `'halo'` | Color effect of the graph and the icon (not of the perimeter): `halo` = three-color graph and glow with the sweep; `single` = one color with the sweep; `normal` = theme color, no sweep. |
 | `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Palette, only with `neon_effect: halo`. |
 | `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | per palette | Colors when `neon_palette: custom`. |
 | `neon_color` | `string` (hex) | `#1ecdf2` | Color of the `single` effect. |
-| `thresholds_enabled` | `boolean` | `false` | Enables the Low / OK / High rating. |
+| `thresholds_enabled` | `boolean` | `false` | Enables the Low / OK / High rating and shows the status label under the value. Off (default) means no label. |
 | `threshold_low` | `number` | — | Numeric `sensor`: below this value is Low. |
 | `threshold_high` | `number` | — | Numeric `sensor`: above this value is High. In between (limits included) is OK. |
-| `threshold_colors` | `{ low?, ok?, high? }` | blue / green / red | Color of each level; replaces the effect's color while thresholds are on. |
+| `threshold_colors` | `{ low?, ok?, high? }` | blue / green / red | Color of each level. With thresholds on it sets the card's perimeter (border and glow) and the status text; it does not change the graph or the icon. With thresholds off the perimeter stays normal (theme border). |
+| `threshold_names` | `{ low?, ok?, high? }` | Low / OK / High (Alert on `binary_sensor`) | Name of each level in the status label. A missing or empty name uses the default text. With no data or no rating there is no label. Only visible with `thresholds_enabled`. |
 | `alert_state` | `'on' \| 'off'` | — | `binary_sensor` only, with thresholds on: the state considered High (alert). |
 | `tap_action` | `ActionConfig` | `{ action: more-info }` | Tap action. |
 | `hold_action` | `ActionConfig` | `{ action: none }` | Hold action. |
 | `double_tap_action` | `ActionConfig` | `{ action: none }` | Double-tap action. |
 
-There is no `size` key and no sensor footer: size comes from the card's
-real width (compact < 230 px without graph, normal, large ≥ 380 px).
+There is no sensor footer.
 
-### `getGridOptions()`
+### `getGridOptions()` — size driven by `size`
 
-`{ rows: 'auto', columns: 6, min_columns: 3 }`.
+Like the Thermostat Card, the size is chosen with `size`. Columns come
+from `SIZE_COLUMNS` (`src/cards/sensor/constants.ts`) and height is
+automatic; `min_columns` is `3` in all of them.
+
+| `size` | Size | Graph | `columns` | `rows` |
+|---|---|---|---|---|
+| `'compact'` | Small | No | `3` | `'auto'` |
+| `'normal'` (default) | Medium | Yes | `6` | `'auto'` |
+| `'large'` | Large (full width) | Yes | `12` | `'auto'` |
+
+Nothing is clipped outside the card: texts wrap onto several lines and,
+in medium, if the graph does not fit beside the value it moves to its
+own line.
 
 ### Full example
 
@@ -958,6 +971,10 @@ threshold_colors:
   low: "#4facfe"
   ok: "#39e07a"
   high: "#ff3d5a"
+threshold_names:
+  low: "Frío"
+  ok: "Confort"
+  high: "Calor"
 tap_action:
   action: more-info
 ```

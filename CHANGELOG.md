@@ -13,11 +13,16 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 - **Neón Sensor Card** (`custom:neon-sensor-card`): tarjeta de solo
   lectura para una entidad `sensor` o `binary_sensor` (cualquier otro
-  dominio se rechaza). Muestra valor, unidad y estado (Normal / Alto /
-  Bajo / Crítico / Sin señal por umbrales), con tres tamaños según el
-  ancho real, tres modos de color (uno, por estado o personalizado por
-  estado) y un gráfico del histórico con trazo tipo monitor de
-  constantes vitales y halo de color. Sin pie de sensores. Editor visual.
+  dominio se rechaza). Muestra valor, unidad y estado, con tres tamaños
+  (`size`: pequeño sin gráfico; mediano y grande con gráfico, este a 12
+  columnas) y un gráfico del histórico con trazo tipo monitor
+  de constantes vitales. El efecto de color (`halo` de tres colores,
+  `single` o `normal`) afecta solo al gráfico y al icono; el perímetro
+  de la tarjeta lo marcan únicamente los umbrales opcionales (Bajo /
+  Correcto / Alto, un color y un nombre por nivel) y sin ellos se ve
+  normal. La etiqueta de estado bajo el valor solo aparece con los
+  umbrales activados y con una valoración: sin datos no hay etiqueta,
+  pero el perímetro conserva su color. Sin pie de sensores. Editor visual.
 - `src/ha/history.ts` (`fetchHistory`, `parseHistory`) y `callWS`
   opcional en `HomeAssistant`, documentados en la referencia de API.
 - Perfil `sensor` en `npm run perf` y tests nuevos para el estado, los
@@ -212,11 +217,15 @@ and this project follows [Semantic Versioning](https://semver.org/).
 
 - **Neón Sensor Card** (`custom:neon-sensor-card`): read-only card for
   a `sensor` or `binary_sensor` entity (any other domain is rejected).
-  Shows value, unit and status (Normal / High / Low / Critical / No
-  signal from thresholds), with three sizes based on real width, three
-  color modes (single, per state or custom per state) and a history
-  graph with a vital-signs-monitor trace and colored glow. No sensor
-  footer. Visual editor.
+  Shows value, unit and status, with three sizes (`size`: small without a
+  graph; medium and large with one, the latter at 12 columns) and a
+  history graph with a vital-signs-monitor trace. The color effect
+  (three-color `halo`, `single` or `normal`) applies only to the graph
+  and the icon; the card's perimeter is set only by the optional
+  thresholds (Low / OK / High, one color and one name per level) and
+  looks normal without them. The status label under the value only
+  appears with thresholds enabled and a rating: with no data there is
+  no label, but the perimeter keeps its color. No sensor footer. Visual editor.
 - `src/ha/history.ts` (`fetchHistory`, `parseHistory`) and an optional
   `callWS` on `HomeAssistant`, documented in the API reference.
 - `sensor` profile in `npm run perf` and new tests for status, colors,

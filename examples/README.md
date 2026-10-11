@@ -202,6 +202,10 @@ threshold_colors:
   low: "#4facfe"
   ok: "#39e07a"
   high: "#ff3d5a"
+threshold_names:
+  low: "Frío"
+  ok: "Confort"
+  high: "Calor"
 tap_action:
   action: more-info
 ```
@@ -221,14 +225,18 @@ Neón Sensor Card muestra una única entidad `sensor` o `binary_sensor`
 (cualquier otro dominio se rechaza): nombre, icono, valor con unidad y
 estado y el histórico dibujado como el trazo de un monitor de
 constantes vitales (el gráfico siempre está visible). `neon_effect`
-elige el efecto: `halo` (por defecto, aro de tres colores y gráfico en
-tres colores con desplazamiento), `single` (un solo color con
-desplazamiento) o `normal` (color del tema, sin desplazamiento). Los
-umbrales son opcionales: con `thresholds_enabled`, por debajo de
+elige el efecto del gráfico y del icono: `halo` (por defecto, gráfico y
+resplandor en tres colores con desplazamiento), `single` (un solo color
+con desplazamiento) o `normal` (color del tema, sin desplazamiento). El
+perímetro de la tarjeta es independiente: lo marcan solo los umbrales,
+que son opcionales. Con `thresholds_enabled`, por debajo de
 `threshold_low` es Bajo, por encima de `threshold_high` es Alto y entre
-ambos es Correcto, cada nivel con su color (`threshold_colors`). El
-tamaño (compacta, normal, grande) sale del ancho real de la tarjeta en
-el grid; la compacta no muestra gráfico. No lleva pie de sensores.
+ambos es Correcto, cada nivel con su color (`threshold_colors`) en el
+borde y con su nombre (`threshold_names`) en la etiqueta de estado bajo
+el valor. Sin umbrales no hay etiqueta y el perímetro se ve normal. El
+tamaño se elige con `size`: `large` (grande, ancho máximo, con gráfico),
+`normal` (mediano, con gráfico) o `compact` (pequeño, sin gráfico). No
+lleva pie de sensores.
 
 ---
 
@@ -436,6 +444,10 @@ threshold_colors:
   low: "#4facfe"
   ok: "#39e07a"
   high: "#ff3d5a"
+threshold_names:
+  low: "Frío"
+  ok: "Confort"
+  high: "Calor"
 tap_action:
   action: more-info
 ```
@@ -454,11 +466,14 @@ alert_state: "on"
 Neón Sensor Card shows a single `sensor` or `binary_sensor` entity (any
 other domain is rejected): name, icon, value with unit and status
 and the history drawn like the trace of a vital-signs monitor (the graph
-is always visible). `neon_effect` picks the effect: `halo` (default,
-three-color ring and a three-color graph with the sweep), `single` (one
-color with the sweep) or `normal` (theme color, no sweep). Thresholds
-are optional: with `thresholds_enabled`, below `threshold_low` is Low,
+is always visible). `neon_effect` picks the effect of the graph and the icon: `halo`
+(default, three-color graph and glow with the sweep), `single` (one
+color with the sweep) or `normal` (theme color, no sweep). The card's
+perimeter is independent: only the thresholds set it, and they are
+optional. With `thresholds_enabled`, below `threshold_low` is Low,
 above `threshold_high` is High and in between is OK, each level with
-its own color (`threshold_colors`). Size (compact, normal, large) comes
-from the card's real width in the grid; compact shows no graph. It has
-no sensor footer.
+its own color (`threshold_colors`) on the border and its own name
+(`threshold_names`) in the status label under the value. Without
+thresholds there is no label and the perimeter looks normal. Size is chosen with `size`: `large`
+(full width, with graph), `normal` (medium, with graph) or `compact`
+(small, no graph). It has no sensor footer.
