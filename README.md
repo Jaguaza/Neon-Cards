@@ -308,6 +308,8 @@ threshold_names:
 
 Neon Cards se está diseñando como una colección completa de tarjetas para Home Assistant, se irán añadiendo más tarjetas.
 
+- **Próxima Tarjeta: 🔐 CERRADURA.**
+
 ---
 
 ## 📚 Documentación
@@ -658,6 +660,8 @@ threshold_names:
 ## 🚀 Coming Soon
 
 Neon Cards is being designed as a complete collection of cards for Home Assistant. More cards will be added over time.
+
+- **NEXT CARD: 🔐 LOCK.**
 
 ---
 
