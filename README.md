@@ -247,6 +247,10 @@ Tarjeta de solo lectura para **una** entidad `sensor` o `binary_sensor`: nombre,
 
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/sensor/Neon_Sensor_Cards.png" width="450"></p>
 
+### **Título y subtítulo**
+
+`name` es el título (por defecto, el nombre de la entidad) y `subtitle` el texto de debajo. Sin `subtitle` se muestra «Sensor» o «Sensor binario».
+
 ### **Tres tamaños**
 
 | Tamaño (`size`) | Qué muestra | Ancho en el grid |
@@ -599,6 +603,10 @@ footer:
 Read-only card for **one** `sensor` or `binary_sensor` entity: name, icon, value with its unit and a **history graph** drawn like the trace of a vital-signs monitor. The graph is always visible; what you choose is its color effect. State thresholds are optional and are what marks the card's perimeter. Any other entity (`light`, `switch`, `climate`…) is rejected.
 
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/sensor/Neon_Sensor_Cards.png" width="450"></p>
+
+### **Title and subtitle**
+
+`name` is the title (by default, the entity's name) and `subtitle` is the text under it. Without `subtitle`, "Sensor" or "Binary sensor" is shown.
 
 ### **Three sizes**
 

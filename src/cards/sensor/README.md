@@ -51,6 +51,8 @@ name: Temperatura Exterior
 ```yaml
 type: custom:neon-sensor-card
 entity: sensor.temperatura_exterior
+name: Temperatura Exterior
+subtitle: Jardín
 icon: mdi:thermometer
 decimals: 1
 graph_hours: 24
@@ -79,6 +81,14 @@ entity: binary_sensor.puerta_entrada
 thresholds_enabled: true
 alert_state: "on"
 ```
+
+## Título y subtítulo
+
+`name` es el título (por defecto, el nombre de la entidad) y `subtitle`
+el texto que va debajo. Si no pones `subtitle`, o lo dejas en blanco, se
+muestra el de siempre: «Sensor» o «Sensor binario». El subtítulo no
+depende del estado ni de los umbrales, y no se muestra en el tamaño
+`compact`.
 
 ## Efecto de color (`neon_effect`)
 
@@ -196,6 +206,8 @@ name: Outdoor Temperature
 ```yaml
 type: custom:neon-sensor-card
 entity: sensor.outdoor_temperature
+name: Outdoor Temperature
+subtitle: Garden
 icon: mdi:thermometer
 decimals: 1
 graph_hours: 24
@@ -224,6 +236,13 @@ entity: binary_sensor.front_door
 thresholds_enabled: true
 alert_state: "on"
 ```
+
+## Title and subtitle
+
+`name` is the title (by default, the entity's name) and `subtitle` is
+the text under it. If you leave `subtitle` out, or blank, the usual one
+is shown: "Sensor" or "Binary sensor". The subtitle does not depend on
+the state or the thresholds, and is not shown at the `compact` size.
 
 ## Color effect (`neon_effect`)
 

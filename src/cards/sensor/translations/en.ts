@@ -15,6 +15,7 @@ export const en: SensorTranslations = {
   section_main: 'Main configuration',
   entity_label: 'Entity (sensor or binary_sensor)',
   name_label: 'Name',
+  subtitle_label: 'Subtitle',
   icon_label: 'Icon',
   decimals_label: 'Decimals',
   section_appearance: 'Appearance',

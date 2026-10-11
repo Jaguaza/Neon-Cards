@@ -189,5 +189,21 @@ describe('NeonSensorCardEditor', () => {
     const withGraph = await mount({ entity: 'sensor.temp', size: 'large' });
     expect(q(withGraph.el, '#graph-hours')).not.toBeNull();
   });
+
+  it('ofrece un campo de subtítulo que guarda subtitle y lo elimina al vaciarlo', async () => {
+    const { el, last } = await mount({ entity: 'sensor.temp' });
+    const input = q(el, '#subtitle') as HTMLInputElement;
+    expect(input).not.toBeNull();
+    expect(input.value).toBe('');
+    input.value = 'Planta baja';
+    input.dispatchEvent(new Event('input'));
+    expect(last().subtitle).toBe('Planta baja');
+    await el.updateComplete;
+    const again = q(el, '#subtitle') as HTMLInputElement;
+    expect(again.value).toBe('Planta baja');
+    again.value = '';
+    again.dispatchEvent(new Event('input'));
+    expect('subtitle' in last()).toBe(false);
+  });
 });
 

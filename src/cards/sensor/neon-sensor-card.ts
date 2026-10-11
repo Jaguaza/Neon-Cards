@@ -46,6 +46,7 @@ interface SensorView {
   size: ReturnType<typeof resolveSize>;
   rated: ThresholdLevel | null;
   name: string;
+  subtitle: string;
   unit: string;
 }
 
@@ -232,6 +233,7 @@ export class NeonSensorCard extends BaseNeonCard {
       // color del perímetro (`edge`) sí se mantiene.
       rated: config.thresholds_enabled && isRated(status.level) ? status.level : null,
       name: config.name || (stateObj?.attributes.friendly_name as string | undefined) || entityId || '',
+      subtitle: config.subtitle?.trim() || this._t(this._domain === 'binary_sensor' ? 'kind_binary_sensor' : 'kind_sensor'),
       unit: display?.available && this._domain !== 'binary_sensor' ? display.unit : '',
     };
   }
@@ -248,13 +250,12 @@ export class NeonSensorCard extends BaseNeonCard {
 
   private _renderHeader(view: SensorView): TemplateResult {
     const iconName = view.broken ? ERROR_ICON : (view.display?.icon ?? ERROR_ICON);
-    const kind = this._t(this._domain === 'binary_sensor' ? 'kind_binary_sensor' : 'kind_sensor');
     return html`
       <div class="header">
         <ha-icon class="icon neon-halo-icon" .icon=${iconName}></ha-icon>
         <div class="texts">
           <span class="name">${view.name}</span>
-          <span class="kind">${kind}</span>
+          <span class="kind">${view.subtitle}</span>
         </div>
         <button
           class="menu"

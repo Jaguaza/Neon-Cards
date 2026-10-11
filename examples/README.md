@@ -191,6 +191,7 @@ entity: sensor.temperatura_exterior
 type: custom:neon-sensor-card
 entity: sensor.temperatura_exterior
 name: Temperatura Exterior
+subtitle: Jardín
 icon: mdi:thermometer
 graph_hours: 24
 neon_effect: halo
@@ -451,6 +452,7 @@ entity: sensor.outdoor_temperature
 type: custom:neon-sensor-card
 entity: sensor.outdoor_temperature
 name: Outdoor Temperature
+subtitle: Garden
 icon: mdi:thermometer
 graph_hours: 24
 neon_effect: halo

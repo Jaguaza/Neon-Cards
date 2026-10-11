@@ -23,6 +23,9 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   normal. La etiqueta de estado bajo el valor solo aparece con los
   umbrales activados y con una valoración: sin datos no hay etiqueta,
   pero el perímetro conserva su color. Sin pie de sensores. Editor visual.
+- Subtítulo personalizado (`subtitle`) en la Neón Sensor Card, con campo
+  en el editor visual: si falta o está en blanco se muestra «Sensor» o
+  «Sensor binario».
 - `src/ha/history.ts` (`fetchHistory`, `parseHistory`) y `callWS`
   opcional en `HomeAssistant`, documentados en la referencia de API.
 - Perfil `sensor` en `npm run perf` y tests nuevos para el estado, los
@@ -236,6 +239,9 @@ and this project follows [Semantic Versioning](https://semver.org/).
   looks normal without them. The status label under the value only
   appears with thresholds enabled and a rating: with no data there is
   no label, but the perimeter keeps its color. No sensor footer. Visual editor.
+- Custom subtitle (`subtitle`) on the Neón Sensor Card, with a field in
+  the visual editor: if missing or blank, "Sensor" or "Binary sensor"
+  is shown.
 - `src/ha/history.ts` (`fetchHistory`, `parseHistory`) and an optional
   `callWS` on `HomeAssistant`, documented in the API reference.
 - `sensor` profile in `npm run perf` and new tests for status, colors,

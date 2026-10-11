@@ -935,6 +935,7 @@ Todas las claves de `NeonSensorCardConfig`
 |---|---|---|---|
 | `entity` | `string` | — (requerida) | Entidad `sensor.*` o `binary_sensor.*`. Cualquier otro dominio se rechaza con un error de configuración. |
 | `name` | `string` | `friendly_name` de la entidad | Título de la tarjeta. |
+| `subtitle` | `string` | `Sensor` / `Sensor binario` | Texto bajo el título. Si falta o está en blanco, se muestra el de por defecto. No se muestra en el tamaño `compact`. |
 | `icon` | `string` | calculado por `device_class` | Icono propio. |
 | `decimals` | `number` | `1` | Decimales del valor (solo `sensor` numérico). |
 | `size` | `'large' \| 'normal' \| 'compact'` | `'normal'` | Tamaño: `large` = grande, ancho máximo (12 columnas) con gráfico; `normal` = mediano (6 columnas) con gráfico; `compact` = pequeño (3 columnas), sin gráfico ni consulta de histórico. Ver `getGridOptions()`. |
@@ -977,6 +978,7 @@ línea.
 type: custom:neon-sensor-card
 entity: sensor.temperatura_exterior
 name: Temperatura Exterior
+subtitle: Jardín
 icon: mdi:thermometer
 graph_hours: 24
 neon_effect: halo

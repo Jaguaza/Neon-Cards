@@ -363,3 +363,25 @@ describe('NeonSensorCard · tamaños', () => {
   });
 });
 
+
+describe('NeonSensorCard · subtítulo', () => {
+  const subtitle = (el: Card) => q(el, '.kind')!.textContent!.trim();
+
+  it('por defecto muestra «Sensor»', async () => {
+    expect(subtitle(await mount({}))).toBe('Sensor');
+  });
+
+  it('con un subtítulo configurado muestra ese texto', async () => {
+    expect(subtitle(await mount({ subtitle: 'Planta baja' }))).toBe('Planta baja');
+  });
+
+  it('un subtítulo vacío o solo con espacios vuelve al texto por defecto', async () => {
+    expect(subtitle(await mount({ subtitle: '' }))).toBe('Sensor');
+    expect(subtitle(await mount({ subtitle: '   ' }))).toBe('Sensor');
+  });
+
+  it('el subtítulo no cambia con el estado ni con los umbrales', async () => {
+    const el = await mount({ subtitle: 'Garaje', thresholds_enabled: true, threshold_low: 22, threshold_high: 26 }, '30');
+    expect(subtitle(el)).toBe('Garaje');
+  });
+});
