@@ -17,10 +17,28 @@ No lleva pie de sensores: es una tarjeta de una sola entidad.
 
 ## Tamaños
 
-El tamaño se adapta solo al ancho real de la tarjeta en el grid de HA
-(no hay clave `size`): **compacta** (< 230 px: el espacio no da para el
-gráfico y se oculta), **normal** y **grande** (≥ 380 px: icono, valor y
-gráfico mayores).
+Se elige con `size` (como en la Thermostat Card). Hay tres: dos con
+gráfico y uno sin gráfico.
+
+| `size` | Tamaño | Gráfico | Columnas por defecto (12 por sección) |
+|---|---|---|---|
+| `large` | Grande: el ancho máximo | Sí | 12 |
+| `normal` (por defecto) | Mediano: lo más reducido en que valor y gráfico caben juntos | Sí | 6 |
+| `compact` | Pequeño: lo más pequeño posible | No | 3 |
+
+En ningún tamaño se corta nada fuera de la tarjeta: nombre, valor,
+unidad y etiqueta se ajustan en varias líneas y, en el mediano, si el
+gráfico no cabe junto al valor pasa a su propia línea. En el pequeño se
+ocultan el menú ⋮ y el subtítulo «Sensor» (tocar la tarjeta abre igualmente
+«más información») y no se pide el histórico. Las columnas se pueden
+cambiar a mano en el editor de HA (mínimo 3) o con `grid_options`; los
+valores por defecto están en `SIZE_COLUMNS` (`constants.ts`).
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.temperatura_exterior
+size: compact
+```
 
 ## Config
 
@@ -45,6 +63,10 @@ threshold_colors:
   low: "#4facfe"
   ok: "#39e07a"
   high: "#ff3d5a"
+threshold_names:
+  low: "Frío"
+  ok: "Confort"
+  high: "Calor"
 tap_action:
   action: more-info
 ```
@@ -60,15 +82,17 @@ alert_state: "on"
 
 ## Efecto de color (`neon_effect`)
 
-- `halo` (por defecto): halo de tres colores como en el resto de
-  tarjetas Neón (aro de tres colores alrededor de la tarjeta). Se elige
-  con `neon_palette` / `neon_color1/2/3` (ver la [Button Card](../button)).
-  El gráfico se ve en esos tres colores de principio a fin, con efecto
-  de desplazamiento.
-- `single`: un único color (`neon_color`, por defecto `#1ecdf2`) con
-  borde resplandeciente y el mismo efecto de desplazamiento.
+El efecto de color afecta **solo al gráfico y al icono**; el perímetro
+de la tarjeta es independiente (ver «Umbrales de estado»).
+
+- `halo` (por defecto): el gráfico en los tres colores de la paleta
+  (`neon_palette` / `neon_color1/2/3`, ver la [Button Card](../button)),
+  cada uno en su tramo de la línea, y un resplandor que lleva esos mismos
+  tres colores. Con efecto de desplazamiento.
+- `single`: un único color (`neon_color`, por defecto `#1ecdf2`) con el
+  mismo efecto de desplazamiento.
 - `normal`: sin efecto de desplazamiento y con el color del tema de HA
-  (`--primary-color`); la tarjeta no añade halo ni resplandor.
+  (`--primary-color`); sin resplandor.
 
 ## Umbrales de estado (opcionales)
 
@@ -81,13 +105,22 @@ Con `thresholds_enabled: true` la lectura se valora como **Bajo**,
   21,9 → Bajo · 22, 24 y 26 → Correcto · 26,1 → Alto.
 - `binary_sensor`: Alto (texto «Alerta») si su estado coincide con
   `alert_state`; si no, Correcto.
-- `threshold_colors` (`low`, `ok`, `high`): un color por nivel. El
-  color del nivel sustituye al del efecto en la tarjeta y el gráfico
-  (también en `halo`, donde pasa a ser de un solo color).
+- `threshold_colors` (`low`, `ok`, `high`): un color por nivel.
+- `threshold_names` (`low`, `ok`, `high`): el nombre que se muestra en
+  la etiqueta de estado de cada nivel. Los que no indiques (o dejes
+  vacíos) usan el texto por defecto: Bajo / Correcto / Alto (Alerta en
+  un `binary_sensor`).
 
-Con los umbrales desactivados (por defecto) el estado es «Normal» y se
-usan los colores del efecto. Un estado no numérico (texto) también es
-«Normal». `unavailable`/`unknown` → «Sin señal», con color neutro.
+**La etiqueta de estado bajo el valor solo se muestra con los umbrales
+activados**; sin ellos no aparece. **El color del perímetro de la tarjeta (borde y resplandor) lo marcan
+solo los umbrales**, con el color del nivel actual (y el texto de
+estado). Es independiente del efecto de color: el gráfico y el icono no
+cambian con el nivel. Con los umbrales desactivados (por defecto) el
+perímetro se ve normal (borde del tema), sea cual sea el efecto, y no
+hay etiqueta. Con umbrales activados la etiqueta solo aparece cuando
+hay una valoración (Bajo / Correcto / Alto): sin datos
+(`unavailable`/`unknown`) o con un estado de texto no hay etiqueta, pero
+el perímetro sí conserva su color (neutro si no hay datos).
 
 ## Gráfico
 
@@ -96,7 +129,7 @@ Lee el histórico con la llamada WebSocket `history/history_during_period`
 tarjeta, que se detiene al desconectarla. Un `sensor` dibuja la curva
 con aristas vivas (sin suavizar); un `binary_sensor`, una onda cuadrada
 on/off. En `halo` y `single` una ventana luminosa barre la línea de
-izquierda a derecha dejando una estela que se apaga; con
+izquierda a derecha dejando una estela larga que se apaga; con
 `prefers-reduced-motion` el trazo se muestra completo y quieto. La
 tarjeta solo se repinta cuando cambia su propia entidad.
 
@@ -122,10 +155,28 @@ It has no sensor footer: it is a single-entity card.
 
 ## Sizes
 
-Size adapts to the card's real width in the HA grid (there is no `size`
-key): **compact** (< 230 px: there is no room for the graph, so it is
-hidden), **normal** and **large** (≥ 380 px: bigger icon, value and
-graph).
+Chosen with `size` (like the Thermostat Card). There are three: two with
+a graph and one without.
+
+| `size` | Size | Graph | Default columns (12 per section) |
+|---|---|---|---|
+| `large` | Large: full width | Yes | 12 |
+| `normal` (default) | Medium: the narrowest where value and graph fit side by side | Yes | 6 |
+| `compact` | Small: as small as possible | No | 3 |
+
+Nothing is clipped outside the card at any size: name, value, unit and
+label wrap onto several lines and, in medium, if the graph does not fit
+beside the value it moves to its own line. In small the ⋮ menu and the
+"Sensor" subtitle are hidden (tapping the card still opens "more info")
+and history is not requested. Columns can be changed by hand in HA's
+editor (minimum 3) or with `grid_options`; the defaults live in
+`SIZE_COLUMNS` (`constants.ts`).
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.outdoor_temperature
+size: compact
+```
 
 ## Config
 
@@ -150,6 +201,10 @@ threshold_colors:
   low: "#4facfe"
   ok: "#39e07a"
   high: "#ff3d5a"
+threshold_names:
+  low: "Frío"
+  ok: "Confort"
+  high: "Calor"
 tap_action:
   action: more-info
 ```
@@ -165,14 +220,17 @@ alert_state: "on"
 
 ## Color effect (`neon_effect`)
 
-- `halo` (default): three-color halo like the other Neón cards (a
-  three-color ring around the card). Chosen with `neon_palette` /
-  `neon_color1/2/3` (see the [Button Card](../button)). The graph is
-  drawn in those three colors from start to end, with the sweep effect.
-- `single`: one color (`neon_color`, default `#1ecdf2`) with a glowing
-  border and the same sweep effect.
+The color effect applies **only to the graph and the icon**; the card's
+perimeter is independent (see "State thresholds").
+
+- `halo` (default): the graph in the palette's three colors
+  (`neon_palette` / `neon_color1/2/3`, see the [Button Card](../button)),
+  each in its own stretch of the line, and a glow carrying those same
+  three colors. With the sweep effect.
+- `single`: one color (`neon_color`, default `#1ecdf2`) with the same
+  sweep effect.
 - `normal`: no sweep effect and the HA theme color (`--primary-color`);
-  the card adds no halo or glow.
+  no glow.
 
 ## State thresholds (optional)
 
@@ -185,13 +243,21 @@ With `thresholds_enabled: true` the reading is rated **Low**, **OK** or
   26.1 → High.
 - `binary_sensor`: High (text "Alert") when its state matches
   `alert_state`; otherwise OK.
-- `threshold_colors` (`low`, `ok`, `high`): one color per level. The
-  level color replaces the effect's color on the card and the graph
-  (also in `halo`, where it becomes a single color).
+- `threshold_colors` (`low`, `ok`, `high`): one color per level.
+- `threshold_names` (`low`, `ok`, `high`): the name shown in each
+  level's status label. Any you don't set (or leave empty) use the
+  default text: Low / OK / High (Alert on a `binary_sensor`).
 
-With thresholds disabled (default) the status is "Normal" and the
-effect's colors are used. A non-numeric (text) state is also "Normal".
-`unavailable`/`unknown` → "No signal", in a neutral color.
+**The status label under the value is only shown with thresholds
+enabled**; without them it does not appear. **The color of the card's perimeter (border and glow) is set only by
+the thresholds**, with the current level's color (and the status text).
+It is independent of the color effect: the graph and the icon do not
+change with the level. With thresholds disabled (default) the perimeter
+looks normal (theme border) whatever the effect, and there is no
+label. With thresholds on, the label only appears when there is a
+rating (Low / OK / High): with no data (`unavailable`/`unknown`) or a
+text state there is no label, but the perimeter keeps its color
+(neutral when there is no data).
 
 ## Graph
 

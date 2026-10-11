@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_SINGLE_COLOR, DEFAULT_THRESHOLD_COLORS, THEME_COLOR, UNAVAILABLE_COLOR } from './constants';
-import { resolveCardColors, resolveEffect } from './sensor-colors';
+import { resolveCardColors, resolveEdgeColor, resolveEffect } from './sensor-colors';
 
 describe('resolveEffect', () => {
   it('por defecto y ante valores desconocidos es halo', () => {
@@ -39,21 +39,40 @@ describe('resolveCardColors · efectos (sin umbrales)', () => {
   });
 });
 
-describe('resolveCardColors · umbrales', () => {
+describe('resolveCardColors · los umbrales no tocan el gráfico', () => {
+  it('con umbrales activos el gráfico sigue el efecto, no el nivel', () => {
+    const cfg = { thresholds_enabled: true, neon_palette: 'emerald', threshold_colors: { high: '#ff0000', low: '#0000ff' } };
+    for (const level of ['low', 'ok', 'high'] as const) {
+      expect(resolveCardColors(cfg, level)).toEqual({ c1: '#39e07a', c2: '#2dd6b8', c3: '#1ecdf2' });
+    }
+  });
+});
+
+describe('resolveEdgeColor · el perímetro lo marcan solo los umbrales', () => {
   const on = { thresholds_enabled: true } as const;
-  it('cada nivel usa su color por defecto', () => {
-    expect(resolveCardColors(on, 'low').c1).toBe(DEFAULT_THRESHOLD_COLORS.low);
-    expect(resolveCardColors(on, 'ok').c1).toBe(DEFAULT_THRESHOLD_COLORS.ok);
-    expect(resolveCardColors(on, 'high').c1).toBe(DEFAULT_THRESHOLD_COLORS.high);
+  it('desactivados (o sin config): null, perímetro normal, con cualquier efecto', () => {
+    expect(resolveEdgeColor(undefined, 'high')).toBeNull();
+    for (const neon_effect of ['normal', 'halo', 'single'] as const) {
+      expect(resolveEdgeColor({ neon_effect, threshold_colors: { high: '#ff0000' } }, 'high')).toBeNull();
+      expect(resolveEdgeColor({ neon_effect, thresholds_enabled: false }, 'low')).toBeNull();
+    }
   });
-  it('usa el color elegido por el usuario y manda sobre cualquier efecto', () => {
-    const cfg = { ...on, neon_effect: 'halo' as const, threshold_colors: { low: '#0000ff', high: '#ff0000' } };
-    expect(resolveCardColors(cfg, 'low')).toEqual({ c1: '#0000ff', c2: '#0000ff', c3: '#0000ff' });
-    expect(resolveCardColors(cfg, 'high').c3).toBe('#ff0000');
-    expect(resolveCardColors(cfg, 'ok').c1).toBe(DEFAULT_THRESHOLD_COLORS.ok);
+  it('activados: cada nivel usa su color por defecto', () => {
+    expect(resolveEdgeColor(on, 'low')).toBe(DEFAULT_THRESHOLD_COLORS.low);
+    expect(resolveEdgeColor(on, 'ok')).toBe(DEFAULT_THRESHOLD_COLORS.ok);
+    expect(resolveEdgeColor(on, 'high')).toBe(DEFAULT_THRESHOLD_COLORS.high);
   });
-  it('desactivados: los colores de nivel se ignoran', () => {
-    const cfg = { thresholds_enabled: false, threshold_colors: { high: '#ff0000' } };
-    expect(resolveCardColors(cfg, 'high').c1).toBe('#39e07a');
+  it('activados: usa el color elegido por el usuario', () => {
+    const cfg = { ...on, threshold_colors: { low: '#0000ff', high: '#ff0000' } };
+    expect(resolveEdgeColor(cfg, 'low')).toBe('#0000ff');
+    expect(resolveEdgeColor(cfg, 'high')).toBe('#ff0000');
+    expect(resolveEdgeColor(cfg, 'ok')).toBe(DEFAULT_THRESHOLD_COLORS.ok);
+  });
+  it('sin señal: neutro si hay umbrales; null si no', () => {
+    expect(resolveEdgeColor(on, 'unavailable')).toBe(UNAVAILABLE_COLOR);
+    expect(resolveEdgeColor({}, 'unavailable')).toBeNull();
+  });
+  it('lectura sin valorar (nivel normal): null', () => {
+    expect(resolveEdgeColor(on, 'normal')).toBeNull();
   });
 });

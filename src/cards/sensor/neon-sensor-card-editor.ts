@@ -15,10 +15,16 @@ import { ALLOWED_DOMAINS } from './sensor-state';
 import { SENSOR_TRANSLATIONS } from './translations';
 import type { SensorTranslations } from './translations';
 import { resolveEffect } from './sensor-colors';
-import type { NeonEffect, NeonSensorCardConfig, ThresholdLevel } from './types';
+import { hasGraph, resolveSize } from './sensor-size';
+import type { NeonEffect, NeonSensorCardConfig, ThresholdLevel, ThresholdNames, SensorSize } from './types';
 
 const ALLOWED_ACTIONS = ['more-info', 'toggle', 'navigate', 'url', 'call-service', 'assist', 'none'];
 const PALETTES = ['emerald', 'cyberpunk', 'electric', 'sunset', 'toxic'];
+const SIZES: Array<[SensorSize, keyof SensorTranslations]> = [
+  ['large', 'size_large'],
+  ['normal', 'size_normal'],
+  ['compact', 'size_compact'],
+];
 const EFFECTS: Array<[NeonEffect, keyof SensorTranslations]> = [
   ['normal', 'effect_normal'],
   ['halo', 'effect_halo'],
@@ -56,6 +62,16 @@ export class NeonSensorCardEditor extends LitElement {
     if (value === '' || value === undefined) delete next[key];
     else next[key] = value;
     this._emit(next);
+  }
+
+  /** Se guarda tal cual (sin recortar) para no comerse los espacios mientras
+      se escribe; la tarjeta recorta al mostrarlo. Vacío = vuelve al texto
+      por defecto y, si no queda ninguno, se elimina la clave. */
+  private _thresholdNameChanged(level: ThresholdLevel, value: string): void {
+    if (!this._config) return;
+    const next: ThresholdNames = { ...this._config.threshold_names, [level]: value };
+    if (value === '') delete next[level];
+    this._configChanged('threshold_names', Object.keys(next).length ? next : undefined);
   }
 
   private _thresholdColorChanged(level: ThresholdLevel, value: string): void {
@@ -172,12 +188,48 @@ export class NeonSensorCardEditor extends LitElement {
     `;
   }
 
+  private _renderThresholdNames(config: NeonSensorCardConfig, levels: ThresholdLevel[], isBinary: boolean): TemplateResult {
+    const defaults: Record<ThresholdLevel, keyof SensorTranslations> = {
+      low: 'status_low',
+      ok: 'status_ok',
+      high: isBinary ? 'status_alert' : 'status_high',
+    };
+    return html`${LEVEL_LABELS.filter(([level]) => levels.includes(level)).map(
+      ([level, labelKey]) => html`
+        <label class="native-select-label" for=${`th-name-${level}`}>${this._t('name_label')} · ${this._t(labelKey)}</label>
+        <input
+          id=${`th-name-${level}`}
+          type="text"
+          class="native-input"
+          placeholder=${this._t(defaults[level])}
+          .value=${config.threshold_names?.[level] ?? ''}
+          @input=${(ev: InputEvent) => this._thresholdNameChanged(level, (ev.target as HTMLInputElement).value)}
+        />
+      `
+    )}`;
+  }
+
   private _renderAppearance(config: NeonSensorCardConfig): TemplateResult {
     const effect = resolveEffect(config);
+    const size = resolveSize(config);
     return html`
       <div class="editor-section">
         <div class="section-header">${this._t('section_appearance')}</div>
-        ${this._numberField('graph-hours', this._t('graph_hours_label'), 'graph_hours', config.graph_hours ?? DEFAULT_GRAPH_HOURS, 1, 168)}
+        <label class="native-select-label" for="size">${this._t('size_label')}</label>
+        <select
+          id="size"
+          class="native-select"
+          .value=${size}
+          @change=${(ev: Event) => {
+            const value = (ev.target as HTMLSelectElement).value;
+            this._configChanged('size', value === 'normal' ? undefined : value);
+          }}
+        >
+          ${SIZES.map(([id, key]) => html`<option value=${id} ?selected=${id === size}>${this._t(key)}</option>`)}
+        </select>
+        ${hasGraph(size)
+          ? this._numberField('graph-hours', this._t('graph_hours_label'), 'graph_hours', config.graph_hours ?? DEFAULT_GRAPH_HOURS, 1, 168)
+          : nothing}
         <label class="native-select-label" for="effect">${this._t('effect_label')}</label>
         <select
           id="effect"
@@ -231,11 +283,13 @@ export class NeonSensorCardEditor extends LitElement {
                   <option value="off" ?selected=${config.alert_state === 'off'}>${this._t('alert_state_off')}</option>
                 </select>
                 ${this._renderThresholdColors(config, ['ok', 'high'])}
+                ${this._renderThresholdNames(config, ['ok', 'high'], true)}
               `
             : html`
                 ${this._numberField('th-low', this._t('threshold_low_label'), 'threshold_low', config.threshold_low)}
                 ${this._numberField('th-high', this._t('threshold_high_label'), 'threshold_high', config.threshold_high)}
                 ${this._renderThresholdColors(config, ['low', 'ok', 'high'])}
+                ${this._renderThresholdNames(config, ['low', 'ok', 'high'], false)}
               `
           : nothing}
       </div>

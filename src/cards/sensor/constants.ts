@@ -1,5 +1,5 @@
 import { NEON_CARDS_VERSION } from '../../version';
-import type { ThresholdLevel } from './types';
+import type { SensorSize, ThresholdLevel } from './types';
 
 export const CARD_AUTHOR = 'Jaguaza';
 export const CARD_VERSION = NEON_CARDS_VERSION;
@@ -28,3 +28,23 @@ export const UNAVAILABLE_COLOR = '#e6e9f2';
 
 /** Color del tema de HA que usa el efecto `normal`. */
 export const THEME_COLOR = 'var(--primary-color)';
+
+export const DEFAULT_SIZE: SensorSize = 'normal';
+
+/**
+ * Columnas del grid de HA (12 por sección) que ocupa cada tamaño. Es el
+ * único sitio donde se calibran:
+ * - `large`: las 12 columnas, el ancho máximo.
+ * - `normal`: el ancho más reducido en el que el valor y el gráfico caben
+ *   uno junto al otro sin perder datos.
+ * - `compact`: el más pequeño, sin gráfico (nombre, valor, unidad y
+ *   etiqueta caben ajustándose en varias líneas).
+ */
+export const SIZE_COLUMNS: Record<SensorSize, number> = {
+  compact: 3,
+  normal: 6,
+  large: 12,
+};
+
+/** Mínimo de columnas al redimensionar a mano en el editor de HA. */
+export const MIN_COLUMNS = 3;

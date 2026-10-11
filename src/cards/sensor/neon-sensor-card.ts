@@ -13,20 +13,26 @@ import {
   dispatchHassAction,
   openMoreInfo,
 } from '../../core';
-import { NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, neonHaloVars, neonRingSplitTemplate, RingSizeController } from '../../shared';
+import { NEON_HALO_STYLES, neonHaloVars } from '../../shared';
 import { DEFAULT_GRAPH_HOURS, ERROR_ICON } from './constants';
 import { HistoryController } from './history-controller';
 import { buildStepPath, buildTracePath, TRACE_HEIGHT, TRACE_WIDTH } from './monitor-trace';
-import { resolveCardColors, resolveEffect } from './sensor-colors';
+import { resolveCardColors, resolveEdgeColor, resolveEffect } from './sensor-colors';
+import { gridOptionsFor, hasGraph, resolveSize } from './sensor-size';
 import { computeSensorStatus } from './sensor-status';
 import type { SensorStatus } from './sensor-status';
 import { isSensorEntity } from './sensor-state';
 import { NEON_SENSOR_CARD_STYLES } from './neon-sensor-card.styles';
 import { SENSOR_TRANSLATIONS } from './translations';
 import type { SensorTranslations } from './translations';
-import type { NeonEffect, NeonSensorCardConfig } from './types';
+import type { NeonEffect, NeonSensorCardConfig, ThresholdLevel } from './types';
 
 let uidCounter = 0;
+
+/** Niveles que tienen una valoración propia (y por tanto etiqueta). */
+function isRated(level: SensorStatus['level']): level is ThresholdLevel {
+  return level === 'low' || level === 'ok' || level === 'high';
+}
 
 /**
  * Neón Sensor Card
@@ -47,11 +53,8 @@ export class NeonSensorCard extends BaseNeonCard {
   private readonly _uid = `neon-sensor-${++uidCounter}`;
   private readonly _gesture = createGestureState();
   private readonly _history = new HistoryController(this);
-  private readonly _ringUid = Math.random().toString(36).slice(2);
-  /** Medidas reales de `ha-card` para el aro de tres colores del efecto `halo`. */
-  private readonly _ring = new RingSizeController(this);
 
-  static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_SENSOR_CARD_STYLES];
+  static styles = [NEON_HALO_STYLES, NEON_SENSOR_CARD_STYLES];
 
   static getConfigElement(): HTMLElement {
     return document.createElement('neon-sensor-card-editor');
@@ -75,8 +78,9 @@ export class NeonSensorCard extends BaseNeonCard {
     return 2;
   }
 
+  /** Columnas según `size` (ver `SIZE_COLUMNS`); alto automático. */
   getGridOptions(): { rows: 'auto'; columns: number; min_columns: number } {
-    return { rows: 'auto', columns: 6, min_columns: 3 };
+    return gridOptionsFor(resolveSize(this._config));
   }
 
   /** Con muchas tarjetas, `hass` cambia con cada estado de HA: solo se
@@ -94,6 +98,7 @@ export class NeonSensorCard extends BaseNeonCard {
       hass: this.hass,
       entity: this._config?.entity,
       hours: this._config?.graph_hours || DEFAULT_GRAPH_HOURS,
+      enabled: hasGraph(resolveSize(this._config)),
     });
   }
 
@@ -105,18 +110,20 @@ export class NeonSensorCard extends BaseNeonCard {
     return (this._config?.entity ?? '').split('.')[0];
   }
 
-  private _statusLabel(status: SensorStatus): string {
-    switch (status.level) {
-      case 'unavailable':
-        return this._t('status_unavailable');
+  /** Nombre del nivel: el elegido por el usuario o, si falta o está en
+      blanco, el texto por defecto del idioma. */
+  private _levelName(level: ThresholdLevel, fallback: keyof SensorTranslations): string {
+    return this._config?.threshold_names?.[level]?.trim() || this._t(fallback);
+  }
+
+  private _statusLabel(level: ThresholdLevel): string {
+    switch (level) {
       case 'low':
-        return this._t('status_low');
+        return this._levelName('low', 'status_low');
       case 'ok':
-        return this._t('status_ok');
-      case 'high':
-        return this._t(this._domain === 'binary_sensor' ? 'status_alert' : 'status_high');
+        return this._levelName('ok', 'status_ok');
       default:
-        return this._t('status_normal');
+        return this._levelName('high', this._domain === 'binary_sensor' ? 'status_alert' : 'status_high');
     }
   }
 
@@ -146,9 +153,13 @@ export class NeonSensorCard extends BaseNeonCard {
     const d = this._domain === 'binary_sensor' ? buildStepPath(values) : buildTracePath(values);
     if (!d) return nothing;
     const gradId = `${this._uid}-trace`;
+    const blurId = `${this._uid}-blur`;
     // Fragmento SVG suelto dentro de otra plantilla: tiene que usar `svg`, no
     // `html`; si no, Lit lo crea en el namespace HTML y el navegador no lo pinta.
     const trace = (cls: string) => svg`<path class="trace ${cls}" d=${d} stroke="url(#${gradId})"></path>`;
+    // Resplandor: el MISMO trazo y degradado, más grueso y desenfocado, para
+    // que el halo lleve los tres colores en su sitio (y no solo el primero).
+    const glow = svg`<path class="glow-path" d=${d} stroke="url(#${gradId})" filter="url(#${blurId})"></path>`;
     const viewBox = `0 0 ${TRACE_WIDTH} ${TRACE_HEIGHT}`;
     // `normal`: trazo fijo con el color del tema, sin barrido ni resplandor.
     const animated = effect !== 'normal';
@@ -156,17 +167,26 @@ export class NeonSensorCard extends BaseNeonCard {
       <div class="graph ${animated ? '' : 'graph--static'}" aria-hidden="true">
         <svg viewBox=${viewBox} preserveAspectRatio="none">
           <defs>
+            <!-- Cada color ocupa su tramo y se mezcla con el siguiente: los
+                 tres se distinguen a la vez, ninguno queda reducido a un
+                 simple punto de paso del degradado. -->
             <linearGradient id=${gradId} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2=${TRACE_WIDTH} y2="0">
               <stop offset="0" style="stop-color: var(--neon-c1)"></stop>
-              <stop offset="0.5" style="stop-color: var(--neon-c2)"></stop>
+              <stop offset="0.2" style="stop-color: var(--neon-c1)"></stop>
+              <stop offset="0.42" style="stop-color: var(--neon-c2)"></stop>
+              <stop offset="0.58" style="stop-color: var(--neon-c2)"></stop>
+              <stop offset="0.8" style="stop-color: var(--neon-c3)"></stop>
               <stop offset="1" style="stop-color: var(--neon-c3)"></stop>
             </linearGradient>
+            <filter id=${blurId} filterUnits="userSpaceOnUse" x="-30" y="-30" width="260" height="120">
+              <feGaussianBlur stdDeviation="4"></feGaussianBlur>
+            </filter>
           </defs>
           ${trace('trace-base')}
         </svg>
         ${animated
           ? html`<div class="sweep">
-              <svg viewBox=${viewBox} preserveAspectRatio="none">${trace('trace-live')}</svg>
+              <svg viewBox=${viewBox} preserveAspectRatio="none">${glow}${trace('trace-live')}</svg>
             </div>`
           : nothing}
       </div>
@@ -186,15 +206,22 @@ export class NeonSensorCard extends BaseNeonCard {
     );
     const broken = !stateObj;
     const colors = resolveCardColors(config, status.level);
+    // El perímetro lo marcan solo los umbrales; sin ellos, borde normal.
+    const edge = resolveEdgeColor(config, status.level);
     const effect = resolveEffect(config);
+    const size = resolveSize(config);
+    // Etiqueta solo con umbrales activados y una valoración real (bajo /
+    // correcto / alto). Sin datos o sin valorar no hay etiqueta, pero el
+    // color del perímetro (`edge`) sí se mantiene.
+    const rated = config.thresholds_enabled && isRated(status.level) ? status.level : null;
     const name = config.name || (stateObj?.attributes.friendly_name as string | undefined) || entityId || '';
     const hasDoubleTap = !!config.double_tap_action && config.double_tap_action.action !== 'none';
     const unit = display?.available && this._domain !== 'binary_sensor' ? display.unit : '';
 
     return html`
       <ha-card
-        class="neon-effect-${effect} ${effect === 'halo' ? 'neon-ring-host' : ''} ${effect === 'normal' ? '' : 'neon-halo-active'} ${broken ? 'neon-halo-error' : ''}"
-        style=${neonHaloVars(colors)}
+        class="size-${size} neon-effect-${effect} ${edge ? 'has-edge' : ''} ${effect === 'normal' ? '' : 'neon-halo-active'} ${broken ? 'neon-halo-error' : ''}"
+        style=${neonHaloVars(colors) + (edge ? ` --neon-edge: ${edge};` : '')}
         @pointerdown=${(ev: PointerEvent) => handlePointerDown(this._gesture, ev, '.menu', () => this._dispatchAction('hold'))}
         @pointerup=${() => cancelHold(this._gesture)}
         @pointercancel=${() => cancelHold(this._gesture)}
@@ -205,13 +232,8 @@ export class NeonSensorCard extends BaseNeonCard {
             hasDoubleTap,
           })}
       >
-        ${effect === 'halo'
-          ? neonRingSplitTemplate(this._ringUid, this._ring.size.width, this._ring.size.height, this._ring.size.radius)
-          : nothing}
         <div class="header">
-          <div class="icon-ring">
-            <ha-icon class="neon-halo-icon" .icon=${broken ? ERROR_ICON : (display?.icon ?? ERROR_ICON)}></ha-icon>
-          </div>
+          <ha-icon class="icon neon-halo-icon" .icon=${broken ? ERROR_ICON : (display?.icon ?? ERROR_ICON)}></ha-icon>
           <div class="texts">
             <span class="name">${name}</span>
             <span class="kind">${this._t(this._domain === 'binary_sensor' ? 'kind_binary_sensor' : 'kind_sensor')}</span>
@@ -230,9 +252,9 @@ export class NeonSensorCard extends BaseNeonCard {
             <span class="value">${this._valueText(display)}</span>
             ${unit ? html`<span class="unit">${unit}</span>` : nothing}
           </div>
-          ${this._renderGraph(effect)}
+          ${hasGraph(size) ? this._renderGraph(effect) : nothing}
         </div>
-        <div class="status"><span class="dot"></span>${this._statusLabel(status)}</div>
+        ${rated ? html`<div class="status"><span class="dot"></span>${this._statusLabel(rated)}</div>` : nothing}
       </ha-card>
     `;
   }

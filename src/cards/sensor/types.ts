@@ -19,7 +19,18 @@ export type ThresholdLevel = 'low' | 'ok' | 'high';
  */
 export type NeonEffect = 'normal' | 'halo' | 'single';
 
+/**
+ * Tamaño de la tarjeta (mismas claves que la Thermostat Card):
+ * - `compact`: el más pequeño, SIN gráfico.
+ * - `normal`: tamaño mediano, con gráfico.
+ * - `large`: ancho máximo (12 columnas), con gráfico.
+ */
+export type SensorSize = 'compact' | 'normal' | 'large';
+
 export type ThresholdColors = Partial<Record<ThresholdLevel, string>>;
+
+/** Nombre propio de cada nivel (la etiqueta que se muestra bajo el valor). */
+export type ThresholdNames = Partial<Record<ThresholdLevel, string>>;
 
 export interface NeonSensorCardConfig extends NeonPaletteConfig {
   type?: string;
@@ -28,6 +39,8 @@ export interface NeonSensorCardConfig extends NeonPaletteConfig {
   name?: string;
   icon?: string;
   decimals?: number;
+  /** Tamaño de la tarjeta. Por defecto `normal`. */
+  size?: SensorSize;
   /** Horas de histórico que cubre el gráfico. */
   graph_hours?: number;
   /** Efecto de color. Por defecto `halo`. */
@@ -42,6 +55,9 @@ export interface NeonSensorCardConfig extends NeonPaletteConfig {
   threshold_high?: number;
   /** Un color por nivel; los no indicados usan su valor por defecto. */
   threshold_colors?: ThresholdColors;
+  /** Un nombre por nivel para la etiqueta de estado; los no indicados (o
+      vacíos) usan el texto por defecto del idioma. */
+  threshold_names?: ThresholdNames;
   /** Solo `binary_sensor`: estado que se considera `high` (alerta). */
   alert_state?: 'on' | 'off';
   tap_action?: ActionConfig;

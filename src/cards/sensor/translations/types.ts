@@ -10,12 +10,10 @@ export interface SensorTranslations {
   kind_binary_sensor: string;
   binary_on: string;
   binary_off: string;
-  status_normal: string;
   status_high: string;
   status_low: string;
   status_ok: string;
   status_alert: string;
-  status_unavailable: string;
   more_info_label: string;
   section_main: string;
   entity_label: string;
@@ -26,6 +24,10 @@ export interface SensorTranslations {
   graph_hours_label: string;
   effect_label: string;
   effect_normal: string;
+  size_label: string;
+  size_compact: string;
+  size_normal: string;
+  size_large: string;
   effect_halo: string;
   effect_single: string;
   single_color_label: string;

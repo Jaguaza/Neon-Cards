@@ -9,6 +9,8 @@ export interface HistoryRequest {
   hass?: HomeAssistant;
   entity?: string;
   hours: number;
+  /** `false` (tamaño sin gráfico): no se consulta el histórico. */
+  enabled?: boolean;
 }
 
 /**
@@ -48,7 +50,7 @@ export class HistoryController implements ReactiveController {
       `hass`, y sin `hass` la consulta no puede empezar todavía. */
   sync(request: HistoryRequest): void {
     this._request = request;
-    const key = request.entity ? `${request.entity}|${request.hours}` : '';
+    const key = request.entity && request.enabled !== false ? `${request.entity}|${request.hours}` : '';
     if (key !== this._key) {
       this._stop();
       this._key = key;
