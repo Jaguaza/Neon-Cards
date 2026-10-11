@@ -173,6 +173,89 @@ activas juntas en el *mismo* modo sí está permitido. Igual que Button,
 admite un footer de sensores (dominios `sensor`/`binary_sensor`,
 máximo 3).
 
+
+---
+
+## Neón Sensor Card (`custom:neon-sensor-card`)
+
+### YAML mínimo
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.temperatura_exterior
+```
+
+### YAML avanzado
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.temperatura_exterior
+name: Temperatura Exterior
+icon: mdi:thermometer
+graph_hours: 24
+neon_effect: halo
+neon_palette: electric
+thresholds_enabled: true
+threshold_low: 22
+threshold_high: 26
+threshold_colors:
+  low: "#4facfe"
+  ok: "#39e07a"
+  high: "#ff3d5a"
+threshold_names:
+  low: "Frío"
+  ok: "Confort"
+  high: "Calor"
+tap_action:
+  action: more-info
+```
+
+Con un sensor binario:
+
+```yaml
+type: custom:neon-sensor-card
+entity: binary_sensor.puerta_entrada
+thresholds_enabled: true
+alert_state: "on"
+```
+
+Con un solo color y tamaño grande:
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.temperatura_garaje
+size: large
+neon_effect: single
+neon_color: "#ff9f1a"
+```
+
+### Capturas
+
+![Neón Sensor Card, efectos de color y umbrales](../assets/screenshots/sensor/Neon_Sensor_Cards.png)
+
+### GIF
+
+![Neón Sensor Card en acción](../assets/gifs/Sensor.gif)
+
+### Explicación
+
+Neón Sensor Card muestra una única entidad `sensor` o `binary_sensor`
+(cualquier otro dominio se rechaza): nombre, icono, valor con unidad y
+estado y el histórico dibujado como el trazo de un monitor de
+constantes vitales (el gráfico siempre está visible). `neon_effect`
+elige el efecto del gráfico y del icono: `halo` (por defecto, gráfico y
+resplandor en tres colores con desplazamiento), `single` (un solo color
+con desplazamiento) o `normal` (color del tema, sin desplazamiento). El
+perímetro de la tarjeta es independiente: lo marcan solo los umbrales,
+que son opcionales. Con `thresholds_enabled`, por debajo de
+`threshold_low` es Bajo, por encima de `threshold_high` es Alto y entre
+ambos es Correcto, cada nivel con su color (`threshold_colors`) en el
+borde y con su nombre (`threshold_names`) en la etiqueta de estado bajo
+el valor. Sin umbrales no hay etiqueta y el perímetro se ve normal. El
+tamaño se elige con `size`: `large` (grande, ancho máximo, con gráfico),
+`normal` (mediano, con gráfico) o `compact` (pequeño, sin gráfico). No
+lleva pie de sensores.
+
 ---
 
 <a id="examples-english"></a>
@@ -349,3 +432,84 @@ where the change comes from: the card, the entity's own dialog, or an
 automation), while being active in the *same* mode together is allowed.
 Like Button, it supports a sensor footer (`sensor`/`binary_sensor`
 domains, max 3).
+
+
+---
+
+## Neón Sensor Card (`custom:neon-sensor-card`)
+
+### Minimal YAML
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.outdoor_temperature
+```
+
+### Advanced YAML
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.outdoor_temperature
+name: Outdoor Temperature
+icon: mdi:thermometer
+graph_hours: 24
+neon_effect: halo
+neon_palette: electric
+thresholds_enabled: true
+threshold_low: 22
+threshold_high: 26
+threshold_colors:
+  low: "#4facfe"
+  ok: "#39e07a"
+  high: "#ff3d5a"
+threshold_names:
+  low: "Frío"
+  ok: "Confort"
+  high: "Calor"
+tap_action:
+  action: more-info
+```
+
+With a binary sensor:
+
+```yaml
+type: custom:neon-sensor-card
+entity: binary_sensor.front_door
+thresholds_enabled: true
+alert_state: "on"
+```
+
+With a single color and large size:
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.garage_temperature
+size: large
+neon_effect: single
+neon_color: "#ff9f1a"
+```
+
+### Screenshots
+
+![Neón Sensor Card, color effects and thresholds](../assets/screenshots/sensor/Neon_Sensor_Cards.png)
+
+### GIF
+
+![Neón Sensor Card in action](../assets/gifs/Sensor.gif)
+
+### Explanation
+
+Neón Sensor Card shows a single `sensor` or `binary_sensor` entity (any
+other domain is rejected): name, icon, value with unit and status
+and the history drawn like the trace of a vital-signs monitor (the graph
+is always visible). `neon_effect` picks the effect of the graph and the icon: `halo`
+(default, three-color graph and glow with the sweep), `single` (one
+color with the sweep) or `normal` (theme color, no sweep). The card's
+perimeter is independent: only the thresholds set it, and they are
+optional. With `thresholds_enabled`, below `threshold_low` is Low,
+above `threshold_high` is High and in between is OK, each level with
+its own color (`threshold_colors`) on the border and its own name
+(`threshold_names`) in the status label under the value. Without
+thresholds there is no label and the perimeter looks normal. Size is chosen with `size`: `large`
+(full width, with graph), `normal` (medium, with graph) or `compact`
+(small, no graph). It has no sensor footer.

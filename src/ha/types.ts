@@ -28,6 +28,9 @@ export interface HomeAssistant {
       traducidos al idioma del usuario). Opcional: no existe en HA
       antiguo ni en los `hass` parciales de los tests. */
   formatEntityAttributeValue?(stateObj: HassEntityState, attribute: string, value?: unknown): string;
+  /** Llamada WebSocket genérica de HA (la usa `ha/history.ts`). Opcional
+      por lo mismo: no existe en los `hass` parciales de los tests. */
+  callWS?<T>(message: { type: string; [key: string]: unknown }): Promise<T>;
 }
 
 /**

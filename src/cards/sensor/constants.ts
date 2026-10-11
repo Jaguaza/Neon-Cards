@@ -1,0 +1,50 @@
+import { NEON_CARDS_VERSION } from '../../version';
+import type { SensorSize, ThresholdLevel } from './types';
+
+export const CARD_AUTHOR = 'Jaguaza';
+export const CARD_VERSION = NEON_CARDS_VERSION;
+
+/** Icono cuando la entidad no existe o no es un sensor/binary_sensor. */
+export const ERROR_ICON = 'mdi:close';
+
+export const DEFAULT_GRAPH_HOURS = 24;
+/** Tramos en que se reparte el histórico: una arista del trazo por tramo. */
+export const GRAPH_BUCKETS = 48;
+/** Cada cuánto se relee el histórico (ms). Una llamada WS por tarjeta. */
+export const HISTORY_REFRESH_MS = 120_000;
+
+/** Color del efecto `single` si no se elige otro. */
+export const DEFAULT_SINGLE_COLOR = '#1ecdf2';
+
+/** Colores de partida de cada nivel de los umbrales. */
+export const DEFAULT_THRESHOLD_COLORS: Record<ThresholdLevel, string> = {
+  low: '#4facfe',
+  ok: '#39e07a',
+  high: '#ff3d5a',
+};
+
+/** Sin señal: neutro en todos los efectos. */
+export const UNAVAILABLE_COLOR = '#e6e9f2';
+
+/** Color del tema de HA que usa el efecto `normal`. */
+export const THEME_COLOR = 'var(--primary-color)';
+
+export const DEFAULT_SIZE: SensorSize = 'normal';
+
+/**
+ * Columnas del grid de HA (12 por sección) que ocupa cada tamaño. Es el
+ * único sitio donde se calibran:
+ * - `large`: las 12 columnas, el ancho máximo.
+ * - `normal`: el ancho más reducido en el que el valor y el gráfico caben
+ *   uno junto al otro sin perder datos.
+ * - `compact`: el más pequeño, sin gráfico (nombre, valor, unidad y
+ *   etiqueta caben ajustándose en varias líneas).
+ */
+export const SIZE_COLUMNS: Record<SensorSize, number> = {
+  compact: 3,
+  normal: 6,
+  large: 12,
+};
+
+/** Mínimo de columnas al redimensionar a mano en el editor de HA. */
+export const MIN_COLUMNS = 3;

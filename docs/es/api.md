@@ -19,6 +19,7 @@ Ver también la versión en [inglés](../en/api.md).
 - [`src/ha` — Tipos de Home Assistant](#srcha--tipos-de-home-assistant)
   - [Sensores (`sensors.ts`)](#sensores-sensorsts)
   - [Climate (`climate.ts`)](#climate-climatets)
+  - [Historial (`history.ts`)](#historial-historyts)
 - [`src/shared` — Paleta y efectos neón compartidos](#srcshared--paleta-y-efectos-neón-compartidos)
   - [Paleta (`neon-palette.ts`)](#paleta-neon-palettets)
   - [Halo de icono (`glow.ts`)](#halo-de-icono-glowts)
@@ -29,6 +30,7 @@ Ver también la versión en [inglés](../en/api.md).
 - [Neón Card Entity — Configuración YAML](#neón-card-entity--configuración-yaml)
 - [Neón Button Card — Configuración YAML](#neón-button-card--configuración-yaml)
 - [Neón Thermostat Card — Configuración YAML](#neón-thermostat-card--configuración-yaml)
+- [Neón Sensor Card — Configuración YAML](#neón-sensor-card--configuración-yaml)
 
 ---
 
@@ -227,6 +229,13 @@ sobrevivirían entre pulsaciones.
   const primaryText = computeInfoDisplay('last-changed', name, stateObj.state, stateObj, hass);
   ```
 
+#### Constantes y tipos
+
+| Nombre | Descripción |
+|---|---|
+| `INFO_OPTIONS` | `['name', 'state', 'last-changed', 'last-updated', 'none']` — las opciones válidas. |
+| `InfoOption` | Tipo TypeScript derivado de `INFO_OPTIONS`. |
+
 #### `getInfoLabels(hass)`
 
 - **Descripción:** etiquetas de `INFO_OPTIONS` en el idioma resuelto de
@@ -317,6 +326,7 @@ interface HomeAssistant {
   states: Record<string, HassEntityState>;
   locale?: { language: string };
   callService(domain: string, service: string, serviceData?: Record<string, unknown>): Promise<void>;
+  callWS?<T>(message: { type: string; [key: string]: unknown }): Promise<T>;
 }
 ```
 
@@ -329,6 +339,10 @@ interface HomeAssistant {
   - `service: string` — p. ej. `'toggle'`, `'turn_on'`.
   - `serviceData?: Record<string, unknown>` — p. ej. `{ entity_id: 'light.salon' }`.
   - **Devuelve:** `Promise<void>`.
+- **`callWS?(message)`** — llamada WebSocket genérica de HA (la usa
+  `history.ts`). Opcional: no existe en los `hass` parciales de los tests.
+  - `message: { type: string; [key: string]: unknown }` — p. ej. `{ type: 'history/history_during_period', ... }`.
+  - **Devuelve:** `Promise<T>`.
 
 ---
 
@@ -482,6 +496,45 @@ reutilizarlos en vez de releer `hass.states` por su cuenta.
 | `HVAC_MODES` | `['off', 'heat', 'cool', 'heat_cool', 'auto', 'dry', 'fan_only']`. |
 | `HvacMode` | Tipo TypeScript derivado de `HVAC_MODES`. |
 | `HvacAction` | `'off' \| 'idle' \| 'preheating' \| 'heating' \| 'cooling' \| 'drying' \| 'fan'` — lo que el equipo está haciendo AHORA, distinto del modo seleccionado. |
+
+---
+
+### Historial (`history.ts`)
+
+Lectura del histórico de una entidad por WebSocket. Hoy lo usa la
+Sensor Card para su gráfico.
+
+#### `fetchHistory(hass, entityId, hours, now?)`
+
+- **Descripción:** pide a HA (`history/history_during_period`, con
+  `minimal_response`) los cambios de estado de las últimas `hours`
+  horas y los devuelve ordenados por tiempo.
+- **Parámetros:** `hass: HomeAssistant`, `entityId: string`,
+  `hours: number`, `now?: number` (ms; por defecto `Date.now()`).
+- **Devuelve:** `Promise<HistoryPoint[]>`, con
+  `HistoryPoint = { time: number /* ms */; state: string }`. Devuelve
+  `[]` si `hass.callWS` no existe.
+- **Ejemplo:**
+  ```ts
+  const points = await fetchHistory(hass, 'sensor.temperatura_exterior', 24);
+  // [{ time: 1790000000000, state: '21.4' }, { time: 1790000600000, state: '21.6' }, …]
+  ```
+
+#### `parseHistory(raw, entityId)`
+
+- **Descripción:** convierte la respuesta cruda de HA en `HistoryPoint[]`.
+  Acepta el formato comprimido (`s`/`lu`/`lc`, segundos) y el largo
+  (`state`/`last_updated`, ISO o segundos); descarta entradas sin estado
+  o sin fecha válida.
+- **Parámetros:** `raw` — la respuesta de `hass.callWS` (un objeto
+  `{ [entityId]: entradas[] }`, o `undefined`); `entityId: string`.
+- **Devuelve:** `HistoryPoint[]` ordenado por tiempo; `[]` si la
+  respuesta no trae esa entidad.
+- **Ejemplo:**
+  ```ts
+  parseHistory({ 'sensor.t': [{ s: '21.4', lu: 1790000000 }, { s: '21.6', lu: 1790000600 }] }, 'sensor.t');
+  // [{ time: 1790000000000, state: '21.4' }, { time: 1790000600000, state: '21.6' }]
+  ```
 
 ---
 
@@ -870,3 +923,75 @@ footer:
     icon: mdi:motion-sensor
 ```
 
+
+## Neón Sensor Card — Configuración YAML
+
+Todas las claves de `NeonSensorCardConfig`
+(`src/cards/sensor/types.ts`). Solo admite entidades `sensor` y
+`binary_sensor`. Ver ejemplos completos en
+[`examples/`](../../examples/README.md).
+
+| Clave | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `entity` | `string` | — (requerida) | Entidad `sensor.*` o `binary_sensor.*`. Cualquier otro dominio se rechaza con un error de configuración. |
+| `name` | `string` | `friendly_name` de la entidad | Título de la tarjeta. |
+| `icon` | `string` | calculado por `device_class` | Icono propio. |
+| `decimals` | `number` | `1` | Decimales del valor (solo `sensor` numérico). |
+| `size` | `'large' \| 'normal' \| 'compact'` | `'normal'` | Tamaño: `large` = grande, ancho máximo (12 columnas) con gráfico; `normal` = mediano (6 columnas) con gráfico; `compact` = pequeño (3 columnas), sin gráfico ni consulta de histórico. Ver `getGridOptions()`. |
+| `graph_hours` | `number` | `24` | Horas de histórico del gráfico. Solo con `size` `normal` o `large`. |
+| `neon_effect` | `'normal' \| 'halo' \| 'single'` | `'halo'` | Efecto de color del gráfico y del icono (no del perímetro): `halo` = gráfico y resplandor en tres colores con desplazamiento; `single` = un solo color con desplazamiento; `normal` = color del tema, sin desplazamiento. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta, solo con `neon_effect: halo`. |
+| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | según paleta | Colores cuando `neon_palette: custom`. |
+| `neon_color` | `string` (hex) | `#1ecdf2` | Color del efecto `single`. |
+| `thresholds_enabled` | `boolean` | `false` | Activa la valoración Bajo / Correcto / Alto y muestra la etiqueta de estado bajo el valor. Desactivado (por defecto) no hay etiqueta. |
+| `threshold_low` | `number` | — | `sensor` numérico: por debajo de este valor es Bajo. |
+| `threshold_high` | `number` | — | `sensor` numérico: por encima de este valor es Alto. Entre ambos (límites incluidos) es Correcto. |
+| `threshold_colors` | `{ low?, ok?, high? }` | azul / verde / rojo | Color de cada nivel. Con los umbrales activos marca el perímetro de la tarjeta (borde y resplandor) y el texto de estado; no cambia el gráfico ni el icono. Con los umbrales desactivados el perímetro queda normal (borde del tema). |
+| `threshold_names` | `{ low?, ok?, high? }` | Bajo / Correcto / Alto (Alerta en `binary_sensor`) | Nombre de cada nivel en la etiqueta de estado. Un nombre ausente o vacío usa el texto por defecto. Sin datos o sin valorar no hay etiqueta. Solo se ve con `thresholds_enabled`. |
+| `alert_state` | `'on' \| 'off'` | — | Solo `binary_sensor` con umbrales activos: estado que se considera Alto (alerta). |
+| `tap_action` | `ActionConfig` | `{ action: more-info }` | Acción al pulsar. |
+| `hold_action` | `ActionConfig` | `{ action: none }` | Acción al mantener. |
+| `double_tap_action` | `ActionConfig` | `{ action: none }` | Acción al doble toque. |
+
+No lleva pie de sensores.
+
+### `getGridOptions()` — tamaño según `size`
+
+Igual que la Thermostat Card, el tamaño se elige con `size`. Las columnas
+salen de `SIZE_COLUMNS` (`src/cards/sensor/constants.ts`) y el alto es
+automático; `min_columns` es `3` en todos.
+
+| `size` | Tamaño | Gráfico | `columns` | `rows` |
+|---|---|---|---|---|
+| `'compact'` | Pequeño | No | `3` | `'auto'` |
+| `'normal'` (por defecto) | Mediano | Sí | `6` | `'auto'` |
+| `'large'` | Grande (ancho máximo) | Sí | `12` | `'auto'` |
+
+Nada se corta fuera de la tarjeta: los textos se ajustan en varias líneas
+y, si en el mediano el gráfico no cabe junto al valor, pasa a su propia
+línea.
+
+### Ejemplo completo
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.temperatura_exterior
+name: Temperatura Exterior
+icon: mdi:thermometer
+graph_hours: 24
+neon_effect: halo
+neon_palette: electric
+thresholds_enabled: true
+threshold_low: 22
+threshold_high: 26
+threshold_colors:
+  low: "#4facfe"
+  ok: "#39e07a"
+  high: "#ff3d5a"
+threshold_names:
+  low: "Frío"
+  ok: "Confort"
+  high: "Calor"
+tap_action:
+  action: more-info
+```

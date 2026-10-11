@@ -19,6 +19,7 @@ See also the [Spanish version](../es/api.md).
 - [`src/ha` — Home Assistant types](#srcha--home-assistant-types)
   - [Sensors (`sensors.ts`)](#sensors-sensorsts)
   - [Climate (`climate.ts`)](#climate-climatets)
+  - [History (`history.ts`)](#history-historyts)
 - [`src/shared` — Shared neon palette and effects](#srcshared--shared-neon-palette-and-effects)
   - [Palette (`neon-palette.ts`)](#palette-neon-palettets)
   - [Icon halo (`glow.ts`)](#icon-halo-glowts)
@@ -29,6 +30,7 @@ See also the [Spanish version](../es/api.md).
 - [Neón Card Entity — YAML configuration](#neón-card-entity--yaml-configuration)
 - [Neón Button Card — YAML configuration](#neón-button-card--yaml-configuration)
 - [Neón Thermostat Card — YAML configuration](#neón-thermostat-card--yaml-configuration)
+- [Neón Sensor Card — YAML configuration](#neón-sensor-card--yaml-configuration)
 
 ---
 
@@ -322,6 +324,7 @@ interface HomeAssistant {
   states: Record<string, HassEntityState>;
   locale?: { language: string };
   callService(domain: string, service: string, serviceData?: Record<string, unknown>): Promise<void>;
+  callWS?<T>(message: { type: string; [key: string]: unknown }): Promise<T>;
 }
 ```
 
@@ -334,6 +337,10 @@ interface HomeAssistant {
   - `service: string` — e.g. `'toggle'`, `'turn_on'`.
   - `serviceData?: Record<string, unknown>` — e.g. `{ entity_id: 'light.living_room' }`.
   - **Returns:** `Promise<void>`.
+- **`callWS?(message)`** — generic HA WebSocket call (used by
+  `history.ts`). Optional: absent in the partial `hass` objects of tests.
+  - `message: { type: string; [key: string]: unknown }` — e.g. `{ type: 'history/history_during_period', ... }`.
+  - **Returns:** `Promise<T>`.
 
 ---
 
@@ -489,6 +496,45 @@ future climate-control card should reuse these instead of re-reading
 | `HVAC_MODES` | `['off', 'heat', 'cool', 'heat_cool', 'auto', 'dry', 'fan_only']`. |
 | `HvacMode` | TypeScript type derived from `HVAC_MODES`. |
 | `HvacAction` | `'off' \| 'idle' \| 'preheating' \| 'heating' \| 'cooling' \| 'drying' \| 'fan'` — what the equipment is doing RIGHT NOW, distinct from the selected mode. |
+
+---
+
+### History (`history.ts`)
+
+Reads an entity's history over WebSocket. Today it is used by the
+Sensor Card for its graph.
+
+#### `fetchHistory(hass, entityId, hours, now?)`
+
+- **Description:** asks HA (`history/history_during_period`, with
+  `minimal_response`) for the state changes of the last `hours` hours
+  and returns them sorted by time.
+- **Parameters:** `hass: HomeAssistant`, `entityId: string`,
+  `hours: number`, `now?: number` (ms; defaults to `Date.now()`).
+- **Returns:** `Promise<HistoryPoint[]>`, where
+  `HistoryPoint = { time: number /* ms */; state: string }`. Returns
+  `[]` if `hass.callWS` is missing.
+- **Example:**
+  ```ts
+  const points = await fetchHistory(hass, 'sensor.outdoor_temperature', 24);
+  // [{ time: 1790000000000, state: '21.4' }, { time: 1790000600000, state: '21.6' }, …]
+  ```
+
+#### `parseHistory(raw, entityId)`
+
+- **Description:** turns HA's raw response into `HistoryPoint[]`. It
+  accepts the compressed format (`s`/`lu`/`lc`, seconds) and the long
+  one (`state`/`last_updated`, ISO or seconds); entries without a state
+  or a valid date are dropped.
+- **Parameters:** `raw` — the `hass.callWS` response (an object
+  `{ [entityId]: entries[] }`, or `undefined`); `entityId: string`.
+- **Returns:** `HistoryPoint[]` sorted by time; `[]` if the response
+  does not include that entity.
+- **Example:**
+  ```ts
+  parseHistory({ 'sensor.t': [{ s: '21.4', lu: 1790000000 }, { s: '21.6', lu: 1790000600 }] }, 'sensor.t');
+  // [{ time: 1790000000000, state: '21.4' }, { time: 1790000600000, state: '21.6' }]
+  ```
 
 ---
 
@@ -873,4 +919,76 @@ footer:
   - entity: sensor.living_room_humidity
   - entity: binary_sensor.living_room_motion
     icon: mdi:motion-sensor
+```
+
+
+## Neón Sensor Card — YAML configuration
+
+All keys of `NeonSensorCardConfig` (`src/cards/sensor/types.ts`). It
+only accepts `sensor` and `binary_sensor` entities. See complete
+examples in [`examples/`](../../examples/README.md).
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `entity` | `string` | — (required) | `sensor.*` or `binary_sensor.*` entity. Any other domain is rejected with a configuration error. |
+| `name` | `string` | the entity's `friendly_name` | Card title. |
+| `icon` | `string` | computed from `device_class` | Custom icon. |
+| `decimals` | `number` | `1` | Value decimals (numeric `sensor` only). |
+| `size` | `'large' \| 'normal' \| 'compact'` | `'normal'` | Size: `large` = full width (12 columns) with graph; `normal` = medium (6 columns) with graph; `compact` = small (3 columns), no graph and no history query. See `getGridOptions()`. |
+| `graph_hours` | `number` | `24` | Hours of history the graph covers. Only with `size` `normal` or `large`. |
+| `neon_effect` | `'normal' \| 'halo' \| 'single'` | `'halo'` | Color effect of the graph and the icon (not of the perimeter): `halo` = three-color graph and glow with the sweep; `single` = one color with the sweep; `normal` = theme color, no sweep. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Palette, only with `neon_effect: halo`. |
+| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | per palette | Colors when `neon_palette: custom`. |
+| `neon_color` | `string` (hex) | `#1ecdf2` | Color of the `single` effect. |
+| `thresholds_enabled` | `boolean` | `false` | Enables the Low / OK / High rating and shows the status label under the value. Off (default) means no label. |
+| `threshold_low` | `number` | — | Numeric `sensor`: below this value is Low. |
+| `threshold_high` | `number` | — | Numeric `sensor`: above this value is High. In between (limits included) is OK. |
+| `threshold_colors` | `{ low?, ok?, high? }` | blue / green / red | Color of each level. With thresholds on it sets the card's perimeter (border and glow) and the status text; it does not change the graph or the icon. With thresholds off the perimeter stays normal (theme border). |
+| `threshold_names` | `{ low?, ok?, high? }` | Low / OK / High (Alert on `binary_sensor`) | Name of each level in the status label. A missing or empty name uses the default text. With no data or no rating there is no label. Only visible with `thresholds_enabled`. |
+| `alert_state` | `'on' \| 'off'` | — | `binary_sensor` only, with thresholds on: the state considered High (alert). |
+| `tap_action` | `ActionConfig` | `{ action: more-info }` | Tap action. |
+| `hold_action` | `ActionConfig` | `{ action: none }` | Hold action. |
+| `double_tap_action` | `ActionConfig` | `{ action: none }` | Double-tap action. |
+
+There is no sensor footer.
+
+### `getGridOptions()` — size driven by `size`
+
+Like the Thermostat Card, the size is chosen with `size`. Columns come
+from `SIZE_COLUMNS` (`src/cards/sensor/constants.ts`) and height is
+automatic; `min_columns` is `3` in all of them.
+
+| `size` | Size | Graph | `columns` | `rows` |
+|---|---|---|---|---|
+| `'compact'` | Small | No | `3` | `'auto'` |
+| `'normal'` (default) | Medium | Yes | `6` | `'auto'` |
+| `'large'` | Large (full width) | Yes | `12` | `'auto'` |
+
+Nothing is clipped outside the card: texts wrap onto several lines and,
+in medium, if the graph does not fit beside the value it moves to its
+own line.
+
+### Full example
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.outdoor_temperature
+name: Outdoor Temperature
+icon: mdi:thermometer
+graph_hours: 24
+neon_effect: halo
+neon_palette: electric
+thresholds_enabled: true
+threshold_low: 22
+threshold_high: 26
+threshold_colors:
+  low: "#4facfe"
+  ok: "#39e07a"
+  high: "#ff3d5a"
+threshold_names:
+  low: "Frío"
+  ok: "Confort"
+  high: "Calor"
+tap_action:
+  action: more-info
 ```
