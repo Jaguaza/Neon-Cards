@@ -37,6 +37,10 @@ export interface NeonSensorCardConfig extends NeonPaletteConfig {
   /** Solo `sensor.*` o `binary_sensor.*`; cualquier otro dominio se rechaza. */
   entity?: string;
   name?: string;
+  /** Texto bajo el nombre. Si falta o está en blanco: «Sensor» / «Sensor binario». */
+  subtitle?: string;
+  /** `false` oculta el subtítulo por completo (por defecto se muestra). */
+  show_subtitle?: boolean;
   icon?: string;
   decimals?: number;
   /** Tamaño de la tarjeta. Por defecto `normal`. */

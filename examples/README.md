@@ -191,6 +191,7 @@ entity: sensor.temperatura_exterior
 type: custom:neon-sensor-card
 entity: sensor.temperatura_exterior
 name: Temperatura Exterior
+subtitle: Jardín
 icon: mdi:thermometer
 graph_hours: 24
 neon_effect: halo
@@ -208,6 +209,14 @@ threshold_names:
   high: "Calor"
 tap_action:
   action: more-info
+```
+
+Sin subtítulo:
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.temperatura_exterior
+show_subtitle: false
 ```
 
 Con un sensor binario:
@@ -242,7 +251,8 @@ neon_color: "#ff9f1a"
 Neón Sensor Card muestra una única entidad `sensor` o `binary_sensor`
 (cualquier otro dominio se rechaza): nombre, icono, valor con unidad y
 estado y el histórico dibujado como el trazo de un monitor de
-constantes vitales (el gráfico siempre está visible). `neon_effect`
+constantes vitales (en los tamaños `normal` y `large`; el `compact` no
+lleva gráfico). `neon_effect`
 elige el efecto del gráfico y del icono: `halo` (por defecto, gráfico y
 resplandor en tres colores con desplazamiento), `single` (un solo color
 con desplazamiento) o `normal` (color del tema, sin desplazamiento). El
@@ -451,6 +461,7 @@ entity: sensor.outdoor_temperature
 type: custom:neon-sensor-card
 entity: sensor.outdoor_temperature
 name: Outdoor Temperature
+subtitle: Garden
 icon: mdi:thermometer
 graph_hours: 24
 neon_effect: halo
@@ -468,6 +479,14 @@ threshold_names:
   high: "Calor"
 tap_action:
   action: more-info
+```
+
+Without a subtitle:
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.outdoor_temperature
+show_subtitle: false
 ```
 
 With a binary sensor:
@@ -501,8 +520,8 @@ neon_color: "#ff9f1a"
 
 Neón Sensor Card shows a single `sensor` or `binary_sensor` entity (any
 other domain is rejected): name, icon, value with unit and status
-and the history drawn like the trace of a vital-signs monitor (the graph
-is always visible). `neon_effect` picks the effect of the graph and the icon: `halo`
+and the history drawn like the trace of a vital-signs monitor (in the
+`normal` and `large` sizes; `compact` has no graph). `neon_effect` picks the effect of the graph and the icon: `halo`
 (default, three-color graph and glow with the sweep), `single` (one
 color with the sweep) or `normal` (theme color, no sweep). The card's
 perimeter is independent: only the thresholds set it, and they are

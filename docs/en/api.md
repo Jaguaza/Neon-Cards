@@ -932,6 +932,8 @@ examples in [`examples/`](../../examples/README.md).
 |---|---|---|---|
 | `entity` | `string` | — (required) | `sensor.*` or `binary_sensor.*` entity. Any other domain is rejected with a configuration error. |
 | `name` | `string` | the entity's `friendly_name` | Card title. |
+| `subtitle` | `string` | `Sensor` / `Binary sensor` | Text under the title. If missing or blank, the default is shown. Not shown at the `compact` size. |
+| `show_subtitle` | `boolean` | `true` | `false` hides the subtitle entirely (the custom one too, which is kept). |
 | `icon` | `string` | computed from `device_class` | Custom icon. |
 | `decimals` | `number` | `1` | Value decimals (numeric `sensor` only). |
 | `size` | `'large' \| 'normal' \| 'compact'` | `'normal'` | Size: `large` = full width (12 columns) with graph; `normal` = medium (6 columns) with graph; `compact` = small (3 columns), no graph and no history query. See `getGridOptions()`. |
@@ -974,6 +976,7 @@ own line.
 type: custom:neon-sensor-card
 entity: sensor.outdoor_temperature
 name: Outdoor Temperature
+subtitle: Garden
 icon: mdi:thermometer
 graph_hours: 24
 neon_effect: halo

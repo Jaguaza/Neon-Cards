@@ -18,6 +18,8 @@ export interface SensorTranslations {
   section_main: string;
   entity_label: string;
   name_label: string;
+  subtitle_label: string;
+  show_subtitle_label: string;
   icon_label: string;
   decimals_label: string;
   section_appearance: string;

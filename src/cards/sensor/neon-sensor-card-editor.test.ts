@@ -189,5 +189,66 @@ describe('NeonSensorCardEditor', () => {
     const withGraph = await mount({ entity: 'sensor.temp', size: 'large' });
     expect(q(withGraph.el, '#graph-hours')).not.toBeNull();
   });
+
+  it('ofrece un campo de subtítulo que guarda subtitle y lo elimina al vaciarlo', async () => {
+    const { el, last } = await mount({ entity: 'sensor.temp' });
+    const input = q(el, '#subtitle') as HTMLInputElement;
+    expect(input).not.toBeNull();
+    expect(input.value).toBe('');
+    input.value = 'Planta baja';
+    input.dispatchEvent(new Event('input'));
+    expect(last().subtitle).toBe('Planta baja');
+    await el.updateComplete;
+    const again = q(el, '#subtitle') as HTMLInputElement;
+    expect(again.value).toBe('Planta baja');
+    again.value = '';
+    again.dispatchEvent(new Event('input'));
+    expect('subtitle' in last()).toBe(false);
+  });
+
+  it('casilla «Mostrar subtítulo»: marcada por defecto y con el campo de subtítulo visible', async () => {
+    const { el } = await mount({ entity: 'sensor.temp' });
+    const box = q(el, '#show-subtitle') as HTMLInputElement;
+    expect(box.checked).toBe(true);
+    expect(q(el, '#subtitle')).not.toBeNull();
+    expect(box.closest('label')!.textContent).toContain('Mostrar subtítulo');
+  });
+
+  it('desmarcarla guarda show_subtitle: false y oculta el campo; volver a marcarla quita la clave', async () => {
+    const { el, last } = await mount({ entity: 'sensor.temp' });
+    const box = q(el, '#show-subtitle') as HTMLInputElement;
+    box.checked = false;
+    box.dispatchEvent(new Event('change'));
+    expect(last().show_subtitle).toBe(false);
+    await el.updateComplete;
+    expect(q(el, '#subtitle')).toBeNull();
+    const again = q(el, '#show-subtitle') as HTMLInputElement;
+    expect(again.checked).toBe(false);
+    again.checked = true;
+    again.dispatchEvent(new Event('change'));
+    expect('show_subtitle' in last()).toBe(false);
+    await el.updateComplete;
+    expect(q(el, '#subtitle')).not.toBeNull();
+  });
+
+  it('al ocultar y volver a mostrar no se pierde el texto del subtítulo personalizado', async () => {
+    const { el, last } = await mount({ entity: 'sensor.temp', subtitle: 'Planta baja' });
+    const box = q(el, '#show-subtitle') as HTMLInputElement;
+    box.checked = false;
+    box.dispatchEvent(new Event('change'));
+    expect(last().subtitle).toBe('Planta baja');
+    await el.updateComplete;
+    const again = q(el, '#show-subtitle') as HTMLInputElement;
+    again.checked = true;
+    again.dispatchEvent(new Event('change'));
+    await el.updateComplete;
+    expect((q(el, '#subtitle') as HTMLInputElement).value).toBe('Planta baja');
+  });
+
+  it('con show_subtitle: false de partida, la casilla sale desmarcada y no hay campo', async () => {
+    const { el } = await mount({ entity: 'sensor.temp', show_subtitle: false });
+    expect((q(el, '#show-subtitle') as HTMLInputElement).checked).toBe(false);
+    expect(q(el, '#subtitle')).toBeNull();
+  });
 });
 
