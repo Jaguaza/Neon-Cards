@@ -25,7 +25,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   pero el perímetro conserva su color. Sin pie de sensores. Editor visual.
 - Subtítulo personalizado (`subtitle`) en la Neón Sensor Card, con campo
   en el editor visual: si falta o está en blanco se muestra «Sensor» o
-  «Sensor binario».
+  «Sensor binario». Con `show_subtitle: false` (casilla «Mostrar
+  subtítulo» en el editor) el subtítulo no se muestra.
 - `src/ha/history.ts` (`fetchHistory`, `parseHistory`) y `callWS`
   opcional en `HomeAssistant`, documentados en la referencia de API.
 - Perfil `sensor` en `npm run perf` y tests nuevos para el estado, los
@@ -241,7 +242,8 @@ and this project follows [Semantic Versioning](https://semver.org/).
   no label, but the perimeter keeps its color. No sensor footer. Visual editor.
 - Custom subtitle (`subtitle`) on the Neón Sensor Card, with a field in
   the visual editor: if missing or blank, "Sensor" or "Binary sensor"
-  is shown.
+  is shown. With `show_subtitle: false` ("Show subtitle" checkbox in the
+  editor) no subtitle is shown.
 - `src/ha/history.ts` (`fetchHistory`, `parseHistory`) and an optional
   `callWS` on `HomeAssistant`, documented in the API reference.
 - `sensor` profile in `npm run perf` and new tests for status, colors,

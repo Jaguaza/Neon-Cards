@@ -5,8 +5,8 @@
 `custom:neon-sensor-card` — tarjeta de solo lectura para **una** entidad
 `sensor` o `binary_sensor`. Muestra nombre, icono, valor con unidad,
 estado y un gráfico del histórico dibujado como el trazo de un monitor
-de constantes vitales. **El gráfico siempre está visible**: lo que se
-elige es el efecto de color.
+de constantes vitales. **El gráfico se muestra en los tamaños `normal` y
+`large`** (el `compact` no lleva): lo que se elige es el efecto de color.
 
 **Solo admite `sensor.*` y `binary_sensor.*`.** Con cualquier otro
 dominio (`light.*`, `switch.*`, `climate.*`…) la tarjeta no se carga y
@@ -86,9 +86,17 @@ alert_state: "on"
 
 `name` es el título (por defecto, el nombre de la entidad) y `subtitle`
 el texto que va debajo. Si no pones `subtitle`, o lo dejas en blanco, se
-muestra el de siempre: «Sensor» o «Sensor binario». El subtítulo no
-depende del estado ni de los umbrales, y no se muestra en el tamaño
-`compact`.
+muestra el de siempre: «Sensor» o «Sensor binario». Para **no mostrar
+ningún subtítulo** pon `show_subtitle: false` (en el editor, desmarca
+«Mostrar subtítulo»); ese ajuste manda sobre `subtitle`, que se conserva
+por si vuelves a activarlo. El subtítulo no depende del estado ni de los
+umbrales, y no se muestra en el tamaño `compact`.
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.temperatura_exterior
+show_subtitle: false
+```
 
 ## Efecto de color (`neon_effect`)
 
@@ -161,7 +169,8 @@ tarjeta solo se repinta cuando cambia su propia entidad.
 `custom:neon-sensor-card` — a read-only card for **one** `sensor` or
 `binary_sensor` entity. It shows name, icon, value with unit, status
 and a history graph drawn like the trace of a vital-signs monitor.
-**The graph is always visible**: what you choose is the color effect.
+**The graph is shown in the `normal` and `large` sizes** (`compact` has
+none): what you choose is the color effect.
 
 **Only `sensor.*` and `binary_sensor.*` are accepted.** Any other domain
 (`light.*`, `switch.*`, `climate.*`…) makes the card fail to load and HA
@@ -241,8 +250,17 @@ alert_state: "on"
 
 `name` is the title (by default, the entity's name) and `subtitle` is
 the text under it. If you leave `subtitle` out, or blank, the usual one
-is shown: "Sensor" or "Binary sensor". The subtitle does not depend on
-the state or the thresholds, and is not shown at the `compact` size.
+is shown: "Sensor" or "Binary sensor". To **show no subtitle at all**
+set `show_subtitle: false` (in the editor, untick "Show subtitle"); it
+takes precedence over `subtitle`, which is kept in case you turn it back
+on. The subtitle does not depend on the state or the thresholds, and is
+not shown at the `compact` size.
+
+```yaml
+type: custom:neon-sensor-card
+entity: sensor.outdoor_temperature
+show_subtitle: false
+```
 
 ## Color effect (`neon_effect`)
 

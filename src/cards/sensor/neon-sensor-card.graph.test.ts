@@ -380,6 +380,29 @@ describe('NeonSensorCard · subtítulo', () => {
     expect(subtitle(await mount({ subtitle: '   ' }))).toBe('Sensor');
   });
 
+  it('con show_subtitle: false no se muestra el subtítulo y el resto de datos sigue', async () => {
+    const el = await mount({ show_subtitle: false, name: 'Tem. C.T.' });
+    expect(q(el, '.kind')).toBeNull();
+    expect(q(el, '.name')!.textContent!.trim()).toBe('Tem. C.T.');
+    expect(q(el, '.value')!.textContent!.trim()).not.toBe('');
+  });
+
+  it('show_subtitle: false manda sobre un subtítulo personalizado', async () => {
+    const el = await mount({ show_subtitle: false, subtitle: 'Planta baja' });
+    expect(q(el, '.kind')).toBeNull();
+  });
+
+  it('show_subtitle: true o sin indicar sigue mostrando el subtítulo', async () => {
+    expect(subtitle(await mount({ show_subtitle: true }))).toBe('Sensor');
+    expect(subtitle(await mount({ show_subtitle: true, subtitle: 'Garaje' }))).toBe('Garaje');
+  });
+
+  it('ocultar el subtítulo funciona en los tres tamaños', async () => {
+    for (const size of ['compact', 'normal', 'large']) {
+      expect(q(await mount({ size, show_subtitle: false }), '.kind')).toBeNull();
+    }
+  });
+
   it('el subtítulo no cambia con el estado ni con los umbrales', async () => {
     const el = await mount({ subtitle: 'Garaje', thresholds_enabled: true, threshold_low: 22, threshold_high: 26 }, '30');
     expect(subtitle(el)).toBe('Garaje');

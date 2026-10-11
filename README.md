@@ -243,13 +243,13 @@ footer:
 <a name="sensor-card"></a>
 ### **📈 Neón Sensor Card**
 
-Tarjeta de solo lectura para **una** entidad `sensor` o `binary_sensor`: nombre, icono, valor con su unidad y un **gráfico del histórico** dibujado como el trazo de un monitor de constantes vitales. El gráfico está siempre visible; lo que eliges es su efecto de color. Los umbrales de estado son opcionales y son los que marcan el perímetro de la tarjeta. Cualquier otra entidad (`light`, `switch`, `climate`…) se rechaza.
+Tarjeta de solo lectura para **una** entidad `sensor` o `binary_sensor`: nombre, icono, valor con su unidad y un **gráfico del histórico** dibujado como el trazo de un monitor de constantes vitales. El gráfico se muestra en los tamaños mediano y grande (el pequeño no lo lleva); lo que eliges es su efecto de color. Los umbrales de estado son opcionales y son los que marcan el perímetro de la tarjeta. Cualquier otra entidad (`light`, `switch`, `climate`…) se rechaza.
 
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/sensor/Neon_Sensor_Cards.png" width="450"></p>
 
 ### **Título y subtítulo**
 
-`name` es el título (por defecto, el nombre de la entidad) y `subtitle` el texto de debajo. Sin `subtitle` se muestra «Sensor» o «Sensor binario».
+`name` es el título (por defecto, el nombre de la entidad) y `subtitle` el texto de debajo. Sin `subtitle` se muestra «Sensor» o «Sensor binario». Con `show_subtitle: false` (o desmarcando «Mostrar subtítulo» en el editor) no se muestra ningún subtítulo.
 
 ### **Tres tamaños**
 
@@ -600,13 +600,13 @@ footer:
 <a name="sensor-card-gb"></a>
 ### **📈 Neon Sensor Card**
 
-Read-only card for **one** `sensor` or `binary_sensor` entity: name, icon, value with its unit and a **history graph** drawn like the trace of a vital-signs monitor. The graph is always visible; what you choose is its color effect. State thresholds are optional and are what marks the card's perimeter. Any other entity (`light`, `switch`, `climate`…) is rejected.
+Read-only card for **one** `sensor` or `binary_sensor` entity: name, icon, value with its unit and a **history graph** drawn like the trace of a vital-signs monitor. The graph is shown in the medium and large sizes (the small one has none); what you choose is its color effect. State thresholds are optional and are what marks the card's perimeter. Any other entity (`light`, `switch`, `climate`…) is rejected.
 
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/sensor/Neon_Sensor_Cards.png" width="450"></p>
 
 ### **Title and subtitle**
 
-`name` is the title (by default, the entity's name) and `subtitle` is the text under it. Without `subtitle`, "Sensor" or "Binary sensor" is shown.
+`name` is the title (by default, the entity's name) and `subtitle` is the text under it. Without `subtitle`, "Sensor" or "Binary sensor" is shown. With `show_subtitle: false` (or by unticking "Show subtitle" in the editor) no subtitle is shown.
 
 ### **Three sizes**
 

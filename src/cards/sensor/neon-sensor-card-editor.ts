@@ -143,7 +143,18 @@ export class NeonSensorCardEditor extends LitElement {
           @value-changed=${(ev: ValueChangedEvent) => this._configChanged('entity', ev.detail.value)}
         ></ha-entity-picker>
         ${this._textField('name', this._t('name_label'), 'name', config.name || '')}
-        ${this._textField('subtitle', this._t('subtitle_label'), 'subtitle', config.subtitle || '')}
+        <label class="native-select-label">
+          <input
+            type="checkbox"
+            id="show-subtitle"
+            .checked=${config.show_subtitle !== false}
+            @change=${(ev: Event) => this._configChanged('show_subtitle', (ev.target as HTMLInputElement).checked ? undefined : false)}
+          />
+          ${this._t('show_subtitle_label')}
+        </label>
+        ${config.show_subtitle === false
+          ? nothing
+          : this._textField('subtitle', this._t('subtitle_label'), 'subtitle', config.subtitle || '')}
         <ha-icon-picker
           .hass=${this.hass}
           .value=${config.icon || ''}
