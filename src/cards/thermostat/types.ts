@@ -42,7 +42,7 @@ export interface NeonThermostatCardConfig {
   size?: ThermostatSize;
   color?: ThermostatColorConfig;
   /**
-   * Paleta neón del ARO PERIMETRAL de la tarjeta (el borde, no el
+   * Paleta neón del HALO PERIMETRAL de la tarjeta (el borde, no el
    * dial/semicírculo — ese sigue su propio color por modo HVAC de
    * `color` arriba). Mismos campos que Entity/Button
    * (`NeonPaletteConfig` en `src/shared/neon-palette.ts`).

@@ -7,7 +7,7 @@ principal opcional: puede navegar, abrir un popup/more-info, ejecutar un
 script/servicio, o representar una habitación/zona sin estar ligado a
 ningún dominio concreto.
 
-Identidad visual: icono protagonista y aro neón animado (se dibuja en
+Identidad visual: icono protagonista y halo neón animado (se dibuja en
 dos direcciones desde la esquina superior izquierda, encontrándose en
 la inferior derecha) en estado activo — reutiliza la misma paleta y el
 mismo framework (`src/core`, `src/shared`, `src/ha`) que la
@@ -123,7 +123,7 @@ main entity is optional: it can navigate, open a popup/more-info, run a
 script/service, or represent a room/zone without being tied to any
 particular domain.
 
-Visual identity: a hero icon and an animated neon ring (draws in two
+Visual identity: a hero icon and an animated neon halo (draws in two
 directions from the top-left corner, meeting at the bottom-right) when
 active — reuses the same palette and framework (`src/core`,
 `src/shared`, `src/ha`) as the [Entity Card](../entity) without copying

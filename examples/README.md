@@ -47,7 +47,7 @@ card_orientation: right
 
 ### Explicación
 
-Neón Card Entity es un interruptor con un aro neón degradado de 3 colores
+Neón Card Entity es un interruptor con un halo neón degradado de 3 colores
 alrededor de la píldora. Cada entidad puede mostrar información primaria y
 secundaria (nombre, estado, último cambio...), un punto de estado opcional,
 y admite tap / mantener pulsado / doble toque configurables por separado.
@@ -105,10 +105,10 @@ sensors:
 Neón Button Card es un botón de acción con entidad principal opcional:
 puede navegar a otra pestaña, abrir un popup/more-info, ejecutar un
 script/servicio, o representar una habitación/zona sin estar ligado a
-ningún dominio concreto. En estado activo, un aro neón con degradado de
+ningún dominio concreto. En estado activo, un halo neón con degradado de
 3 colores se dibuja en dos direcciones desde la esquina superior
 izquierda, encontrándose en la inferior derecha — mismo lenguaje visual
-que el aro de Neón Card Entity, pero con mecanismo propio (no comparte
+que el halo de Neón Card Entity, pero con mecanismo propio (no comparte
 componente con ella). Admite un sensor suelto (`top_sensor`) y hasta 3
 sensores agrupados (`sensors`) bajo un divisor, con icono/estado/unidad
 calculados automáticamente. El tamaño de la tarjeta (ancho y alto en el
@@ -319,7 +319,7 @@ card_orientation: right
 
 ### Explanation
 
-Neón Card Entity is a switch with a 3-color neon gradient ring around the
+Neón Card Entity is a switch with a 3-color neon gradient halo around the
 pill. Each entity can show primary and secondary information (name,
 state, last changed...), an optional status dot, and supports
 separately-configurable tap / hold / double-tap actions. The card's
@@ -377,9 +377,9 @@ sensors:
 Neón Button Card is an action button with an optional main entity: it
 can navigate to another tab, open a popup/more-info, run a
 script/service, or represent a room/zone without being tied to any
-particular domain. In its active state, a 3-color neon gradient ring
+particular domain. In its active state, a 3-color neon gradient halo
 draws itself in two directions from the top-left corner, meeting at the
-bottom-right — the same visual language as the Neón Card Entity ring,
+bottom-right — the same visual language as the Neón Card Entity halo,
 but with its own mechanism (no shared component between them). It
 supports one ungrouped sensor (`top_sensor`) and up to 3 grouped sensors
 (`sensors`) below a divider, with icon/state/unit computed

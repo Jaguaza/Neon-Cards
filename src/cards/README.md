@@ -14,10 +14,10 @@ Una tarjeta:
 
 ## Tarjetas
 
-- [`entity`](./entity) — `custom:neon-card-entity`, interruptor con aro
+- [`entity`](./entity) — `custom:neon-card-entity`, interruptor con halo
   neón degradado de 3 colores. Ver [ejemplo](../../examples/README.md).
 - [`button`](./button) — `custom:neon-button-card`, botón de acción con
-  entidad opcional, icono protagonista y aro neón animado en estado
+  entidad opcional, icono protagonista y halo neón animado en estado
   activo. Ver [ejemplo](../../examples/README.md).
 - [`thermostat`](./thermostat) — `custom:neon-thermostat-card`, termostato
   con dial neón arrastrable para una o dos entidades `climate`. Ver
@@ -47,9 +47,9 @@ A card:
 ## Cards
 
 - [`entity`](./entity) — `custom:neon-card-entity`, a switch with a
-  3-color neon gradient ring. See the [example](../../examples/README.md).
+  3-color neon gradient halo. See the [example](../../examples/README.md).
 - [`button`](./button) — `custom:neon-button-card`, an action button
-  with an optional entity, a hero icon, and an animated neon ring when
+  with an optional entity, a hero icon, and an animated neon halo when
   active. See the [example](../../examples/README.md).
 - [`thermostat`](./thermostat) — `custom:neon-thermostat-card`, a
   thermostat with a draggable neon dial for one or two `climate`

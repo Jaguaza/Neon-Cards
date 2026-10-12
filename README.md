@@ -128,7 +128,7 @@ Botón minimalista con animaciones SVG, paletas dinámicas y arquitectura modula
 - **Iconos y decimales:** cada sensor puede tener su propio icono y el número de decimales con el que se muestra.
 
 ### **Entidad opcional**
-La entidad principal es opcional: el botón sirve igual para navegar a otra vista, abrir un popup, ejecutar un script o representar una habitación sin estar ligado a un dominio concreto. Con entidad, el aro neón se anima cuando está activa.
+La entidad principal es opcional: el botón sirve igual para navegar a otra vista, abrir un popup, ejecutar un script o representar una habitación sin estar ligado a un dominio concreto. Con entidad, el halo neón se anima cuando está activa.
 
 ### **Si la entidad falla**
 Cuando la entidad configurada no existe o está *no disponible* o *desconocida*, el icono pasa a una ✕ neón para que lo notes al instante en el panel.
@@ -195,9 +195,9 @@ Con `entity_2` la tarjeta junta dos equipos separados:
 
 En la vista `large`, junto al selector de modo aparecen otros dos **si la entidad los soporta**: uno de **preset** y otro de **ventilador**. Se reparten el ancho a partes iguales (1, 2 o 3 píldoras) y los nombres salen traducidos por Home Assistant. Si la entidad no tiene presets o modos de ventilador, esa píldora simplemente no aparece. No hay nada que configurar.
 
-### **Aro del borde y paleta**
+### **Halo del borde y paleta**
 
-El aro neón del borde de la tarjeta **solo se enciende cuando el equipo está funcionando de verdad** (calentando o enfriando, según informe la entidad), no por el simple hecho de estar en un modo. Su paleta se elige con `neon_palette`, igual que en las otras tarjetas.
+El halo neón del borde de la tarjeta **solo se enciende cuando el equipo está funcionando de verdad** (calentando o enfriando, según informe la entidad), no por el simple hecho de estar en un modo. Su paleta se elige con `neon_palette`, igual que en las otras tarjetas.
 
 ### **Sensores de pie**
 
@@ -474,7 +474,7 @@ Minimalist button with SVG animations, dynamic palettes, and modular architectur
 - **Icons and decimals:** each sensor can have its own icon and the number of decimals it is shown with.
 
 ### **Optional entity**
-The main entity is optional: the button works just as well to navigate to another view, open a popup, run a script or represent a room without being tied to a specific domain. With an entity, the neon ring animates when it is active.
+The main entity is optional: the button works just as well to navigate to another view, open a popup, run a script or represent a room without being tied to a specific domain. With an entity, the neon halo animates when it is active.
 
 ### **When the entity fails**
 When the configured entity does not exist or is *unavailable* or *unknown*, the icon switches to a neon ✕ so you notice it at a glance on the dashboard.
@@ -538,9 +538,9 @@ With `entity_2` the card brings two separate devices together:
 
 In the `large` view, two more selectors appear next to the mode selector **if the entity supports them**: one for **preset** and one for **fan**. They share the width equally (1, 2 or 3 pills) and the names come translated by Home Assistant. If the entity has no presets or fan modes, that pill simply does not appear. There is nothing to configure.
 
-### **Border ring and palette**
+### **Border halo and palette**
 
-The neon ring around the card's border **only lights up when the device is actually running** (heating or cooling, as the entity reports it), not merely because it is in a mode. Its palette is chosen with `neon_palette`, like in the other cards.
+The neon halo around the card's border **only lights up when the device is actually running** (heating or cooling, as the entity reports it), not merely because it is in a mode. Its palette is chosen with `neon_palette`, like in the other cards.
 
 ### **Footer sensors**
 

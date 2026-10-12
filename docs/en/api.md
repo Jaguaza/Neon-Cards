@@ -762,7 +762,7 @@ full examples in [`examples/`](../../examples/README.md).
 | `entities` | `{ entity: string; name?: string }[]` | — | List of entities (multi-entity mode). Required if `entity` is not used. |
 | `name` | `string` | entity's name | Custom name (single-entity mode only). |
 | `columns` | `number` | number of entities | Columns of the internal grid. |
-| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | The neon ring's palette. `'custom'` enables `neon_color1/2/3`. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | The neon halo's palette. `'custom'` enables `neon_color1/2/3`. |
 | `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | palette-dependent | Gradient colors when `neon_palette: custom`. |
 | `show_status_dot` | `boolean` | `true` | Shows/hides the status dot. |
 | `primary_info` | `'name' \| 'state' \| 'last-changed' \| 'last-updated' \| 'none'` | `'name'` | What to show as the primary text. |
@@ -802,14 +802,14 @@ full examples in [`examples/`](../../examples/README.md).
 
 | Key | Type | Default | Description |
 |---|---|---|---|
-| `entity` | `string` | — | Main entity, optional. Drives the active ring/icon when set; without it, the card still works (e.g. for `tap_action: navigate`) but is never marked active by state. |
+| `entity` | `string` | — | Main entity, optional. Drives the active halo/icon when set; without it, the card still works (e.g. for `tap_action: navigate`) but is never marked active by state. |
 | `icon` | `string` | entity's icon, or `mdi:gesture-tap-button` | Button icon. |
 | `name` | `string` | — (empty) | Card title. |
 | `subtitle` | `string` | — (empty) | Free text under the name, when `subtitle_type` is `'custom'` or unset. |
 | `subtitle_type` | `'custom' \| 'name' \| 'state' \| 'last-changed' \| 'last-updated' \| 'none'` | `'custom'` | Any value other than `'custom'` computes the subtitle from `entity` (reuses `computeInfoDisplay` from `src/core`) — requires `entity`. |
 | `top_sensor` | `SensorItemConfig` | — | A single, ungrouped sensor above the divider. |
 | `sensors` | `SensorItemConfig[]` (max 3) | `[]` | The grouped row below the divider, with a vertical separator between each one. |
-| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | The neon ring's palette. `'custom'` enables `neon_color1/2/3`. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | The neon halo's palette. `'custom'` enables `neon_color1/2/3`. |
 | `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | palette-dependent | Gradient colors when `neon_palette: custom`. |
 | `tap_action` / `hold_action` / `double_tap_action` | `ActionConfig` | `toggle`/`more-info` (if `entity` set) / `more-info` / `none` | Standard Home Assistant actions. |
 
@@ -872,8 +872,8 @@ All keys of `NeonThermostatCardConfig`
 | `name` | `string` | entity's name | Card title. In the compact view, when unset, no name is shown at all (to save space). |
 | `size` | `'large' \| 'normal' \| 'compact'` | `'normal'` | Card size — see `getGridOptions()` below. |
 | `color` | `string \| { mode: 'state' } \| { mode: 'custom', heat?, cool?, heat_cool?, auto?, dry?, fan_only?, off? }` | `{ mode: 'state' }` | Dial/ring color per HVAC mode. `string`: a single color for every mode. `{ mode: 'state' }`: automatic semantic colors per mode (equivalent to leaving `color` unset). `{ mode: 'custom', ... }`: a color per mode; unset ones fall back to that mode's semantic default. |
-| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Palette of the card's PERIMETER ring (the border, not the dial — that follows `color` above). |
-| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | per palette | Perimeter ring gradient colors when `neon_palette: custom`. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Palette of the card's PERIMETER halo (the border, not the dial — that follows `color` above). |
+| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | per palette | Perimeter halo gradient colors when `neon_palette: custom`. |
 | `step` | `number` | entity's `target_temp_step`, or `0.5` | Increment for the −/+ controls and dragging. |
 | `footer` | `FooterSensorConfig[]` (max 3) | `[]` | Only `sensor`/`binary_sensor` domains. No footer in the compact view (`size: compact`), regardless of what's configured here. |
 

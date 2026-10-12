@@ -764,7 +764,7 @@ Ver ejemplos completos en [`examples/`](../../examples/README.md).
 | `entities` | `{ entity: string; name?: string }[]` | — | Lista de entidades (modo multi-entidad). Requerida si no se usa `entity`. |
 | `name` | `string` | nombre de la entidad | Nombre personalizado (solo en modo de una entidad). |
 | `columns` | `number` | número de entidades | Columnas del grid interno. |
-| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta del aro neón. `'custom'` habilita `neon_color1/2/3`. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta del halo neón. `'custom'` habilita `neon_color1/2/3`. |
 | `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | según paleta | Colores del degradado cuando `neon_palette: custom`. |
 | `show_status_dot` | `boolean` | `true` | Muestra/oculta el punto de estado. |
 | `primary_info` | `'name' \| 'state' \| 'last-changed' \| 'last-updated' \| 'none'` | `'name'` | Qué mostrar como texto principal. |
@@ -804,14 +804,14 @@ Ver ejemplos completos en [`examples/`](../../examples/README.md).
 
 | Clave | Tipo | Por defecto | Descripción |
 |---|---|---|---|
-| `entity` | `string` | — | Entidad principal, opcional. Determina el aro/icono activo cuando se define; sin ella, la tarjeta funciona igual (p. ej. para `tap_action: navigate`) pero nunca se marca como activa por estado. |
+| `entity` | `string` | — | Entidad principal, opcional. Determina el halo/icono activo cuando se define; sin ella, la tarjeta funciona igual (p. ej. para `tap_action: navigate`) pero nunca se marca como activa por estado. |
 | `icon` | `string` | icono de la entidad o `mdi:gesture-tap-button` | Icono del botón. |
 | `name` | `string` | — (vacío) | Título de la tarjeta. |
 | `subtitle` | `string` | — (vacío) | Texto libre bajo el nombre, cuando `subtitle_type` es `'custom'` o no se indica. |
 | `subtitle_type` | `'custom' \| 'name' \| 'state' \| 'last-changed' \| 'last-updated' \| 'none'` | `'custom'` | Con cualquier valor distinto de `'custom'`, calcula el subtítulo a partir de `entity` (reutiliza `computeInfoDisplay` de `src/core`) — requiere `entity`. |
 | `top_sensor` | `SensorItemConfig` | — | Sensor suelto, encima del divisor, sin agrupar. |
 | `sensors` | `SensorItemConfig[]` (máx. 3) | `[]` | Fila agrupada bajo el divisor, con separador vertical entre cada uno. |
-| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta del aro neón. `'custom'` habilita `neon_color1/2/3`. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta del halo neón. `'custom'` habilita `neon_color1/2/3`. |
 | `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | según paleta | Colores del degradado cuando `neon_palette: custom`. |
 | `tap_action` / `hold_action` / `double_tap_action` | `ActionConfig` | `toggle`/`more-info` (si hay `entity`) / `more-info` / `none` | Acciones estándar de Home Assistant. |
 
@@ -874,8 +874,8 @@ Todas las claves de `NeonThermostatCardConfig`
 | `name` | `string` | nombre de la entidad | Título de la tarjeta. En la vista compacta, si no se indica, no se muestra ningún nombre (para no ocupar espacio). |
 | `size` | `'large' \| 'normal' \| 'compact'` | `'normal'` | Tamaño de la tarjeta — ver `getGridOptions()` más abajo. |
 | `color` | `string \| { mode: 'state' } \| { mode: 'custom', heat?, cool?, heat_cool?, auto?, dry?, fan_only?, off? }` | `{ mode: 'state' }` | Color del dial/aro por modo HVAC. `string`: un único color para todos los modos. `{ mode: 'state' }`: colores semánticos automáticos por modo (equivalente a no indicar `color`). `{ mode: 'custom', ... }`: color propio por modo; los no indicados caen al semántico por defecto de ese modo. |
-| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta del ARO PERIMETRAL de la tarjeta (el borde, no el dial — ese sigue `color` arriba). |
-| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | según paleta | Colores del degradado del aro perimetral cuando `neon_palette: custom`. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta del HALO PERIMETRAL de la tarjeta (el borde, no el dial — ese sigue `color` arriba). |
+| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | según paleta | Colores del degradado del halo perimetral cuando `neon_palette: custom`. |
 | `step` | `number` | `target_temp_step` de la entidad, o `0.5` | Incremento de los controles −/+ y del arrastre. |
 | `footer` | `FooterSensorConfig[]` (máx. 3) | `[]` | Solo dominios `sensor`/`binary_sensor`. Sin footer en la vista compacta (`size: compact`), da igual lo que se configure aquí. |
 

@@ -128,7 +128,7 @@ describe('NeonSensorCard · efectos de color (solo gráfico e icono)', () => {
 });
 
 describe('NeonSensorCard · perímetro', () => {
-  it('sin umbrales el perímetro se ve normal con cualquier efecto: sin aro, borde ni color de umbral', async () => {
+  it('sin umbrales el perímetro se ve normal con cualquier efecto: sin halo ni color de umbral en el borde', async () => {
     for (const neon_effect of ['halo', 'single', 'normal']) {
       const el = await mount({ neon_effect, neon_color: '#ff8800' });
       const card = q(el, 'ha-card')!;

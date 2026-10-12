@@ -42,7 +42,7 @@ export const NEON_SENSOR_CARD_STYLES = css`
     flex-wrap: wrap;
     gap: 10px;
   }
-  /* Icono sin círculo: ocupa el tamaño que antes tenía el aro que lo
+  /* Icono sin círculo: ocupa el tamaño que antes tenía el círculo que lo
      rodeaba. El color y el resplandor los pone la clase neon-halo-icon. */
   .icon {
     flex: none;

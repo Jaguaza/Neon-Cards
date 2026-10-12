@@ -63,7 +63,7 @@ activas sin tocar nada.
 ## Paleta de colores
 
 `color` pinta el dial/aro según el modo HVAC — no confundir con
-`neon_palette`, que solo afecta al aro perimetral de la tarjeta:
+`neon_palette`, que solo afecta al halo perimetral de la tarjeta:
 
 ```yaml
 color:
@@ -208,7 +208,7 @@ stay on untouched.
 
 `color` paints the dial/ring based on the HVAC mode — not to be
 confused with `neon_palette`, which only affects the card's perimeter
-ring:
+halo:
 
 ```yaml
 color:

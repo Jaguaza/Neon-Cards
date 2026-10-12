@@ -2,7 +2,7 @@
 
 🇪🇸 Español (esta sección) · 🇬🇧 [English below](#neón-card-entity-english)
 
-`custom:neon-card-entity` — tarjeta de tipo interruptor con un aro neón
+`custom:neon-card-entity` — tarjeta de tipo interruptor con un halo neón
 degradado de 3 colores, editor visual incluido, gestos tap/hold/double-tap
 y varias paletas predefinidas (o colores personalizados).
 
@@ -42,7 +42,7 @@ Ver el ejemplo de uso en [`examples/`](../../../examples/README.md) y la
 🇬🇧 English (this section) · 🇪🇸 [Español arriba](#neón-card-entity)
 
 `custom:neon-card-entity` — a switch-type card with a 3-color neon
-gradient ring, a built-in visual editor, tap/hold/double-tap gestures,
+gradient halo, a built-in visual editor, tap/hold/double-tap gestures,
 and several preset palettes (or custom colors).
 
 Built with [Lit](https://lit.dev) on top of `BaseNeonCard`
