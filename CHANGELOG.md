@@ -9,6 +9,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-11
+
 ### Added
 
 - **Neón Sensor Card** (`custom:neon-sensor-card`): tarjeta de solo
@@ -35,6 +37,24 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   (`assets/screenshots/sensor`), GIF (`assets/gifs/Sensor.gif`) y entrada
   en `examples/` (YAML mínimo y avanzado, capturas, GIF y explicación),
   en español e inglés.
+
+### Changed
+
+- En la documentación y en las descripciones de las tarjetas (Entity,
+  Button y Thermostat), el efecto del borde pasa a llamarse «halo». El
+  dial semicircular del termostato sigue llamándose «aro» y los nombres
+  técnicos del código (`neon-ring-*`, `RingSizeController`) no cambian.
+- La referencia de API en español incluye la tabla «Constantes y tipos»
+  de `info.ts`, que solo estaba en inglés. Los README de `src/cards` y
+  `src/ha` listan ahora el termostato, el sensor y la lectura del
+  histórico.
+- La Neón Sensor Card divide su `render()` en métodos por zona
+  (acuerdo nº7); el DOM resultante es idéntico.
+
+## [1.1.0] - 2026-10-08
+
+### Added
+
 - **Neón Thermostat Card** (`custom:neon-thermostat-card`): tarjeta para
   una o dos entidades `climate`, con vista grande (dial semicircular),
   normal (aro alrededor de la temperatura) y compacta (línea), consigna
@@ -85,12 +105,6 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   `footer.ts`, `target-pill.ts` y `selector-pill.ts`, y el cálculo en
   `dial-geometry.ts` y `combined-climate.ts` (acuerdo nº7). El DOM, el
   arrastre y las llamadas a servicios resultan idénticos.
-- La referencia de API en español incluye la tabla «Constantes y tipos»
-  de `info.ts`, que solo estaba en inglés. Los README de `src/cards` y
-  `src/ha` listan ahora el termostato, el sensor y la lectura del
-  histórico.
-- La Neón Sensor Card divide su `render()` en métodos por zona
-  (acuerdo nº7); el DOM resultante es idéntico.
 
 ## [1.0.0] - 2026-10-02
 
@@ -227,6 +241,8 @@ and this project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-11
+
 ### Added
 
 - **Neón Sensor Card** (`custom:neon-sensor-card`): read-only card for
@@ -252,6 +268,23 @@ and this project follows [Semantic Versioning](https://semver.org/).
   (`assets/screenshots/sensor`), a GIF (`assets/gifs/Sensor.gif`) and an
   entry in `examples/` (minimal and advanced YAML, screenshots, GIF and
   explanation), in Spanish and English.
+
+### Changed
+
+- In the documentation and in the card descriptions (Entity, Button and
+  Thermostat), the border effect is renamed "halo". The thermostat's
+  semicircular dial keeps being called "ring" and the code's technical
+  names (`neon-ring-*`, `RingSizeController`) do not change.
+- The Spanish API reference includes the "Constants and types" table of
+  `info.ts`, which was only in English. The `src/cards` and `src/ha`
+  READMEs now list the thermostat, the sensor and history reading.
+- The Neón Sensor Card splits its `render()` into per-area methods
+  (agreement nº7); the resulting DOM is identical.
+
+## [1.1.0] - 2026-10-08
+
+### Added
+
 - **Neón Thermostat Card** (`custom:neon-thermostat-card`): card for one
   or two `climate` entities, with a large (semicircular dial), normal
   (ring around the temperature) and compact (line) view, a draggable
@@ -302,11 +335,6 @@ and this project follows [Semantic Versioning](https://semver.org/).
   `footer.ts`, `target-pill.ts` and `selector-pill.ts`, and computation
   to `dial-geometry.ts` and `combined-climate.ts` (agreement nº7). The
   DOM, dragging and service calls come out identical.
-- The Spanish API reference includes the "Constants and types" table of
-  `info.ts`, which was only in English. The `src/cards` and `src/ha`
-  READMEs now list the thermostat, the sensor and history reading.
-- The Neón Sensor Card splits its `render()` into per-area methods
-  (agreement nº7); the resulting DOM is identical.
 
 ## [1.0.0] - 2026-10-02
 
