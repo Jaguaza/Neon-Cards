@@ -1,0 +1,110 @@
+// @vitest-environment jsdom
+import { describe, expect, it } from 'vitest';
+
+(globalThis as { __DEV__?: boolean }).__DEV__ = false;
+
+type Card = HTMLElement & {
+  setConfig(c: unknown): void;
+  hass: unknown;
+  updateComplete: Promise<boolean>;
+};
+
+function hassWith(state: string, language = 'es') {
+  return {
+    locale: { language },
+    states: { 'lock.puerta': { entity_id: 'lock.puerta', state, last_changed: '', last_updated: '', attributes: { friendly_name: 'Puerta' } } },
+    callService: async () => undefined,
+  };
+}
+
+async function mount(config: Record<string, unknown>, hass: unknown = hassWith('locked')): Promise<Card> {
+  await import('./index');
+  const el = document.createElement('neon-lock-card') as Card;
+  el.setConfig({ entity: 'lock.puerta', ...config });
+  el.hass = hass;
+  document.body.appendChild(el);
+  await el.updateComplete;
+  return el;
+}
+
+const card = (el: Card) => el.shadowRoot!.querySelector('ha-card')!;
+const icon = (el: Card) => el.shadowRoot!.querySelector('ha-icon')!.getAttribute('icon');
+const subtitle = (el: Card) => el.shadowRoot!.querySelector('.subtitle')?.textContent?.trim();
+
+describe('NeonLockCard', () => {
+  it('cerrada: aro encendido, icono de candado y estado traducido', async () => {
+    const el = await mount({});
+    expect(card(el).classList.contains('neon-halo-active')).toBe(true);
+    expect(card(el).classList.contains('neon-halo-error')).toBe(false);
+    expect(icon(el)).toBe('mdi:lock');
+    expect(subtitle(el)).toBe('Cerrada');
+    expect(el.shadowRoot!.querySelector('.name')!.textContent).toBe('Puerta');
+  });
+
+  it('abierta: aro apagado e icono de candado abierto', async () => {
+    const el = await mount({}, hassWith('unlocked'));
+    expect(card(el).classList.contains('neon-halo-active')).toBe(false);
+    expect(icon(el)).toBe('mdi:lock-open-variant');
+    expect(subtitle(el)).toBe('Abierta');
+  });
+
+  it('en movimiento: aro encendido y clase de pulso', async () => {
+    const el = await mount({}, hassWith('unlocking'));
+    expect(card(el).classList.contains('neon-halo-active')).toBe(true);
+    expect(card(el).classList.contains('lock-moving')).toBe(true);
+  });
+
+  it('atascada: halo rojo e icono de alerta', async () => {
+    const el = await mount({}, hassWith('jammed'));
+    expect(card(el).classList.contains('neon-halo-error')).toBe(true);
+    expect(icon(el)).toBe('mdi:lock-alert');
+  });
+
+  it('entidad no disponible o inexistente: halo rojo, mdi:close y "No disponible"', async () => {
+    const caida = await mount({}, hassWith('unavailable'));
+    expect(card(caida).classList.contains('neon-halo-error')).toBe(true);
+    expect(icon(caida)).toBe('mdi:close');
+    expect(subtitle(caida)).toBe('No disponible');
+    const sinEntidad = await mount({ entity: undefined });
+    expect(icon(sinEntidad)).toBe('mdi:close');
+  });
+
+  it('traduce el estado al idioma de hass', async () => {
+    const el = await mount({}, hassWith('locked', 'en'));
+    expect(subtitle(el)).toBe('Locked');
+  });
+
+  it('subtitle_type: custom usa el texto libre y none lo oculta', async () => {
+    const custom = await mount({ subtitle_type: 'custom', subtitle: 'Entrada' });
+    expect(subtitle(custom)).toBe('Entrada');
+    const none = await mount({ subtitle_type: 'none' });
+    expect(none.shadowRoot!.querySelector('.subtitle')).toBeNull();
+  });
+
+  it('name de la config gana al friendly_name', async () => {
+    const el = await mount({ name: 'Portal' });
+    expect(el.shadowRoot!.querySelector('.name')!.textContent).toBe('Portal');
+  });
+
+  it('un toque despacha hass-action con toggle por defecto y la entidad', async () => {
+    const el = await mount({});
+    let detail: { config: Record<string, unknown>; action: string } | undefined;
+    el.addEventListener('hass-action', (ev) => {
+      detail = (ev as CustomEvent).detail;
+    });
+    card(el).dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
+    expect(detail?.action).toBe('tap');
+    expect(detail?.config.entity).toBe('lock.puerta');
+    expect(detail?.config.tap_action).toEqual({ action: 'toggle' });
+    expect(detail?.config.hold_action).toEqual({ action: 'more-info' });
+  });
+
+  it('getStubConfig elige una lock de hass o un ejemplo', () => {
+    const Ctor = customElements.get('neon-lock-card') as unknown as {
+      getStubConfig(h?: unknown, e?: string[]): { entity: string };
+    };
+    expect(Ctor.getStubConfig(hassWith('locked')).entity).toBe('lock.puerta');
+    expect(Ctor.getStubConfig(undefined, ['light.a', 'lock.b']).entity).toBe('lock.b');
+    expect(Ctor.getStubConfig().entity).toBe('lock.example_lock');
+  });
+});
