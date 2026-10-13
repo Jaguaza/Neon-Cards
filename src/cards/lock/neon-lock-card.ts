@@ -1,6 +1,6 @@
 import { html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
-import type { HomeAssistant } from '../../ha/types';
+import type { ActionConfig, HomeAssistant } from '../../ha/types';
 import {
   BaseNeonCard,
   createGestureState,
@@ -20,7 +20,8 @@ import {
   neonRingSplitTemplate,
   RingSizeController,
 } from '../../shared';
-import { isLockAlert, isLockMoving, isLockRingActive, resolveLockIcon, resolveLockState } from './lock-state';
+import { ACTION_FLASH_MS } from './constants';
+import { isLockAlert, isLockMoving, resolveLockIcon, resolveLockState } from './lock-state';
 import { NEON_LOCK_CARD_STYLES } from './neon-lock-card.styles';
 import { LOCK_TRANSLATIONS } from './translations';
 import type { NeonLockCardConfig } from './types';
@@ -31,14 +32,15 @@ import type { NeonLockCardConfig } from './types';
  * Creador: Jaguaza
  *
  * Tarjeta para entidades `lock` de Home Assistant: icono según el
- * estado de la cerradura, aro neón encendido mientras está cerrada,
- * pulso durante cierre/apertura y rojo de alerta si se atasca o la
- * entidad falla. Ver `src/cards/lock/README.md` para la especificación.
+ * estado de la cerradura y en reposo sin halo. El halo neón se enciende
+ * al accionarla (pulsación de una acción o cerradura en movimiento) y
+ * se apaga al terminar; rojo de alerta si se atasca o la entidad falla. Ver `src/cards/lock/README.md` para la especificación.
  */
 export class NeonLockCard extends BaseNeonCard {
   static properties = {
     ...BaseNeonCard.properties,
     _config: { state: true },
+    _flash: { state: true },
   };
 
   private _config?: NeonLockCardConfig;
@@ -48,6 +50,9 @@ export class NeonLockCard extends BaseNeonCard {
   private readonly _ringUid = Math.random().toString(36).slice(2);
   /** Tamaño real de ha-card para el aro SVG (ver RingSizeController). */
   private readonly _ring = new RingSizeController(this);
+  /** Halo encendido por una pulsación (ver _handleAction / ACTION_FLASH_MS). */
+  private _flash = false;
+  private _flashTimer?: ReturnType<typeof setTimeout>;
 
   static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_LOCK_CARD_STYLES];
 
@@ -116,14 +121,30 @@ export class NeonLockCard extends BaseNeonCard {
     return computeInfoDisplay(type, this._name, stateObj.state, stateObj, this.hass);
   }
 
+  /** Acción configurada para cada gesto, con los valores por defecto de la tarjeta. */
+  private _actionFor(actionType: string): ActionConfig {
+    if (actionType === 'hold') return this._config?.hold_action || { action: 'more-info' };
+    if (actionType === 'double_tap') return this._config?.double_tap_action || { action: 'none' };
+    return this._config?.tap_action || { action: 'toggle' };
+  }
+
   private _handleAction(actionType: string): void {
+    // Enciende el halo al accionar la cerradura — salvo que el gesto no
+    // tenga acción (`none`) o no haya entidad válida a la que accionar.
+    if (this._actionFor(actionType).action !== 'none' && resolveLockState(this._config, this.hass) !== 'error') {
+      this._flash = true;
+      clearTimeout(this._flashTimer);
+      this._flashTimer = setTimeout(() => {
+        this._flash = false;
+      }, ACTION_FLASH_MS);
+    }
     dispatchHassAction(
       this,
       {
         entity: this._config?.entity,
-        tap_action: this._config?.tap_action || { action: 'toggle' },
-        hold_action: this._config?.hold_action || { action: 'more-info' },
-        double_tap_action: this._config?.double_tap_action || { action: 'none' },
+        tap_action: this._actionFor('tap'),
+        hold_action: this._actionFor('hold'),
+        double_tap_action: this._actionFor('double_tap'),
       },
       actionType
     );
@@ -138,7 +159,7 @@ export class NeonLockCard extends BaseNeonCard {
 
     return html`
       <ha-card
-        class="neon-ring-host ${isLockRingActive(state) ? 'neon-halo-active' : ''} ${isLockAlert(state) ? 'neon-halo-error' : ''} ${isLockMoving(state) ? 'lock-moving' : ''}"
+        class="neon-ring-host ${isLockMoving(state) || this._flash ? 'neon-halo-active' : ''} ${isLockAlert(state) ? 'neon-halo-error' : ''} ${isLockMoving(state) ? 'lock-moving' : ''}"
         style=${neonHaloVars(colors)}
         @pointerdown=${(ev: PointerEvent) => handlePointerDown(this._gesture, ev, '.-none-', () => this._handleAction('hold'))}
         @pointerup=${() => cancelHold(this._gesture)}
@@ -160,5 +181,10 @@ export class NeonLockCard extends BaseNeonCard {
         </div>
       </ha-card>
     `;
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    clearTimeout(this._flashTimer);
   }
 }

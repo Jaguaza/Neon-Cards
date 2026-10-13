@@ -20,17 +20,17 @@ export function resolveLockState(
   return (HA_LOCK_STATES as readonly string[]).includes(state ?? '') ? (state as LockVisualState) : 'error';
 }
 
-/** Aro encendido con la paleta: cerrada, o en pleno movimiento de cierre/apertura del pestillo. */
-export function isLockRingActive(state: LockVisualState | undefined): boolean {
-  return state === 'locked' || state === 'locking' || state === 'unlocking';
-}
-
 /** Rojo de alerta (`.neon-halo-error` de src/shared): atascada o entidad rota. */
 export function isLockAlert(state: LockVisualState | undefined): boolean {
   return state === 'jammed' || state === 'error';
 }
 
-/** Estados transitorios: el icono pulsa mientras la cerradura se mueve. */
+/**
+ * Cerradura accionándose (cerrando, abriendo el pestillo o la puerta):
+ * halo neón encendido y el icono pulsa. En reposo (`locked`, `unlocked`,
+ * `open`) la tarjeta no lleva halo — este es el único estado, junto con
+ * el destello al pulsar (ver ACTION_FLASH_MS), que lo enciende.
+ */
 export function isLockMoving(state: LockVisualState | undefined): boolean {
   return state === 'locking' || state === 'unlocking' || state === 'opening';
 }

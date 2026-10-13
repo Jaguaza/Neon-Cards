@@ -16,5 +16,5 @@ export const en: LockTranslations = {
   subtitle_type_custom: 'Custom',
   subtitle_placeholder: 'Free text',
   section_halo: 'Halo appearance',
-  palette_label: 'Halo palette (locked)',
+  palette_label: 'Halo palette (on action)',
 };

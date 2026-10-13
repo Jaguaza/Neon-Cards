@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { ACTION_FLASH_MS } from './constants';
 
 (globalThis as { __DEV__?: boolean }).__DEV__ = false;
 
@@ -31,27 +32,67 @@ const card = (el: Card) => el.shadowRoot!.querySelector('ha-card')!;
 const icon = (el: Card) => el.shadowRoot!.querySelector('ha-icon')!.getAttribute('icon');
 const subtitle = (el: Card) => el.shadowRoot!.querySelector('.subtitle')?.textContent?.trim();
 
+const active = (el: Card) => card(el).classList.contains('neon-halo-active');
+const click = (el: Card) => card(el).dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
+
+afterEach(() => {
+  vi.useRealTimers();
+  document.body.innerHTML = '';
+});
+
 describe('NeonLockCard', () => {
-  it('cerrada: aro encendido, icono de candado y estado traducido', async () => {
+  it('cerrada: en reposo sin halo, icono de candado y estado traducido', async () => {
     const el = await mount({});
-    expect(card(el).classList.contains('neon-halo-active')).toBe(true);
+    expect(active(el)).toBe(false);
     expect(card(el).classList.contains('neon-halo-error')).toBe(false);
     expect(icon(el)).toBe('mdi:lock');
     expect(subtitle(el)).toBe('Cerrada');
     expect(el.shadowRoot!.querySelector('.name')!.textContent).toBe('Puerta');
   });
 
-  it('abierta: aro apagado e icono de candado abierto', async () => {
+  it('abierta: en reposo sin halo e icono de candado abierto', async () => {
     const el = await mount({}, hassWith('unlocked'));
-    expect(card(el).classList.contains('neon-halo-active')).toBe(false);
+    expect(active(el)).toBe(false);
     expect(icon(el)).toBe('mdi:lock-open-variant');
     expect(subtitle(el)).toBe('Abierta');
   });
 
-  it('en movimiento: aro encendido y clase de pulso', async () => {
-    const el = await mount({}, hassWith('unlocking'));
-    expect(card(el).classList.contains('neon-halo-active')).toBe(true);
-    expect(card(el).classList.contains('lock-moving')).toBe(true);
+  it('en movimiento (cerrando, abriendo): halo encendido y clase de pulso', async () => {
+    for (const state of ['locking', 'unlocking', 'opening']) {
+      const el = await mount({}, hassWith(state));
+      expect(active(el)).toBe(true);
+      expect(card(el).classList.contains('lock-moving')).toBe(true);
+    }
+  });
+
+  it('al pulsar una acción enciende el halo y lo apaga pasado ACTION_FLASH_MS', async () => {
+    vi.useFakeTimers();
+    const el = await mount({});
+    expect(active(el)).toBe(false);
+    click(el);
+    await el.updateComplete;
+    expect(active(el)).toBe(true);
+    vi.advanceTimersByTime(ACTION_FLASH_MS - 1);
+    await el.updateComplete;
+    expect(active(el)).toBe(true);
+    vi.advanceTimersByTime(1);
+    await el.updateComplete;
+    expect(active(el)).toBe(false);
+  });
+
+  it('una acción none no enciende el halo', async () => {
+    const el = await mount({ tap_action: { action: 'none' } });
+    click(el);
+    await el.updateComplete;
+    expect(active(el)).toBe(false);
+  });
+
+  it('sin entidad válida pulsar no enciende el halo (solo la alerta roja)', async () => {
+    const el = await mount({}, hassWith('unavailable'));
+    click(el);
+    await el.updateComplete;
+    expect(active(el)).toBe(false);
+    expect(card(el).classList.contains('neon-halo-error')).toBe(true);
   });
 
   it('atascada: halo rojo e icono de alerta', async () => {

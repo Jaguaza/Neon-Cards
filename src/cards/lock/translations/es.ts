@@ -16,5 +16,5 @@ export const es: LockTranslations = {
   subtitle_type_custom: 'Personalizado',
   subtitle_placeholder: 'Texto libre',
   section_halo: 'Apariencia del halo',
-  palette_label: 'Paleta del halo (cerradura cerrada)',
+  palette_label: 'Paleta del halo (al accionar)',
 };

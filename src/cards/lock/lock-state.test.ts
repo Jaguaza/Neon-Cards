@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { isLockAlert, isLockMoving, isLockRingActive, resolveLockIcon, resolveLockState } from './lock-state';
+import { isLockAlert, isLockMoving, resolveLockIcon, resolveLockState } from './lock-state';
 import { DEFAULT_ICON, HA_LOCK_STATES, LOCK_ICONS } from './constants';
 import type { HomeAssistant } from '../../ha/types';
-import type { LockVisualState } from './types';
 
 function hassWith(states: Record<string, string>): HomeAssistant {
   const full: HomeAssistant['states'] = {};
@@ -47,19 +46,6 @@ describe('resolveLockState', () => {
       const h = hassWith({ 'lock.x': state });
       expect(resolveLockState({ entity: 'lock.x' }, h)).toBe(state);
     }
-  });
-});
-
-describe('isLockRingActive', () => {
-  it('enciende el aro cerrada y durante cierre/apertura del pestillo', () => {
-    expect(isLockRingActive('locked')).toBe(true);
-    expect(isLockRingActive('locking')).toBe(true);
-    expect(isLockRingActive('unlocking')).toBe(true);
-  });
-
-  it('lo deja apagado abierta, atascada, con puerta abierta, en error o sin hass', () => {
-    const off: Array<LockVisualState | undefined> = ['unlocked', 'jammed', 'open', 'opening', 'error', undefined];
-    for (const s of off) expect(isLockRingActive(s)).toBe(false);
   });
 });
 
