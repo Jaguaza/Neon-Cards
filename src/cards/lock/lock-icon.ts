@@ -2,23 +2,32 @@ import { html } from 'lit';
 import type { TemplateResult } from 'lit';
 
 /**
- * Candado propio en SVG (en lugar de un icono `mdi`) para poder animar
- * la apertura real: el cuerpo queda fijo y el arco se mueve en dos
- * tiempos — `.shackle-lift` lo sube y `.shackle-turn` lo gira alrededor
- * de su pata izquierda hasta quedar abierto. Al cerrar hace el recorrido
- * inverso. Las transiciones están en `lock-icon.styles.ts`; este
- * template solo alterna la clase `is-open` y, como Lit reutiliza el
- * mismo nodo SVG entre renders, el navegador anima el cambio.
+ * Candado propio en SVG (en lugar de un icono `mdi`) para animar la
+ * apertura como la de un candado real:
  *
- * El arco baja 3,5 unidades por dentro del cuerpo (que se dibuja
- * encima) para que, al subir, las patas no queden cortadas en el borde.
+ *  1. El arco SUBE y su pata corta (la derecha) sale del cuerpo.
+ *  2. Después GIRA sobre el eje vertical de la pata larga (la izquierda,
+ *     que sigue metida en el cuerpo): visto de frente el arco se estrecha
+ *     hasta quedar de canto y se abre hacia el otro lado.
+ *
+ * Al cerrar hace el recorrido inverso. `.shackle-lift` es la subida y
+ * `.shackle-turn` el giro (un `scaleX` alrededor de la pata larga, que es
+ * la proyección de un giro en 3D); las transiciones están en
+ * `lock-icon.styles.ts`. Este template solo alterna la clase `is-open` y,
+ * como Lit reutiliza el mismo nodo SVG entre renders, el navegador anima
+ * el cambio.
+ *
+ * Geometría (viewBox 24x24, cuerpo de y=12 a y=22): la pata larga baja
+ * hasta y=17,5 y la corta hasta y=13,6, ambas por dentro del cuerpo (que
+ * se dibuja encima). Al subir 3,4 unidades la pata corta queda libre del
+ * cuerpo mientras la larga sigue dentro.
  */
 export function lockIconTemplate(open: boolean): TemplateResult {
   return html`
     <svg class="lock-icon neon-halo-icon ${open ? 'is-open' : ''}" viewBox="0 0 24 24" aria-hidden="true">
       <g class="shackle-lift">
         <g class="shackle-turn">
-          <path class="shackle" d="M8 15.5V10a4 4 0 0 1 8 0v5.5"></path>
+          <path class="shackle" d="M8.5 17.5V10a3.5 3.5 0 0 1 7 0V13.6"></path>
         </g>
       </g>
       <path
