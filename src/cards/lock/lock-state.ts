@@ -1,5 +1,5 @@
 import type { HomeAssistant } from '../../ha/types';
-import { DEFAULT_ICON, HA_LOCK_STATES, LOCK_ICONS } from './constants';
+import { HA_LOCK_STATES } from './constants';
 import type { LockVisualState, NeonLockCardConfig } from './types';
 
 /**
@@ -35,6 +35,13 @@ export function isLockMoving(state: LockVisualState | undefined): boolean {
   return state === 'locking' || state === 'unlocking' || state === 'opening';
 }
 
-export function resolveLockIcon(state: LockVisualState | undefined): string {
-  return state ? LOCK_ICONS[state] : DEFAULT_ICON;
+/**
+ * Pose del candado: abierto (arco levantado y girado) en `unlocking`,
+ * `unlocked`, `open` y `opening`; cerrado en `locked`, `locking`,
+ * `jammed` y mientras no hay `hass`. Los estados transitorios adoptan ya
+ * la pose de destino, así la animación arranca en cuanto la cerradura
+ * empieza a moverse.
+ */
+export function isLockOpenPose(state: LockVisualState | undefined): boolean {
+  return state === 'unlocking' || state === 'unlocked' || state === 'open' || state === 'opening';
 }

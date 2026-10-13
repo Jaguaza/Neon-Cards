@@ -13,14 +13,23 @@ izquierda) y mismo framework (`src/core`, `src/shared`, `src/ha`).
 
 ## Estados
 
-| Estado de HA | Icono | Halo neón | Extra |
+| Estado de HA | Candado | Halo neón | Extra |
 |---|---|---|---|
-| `locked` | `mdi:lock` | apagado (reposo) | |
-| `unlocked` | `mdi:lock-open-variant` | apagado (reposo) | |
-| `open` | `mdi:door-open` | apagado (reposo) | |
-| `locking` / `unlocking` / `opening` | `mdi:lock-clock` / `mdi:door-open` | encendido | el icono pulsa |
-| `jammed` | `mdi:lock-alert` | rojo de alerta | |
-| sin entidad, inexistente, `unavailable`/`unknown` | `mdi:close` | rojo de alerta | "No disponible" |
+| `locked` | cerrado | apagado (reposo) | |
+| `unlocked` | abierto | apagado (reposo) | |
+| `open` | abierto | apagado (reposo) | |
+| `unlocking` / `opening` | se abre | encendido | el icono pulsa |
+| `locking` | se cierra | encendido | el icono pulsa |
+| `jammed` | cerrado | rojo de alerta | |
+| sin entidad, inexistente, `unavailable`/`unknown` | `mdi:close` (sin candado) | rojo de alerta | "No disponible" |
+
+El candado es un SVG propio, no un icono `mdi`, para animar una apertura
+real: el cuerpo queda fijo y el arco **sube y después gira** hasta
+quedar abierto (≈0,5 s); al cerrar hace el recorrido inverso (primero
+gira de vuelta y después baja). Los estados transitorios adoptan ya la
+pose de destino, así la animación arranca en cuanto la cerradura empieza
+a moverse. Con `prefers-reduced-motion` el arco cambia de pose sin
+animación.
 
 El halo se enciende en dos casos: **al pulsar una acción** (tap, hold o
 double tap distinta de `none`; dura 1,5 s, da respuesta inmediata
@@ -76,14 +85,22 @@ framework (`src/core`, `src/shared`, `src/ha`).
 
 ## States
 
-| HA state | Icon | Neon halo | Extra |
+| HA state | Padlock | Neon halo | Extra |
 |---|---|---|---|
-| `locked` | `mdi:lock` | off (rest) | |
-| `unlocked` | `mdi:lock-open-variant` | off (rest) | |
-| `open` | `mdi:door-open` | off (rest) | |
-| `locking` / `unlocking` / `opening` | `mdi:lock-clock` / `mdi:door-open` | lit | icon pulses |
-| `jammed` | `mdi:lock-alert` | alert red | |
-| no entity, missing, `unavailable`/`unknown` | `mdi:close` | alert red | "Unavailable" |
+| `locked` | closed | off (rest) | |
+| `unlocked` | open | off (rest) | |
+| `open` | open | off (rest) | |
+| `unlocking` / `opening` | opens | lit | icon pulses |
+| `locking` | closes | lit | icon pulses |
+| `jammed` | closed | alert red | |
+| no entity, missing, `unavailable`/`unknown` | `mdi:close` (no padlock) | alert red | "Unavailable" |
+
+The padlock is a custom SVG, not an `mdi` icon, so it can animate a real
+opening: the body stays fixed and the shackle **lifts and then swings**
+until open (≈0.5 s); closing plays the same path in reverse (it swings
+back first, then drops). Transitional states already take the target
+pose, so the animation starts as soon as the lock begins to move. Under
+`prefers-reduced-motion` the shackle switches pose without animating.
 
 The halo lights up in two cases: **when an action is pressed** (tap,
 hold or double tap other than `none`; it lasts 1.5 s and gives instant

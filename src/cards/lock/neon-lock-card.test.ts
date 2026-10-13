@@ -29,7 +29,9 @@ async function mount(config: Record<string, unknown>, hass: unknown = hassWith('
 }
 
 const card = (el: Card) => el.shadowRoot!.querySelector('ha-card')!;
-const icon = (el: Card) => el.shadowRoot!.querySelector('ha-icon')!.getAttribute('icon');
+const padlock = (el: Card) => el.shadowRoot!.querySelector('svg.lock-icon');
+const isOpen = (el: Card) => !!padlock(el)?.classList.contains('is-open');
+const errorIcon = (el: Card) => el.shadowRoot!.querySelector('ha-icon')?.getAttribute('icon');
 const subtitle = (el: Card) => el.shadowRoot!.querySelector('.subtitle')?.textContent?.trim();
 
 const active = (el: Card) => card(el).classList.contains('neon-halo-active');
@@ -45,15 +47,17 @@ describe('NeonLockCard', () => {
     const el = await mount({});
     expect(active(el)).toBe(false);
     expect(card(el).classList.contains('neon-halo-error')).toBe(false);
-    expect(icon(el)).toBe('mdi:lock');
+    expect(padlock(el)).not.toBeNull();
+    expect(isOpen(el)).toBe(false);
+    expect(el.shadowRoot!.querySelector('ha-icon')).toBeNull();
     expect(subtitle(el)).toBe('Cerrada');
     expect(el.shadowRoot!.querySelector('.name')!.textContent).toBe('Puerta');
   });
 
-  it('abierta: en reposo sin halo e icono de candado abierto', async () => {
+  it('abierta: en reposo sin halo y con el arco del candado abierto', async () => {
     const el = await mount({}, hassWith('unlocked'));
     expect(active(el)).toBe(false);
-    expect(icon(el)).toBe('mdi:lock-open-variant');
+    expect(isOpen(el)).toBe(true);
     expect(subtitle(el)).toBe('Abierta');
   });
 
@@ -95,19 +99,39 @@ describe('NeonLockCard', () => {
     expect(card(el).classList.contains('neon-halo-error')).toBe(true);
   });
 
-  it('atascada: halo rojo e icono de alerta', async () => {
+  it('atascada: halo rojo y candado cerrado', async () => {
     const el = await mount({}, hassWith('jammed'));
     expect(card(el).classList.contains('neon-halo-error')).toBe(true);
-    expect(icon(el)).toBe('mdi:lock-alert');
+    expect(isOpen(el)).toBe(false);
   });
 
-  it('entidad no disponible o inexistente: halo rojo, mdi:close y "No disponible"', async () => {
+  it('la pose del arco anticipa el destino: unlocking/opening abiertos, locking cerrado', async () => {
+    expect(isOpen(await mount({}, hassWith('unlocking')))).toBe(true);
+    expect(isOpen(await mount({}, hassWith('opening')))).toBe(true);
+    expect(isOpen(await mount({}, hassWith('locking')))).toBe(false);
+  });
+
+  it('al cambiar de estado reutiliza el mismo SVG para que el navegador anime el arco', async () => {
+    const el = await mount({});
+    const before = padlock(el);
+    el.hass = hassWith('unlocked');
+    await el.updateComplete;
+    expect(padlock(el)).toBe(before);
+    expect(isOpen(el)).toBe(true);
+    el.hass = hassWith('locked');
+    await el.updateComplete;
+    expect(padlock(el)).toBe(before);
+    expect(isOpen(el)).toBe(false);
+  });
+
+  it('entidad no disponible o inexistente: halo rojo, mdi:close (sin candado) y "No disponible"', async () => {
     const caida = await mount({}, hassWith('unavailable'));
     expect(card(caida).classList.contains('neon-halo-error')).toBe(true);
-    expect(icon(caida)).toBe('mdi:close');
+    expect(errorIcon(caida)).toBe('mdi:close');
+    expect(padlock(caida)).toBeNull();
     expect(subtitle(caida)).toBe('No disponible');
     const sinEntidad = await mount({ entity: undefined });
-    expect(icon(sinEntidad)).toBe('mdi:close');
+    expect(errorIcon(sinEntidad)).toBe('mdi:close');
   });
 
   it('traduce el estado al idioma de hass', async () => {

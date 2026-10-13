@@ -34,6 +34,7 @@ export const NEON_LOCK_CARD_STYLES = css`
     gap: 5px;
     height: auto;
   }
+  /* Solo el icono de error (mdi:close); el candado es lock-icon.styles.ts. */
   ha-icon {
     --mdc-icon-size: 40px;
     color: var(--state-icon-color, var(--primary-text-color));
@@ -67,7 +68,7 @@ export const NEON_LOCK_CARD_STYLES = css`
   /* Cerradura en movimiento (cerrando / abriendo): el icono pulsa
      mientras dura la transición, para que se vea que la orden se está
      ejecutando y no que la tarjeta no ha respondido. */
-  .lock-moving ha-icon {
+  .lock-moving .neon-halo-icon {
     animation: lock-pulse 1.1s ease-in-out infinite;
   }
   @keyframes lock-pulse {
@@ -80,7 +81,7 @@ export const NEON_LOCK_CARD_STYLES = css`
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .lock-moving ha-icon {
+    .lock-moving .neon-halo-icon {
       animation: none;
     }
   }

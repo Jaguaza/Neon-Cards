@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { isLockAlert, isLockMoving, resolveLockIcon, resolveLockState } from './lock-state';
-import { DEFAULT_ICON, HA_LOCK_STATES, LOCK_ICONS } from './constants';
+import { isLockAlert, isLockMoving, isLockOpenPose, resolveLockState } from './lock-state';
+import { HA_LOCK_STATES } from './constants';
 import type { HomeAssistant } from '../../ha/types';
 
 function hassWith(states: Record<string, string>): HomeAssistant {
@@ -66,11 +66,12 @@ describe('isLockMoving', () => {
   });
 });
 
-describe('resolveLockIcon', () => {
-  it('usa el icono por defecto sin estado y el de LOCK_ICONS con estado', () => {
-    expect(resolveLockIcon(undefined)).toBe(DEFAULT_ICON);
-    expect(resolveLockIcon('locked')).toBe(LOCK_ICONS.locked);
-    expect(resolveLockIcon('jammed')).toBe('mdi:lock-alert');
-    expect(resolveLockIcon('error')).toBe('mdi:close');
+describe('isLockOpenPose', () => {
+  it('abierto en unlocking, unlocked, open y opening', () => {
+    for (const s of ['unlocking', 'unlocked', 'open', 'opening'] as const) expect(isLockOpenPose(s)).toBe(true);
+  });
+
+  it('cerrado en locked, locking, jammed, error y sin hass', () => {
+    for (const s of ['locked', 'locking', 'jammed', 'error', undefined] as const) expect(isLockOpenPose(s)).toBe(false);
   });
 });

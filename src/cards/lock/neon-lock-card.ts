@@ -20,8 +20,10 @@ import {
   neonRingSplitTemplate,
   RingSizeController,
 } from '../../shared';
-import { ACTION_FLASH_MS } from './constants';
-import { isLockAlert, isLockMoving, resolveLockIcon, resolveLockState } from './lock-state';
+import { ACTION_FLASH_MS, ERROR_ICON } from './constants';
+import { lockIconTemplate } from './lock-icon';
+import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
+import { isLockAlert, isLockMoving, isLockOpenPose, resolveLockState } from './lock-state';
 import { NEON_LOCK_CARD_STYLES } from './neon-lock-card.styles';
 import { LOCK_TRANSLATIONS } from './translations';
 import type { NeonLockCardConfig } from './types';
@@ -31,8 +33,9 @@ import type { NeonLockCardConfig } from './types';
  * ------------------------------------------------------------
  * Creador: Jaguaza
  *
- * Tarjeta para entidades `lock` de Home Assistant: icono según el
- * estado de la cerradura y en reposo sin halo. El halo neón se enciende
+ * Tarjeta para entidades `lock` de Home Assistant: candado que se abre
+ * y se cierra de verdad (el arco sube y gira) según el estado de la
+ * cerradura y en reposo sin halo. El halo neón se enciende
  * al accionarla (pulsación de una acción o cerradura en movimiento) y
  * se apaga al terminar; rojo de alerta si se atasca o la entidad falla. Ver `src/cards/lock/README.md` para la especificación.
  */
@@ -54,7 +57,7 @@ export class NeonLockCard extends BaseNeonCard {
   private _flash = false;
   private _flashTimer?: ReturnType<typeof setTimeout>;
 
-  static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_LOCK_CARD_STYLES];
+  static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_LOCK_ICON_STYLES, NEON_LOCK_CARD_STYLES];
 
   static getConfigElement(): HTMLElement {
     return document.createElement('neon-lock-card-editor');
@@ -173,7 +176,9 @@ export class NeonLockCard extends BaseNeonCard {
       >
         ${neonRingSplitTemplate(this._ringUid, this._ring.size.width, this._ring.size.height, this._ring.size.radius)}
         <div class="content">
-          <ha-icon class="neon-halo-icon" icon=${resolveLockIcon(state)}></ha-icon>
+          ${state === 'error'
+            ? html`<ha-icon class="neon-halo-icon" icon=${ERROR_ICON}></ha-icon>`
+            : lockIconTemplate(isLockOpenPose(state))}
           <div class="text">
             <span class="name">${this._name}</span>
             ${subtitle !== nothing ? html`<span class="subtitle">${subtitle}</span>` : nothing}
