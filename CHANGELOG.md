@@ -11,6 +11,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- Lock Card: el icono `door` pasa a ser `mdi:door-closed` y se anima
+  hasta `mdi:door-open` (la hoja gira sobre la jamba izquierda).
 - Lock Card: los iconos de garaje (`garage_roller` y `garage_sliding`)
   pasan a la silueta de `mdi:garage-variant` (tejado y jambas macizos, tres
   lamas), manteniendo la animación de enrollar y de deslizar.

@@ -40,7 +40,7 @@ animación arranca en cuanto la cerradura empieza a moverse. Con
 | `lock_icon` | Dibujo | Abrir (cerrar es el recorrido inverso) | Duración |
 |---|---|---|---|
 | `padlock` (por defecto) | Candado | El arco **sube** sacando la pata corta del cuerpo y después **gira** sobre la pata larga, que sigue unida: visto de frente se estrecha hasta quedar de canto y se abre hacia el otro lado. | 0,66 s |
-| `door` | Puerta | La hoja **se abre hacia ti** girando sobre su bisagra: el canto libre se acerca a la bisagra, la hoja crece por la perspectiva y se descubre el hueco de detrás. | 0,8 s |
+| `door` | Puerta | De `mdi:door-closed` a `mdi:door-open`: la hoja **gira sobre la jamba izquierda** como la página de un libro (de frente como contorno, de canto a mitad del giro y maciza por detrás) hasta quedar volcada a la izquierda. | 0,8 s |
 | `garage_roller` | Garaje con puerta enrollable | Silueta de `mdi:garage-variant`: la puerta de lamas **sube y se enrolla** bajo el dintel; las lamas se pierden por arriba y abierto queda solo la inferior. | 1,1 s |
 | `garage_sliding` | Garaje con puerta corredera | Silueta de `mdi:garage-variant`: el panel (lamas y montante) **se desliza** en horizontal hacia la derecha y se esconde tras la jamba. | 1,0 s |
 
@@ -121,7 +121,7 @@ animating.
 | `lock_icon` | Drawing | Opening (closing is the reverse path) | Duration |
 |---|---|---|---|
 | `padlock` (default) | Padlock | The shackle **lifts**, pulling its short leg out of the body, and then **swings** around the long leg, which stays attached: seen from the front it narrows to edge-on and opens out the other way. | 0.66 s |
-| `door` | Door | The leaf **opens towards you**, swinging on its hinge: the free edge approaches the hinge, the leaf grows with perspective and the doorway behind is revealed. | 0.8 s |
+| `door` | Door | From `mdi:door-closed` to `mdi:door-open`: the leaf **swings on the left jamb** like a book page (outline from the front, edge-on halfway, solid from behind) until it lies folded out to the left. | 0.8 s |
 | `garage_roller` | Garage with roller door | `mdi:garage-variant` silhouette: the slatted door **rises and rolls up** under the lintel; the slats vanish at the top and only the bottom one is left when open. | 1.1 s |
 | `garage_sliding` | Garage with sliding door | `mdi:garage-variant` silhouette: the panel (slats and stile) **slides** sideways to the right and hides behind the jamb. | 1.0 s |
 
