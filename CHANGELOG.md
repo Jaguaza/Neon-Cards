@@ -11,6 +11,10 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
+- Lock Card: si la cerradura soporta además abrir (`supported_features`), al
+  pulsar con el `toggle` por defecto se elige entre **Desbloquear/Abrir**
+  (cerrada) o **Bloquear/Abrir** (desbloqueada); la opción llama a
+  `lock.unlock`, `lock.open` o `lock.lock`. Sin soporte de abrir no cambia.
 - Lock Card: confirmación al abrir (`confirm_open`, activa por defecto). Al
   pulsar para abrir la cerradura aparece una vista «¿Abrir?» en la propia
   tarjeta, con el halo encendido y botones neón (Abrir / Cancelar; Esc

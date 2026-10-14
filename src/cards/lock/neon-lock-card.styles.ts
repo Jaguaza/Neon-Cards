@@ -91,7 +91,9 @@ export const NEON_LOCK_CARD_STYLES = css`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    flex-wrap: wrap;
+    row-gap: 6px;
+    gap: 6px 12px;
     padding: 0 17px;
     border-radius: calc(var(--ha-card-border-radius, 12px) - 3px);
     background: color-mix(in srgb, var(--ha-card-background, var(--card-background-color, #1c1c1c)) 92%, transparent);
@@ -105,6 +107,7 @@ export const NEON_LOCK_CARD_STYLES = css`
     flex-direction: column;
     gap: 2px;
     min-width: 0;
+    flex: 1 1 110px;
   }
   .confirm-title {
     font-size: 18px;
@@ -123,8 +126,10 @@ export const NEON_LOCK_CARD_STYLES = css`
   }
   .confirm-actions {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
     gap: 8px;
-    flex: 0 0 auto;
+    flex: 0 1 auto;
   }
   .confirm-btn {
     box-sizing: border-box;
@@ -153,6 +158,26 @@ export const NEON_LOCK_CARD_STYLES = css`
   }
   /* «Cancelar» discreto (color secundario de la paleta, sin relleno);
      «Abrir» es la acción destacada, con el relleno de neón. */
+  /* Con varias órdenes (Desbloquear / Abrir…) los botones son más
+     compactos y «Cancelar» pasa a ser una ✕ para que quepan en una fila. */
+  .confirm--multi .confirm-btn {
+    min-width: 0;
+    height: 30px;
+    padding: 0 11px;
+    font-size: 12px;
+  }
+  .confirm--multi .confirm-btn.cancel {
+    width: 30px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .confirm--multi .confirm-btn.cancel ha-icon {
+    --mdc-icon-size: 16px;
+    margin: 0;
+    color: inherit;
+  }
   .confirm-btn.cancel {
     border-color: color-mix(in srgb, var(--neon-c2) 55%, transparent);
     color: var(--secondary-text-color);

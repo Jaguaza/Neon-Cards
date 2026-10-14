@@ -14,11 +14,13 @@ type Card = HTMLElement & {
   updateComplete: Promise<boolean>;
 };
 
-function hassWith(state: string, language = 'es') {
+function hassWith(state: string, language = 'es', attributes: Record<string, unknown> = {}, calls: unknown[][] = []) {
   return {
     locale: { language },
-    states: { 'lock.puerta': { entity_id: 'lock.puerta', state, last_changed: '', last_updated: '', attributes: { friendly_name: 'Puerta' } } },
-    callService: async () => undefined,
+    states: { 'lock.puerta': { entity_id: 'lock.puerta', state, last_changed: '', last_updated: '', attributes: { friendly_name: 'Puerta', ...attributes } } },
+    callService: async (...args: unknown[]) => {
+      calls.push(args);
+    },
   };
 }
 
@@ -501,6 +503,102 @@ describe('NeonLockCard', () => {
       await el.updateComplete;
       el.remove();
       expect(() => vi.advanceTimersByTime(CONFIRM_TIMEOUT_MS + 1)).not.toThrow();
+    });
+  });
+
+  describe('cerraduras con varias órdenes (supported_features: abrir)', () => {
+    const OPEN = { supported_features: 1 };
+    const confirmView = (el: Card) => el.shadowRoot!.querySelector('.confirm');
+    const choices = (el: Card) => Array.from(el.shadowRoot!.querySelectorAll<HTMLButtonElement>('.confirm .accept')).map((b) => b.dataset.command);
+    const choose = (el: Card, command: string) => el.shadowRoot!.querySelector<HTMLButtonElement>(`.confirm .accept[data-command="${command}"]`)!.click();
+
+    it('cerrada: pregunta qué hacer y ofrece Desbloquear o Abrir', async () => {
+      const el = await mount({}, hassWith('locked', 'es', OPEN));
+      click(el);
+      await el.updateComplete;
+      expect(el.shadowRoot!.querySelector('.confirm-title')!.textContent).toBe('¿Qué quieres hacer?');
+      expect(choices(el)).toEqual(['unlock', 'open']);
+      const labels = Array.from(el.shadowRoot!.querySelectorAll('.confirm .accept')).map((b) => b.textContent);
+      expect(labels).toEqual(['Desbloquear', 'Abrir']);
+    });
+
+    it('desbloqueada: pregunta y ofrece Bloquear o Abrir', async () => {
+      const el = await mount({}, hassWith('unlocked', 'es', OPEN));
+      click(el);
+      await el.updateComplete;
+      expect(choices(el)).toEqual(['lock', 'open']);
+      const labels = Array.from(el.shadowRoot!.querySelectorAll('.confirm .accept')).map((b) => b.textContent);
+      expect(labels).toEqual(['Bloquear', 'Abrir']);
+    });
+
+    it('elegir una opción llama al servicio lock.<orden> de la entidad, una sola vez, y espera el cambio de estado', async () => {
+      for (const [state, command] of [['locked', 'unlock'], ['locked', 'open'], ['unlocked', 'lock'], ['unlocked', 'open']] as const) {
+        const calls: unknown[][] = [];
+        const el = await mount({}, hassWith(state, 'es', OPEN, calls));
+        click(el);
+        await el.updateComplete;
+        choose(el, command);
+        await el.updateComplete;
+        expect(calls, `${state} → ${command}`).toEqual([['lock', command, { entity_id: 'lock.puerta' }]]);
+        expect(confirmView(el)).toBeNull();
+        expect(active(el)).toBe(true);
+      }
+    });
+
+    it('la ✕ cancela sin llamar a ningún servicio', async () => {
+      const calls: unknown[][] = [];
+      const el = await mount({}, hassWith('locked', 'es', OPEN, calls));
+      click(el);
+      await el.updateComplete;
+      el.shadowRoot!.querySelector<HTMLButtonElement>('.confirm .cancel')!.click();
+      await el.updateComplete;
+      expect(confirmView(el)).toBeNull();
+      expect(calls).toEqual([]);
+    });
+
+    it('sin soporte de abrir sigue la pregunta simple: cerrada «¿Abrir?»; desbloqueada, cierra directamente', async () => {
+      const locked = await mount({}, hassWith('locked', 'es', { supported_features: 0 }));
+      click(locked);
+      await locked.updateComplete;
+      expect(locked.shadowRoot!.querySelector('.confirm-title')!.textContent).toBe('¿Abrir?');
+      const unlocked = await mount({}, hassWith('unlocked', 'es', { supported_features: 0 }));
+      click(unlocked);
+      await unlocked.updateComplete;
+      expect(confirmView(unlocked)).toBeNull();
+    });
+
+    it('en estado open (puerta abierta) o en movimiento no hay nada que elegir: cierra directamente', async () => {
+      for (const state of ['open', 'locking', 'unlocking', 'opening']) {
+        const el = await mount({}, hassWith(state, 'es', OPEN));
+        click(el);
+        await el.updateComplete;
+        expect(confirmView(el), state).toBeNull();
+      }
+    });
+
+    it('con una acción de servicio explícita no hay elección: manda esa acción (con su confirmación si abre)', async () => {
+      const el = await mount({ tap_action: { action: 'call-service', service: 'lock.unlock' } }, hassWith('locked', 'es', OPEN));
+      click(el);
+      await el.updateComplete;
+      expect(el.shadowRoot!.querySelector('.confirm-title')!.textContent).toBe('¿Abrir?');
+    });
+
+    it('con confirm_open: false no se pregunta ni se elige: toggle directo', async () => {
+      const el = await mount({ confirm_open: false }, hassWith('locked', 'es', OPEN));
+      const actions: string[] = [];
+      el.addEventListener('hass-action', (ev) => actions.push((ev as CustomEvent).detail.action));
+      click(el);
+      await el.updateComplete;
+      expect(confirmView(el)).toBeNull();
+      expect(actions).toEqual(['tap']);
+    });
+
+    it('en inglés: What do you want to do? / Unlock / Open', async () => {
+      const el = await mount({}, hassWith('locked', 'en', OPEN));
+      click(el);
+      await el.updateComplete;
+      expect(el.shadowRoot!.querySelector('.confirm-title')!.textContent).toBe('What do you want to do?');
+      expect(Array.from(el.shadowRoot!.querySelectorAll('.confirm .accept')).map((b) => b.textContent)).toEqual(['Unlock', 'Open']);
     });
   });
 

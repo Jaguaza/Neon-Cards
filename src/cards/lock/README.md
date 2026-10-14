@@ -104,6 +104,25 @@ descarta. El foco empieza en Cancelar para que Intro no abra por accidente.
   `lock.lock`, más info, navegar, etc. no preguntan.
 - `confirm_open: false` la desactiva.
 
+### Cerraduras con varias órdenes (desbloquear **y** abrir)
+
+La tarjeta lee el atributo `supported_features` de la entidad. Si la
+cerradura soporta además **abrir** (`lock.open`) y la acción es el `toggle`
+por defecto, en lugar de una confirmación simple te deja **elegir**:
+
+| Estado | Pregunta | Opciones |
+| --- | --- | --- |
+| `locked` (cerrada) | «¿Qué quieres hacer?» | **Desbloquear** · **Abrir** |
+| `unlocked` (desbloqueada) | «¿Qué quieres hacer?» | **Bloquear** · **Abrir** |
+
+La opción elegida llama directamente a `lock.unlock`, `lock.open` o
+`lock.lock` sobre la entidad; la ✕ cancela. En los demás estados
+(`open`, en movimiento…) no hay nada que elegir y se cierra directamente.
+Si la cerradura **no** soporta abrir, todo sigue como antes («¿Abrir?» al
+desbloquear; cerrar sin preguntar). Una acción con servicio explícito
+(`call-service`) no ofrece elección: manda ese servicio. Con
+`confirm_open: false` no se pregunta ni se elige.
+
 # src/cards/lock (English)
 
 `custom:neon-lock-card` — card for Home Assistant `lock` entities (door
@@ -204,3 +223,22 @@ does not open by accident.
   script, for instance— while locked). `lock.lock`, more-info, navigate,
   etc. do not ask.
 - `confirm_open: false` turns it off.
+
+### Locks with several commands (unlock **and** open)
+
+The card reads the entity's `supported_features` attribute. If the lock
+also supports **open** (`lock.open`) and the action is the default
+`toggle`, instead of a simple confirmation it lets you **choose**:
+
+| State | Question | Options |
+| --- | --- | --- |
+| `locked` | "What do you want to do?" | **Unlock** · **Open** |
+| `unlocked` | "What do you want to do?" | **Lock** · **Open** |
+
+The chosen option calls `lock.unlock`, `lock.open` or `lock.lock` on the
+entity directly; the ✕ cancels. In other states (`open`, moving…) there is
+nothing to choose and it locks straight away. If the lock does **not**
+support open, everything works as before ("Open?" when unlocking; locking
+without asking). An explicit service action (`call-service`) offers no
+choice: it sends that service. With `confirm_open: false` it neither asks
+nor offers a choice.

@@ -25,5 +25,9 @@ export const en: LockTranslations = {
   confirm_title: 'Open?',
   confirm_accept: 'Open',
   confirm_cancel: 'Cancel',
+  confirm_choose: 'What do you want to do?',
+  command_lock: 'Lock',
+  command_unlock: 'Unlock',
+  command_open: 'Open',
   confirm_open_label: 'Ask for confirmation before opening',
 };

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, isOpeningAction, resolveLockState } from './lock-state';
+import { isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, isOpeningAction, lockChoices, lockSupportsOpen, resolveLockState } from './lock-state';
 import { HA_LOCK_STATES } from './constants';
 import type { HomeAssistant } from '../../ha/types';
 
@@ -104,5 +104,31 @@ describe('isOpeningAction', () => {
 
   it('las acciones que no operan la cerradura nunca abren', () => {
     for (const a of ['more-info', 'navigate', 'url', 'assist', 'none']) expect(isOpeningAction({ action: a }, 'locked')).toBe(false);
+  });
+});
+
+describe('lockSupportsOpen', () => {
+  it('lee el bit de abrir de supported_features', () => {
+    expect(lockSupportsOpen({ supported_features: 1 })).toBe(true);
+    expect(lockSupportsOpen({ supported_features: 3 })).toBe(true);
+    expect(lockSupportsOpen({ supported_features: 0 })).toBe(false);
+    expect(lockSupportsOpen({ supported_features: 2 })).toBe(false);
+    expect(lockSupportsOpen({})).toBe(false);
+    expect(lockSupportsOpen(undefined)).toBe(false);
+    expect(lockSupportsOpen({ supported_features: 'x' })).toBe(false);
+  });
+});
+
+describe('lockChoices', () => {
+  const toggle = { action: 'toggle' };
+  it('con soporte de abrir: cerrada → desbloquear/abrir; desbloqueada → bloquear/abrir', () => {
+    expect(lockChoices(toggle, 'locked', true)).toEqual(['unlock', 'open']);
+    expect(lockChoices(toggle, 'unlocked', true)).toEqual(['lock', 'open']);
+  });
+  it('sin soporte de abrir, en otros estados o con otra acción no hay elección', () => {
+    expect(lockChoices(toggle, 'locked', false)).toEqual([]);
+    for (const s of ['open', 'locking', 'unlocking', 'opening', 'jammed', 'error', undefined] as const) expect(lockChoices(toggle, s, true)).toEqual([]);
+    expect(lockChoices({ action: 'call-service', service: 'lock.unlock' }, 'locked', true)).toEqual([]);
+    expect(lockChoices({ action: 'more-info' }, 'locked', true)).toEqual([]);
   });
 });

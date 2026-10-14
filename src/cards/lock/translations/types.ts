@@ -30,5 +30,9 @@ export interface LockTranslations {
   confirm_title: string;
   confirm_accept: string;
   confirm_cancel: string;
+  confirm_choose: string;
+  command_lock: string;
+  command_unlock: string;
+  command_open: string;
   confirm_open_label: string;
 }

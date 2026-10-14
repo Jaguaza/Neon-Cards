@@ -75,3 +75,29 @@ export function isOpeningAction(action: ActionConfig, state: LockVisualState | u
   if (service === 'lock.unlock' || service === 'lock.open') return true;
   return state === 'locked';
 }
+
+/** Órdenes del dominio `lock` que la tarjeta sabe lanzar (servicios `lock.<orden>`). */
+export type LockCommand = 'lock' | 'unlock' | 'open';
+
+/** Bit de `supported_features` de una cerradura que indica que soporta `lock.open`. */
+export const LOCK_SUPPORT_OPEN = 1;
+
+/** ¿La entidad soporta además `lock.open` (abrir el pestillo/puerta)? Según su atributo `supported_features`. */
+export function lockSupportsOpen(attributes: Record<string, unknown> | undefined): boolean {
+  const features = Number(attributes?.supported_features ?? 0);
+  return Number.isFinite(features) && (features & LOCK_SUPPORT_OPEN) !== 0;
+}
+
+/**
+ * Opciones entre las que elegir al pulsar. Solo hay elección cuando la
+ * acción es `toggle` (la tarjeta decide qué hacer) y la cerradura soporta
+ * abrir: cerrada → desbloquear o abrir; desbloqueada → bloquear o abrir.
+ * En cualquier otro caso (sin soporte de abrir, otros estados, una acción
+ * con servicio explícito) no hay nada que elegir y devuelve `[]`.
+ */
+export function lockChoices(action: ActionConfig, state: LockVisualState | undefined, supportsOpen: boolean): LockCommand[] {
+  if (action.action !== 'toggle' || !supportsOpen) return [];
+  if (state === 'locked') return ['unlock', 'open'];
+  if (state === 'unlocked') return ['lock', 'open'];
+  return [];
+}

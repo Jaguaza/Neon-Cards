@@ -25,7 +25,8 @@ import { LOCK_ICONS, resolveLockIconType } from './icons';
 import type { LockIconDef } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
 import { LockPoseAnimator } from './lock-pose-animator';
-import { isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, isOpeningAction, resolveLockState } from './lock-state';
+import { isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, isOpeningAction, lockChoices, lockSupportsOpen, resolveLockState } from './lock-state';
+import type { LockCommand } from './lock-state';
 import { NEON_LOCK_CARD_STYLES } from './neon-lock-card.styles';
 import { LOCK_TRANSLATIONS } from './translations';
 import type { LockTranslations } from './translations';
@@ -67,7 +68,7 @@ export class NeonLockCard extends BaseNeonCard {
   private _pendingUntil = 0;
   private _pendingTimer?: ReturnType<typeof setTimeout>;
   /** Vista «¿Abrir?» abierta: el gesto que la provocó, para ejecutarlo al aceptar. */
-  private _confirm?: { actionType: string };
+  private _confirm?: { actionType: string; choices: LockCommand[] };
   private _confirmTimer?: ReturnType<typeof setTimeout>;
   private _confirmFocused = false;
   /** Último estado visto de la entidad, para detectar su cambio (ver `willUpdate`). */
@@ -160,13 +161,37 @@ export class NeonLockCard extends BaseNeonCard {
   }
 
   private _handleAction(actionType: string): void {
-    // Abrir la cerradura pide confirmación en una vista neón de la propia
-    // tarjeta (se desactiva con `confirm_open: false`); cerrar, no.
-    if (this._config?.confirm_open !== false && isOpeningAction(this._actionFor(actionType), resolveLockState(this._config, this.hass))) {
-      this._askConfirm(actionType);
-      return;
+    if (this._config?.confirm_open !== false) {
+      const action = this._actionFor(actionType);
+      const state = resolveLockState(this._config, this.hass);
+      // Si la cerradura soporta varias órdenes (desbloquear/bloquear Y abrir),
+      // se pregunta cuál; si solo hay una que abre, se pide confirmación.
+      // Cerrar una cerradura sin función de abrir no pregunta.
+      const choices = lockChoices(action, state, lockSupportsOpen(this._stateObj?.attributes));
+      if (choices.length) {
+        this._askConfirm(actionType, choices);
+        return;
+      }
+      if (isOpeningAction(action, state)) {
+        this._askConfirm(actionType, []);
+        return;
+      }
     }
     this._execute(actionType);
+  }
+
+  /** Enciende el halo en espera del cambio de estado (ver `ACTION_PENDING_MS`). */
+  private _startPending(): void {
+    this._pendingUntil = performance.now() + ACTION_PENDING_MS;
+    this._schedulePendingEnd(ACTION_PENDING_MS);
+    this.requestUpdate();
+  }
+
+  /** Lanza directamente la orden elegida (`lock.lock`, `lock.unlock` o `lock.open`). */
+  private _runCommand(command: LockCommand): void {
+    if (!this._config?.entity || !this.hass) return;
+    this._startPending();
+    void this.hass.callService('lock', command, { entity_id: this._config.entity });
   }
 
   private _execute(actionType: string): void {
@@ -174,9 +199,7 @@ export class NeonLockCard extends BaseNeonCard {
     // cambio de estado (ver `ACTION_PENDING_MS`); no hay entidad válida a la
     // que accionar si está en `error`.
     if (OPERATING_ACTIONS.includes(this._actionFor(actionType).action) && resolveLockState(this._config, this.hass) !== 'error') {
-      this._pendingUntil = performance.now() + ACTION_PENDING_MS;
-      this._schedulePendingEnd(ACTION_PENDING_MS);
-      this.requestUpdate();
+      this._startPending();
     }
     dispatchHassAction(
       this,
@@ -190,18 +213,21 @@ export class NeonLockCard extends BaseNeonCard {
     );
   }
 
-  private _askConfirm(actionType: string): void {
-    this._confirm = { actionType };
+  private _askConfirm(actionType: string, choices: LockCommand[]): void {
+    this._confirm = { actionType, choices };
     clearTimeout(this._confirmTimer);
     this._confirmTimer = setTimeout(() => this._cancelConfirm(), CONFIRM_TIMEOUT_MS);
     this.requestUpdate();
   }
 
-  private _acceptConfirm(): void {
+  /** Acepta la pregunta: con elección se lanza la orden elegida; sin ella, la acción original. */
+  private _acceptConfirm(command?: LockCommand): void {
     const pending = this._confirm;
     this._dropConfirm();
     this.requestUpdate();
-    if (pending) this._execute(pending.actionType);
+    if (!pending) return;
+    if (command) this._runCommand(command);
+    else this._execute(pending.actionType);
   }
 
   private _cancelConfirm(): void {
@@ -222,11 +248,14 @@ export class NeonLockCard extends BaseNeonCard {
    */
   private _renderConfirm(): TemplateResult {
     const stop = (ev: Event) => ev.stopPropagation();
+    const choices = this._confirm?.choices ?? [];
+    const multi = choices.length > 1;
+    const title = this._t(multi ? 'confirm_choose' : 'confirm_title');
     return html`
       <div
-        class="confirm"
+        class="confirm ${multi ? 'confirm--multi' : ''}"
         role="alertdialog"
-        aria-label=${this._t('confirm_title')}
+        aria-label=${title}
         @pointerdown=${stop}
         @pointerup=${stop}
         @pointercancel=${stop}
@@ -236,12 +265,16 @@ export class NeonLockCard extends BaseNeonCard {
         }}
       >
         <div class="confirm-text">
-          <span class="confirm-title">${this._t('confirm_title')}</span>
+          <span class="confirm-title">${title}</span>
           <span class="confirm-name">${this._name}</span>
         </div>
         <div class="confirm-actions">
-          <button type="button" class="confirm-btn cancel" @click=${() => this._cancelConfirm()}>${this._t('confirm_cancel')}</button>
-          <button type="button" class="confirm-btn accept" @click=${() => this._acceptConfirm()}>${this._t('confirm_accept')}</button>
+          <button type="button" class="confirm-btn cancel" aria-label=${this._t('confirm_cancel')} title=${this._t('confirm_cancel')} @click=${() => this._cancelConfirm()}>${multi ? html`<ha-icon icon="mdi:close"></ha-icon>` : this._t('confirm_cancel')}</button>
+          ${multi
+            ? choices.map(
+                (command) => html`<button type="button" class="confirm-btn accept" data-command=${command} @click=${() => this._acceptConfirm(command)}>${this._t(`command_${command}`)}</button>`
+              )
+            : html`<button type="button" class="confirm-btn accept" @click=${() => this._acceptConfirm()}>${this._t('confirm_accept')}</button>`}
         </div>
       </div>
     `;
