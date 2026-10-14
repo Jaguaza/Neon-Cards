@@ -9,6 +9,13 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Lock Card: el halo se enciende en todas las tarjetas de una misma
+  entidad cuando esta cambia de estado, no solo en la pulsada (antes, si la
+  cerradura saltaba de `locked` a `unlocked` sin pasar por un estado
+  intermedio, solo se veía en la tarjeta pulsada).
+
 ### Changed
 
 - Lock Card: el icono `door` pasa a ser `mdi:door-closed` y se anima

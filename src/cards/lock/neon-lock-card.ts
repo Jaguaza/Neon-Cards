@@ -28,7 +28,7 @@ import { LockPoseAnimator } from './lock-pose-animator';
 import { isLockAlert, isLockMoving, isLockOpenPose, resolveLockState } from './lock-state';
 import { NEON_LOCK_CARD_STYLES } from './neon-lock-card.styles';
 import { LOCK_TRANSLATIONS } from './translations';
-import type { NeonLockCardConfig } from './types';
+import type { LockVisualState, NeonLockCardConfig } from './types';
 
 /**
  * Neón Lock Card
@@ -64,6 +64,8 @@ export class NeonLockCard extends BaseNeonCard {
    */
   private _flashUntil = 0;
   private _flashTimer?: ReturnType<typeof setTimeout>;
+  /** Último estado visto de la entidad, para detectar su cambio (ver `willUpdate`). */
+  private _lastSeen?: { entity: string | undefined; state: LockVisualState };
   /** Lleva el icono entre cerrado y abierto (ver lock-pose-animator.ts). */
   private readonly _pose = new LockPoseAnimator((s) => this._paintIcon(s));
   /** SVG del icono pintado ahora; cuando cambia (primer render, otro icono, vuelta desde `error`) se coloca sin animar. */
@@ -155,8 +157,7 @@ export class NeonLockCard extends BaseNeonCard {
     // Enciende el halo al accionar la cerradura — salvo que el gesto no
     // tenga acción (`none`) o no haya entidad válida a la que accionar.
     if (this._actionFor(actionType).action !== 'none' && resolveLockState(this._config, this.hass) !== 'error') {
-      this._flashUntil = performance.now() + ACTION_FLASH_MS;
-      this._scheduleFlashEnd(ACTION_FLASH_MS);
+      this._startFlash();
       this.requestUpdate();
     }
     dispatchHassAction(
@@ -204,6 +205,31 @@ export class NeonLockCard extends BaseNeonCard {
         </div>
       </ha-card>
     `;
+  }
+
+  private _startFlash(): void {
+    this._flashUntil = performance.now() + ACTION_FLASH_MS;
+    this._scheduleFlashEnd(ACTION_FLASH_MS);
+  }
+
+  /**
+   * El halo no es solo de la tarjeta pulsada: cuando la entidad cambia de
+   * estado (la accionó otra tarjeta, la app de HA, una automatización o el
+   * propio dispositivo) se enciende en TODAS las tarjetas que la muestran,
+   * igual que el icono se anima en todas. No cuenta el primer estado que se
+   * ve, cambiar de entidad en la config ni volver de `error`.
+   */
+  protected willUpdate(changed: PropertyValues): void {
+    super.willUpdate(changed);
+    const state = resolveLockState(this._config, this.hass);
+    if (!state || state === 'error') {
+      this._lastSeen = undefined;
+      return;
+    }
+    const entity = this._config?.entity;
+    const last = this._lastSeen;
+    if (last && last.entity === entity && last.state !== state) this._startFlash();
+    this._lastSeen = { entity, state };
   }
 
   private _isFlashing(): boolean {

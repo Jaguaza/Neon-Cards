@@ -221,6 +221,41 @@ describe('NeonLockCard', () => {
     }
   });
 
+  it('un cambio de estado de la entidad enciende el halo en todas las tarjetas, no solo en la pulsada', async () => {
+    vi.useFakeTimers();
+    const a = await mount({ lock_icon: 'padlock' });
+    const b = await mount({ lock_icon: 'door' });
+    click(a);
+    for (const el of [a, b]) {
+      el.hass = hassWith('unlocked'); // salta de locked a unlocked sin estado intermedio
+      await el.updateComplete;
+    }
+    expect(active(a)).toBe(true);
+    expect(active(b)).toBe(true);
+    vi.advanceTimersByTime(ACTION_FLASH_MS + 1);
+    await a.updateComplete;
+    await b.updateComplete;
+    expect(active(a)).toBe(false);
+    expect(active(b)).toBe(false);
+  });
+
+  it('sin cambio de estado no hay halo: ni el primer hass, ni un hass igual, ni cambiar de entidad, ni volver de error', async () => {
+    const el = await mount({});
+    expect(active(el)).toBe(false);
+    el.hass = hassWith('locked');
+    await el.updateComplete;
+    expect(active(el)).toBe(false);
+    el.hass = hassWith('unavailable');
+    await el.updateComplete;
+    el.hass = hassWith('unlocked');
+    await el.updateComplete;
+    expect(active(el)).toBe(false); // volver de error no es un cambio de estado
+    el.setConfig({ entity: 'lock.otra' });
+    el.hass = { ...hassWith('locked'), states: { 'lock.otra': { entity_id: 'lock.otra', state: 'locked', last_changed: '', last_updated: '', attributes: {} } } };
+    await el.updateComplete;
+    expect(active(el)).toBe(false); // otra entidad
+  });
+
   it('desconectar y reconectar a mitad del destello lo retoma y lo apaga a su hora', async () => {
     vi.useFakeTimers();
     const el = await mount({});

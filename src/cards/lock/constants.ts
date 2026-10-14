@@ -24,7 +24,8 @@ export const HA_LOCK_STATES: readonly LockVisualState[] = [
 
 /**
  * Duración (ms) del halo que se enciende al pulsar una acción (tap, hold
- * o double_tap distinta de `none`): el aro tarda 900 ms en dibujarse (ver
+ * o double_tap distinta de `none`) y, en todas las tarjetas de la entidad,
+ * cuando esta cambia de estado: el aro tarda 900 ms en dibujarse (ver
  * `transition` de `NEON_RING_SPLIT_STYLES` en `src/shared/glow.ts`) y se
  * mantiene un instante encendido antes de apagarse. Da respuesta
  * inmediata aunque la integración tarde en pasar a `locking`/`unlocking`

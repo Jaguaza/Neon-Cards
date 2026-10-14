@@ -5,7 +5,8 @@
 `custom:neon-lock-card` — tarjeta para entidades `lock` de Home Assistant
 (cerraduras, pestillos, cerraduras de garaje). Muestra el estado con un
 icono propio y el halo neón de la familia Neón Cards. En reposo la
-tarjeta no lleva halo: se enciende al accionar la cerradura.
+tarjeta no lleva halo: se enciende al accionar la cerradura y también
+cuando la entidad cambia de estado, en todas las tarjetas que la muestran.
 
 Misma base visual que la [Button Card](../button) (icono protagonista,
 nombre, subtítulo, halo neón que se dibuja desde la esquina superior
@@ -86,7 +87,8 @@ tap_action:
 `custom:neon-lock-card` — card for Home Assistant `lock` entities (door
 locks, latches, garage locks). Shows the state with a dedicated icon and
 the neon halo of the Neón Cards family. At rest the card has no halo: it
-lights up when the lock is operated.
+lights up when the lock is operated and also when the entity changes
+state, on every card that shows it.
 
 Same visual base as the [Button Card](../button) (large icon, name,
 subtitle, neon halo drawn from the top-left corner) and the same
