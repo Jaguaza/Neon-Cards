@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ACTION_PENDING_MS } from './constants';
+import { ACTION_PENDING_MS, CONFIRM_TIMEOUT_MS } from './constants';
 import { POSE_TOTAL_MS, shacklePath } from './icons/padlock-geometry';
 import { DOOR_DURATION_MS, doorLeafPath } from './icons/door';
 import { GARAGE_ROLLER_DURATION_MS, rollerGeometry, slatsPath } from './icons/garage-roller';
@@ -100,7 +100,7 @@ describe('NeonLockCard', () => {
   });
 
   it('todas las tarjetas de la misma entidad muestran el halo a la vez, la pulse quien la pulse', async () => {
-    const cards = [await mount({ lock_icon: 'padlock' }), await mount({ lock_icon: 'door' }), await mount({ lock_icon: 'garage_roller' })];
+    const cards = [await mount({ lock_icon: 'padlock', confirm_open: false }), await mount({ lock_icon: 'door', confirm_open: false }), await mount({ lock_icon: 'garage_roller', confirm_open: false })];
     click(cards[0]);
     for (const el of cards) {
       el.hass = hassWith('unlocked'); // salta de locked a unlocked sin estado intermedio
@@ -116,7 +116,7 @@ describe('NeonLockCard', () => {
 
   it('al pulsar para operar la cerradura el halo se enciende ya y espera el cambio de estado, sin hueco ni rebote', async () => {
     vi.useFakeTimers();
-    const el = await mount({});
+    const el = await mount({ confirm_open: false });
     click(el);
     // La cerradura tarda 2,1 s en cambiar de estado: nunca hay un instante apagado.
     for (let ms = 0; ms < 2100; ms += 100) {
@@ -150,7 +150,7 @@ describe('NeonLockCard', () => {
 
   it('si tras pulsar el estado no cambia, el halo se apaga al agotarse ACTION_PENDING_MS', async () => {
     vi.useFakeTimers();
-    const el = await mount({});
+    const el = await mount({ confirm_open: false });
     click(el);
     vi.advanceTimersByTime(ACTION_PENDING_MS - 1);
     await el.updateComplete;
@@ -245,7 +245,7 @@ describe('NeonLockCard', () => {
   });
 
   it('un toque despacha hass-action con toggle por defecto y la entidad', async () => {
-    const el = await mount({});
+    const el = await mount({ confirm_open: false });
     let detail: { config: Record<string, unknown>; action: string } | undefined;
     el.addEventListener('hass-action', (ev) => {
       detail = (ev as CustomEvent).detail;
@@ -296,7 +296,7 @@ describe('NeonLockCard', () => {
     let now = 1000;
     const spy = vi.spyOn(performance, 'now').mockImplementation(() => now);
     try {
-      const el = await mount({});
+      const el = await mount({ confirm_open: false });
       click(el);
       await el.updateComplete;
       expect(active(el)).toBe(true);
@@ -326,7 +326,7 @@ describe('NeonLockCard', () => {
 
   it('desconectar y reconectar a mitad de la espera la retoma y la termina a su hora', async () => {
     vi.useFakeTimers();
-    const el = await mount({});
+    const el = await mount({ confirm_open: false });
     click(el);
     await el.updateComplete;
     vi.advanceTimersByTime(500);
@@ -337,6 +337,171 @@ describe('NeonLockCard', () => {
     vi.advanceTimersByTime(ACTION_PENDING_MS - 500);
     await el.updateComplete;
     expect(active(el)).toBe(false);
+  });
+
+  describe('confirmación al abrir', () => {
+    const confirmView = (el: Card) => el.shadowRoot!.querySelector('.confirm');
+    const btn = (el: Card, cls: 'accept' | 'cancel') => el.shadowRoot!.querySelector<HTMLButtonElement>(`.confirm .${cls}`)!;
+    const listen = (el: Card) => {
+      const actions: string[] = [];
+      el.addEventListener('hass-action', (ev) => actions.push((ev as CustomEvent).detail.action));
+      return actions;
+    };
+
+    it('pulsar una cerradura cerrada muestra «¿Abrir?» con el halo encendido y NO ejecuta la acción', async () => {
+      const el = await mount({});
+      const actions = listen(el);
+      click(el);
+      await el.updateComplete;
+      expect(confirmView(el)).not.toBeNull();
+      expect(confirmView(el)!.getAttribute('role')).toBe('alertdialog');
+      expect(el.shadowRoot!.querySelector('.confirm-title')!.textContent).toBe('¿Abrir?');
+      expect(el.shadowRoot!.querySelector('.confirm-name')!.textContent).toBe('Puerta');
+      expect(btn(el, 'accept').textContent).toBe('Abrir');
+      expect(btn(el, 'cancel').textContent).toBe('Cancelar');
+      expect(active(el)).toBe(true);
+      expect(actions).toEqual([]);
+    });
+
+    it('se muestra en inglés con el idioma de HA en inglés', async () => {
+      const el = await mount({}, hassWith('locked', 'en'));
+      click(el);
+      await el.updateComplete;
+      expect(el.shadowRoot!.querySelector('.confirm-title')!.textContent).toBe('Open?');
+      expect(btn(el, 'accept').textContent).toBe('Open');
+      expect(btn(el, 'cancel').textContent).toBe('Cancel');
+    });
+
+    it('el foco va a «Cancelar» para que Intro no abra por accidente', async () => {
+      const el = await mount({});
+      click(el);
+      await el.updateComplete;
+      expect(el.shadowRoot!.activeElement).toBe(btn(el, 'cancel'));
+    });
+
+    it('Abrir ejecuta la acción original una sola vez y cierra la vista', async () => {
+      const el = await mount({});
+      const actions = listen(el);
+      click(el);
+      await el.updateComplete;
+      btn(el, 'accept').click();
+      await el.updateComplete;
+      expect(actions).toEqual(['tap']);
+      expect(confirmView(el)).toBeNull();
+      expect(active(el)).toBe(true); // espera el cambio de estado (ACTION_PENDING_MS)
+    });
+
+    it('Cancelar cierra la vista sin ejecutar nada y apaga el halo', async () => {
+      const el = await mount({});
+      const actions = listen(el);
+      click(el);
+      await el.updateComplete;
+      btn(el, 'cancel').click();
+      await el.updateComplete;
+      expect(confirmView(el)).toBeNull();
+      expect(actions).toEqual([]);
+      expect(active(el)).toBe(false);
+    });
+
+    it('los gestos dentro de la vista no llegan a la tarjeta (no re-piden confirmación ni mantienen)', async () => {
+      const el = await mount({});
+      click(el);
+      await el.updateComplete;
+      const view = confirmView(el)!;
+      view.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
+      view.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+      await el.updateComplete;
+      expect(el.shadowRoot!.querySelectorAll('.confirm').length).toBe(1);
+    });
+
+    it('Escape cancela', async () => {
+      const el = await mount({});
+      click(el);
+      await el.updateComplete;
+      confirmView(el)!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }));
+      await el.updateComplete;
+      expect(confirmView(el)).toBeNull();
+    });
+
+    it('sin respuesta se cancela sola tras CONFIRM_TIMEOUT_MS', async () => {
+      vi.useFakeTimers();
+      const el = await mount({});
+      const actions = listen(el);
+      click(el);
+      await el.updateComplete;
+      vi.advanceTimersByTime(CONFIRM_TIMEOUT_MS - 1);
+      await el.updateComplete;
+      expect(confirmView(el)).not.toBeNull();
+      vi.advanceTimersByTime(1);
+      await el.updateComplete;
+      expect(confirmView(el)).toBeNull();
+      expect(actions).toEqual([]);
+    });
+
+    it('si la cerradura cambia de estado mientras se pregunta, la vista se cierra', async () => {
+      const el = await mount({});
+      click(el);
+      await el.updateComplete;
+      el.hass = hassWith('unlocked'); // la abrió otra tarjeta, la app, una automatización…
+      await el.updateComplete;
+      expect(confirmView(el)).toBeNull();
+    });
+
+    it('si la entidad deja de estar disponible mientras se pregunta, la vista se cierra', async () => {
+      const el = await mount({});
+      click(el);
+      await el.updateComplete;
+      el.hass = hassWith('unavailable');
+      await el.updateComplete;
+      expect(confirmView(el)).toBeNull();
+    });
+
+    it('cerrar NO pide confirmación: la acción se ejecuta directamente', async () => {
+      const el = await mount({}, hassWith('unlocked'));
+      const actions = listen(el);
+      click(el);
+      await el.updateComplete;
+      expect(confirmView(el)).toBeNull();
+      expect(actions).toEqual(['tap']);
+    });
+
+    it('confirm_open: false la desactiva y abre directamente', async () => {
+      const el = await mount({ confirm_open: false });
+      const actions = listen(el);
+      click(el);
+      await el.updateComplete;
+      expect(confirmView(el)).toBeNull();
+      expect(actions).toEqual(['tap']);
+    });
+
+    it('las acciones que no operan la cerradura (más info, navegar) no piden confirmación', async () => {
+      const el = await mount({ tap_action: { action: 'more-info' } });
+      const actions = listen(el);
+      click(el);
+      await el.updateComplete;
+      expect(confirmView(el)).toBeNull();
+      expect(actions).toEqual(['tap']);
+    });
+
+    it('un servicio lock.lock no pide confirmación; lock.unlock sí', async () => {
+      const lockSvc = await mount({ tap_action: { action: 'call-service', service: 'lock.lock' } });
+      click(lockSvc);
+      await lockSvc.updateComplete;
+      expect(confirmView(lockSvc)).toBeNull();
+      const unlockSvc = await mount({ tap_action: { action: 'call-service', service: 'lock.unlock' } });
+      click(unlockSvc);
+      await unlockSvc.updateComplete;
+      expect(confirmView(unlockSvc)).not.toBeNull();
+    });
+
+    it('el aviso se cancela al desconectar la tarjeta', async () => {
+      vi.useFakeTimers();
+      const el = await mount({});
+      click(el);
+      await el.updateComplete;
+      el.remove();
+      expect(() => vi.advanceTimersByTime(CONFIRM_TIMEOUT_MS + 1)).not.toThrow();
+    });
   });
 
   it('lock_icon por defecto o inválido es el candado', async () => {

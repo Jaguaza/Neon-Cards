@@ -9,6 +9,15 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- Lock Card: confirmación al abrir (`confirm_open`, activa por defecto). Al
+  pulsar para abrir la cerradura aparece una vista «¿Abrir?» en la propia
+  tarjeta, con el halo encendido y botones neón (Abrir / Cancelar; Esc
+  cancela, el foco empieza en Cancelar). Se cancela sola a los 8 s o si la
+  cerradura cambia de estado. Cerrar nunca pregunta. Interruptor en el
+  editor visual; `confirm_open: false` la desactiva.
+
 ### Changed
 
 - Lock Card: el estado `jammed` (atascada) muestra la X de error

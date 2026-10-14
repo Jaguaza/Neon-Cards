@@ -37,3 +37,10 @@ export const OPERATING_ACTIONS: readonly string[] = ['toggle', 'call-service', '
  * cambia manda el estado. Si no cambia (acción fallida) se apaga al agotarse.
  */
 export const ACTION_PENDING_MS = 6000;
+
+/**
+ * Tiempo (ms) que la vista «¿Abrir?» espera una respuesta antes de
+ * cancelarse sola: una cerradura no debe quedarse con la orden de abrir
+ * pendiente indefinidamente si alguien pulsa y se va.
+ */
+export const CONFIRM_TIMEOUT_MS = 8000;

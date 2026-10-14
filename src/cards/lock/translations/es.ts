@@ -21,5 +21,9 @@ export const es: LockTranslations = {
   subtitle_type_custom: 'Personalizado',
   subtitle_placeholder: 'Texto libre',
   section_halo: 'Apariencia del halo',
-  palette_label: 'Paleta del halo (al accionar)',
+  palette_label: 'Paleta del halo',
+  confirm_title: '¿Abrir?',
+  confirm_accept: 'Abrir',
+  confirm_cancel: 'Cancelar',
+  confirm_open_label: 'Pedir confirmación antes de abrir',
 };

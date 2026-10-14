@@ -20,14 +20,15 @@ import {
   neonRingSplitTemplate,
   RingSizeController,
 } from '../../shared';
-import { ACTION_PENDING_MS, ERROR_ICON, OPERATING_ACTIONS } from './constants';
+import { ACTION_PENDING_MS, CONFIRM_TIMEOUT_MS, ERROR_ICON, OPERATING_ACTIONS } from './constants';
 import { LOCK_ICONS, resolveLockIconType } from './icons';
 import type { LockIconDef } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
 import { LockPoseAnimator } from './lock-pose-animator';
-import { isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, resolveLockState } from './lock-state';
+import { isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, isOpeningAction, resolveLockState } from './lock-state';
 import { NEON_LOCK_CARD_STYLES } from './neon-lock-card.styles';
 import { LOCK_TRANSLATIONS } from './translations';
+import type { LockTranslations } from './translations';
 import type { LockVisualState, NeonLockCardConfig } from './types';
 
 /**
@@ -65,6 +66,10 @@ export class NeonLockCard extends BaseNeonCard {
    */
   private _pendingUntil = 0;
   private _pendingTimer?: ReturnType<typeof setTimeout>;
+  /** Vista «¿Abrir?» abierta: el gesto que la provocó, para ejecutarlo al aceptar. */
+  private _confirm?: { actionType: string };
+  private _confirmTimer?: ReturnType<typeof setTimeout>;
+  private _confirmFocused = false;
   /** Último estado visto de la entidad, para detectar su cambio (ver `willUpdate`). */
   private _lastSeen?: { entity: string | undefined; state: LockVisualState };
   /** Lleva el icono entre cerrado y abierto (ver lock-pose-animator.ts). */
@@ -155,6 +160,16 @@ export class NeonLockCard extends BaseNeonCard {
   }
 
   private _handleAction(actionType: string): void {
+    // Abrir la cerradura pide confirmación en una vista neón de la propia
+    // tarjeta (se desactiva con `confirm_open: false`); cerrar, no.
+    if (this._config?.confirm_open !== false && isOpeningAction(this._actionFor(actionType), resolveLockState(this._config, this.hass))) {
+      this._askConfirm(actionType);
+      return;
+    }
+    this._execute(actionType);
+  }
+
+  private _execute(actionType: string): void {
     // Si la acción opera la cerradura, el halo se enciende ya y espera el
     // cambio de estado (ver `ACTION_PENDING_MS`); no hay entidad válida a la
     // que accionar si está en `error`.
@@ -175,6 +190,67 @@ export class NeonLockCard extends BaseNeonCard {
     );
   }
 
+  private _askConfirm(actionType: string): void {
+    this._confirm = { actionType };
+    clearTimeout(this._confirmTimer);
+    this._confirmTimer = setTimeout(() => this._cancelConfirm(), CONFIRM_TIMEOUT_MS);
+    this.requestUpdate();
+  }
+
+  private _acceptConfirm(): void {
+    const pending = this._confirm;
+    this._dropConfirm();
+    this.requestUpdate();
+    if (pending) this._execute(pending.actionType);
+  }
+
+  private _cancelConfirm(): void {
+    this._dropConfirm();
+    this.requestUpdate();
+  }
+
+  /** Cierra la vista sin pedir render (para usarlo también desde `willUpdate`). */
+  private _dropConfirm(): void {
+    clearTimeout(this._confirmTimer);
+    this._confirm = undefined;
+  }
+
+  /**
+   * La vista «¿Abrir?» cuelga encima del contenido y recoge sus propios
+   * gestos: sin cortar la propagación, el clic en un botón llegaría al
+   * `ha-card` y se interpretaría como otra pulsación (y otra confirmación).
+   */
+  private _renderConfirm(): TemplateResult {
+    const stop = (ev: Event) => ev.stopPropagation();
+    return html`
+      <div
+        class="confirm"
+        role="alertdialog"
+        aria-label=${this._t('confirm_title')}
+        @pointerdown=${stop}
+        @pointerup=${stop}
+        @pointercancel=${stop}
+        @click=${stop}
+        @keydown=${(ev: KeyboardEvent) => {
+          if (ev.key === 'Escape') this._cancelConfirm();
+        }}
+      >
+        <div class="confirm-text">
+          <span class="confirm-title">${this._t('confirm_title')}</span>
+          <span class="confirm-name">${this._name}</span>
+        </div>
+        <div class="confirm-actions">
+          <button type="button" class="confirm-btn cancel" @click=${() => this._cancelConfirm()}>${this._t('confirm_cancel')}</button>
+          <button type="button" class="confirm-btn accept" @click=${() => this._acceptConfirm()}>${this._t('confirm_accept')}</button>
+        </div>
+      </div>
+    `;
+  }
+
+  private _t(key: keyof LockTranslations): string {
+    return localize(this.hass, LOCK_TRANSLATIONS, key);
+  }
+
   protected render(): TemplateResult | typeof nothing {
     if (!this._config) return nothing;
     const colors = resolveGradientColors(this._config);
@@ -184,7 +260,7 @@ export class NeonLockCard extends BaseNeonCard {
 
     return html`
       <ha-card
-        class="neon-ring-host ${isLockHaloOn(state) || this._isPending() ? 'neon-halo-active' : ''} ${isLockAlert(state) ? 'neon-halo-error' : ''} ${isLockMoving(state) ? 'lock-moving' : ''}"
+        class="neon-ring-host ${isLockHaloOn(state) || this._isPending() || this._confirm ? 'neon-halo-active' : ''} ${isLockAlert(state) ? 'neon-halo-error' : ''} ${isLockMoving(state) ? 'lock-moving' : ''}"
         style=${neonHaloVars(colors)}
         @pointerdown=${(ev: PointerEvent) => handlePointerDown(this._gesture, ev, '.-none-', () => this._handleAction('hold'))}
         @pointerup=${() => cancelHold(this._gesture)}
@@ -206,6 +282,7 @@ export class NeonLockCard extends BaseNeonCard {
             ${subtitle !== nothing ? html`<span class="subtitle">${subtitle}</span>` : nothing}
           </div>
         </div>
+      ${this._confirm ? this._renderConfirm() : nothing}
       </ha-card>
     `;
   }
@@ -222,11 +299,16 @@ export class NeonLockCard extends BaseNeonCard {
     const state = resolveLockState(this._config, this.hass);
     if (!state || state === 'error') {
       this._lastSeen = undefined;
+      this._dropConfirm();
       return;
     }
     const entity = this._config?.entity;
     const last = this._lastSeen;
-    if (last && last.entity === entity && last.state !== state) this._pendingUntil = 0;
+    if (last && last.entity === entity && last.state !== state) {
+      this._pendingUntil = 0;
+      // Si la cerradura cambia mientras se pregunta, la pregunta ya no vale.
+      this._dropConfirm();
+    }
     this._lastSeen = { entity, state };
   }
 
@@ -246,6 +328,14 @@ export class NeonLockCard extends BaseNeonCard {
   /** Tras cada render: lleva el icono a la pose del estado actual y lo repinta. */
   protected updated(changed: PropertyValues): void {
     super.updated(changed);
+    // Al abrirse la vista «¿Abrir?» el foco va a «Cancelar»: así Intro o
+    // Espacio no abren la cerradura por accidente.
+    if (this._confirm && !this._confirmFocused) {
+      this._confirmFocused = true;
+      this.renderRoot.querySelector<HTMLElement>('.confirm .cancel')?.focus();
+    } else if (!this._confirm) {
+      this._confirmFocused = false;
+    }
     const svg = this.renderRoot.querySelector<SVGElement>('svg.lock-icon') ?? undefined;
     if (!svg) {
       this._iconEl = undefined;
@@ -274,6 +364,7 @@ export class NeonLockCard extends BaseNeonCard {
   disconnectedCallback(): void {
     super.disconnectedCallback();
     clearTimeout(this._pendingTimer);
+    this._dropConfirm();
     this._pose.dispose();
   }
 }

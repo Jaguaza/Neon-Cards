@@ -48,6 +48,12 @@ export interface NeonLockCardConfig {
   neon_color1?: string;
   neon_color2?: string;
   neon_color3?: string;
+  /**
+   * Pide confirmación («¿Abrir?») en una vista neón dentro de la tarjeta
+   * antes de ejecutar una acción que ABRE la cerradura. Activo por
+   * defecto; `false` lo desactiva. Cerrar nunca pide confirmación.
+   */
+  confirm_open?: boolean;
   tap_action?: ActionConfig;
   hold_action?: ActionConfig;
   double_tap_action?: ActionConfig;

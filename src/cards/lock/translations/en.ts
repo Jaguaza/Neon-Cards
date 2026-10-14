@@ -21,5 +21,9 @@ export const en: LockTranslations = {
   subtitle_type_custom: 'Custom',
   subtitle_placeholder: 'Free text',
   section_halo: 'Halo appearance',
-  palette_label: 'Halo palette (on action)',
+  palette_label: 'Halo palette',
+  confirm_title: 'Open?',
+  confirm_accept: 'Open',
+  confirm_cancel: 'Cancel',
+  confirm_open_label: 'Ask for confirmation before opening',
 };

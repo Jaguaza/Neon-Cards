@@ -1,6 +1,8 @@
 import type { HomeAssistant } from '../../ha/types';
 import { HA_LOCK_STATES } from './constants';
 import type { LockVisualState, NeonLockCardConfig } from './types';
+import type { ActionConfig } from '../../ha/types';
+import { OPERATING_ACTIONS } from './constants';
 
 /**
  * Estado visual de la cerradura a partir de la config y de `hass`.
@@ -55,4 +57,21 @@ export function isLockOpenPose(state: LockVisualState | undefined): boolean {
  */
 export function isLockHaloOn(state: LockVisualState | undefined): boolean {
   return state === 'unlocking' || state === 'unlocked' || state === 'open' || state === 'opening' || state === 'locking';
+}
+
+/**
+ * ¿Esta acción, con la cerradura en este estado, la va a ABRIR? Es lo que
+ * pide confirmación (ver `confirm_open`). `toggle` abre si está cerrada
+ * (`locked`); un servicio explícito se decide por su nombre
+ * (`lock.unlock` y `lock.open` abren, `lock.lock` no) y, si es otro
+ * (un script, por ejemplo), por el estado: cerrada → se entiende que abre.
+ * Más info, navegar, etc. no operan la cerradura y nunca piden confirmación.
+ */
+export function isOpeningAction(action: ActionConfig, state: LockVisualState | undefined): boolean {
+  if (!OPERATING_ACTIONS.includes(action.action) || !state || state === 'error') return false;
+  if (action.action === 'toggle') return state === 'locked';
+  const service = String(action.perform_action ?? action.service ?? '');
+  if (service === 'lock.lock') return false;
+  if (service === 'lock.unlock' || service === 'lock.open') return true;
+  return state === 'locked';
 }

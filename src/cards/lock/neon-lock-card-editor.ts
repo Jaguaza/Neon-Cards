@@ -60,6 +60,9 @@ export class NeonLockCardEditor extends LitElement {
         border-color: var(--primary-color);
         box-shadow: inset 0 0 0 1px var(--primary-color);
       }
+      ha-formfield {
+        display: flex;
+      }
       .icon-tile .lock-icon {
         margin-bottom: 0;
         color: var(--primary-text-color);
@@ -254,6 +257,12 @@ export class NeonLockCardEditor extends LitElement {
     return html`
       <div class="editor-section">
         <div class="section-header">${this._ts('section_actions')}</div>
+        <ha-formfield label=${this._t('confirm_open_label')}>
+          <ha-switch
+            .checked=${this._config?.confirm_open !== false}
+            @change=${(ev: Event) => this._configChanged('confirm_open', (ev.target as HTMLInputElement).checked ? undefined : false)}
+          ></ha-switch>
+        </ha-formfield>
         ${this._renderActionEditor('action_tap', 'tap_action', 'toggle')}
         ${this._renderActionEditor('action_hold', 'hold_action', 'more-info')}
         ${this._renderActionEditor('action_double_tap', 'double_tap_action', 'none')}

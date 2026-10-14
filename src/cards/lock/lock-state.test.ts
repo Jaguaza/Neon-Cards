@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, resolveLockState } from './lock-state';
+import { isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, isOpeningAction, resolveLockState } from './lock-state';
 import { HA_LOCK_STATES } from './constants';
 import type { HomeAssistant } from '../../ha/types';
 
@@ -80,5 +80,29 @@ describe('isLockOpenPose', () => {
 
   it('cerrado en locked, locking, jammed, error y sin hass', () => {
     for (const s of ['locked', 'locking', 'jammed', 'error', undefined] as const) expect(isLockOpenPose(s)).toBe(false);
+  });
+});
+
+describe('isOpeningAction', () => {
+  it('toggle abre solo si está cerrada', () => {
+    expect(isOpeningAction({ action: 'toggle' }, 'locked')).toBe(true);
+    for (const s of ['unlocked', 'open', 'locking', 'unlocking', 'opening', 'jammed', 'error', undefined] as const) {
+      expect(isOpeningAction({ action: 'toggle' }, s)).toBe(false);
+    }
+  });
+
+  it('un servicio se decide por su nombre: lock.unlock y lock.open abren, lock.lock no', () => {
+    expect(isOpeningAction({ action: 'call-service', service: 'lock.unlock' }, 'unlocked')).toBe(true);
+    expect(isOpeningAction({ action: 'perform-action', perform_action: 'lock.open' }, 'locked')).toBe(true);
+    expect(isOpeningAction({ action: 'call-service', service: 'lock.lock' }, 'locked')).toBe(false);
+  });
+
+  it('otro servicio (un script) se entiende que abre si está cerrada', () => {
+    expect(isOpeningAction({ action: 'call-service', service: 'script.portón' }, 'locked')).toBe(true);
+    expect(isOpeningAction({ action: 'call-service', service: 'script.portón' }, 'unlocked')).toBe(false);
+  });
+
+  it('las acciones que no operan la cerradura nunca abren', () => {
+    for (const a of ['more-info', 'navigate', 'url', 'assist', 'none']) expect(isOpeningAction({ action: a }, 'locked')).toBe(false);
   });
 });

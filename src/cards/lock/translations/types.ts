@@ -27,4 +27,8 @@ export interface LockTranslations {
   subtitle_placeholder: string;
   section_halo: string;
   palette_label: string;
+  confirm_title: string;
+  confirm_accept: string;
+  confirm_cancel: string;
+  confirm_open_label: string;
 }

@@ -80,8 +80,102 @@ export const NEON_LOCK_CARD_STYLES = css`
       opacity: 0.45;
     }
   }
+  /* Vista «¿Abrir?»: cristal oscuro sobre la tarjeta, con el halo del
+     aro encendido y botones de contorno neón (--neon-c1/c2 de la paleta).
+     Se separa 3px del borde para no tapar el aro (trazo de 2,4px). */
+  .confirm {
+    position: absolute;
+    inset: 3px;
+    z-index: 2;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 17px;
+    border-radius: calc(var(--ha-card-border-radius, 12px) - 3px);
+    background: color-mix(in srgb, var(--ha-card-background, var(--card-background-color, #1c1c1c)) 92%, transparent);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    cursor: default;
+    animation: confirm-in 180ms ease-out;
+  }
+  .confirm-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .confirm-title {
+    font-size: 18px;
+    line-height: 22px;
+    font-weight: 600;
+    color: var(--primary-text-color);
+    text-shadow: 0 0 8px color-mix(in srgb, var(--neon-c1) 70%, transparent);
+  }
+  .confirm-name {
+    font-size: 11px;
+    line-height: 14px;
+    color: var(--secondary-text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .confirm-actions {
+    display: flex;
+    gap: 8px;
+    flex: 0 0 auto;
+  }
+  .confirm-btn {
+    box-sizing: border-box;
+    min-width: 64px;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1.5px solid var(--neon-c1);
+    background: transparent;
+    color: var(--neon-c1);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 0 8px color-mix(in srgb, var(--neon-c1) 45%, transparent), inset 0 0 6px color-mix(in srgb, var(--neon-c1) 25%, transparent);
+    transition: background 150ms ease-out, box-shadow 150ms ease-out, transform 100ms ease;
+  }
+  .confirm-btn:hover,
+  .confirm-btn:focus-visible {
+    background: color-mix(in srgb, var(--neon-c1) 22%, transparent);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--neon-c1) 70%, transparent), inset 0 0 8px color-mix(in srgb, var(--neon-c1) 35%, transparent);
+    outline: none;
+  }
+  .confirm-btn:active {
+    transform: scale(0.95);
+  }
+  /* «Cancelar» discreto (color secundario de la paleta, sin relleno);
+     «Abrir» es la acción destacada, con el relleno de neón. */
+  .confirm-btn.cancel {
+    border-color: color-mix(in srgb, var(--neon-c2) 55%, transparent);
+    color: var(--secondary-text-color);
+    box-shadow: none;
+  }
+  .confirm-btn.accept {
+    background: color-mix(in srgb, var(--neon-c1) 18%, transparent);
+  }
+  @keyframes confirm-in {
+    from {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
     .lock-moving .neon-halo-icon {
+      animation: none;
+    }
+    .confirm {
       animation: none;
     }
   }

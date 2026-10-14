@@ -68,6 +68,7 @@ name: Puerta principal
 | `subtitle` | string | — | Texto libre cuando `subtitle_type: custom`. |
 | `neon_palette` | `emerald` \| `cyberpunk` \| `electric` \| `sunset` \| `toxic` \| `custom` | `emerald` | Paleta del halo. |
 | `neon_color1/2/3` | color | — | Solo con `neon_palette: custom`. |
+| `confirm_open` | booleano | `true` | Pide confirmación («¿Abrir?») antes de abrir; ver [Confirmación al abrir](#confirmación-al-abrir). `false` la desactiva. |
 | `tap_action` | acción | `toggle` | Cierra o abre la cerradura. |
 | `hold_action` | acción | `more-info` | |
 | `double_tap_action` | acción | `none` | |
@@ -85,6 +86,23 @@ tap_action:
 ```
 
 ---
+
+## Confirmación al abrir
+
+Como medida de seguridad, al pulsar para **abrir** la cerradura la tarjeta
+no actúa de inmediato: muestra una vista «¿Abrir?» dentro de la propia
+tarjeta, con el halo encendido y botones de contorno neón con la paleta
+elegida. **Abrir** ejecuta la acción; **Cancelar** (o la tecla Esc) la
+descarta. El foco empieza en Cancelar para que Intro no abra por accidente.
+
+- Se cancela sola a los 8 s sin respuesta, y también si la cerradura cambia
+  de estado o deja de estar disponible mientras se pregunta.
+- **Cerrar nunca pide confirmación.**
+- Solo afecta a las acciones que operan la cerradura: `toggle` con la
+  cerradura cerrada, y servicios que abren (`lock.unlock`, `lock.open`, o
+  cualquier otro servicio —un script, por ejemplo— estando cerrada).
+  `lock.lock`, más info, navegar, etc. no preguntan.
+- `confirm_open: false` la desactiva.
 
 # src/cards/lock (English)
 
@@ -154,6 +172,7 @@ name: Front door
 | `subtitle` | string | — | Free text when `subtitle_type: custom`. |
 | `neon_palette` | `emerald` \| `cyberpunk` \| `electric` \| `sunset` \| `toxic` \| `custom` | `emerald` | Halo palette. |
 | `neon_color1/2/3` | color | — | Only with `neon_palette: custom`. |
+| `confirm_open` | boolean | `true` | Asks for confirmation ("Open?") before opening; see [Confirmation before opening](#confirmation-before-opening). `false` turns it off. |
 | `tap_action` | action | `toggle` | Locks or unlocks. |
 | `hold_action` | action | `more-info` | |
 | `double_tap_action` | action | `none` | |
@@ -168,3 +187,20 @@ tap_action:
   confirmation:
     text: Unlock the door?
 ```
+
+## Confirmation before opening
+
+As a safety measure, pressing to **open** the lock does not act right away:
+the card shows an "Open?" view inside itself, with the halo lit and
+neon-outlined buttons in the chosen palette. **Open** runs the action;
+**Cancel** (or the Esc key) discards it. Focus starts on Cancel so Enter
+does not open by accident.
+
+- It cancels itself after 8 s without an answer, and also if the lock
+  changes state or becomes unavailable while asking.
+- **Closing never asks for confirmation.**
+- It only affects actions that operate the lock: `toggle` while locked, and
+  services that open (`lock.unlock`, `lock.open`, or any other service —a
+  script, for instance— while locked). `lock.lock`, more-info, navigate,
+  etc. do not ask.
+- `confirm_open: false` turns it off.

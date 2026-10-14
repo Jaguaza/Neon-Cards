@@ -87,6 +87,18 @@ describe('NeonLockCardEditor', () => {
     expect(el.shadowRoot!.querySelectorAll('input[type="color"]').length).toBe(3);
   });
 
+  it('el interruptor de confirmación al abrir está activo por defecto y desactivarlo guarda confirm_open: false', async () => {
+    const { el, last } = await mount({ entity: 'lock.puerta' });
+    const sw = q(el, 'ha-switch') as unknown as HTMLInputElement;
+    expect(sw.checked).toBe(true);
+    sw.checked = false;
+    sw.dispatchEvent(new Event('change'));
+    expect(last().confirm_open).toBe(false);
+    sw.checked = true;
+    sw.dispatchEvent(new Event('change'));
+    expect('confirm_open' in last()).toBe(false); // el valor por defecto no se guarda
+  });
+
   it('tiene tres editores de acción (tap, hold, double tap)', async () => {
     const { el } = await mount({ entity: 'lock.puerta' });
     expect(el.shadowRoot!.querySelectorAll('hui-action-editor').length).toBe(3);
