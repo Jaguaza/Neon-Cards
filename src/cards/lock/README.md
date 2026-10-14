@@ -28,10 +28,13 @@ como la de un candado real: el cuerpo queda fijo, el arco **sube sacando
 la pata corta del cuerpo** y después **gira sobre la pata larga** (la que
 sigue unida): visto de frente se estrecha hasta quedar de canto y se abre
 hacia el otro lado (≈0,7 s). Al cerrar hace el recorrido inverso (primero
-gira de vuelta y después baja). Los estados transitorios adoptan ya la
-pose de destino, así la animación arranca en cuanto la cerradura empieza
-a moverse. Con `prefers-reduced-motion` el arco cambia de pose sin
-animación.
+gira de vuelta y después baja). La forma del arco se calcula para cada
+fotograma (no hay transiciones CSS ni giros por escala, que se dibujan
+distinto según el navegador); si la cerradura cambia de estado a mitad
+del recorrido, el arco continúa desde donde esté, sin saltos. Los estados
+transitorios adoptan ya la pose de destino, así la animación arranca en
+cuanto la cerradura empieza a moverse. Con `prefers-reduced-motion` el
+arco cambia de pose sin animación.
 
 ## Config
 
@@ -95,10 +98,13 @@ opening like a real padlock: the body stays fixed, the shackle **lifts,
 pulling its short leg out of the body**, and then **swings around the
 long leg** (the one that stays attached): seen from the front it narrows
 to edge-on and opens out the other way (≈0.7 s). Closing plays the same
-path in reverse (it swings back first, then drops). Transitional states
-already take the target pose, so the animation starts as soon as the
-lock begins to move. Under `prefers-reduced-motion` the shackle switches
-pose without animating.
+path in reverse (it swings back first, then drops). The shackle's shape is
+computed for every frame (no CSS transitions or scale-based flips, which
+render differently across browsers); if the lock changes state midway,
+the shackle continues from wherever it is, with no jumps. Transitional
+states already take the target pose, so the animation starts as soon as
+the lock begins to move. Under `prefers-reduced-motion` the shackle
+switches pose without animating.
 
 ## Config
 

@@ -3,33 +3,25 @@ import type { TemplateResult } from 'lit';
 
 /**
  * Candado propio en SVG (en lugar de un icono `mdi`) para animar la
- * apertura como la de un candado real:
+ * apertura como la de un candado real: el arco SUBE sacando la pata corta
+ * del cuerpo y después GIRA sobre el eje de la pata larga, que sigue unida.
+ * Al cerrar hace el recorrido inverso.
  *
- *  1. El arco SUBE y su pata corta (la derecha) sale del cuerpo.
- *  2. Después GIRA sobre el eje vertical de la pata larga (la izquierda,
- *     que sigue metida en el cuerpo): visto de frente el arco se estrecha
- *     hasta quedar de canto y se abre hacia el otro lado.
+ * Este template solo dibuja el cuerpo fijo y el arco SIN el atributo `d`:
+ * la forma del arco la calcula `lock-geometry.ts` para cada instante y la
+ * escribe `NeonLockCard` (con `LockPoseAnimator`). El atributo `d` se pone
+ * a mano, no con un binding de Lit, para repintar el arco sin re-renderizar
+ * toda la tarjeta en cada fotograma. La clase `is-open` es solo el marcador
+ * de la pose de destino.
  *
- * Al cerrar hace el recorrido inverso. `.shackle-lift` es la subida y
- * `.shackle-turn` el giro (un `scaleX` alrededor de la pata larga, que es
- * la proyección de un giro en 3D); las transiciones están en
- * `lock-icon.styles.ts`. Este template solo alterna la clase `is-open` y,
- * como Lit reutiliza el mismo nodo SVG entre renders, el navegador anima
- * el cambio.
- *
- * Geometría (viewBox 24x24, cuerpo de y=12 a y=22): la pata larga baja
- * hasta y=17,5 y la corta hasta y=13,6, ambas por dentro del cuerpo (que
- * se dibuja encima). Al subir 3,4 unidades la pata corta queda libre del
- * cuerpo mientras la larga sigue dentro.
+ * Geometría (viewBox 24x24, cuerpo de y=12 a y=22): las patas bajan por
+ * dentro del cuerpo (que se dibuja encima), así al subir el arco no queda
+ * cortado en el borde.
  */
 export function lockIconTemplate(open: boolean): TemplateResult {
   return html`
     <svg class="lock-icon neon-halo-icon ${open ? 'is-open' : ''}" viewBox="0 0 24 24" aria-hidden="true">
-      <g class="shackle-lift">
-        <g class="shackle-turn">
-          <path class="shackle" d="M8.5 17.5V10a3.5 3.5 0 0 1 7 0V13.6"></path>
-        </g>
-      </g>
+      <path class="shackle"></path>
       <path
         class="body"
         fill-rule="evenodd"

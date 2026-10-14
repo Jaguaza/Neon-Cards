@@ -1,5 +1,5 @@
 import { html, nothing } from 'lit';
-import type { TemplateResult } from 'lit';
+import type { PropertyValues, TemplateResult } from 'lit';
 import type { ActionConfig, HomeAssistant } from '../../ha/types';
 import {
   BaseNeonCard,
@@ -21,8 +21,10 @@ import {
   RingSizeController,
 } from '../../shared';
 import { ACTION_FLASH_MS, ERROR_ICON } from './constants';
+import { shacklePath } from './lock-geometry';
 import { lockIconTemplate } from './lock-icon';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
+import { LockPoseAnimator } from './lock-pose-animator';
 import { isLockAlert, isLockMoving, isLockOpenPose, resolveLockState } from './lock-state';
 import { NEON_LOCK_CARD_STYLES } from './neon-lock-card.styles';
 import { LOCK_TRANSLATIONS } from './translations';
@@ -43,7 +45,6 @@ export class NeonLockCard extends BaseNeonCard {
   static properties = {
     ...BaseNeonCard.properties,
     _config: { state: true },
-    _flash: { state: true },
   };
 
   private _config?: NeonLockCardConfig;
@@ -53,9 +54,18 @@ export class NeonLockCard extends BaseNeonCard {
   private readonly _ringUid = Math.random().toString(36).slice(2);
   /** Tamaño real de ha-card para el aro SVG (ver RingSizeController). */
   private readonly _ring = new RingSizeController(this);
-  /** Halo encendido por una pulsación (ver _handleAction / ACTION_FLASH_MS). */
-  private _flash = false;
+  /**
+   * Instante (performance.now) hasta el que el halo está encendido por una
+   * pulsación. Se guarda la MARCA DE TIEMPO y no un booleano: el halo se
+   * decide comparando con el reloj en cada render, así que aunque el
+   * temporizador de abajo no llegase a dispararse, cualquier actualización
+   * de `hass` apaga el halo. El temporizador solo provoca el re-render.
+   */
+  private _flashUntil = 0;
   private _flashTimer?: ReturnType<typeof setTimeout>;
+  /** Mueve el arco del candado (ver lock-pose-animator.ts). */
+  private readonly _pose = new LockPoseAnimator((s) => this._paintShackle(s));
+  private _shackleEl?: SVGPathElement;
 
   static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_LOCK_ICON_STYLES, NEON_LOCK_CARD_STYLES];
 
@@ -135,11 +145,9 @@ export class NeonLockCard extends BaseNeonCard {
     // Enciende el halo al accionar la cerradura — salvo que el gesto no
     // tenga acción (`none`) o no haya entidad válida a la que accionar.
     if (this._actionFor(actionType).action !== 'none' && resolveLockState(this._config, this.hass) !== 'error') {
-      this._flash = true;
-      clearTimeout(this._flashTimer);
-      this._flashTimer = setTimeout(() => {
-        this._flash = false;
-      }, ACTION_FLASH_MS);
+      this._flashUntil = performance.now() + ACTION_FLASH_MS;
+      this._scheduleFlashEnd(ACTION_FLASH_MS);
+      this.requestUpdate();
     }
     dispatchHassAction(
       this,
@@ -162,7 +170,7 @@ export class NeonLockCard extends BaseNeonCard {
 
     return html`
       <ha-card
-        class="neon-ring-host ${isLockMoving(state) || this._flash ? 'neon-halo-active' : ''} ${isLockAlert(state) ? 'neon-halo-error' : ''} ${isLockMoving(state) ? 'lock-moving' : ''}"
+        class="neon-ring-host ${isLockMoving(state) || this._isFlashing() ? 'neon-halo-active' : ''} ${isLockAlert(state) ? 'neon-halo-error' : ''} ${isLockMoving(state) ? 'lock-moving' : ''}"
         style=${neonHaloVars(colors)}
         @pointerdown=${(ev: PointerEvent) => handlePointerDown(this._gesture, ev, '.-none-', () => this._handleAction('hold'))}
         @pointerup=${() => cancelHold(this._gesture)}
@@ -188,8 +196,50 @@ export class NeonLockCard extends BaseNeonCard {
     `;
   }
 
+  private _isFlashing(): boolean {
+    return performance.now() < this._flashUntil;
+  }
+
+  private _scheduleFlashEnd(ms: number): void {
+    clearTimeout(this._flashTimer);
+    this._flashTimer = setTimeout(() => this.requestUpdate(), ms);
+  }
+
+  private _paintShackle(s: number): void {
+    this._shackleEl?.setAttribute('d', shacklePath(s));
+  }
+
+  /** Tras cada render: lleva el arco a la pose del estado actual y lo repinta. */
+  protected updated(changed: PropertyValues): void {
+    super.updated(changed);
+    const path = this.renderRoot.querySelector<SVGPathElement>('path.shackle') ?? undefined;
+    if (!path) {
+      this._shackleEl = undefined;
+      return;
+    }
+    const open = isLockOpenPose(resolveLockState(this._config, this.hass));
+    if (path !== this._shackleEl) {
+      // SVG recién creado (primer render o vuelta desde `error`): sin animar.
+      this._shackleEl = path;
+      this._pose.snap(open);
+    } else {
+      this._pose.set(open);
+    }
+    this._paintShackle(this._pose.value());
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    // Si se reconecta a mitad de un destello o de un movimiento, se retoman
+    // desde el reloj: nada se queda a medias.
+    const remaining = this._flashUntil - performance.now();
+    if (remaining > 0) this._scheduleFlashEnd(remaining);
+    this._pose.set(isLockOpenPose(resolveLockState(this._config, this.hass)));
+  }
+
   disconnectedCallback(): void {
     super.disconnectedCallback();
     clearTimeout(this._flashTimer);
+    this._pose.dispose();
   }
 }

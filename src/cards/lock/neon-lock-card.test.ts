@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ACTION_FLASH_MS } from './constants';
+import { POSE_TOTAL_MS, shacklePath } from './lock-geometry';
 
 (globalThis as { __DEV__?: boolean }).__DEV__ = false;
 
@@ -34,6 +35,7 @@ const isOpen = (el: Card) => !!padlock(el)?.classList.contains('is-open');
 const errorIcon = (el: Card) => el.shadowRoot!.querySelector('ha-icon')?.getAttribute('icon');
 const subtitle = (el: Card) => el.shadowRoot!.querySelector('.subtitle')?.textContent?.trim();
 
+const shackleD = (el: Card) => el.shadowRoot!.querySelector('path.shackle')!.getAttribute('d');
 const active = (el: Card) => card(el).classList.contains('neon-halo-active');
 const click = (el: Card) => card(el).dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
 
@@ -162,6 +164,73 @@ describe('NeonLockCard', () => {
     expect(detail?.config.entity).toBe('lock.puerta');
     expect(detail?.config.tap_action).toEqual({ action: 'toggle' });
     expect(detail?.config.hold_action).toEqual({ action: 'more-info' });
+  });
+
+  it('el arco se pinta cerrado, se mueve hasta abierto y vuelve a cerrado', async () => {
+    vi.useFakeTimers();
+    const el = await mount({});
+    expect(shackleD(el)).toBe(shacklePath(0));
+    el.hass = hassWith('unlocked');
+    await el.updateComplete;
+    vi.advanceTimersByTime(POSE_TOTAL_MS / 2);
+    expect(shackleD(el)).not.toBe(shacklePath(0));
+    expect(shackleD(el)).not.toBe(shacklePath(1));
+    vi.advanceTimersByTime(POSE_TOTAL_MS);
+    expect(shackleD(el)).toBe(shacklePath(1));
+    el.hass = hassWith('locked');
+    await el.updateComplete;
+    vi.advanceTimersByTime(POSE_TOTAL_MS * 2);
+    expect(shackleD(el)).toBe(shacklePath(0));
+  });
+
+  it('arrancar ya abierta pinta el arco abierto sin animar', async () => {
+    const el = await mount({}, hassWith('unlocked'));
+    expect(shackleD(el)).toBe(shacklePath(1));
+  });
+
+  it('abrir-cerrar-abrir en ráfaga termina en la pose correcta', async () => {
+    vi.useFakeTimers();
+    const el = await mount({});
+    for (const state of ['unlocked', 'locked', 'unlocked', 'locked', 'unlocked']) {
+      el.hass = hassWith(state);
+      await el.updateComplete;
+      vi.advanceTimersByTime(90);
+    }
+    vi.advanceTimersByTime(POSE_TOTAL_MS * 2);
+    expect(shackleD(el)).toBe(shacklePath(1));
+    expect(isOpen(el)).toBe(true);
+  });
+
+  it('un halo cuyo temporizador no llegó a dispararse se apaga con la siguiente actualización de hass', async () => {
+    let now = 1000;
+    const spy = vi.spyOn(performance, 'now').mockImplementation(() => now);
+    try {
+      const el = await mount({});
+      click(el);
+      await el.updateComplete;
+      expect(active(el)).toBe(true);
+      now += ACTION_FLASH_MS + 1; // pasa el tiempo, pero el temporizador real no se dispara
+      el.hass = hassWith('locked'); // llega una actualización de HA
+      await el.updateComplete;
+      expect(active(el)).toBe(false);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it('desconectar y reconectar a mitad del destello lo retoma y lo apaga a su hora', async () => {
+    vi.useFakeTimers();
+    const el = await mount({});
+    click(el);
+    await el.updateComplete;
+    vi.advanceTimersByTime(500);
+    el.remove();
+    document.body.appendChild(el);
+    await el.updateComplete;
+    expect(active(el)).toBe(true);
+    vi.advanceTimersByTime(ACTION_FLASH_MS - 500);
+    await el.updateComplete;
+    expect(active(el)).toBe(false);
   });
 
   it('getStubConfig elige una lock de hass o un ejemplo', () => {
