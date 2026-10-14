@@ -11,6 +11,9 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- Lock Card: el estado `jammed` (atascada) muestra la X de error
+  (`mdi:close`) con el halo rojo, como la entidad inexistente o no disponible
+  y como las demás tarjetas; el subtítulo sigue diciendo «Atascada».
 - Lock Card: el halo pasa a seguir el estado de la cerradura en vez de un
   destello temporizado: se enciende cuando se abre, permanece encendido
   mientras esté abierta (también al cerrarse) y se apaga al llegar a

@@ -198,7 +198,7 @@ export class NeonLockCard extends BaseNeonCard {
       >
         ${neonRingSplitTemplate(this._ringUid, this._ring.size.width, this._ring.size.height, this._ring.size.radius)}
         <div class="content">
-          ${state === 'error'
+          ${isLockAlert(state)
             ? html`<ha-icon class="neon-halo-icon" icon=${ERROR_ICON}></ha-icon>`
             : this._iconDef.template(isLockOpenPose(state))}
           <div class="text">

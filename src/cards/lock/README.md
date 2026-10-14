@@ -25,7 +25,7 @@ izquierda) y mismo framework (`src/core`, `src/shared`, `src/ha`).
 | `open` | abierto | encendido | |
 | `unlocking` / `opening` | se abre | encendido | el icono pulsa |
 | `locking` | se cierra | encendido (hasta llegar a `locked`) | el icono pulsa |
-| `jammed` | cerrado | rojo de alerta | |
+| `jammed` | `mdi:close` (sin candado) | rojo de alerta | "Atascada" |
 | sin entidad, inexistente, `unavailable`/`unknown` | `mdi:close` (sin candado) | rojo de alerta | "No disponible" |
 
 ## Iconos
@@ -111,7 +111,7 @@ framework (`src/core`, `src/shared`, `src/ha`).
 | `open` | open | lit | |
 | `unlocking` / `opening` | opens | lit | icon pulses |
 | `locking` | closes | lit (until it reaches `locked`) | icon pulses |
-| `jammed` | closed | alert red | |
+| `jammed` | `mdi:close` (no padlock) | alert red | "Jammed" |
 | no entity, missing, `unavailable`/`unknown` | `mdi:close` (no padlock) | alert red | "Unavailable" |
 
 ## Icons

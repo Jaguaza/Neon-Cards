@@ -182,10 +182,20 @@ describe('NeonLockCard', () => {
     expect(card(el).classList.contains('neon-halo-error')).toBe(true);
   });
 
-  it('atascada: halo rojo y candado cerrado', async () => {
+  it('atascada: halo rojo, la X de error en lugar del icono y subtítulo «Atascada»', async () => {
     const el = await mount({}, hassWith('jammed'));
     expect(card(el).classList.contains('neon-halo-error')).toBe(true);
-    expect(isOpen(el)).toBe(false);
+    expect(el.shadowRoot!.querySelector('ha-icon')!.getAttribute('icon')).toBe('mdi:close');
+    expect(padlock(el)).toBeNull();
+    expect(subtitle(el)).toBe('Atascada');
+  });
+
+  it('al salir de un error el icono vuelve a su pose sin saltos raros', async () => {
+    const el = await mount({}, hassWith('jammed'));
+    el.hass = hassWith('unlocked');
+    await el.updateComplete;
+    expect(el.shadowRoot!.querySelector('ha-icon')).toBeNull();
+    expect(isOpen(el)).toBe(true);
   });
 
   it('la pose del arco anticipa el destino: unlocking/opening abiertos, locking cerrado', async () => {
