@@ -41,8 +41,8 @@ animación arranca en cuanto la cerradura empieza a moverse. Con
 |---|---|---|---|
 | `padlock` (por defecto) | Candado | El arco **sube** sacando la pata corta del cuerpo y después **gira** sobre la pata larga, que sigue unida: visto de frente se estrecha hasta quedar de canto y se abre hacia el otro lado. | 0,66 s |
 | `door` | Puerta | La hoja **se abre hacia ti** girando sobre su bisagra: el canto libre se acerca a la bisagra, la hoja crece por la perspectiva y se descubre el hueco de detrás. | 0,8 s |
-| `garage_roller` | Garaje con puerta enrollable | La puerta de lamas **sube y se enrolla** en el tambor bajo el dintel; las lamas desaparecen por arriba y el tambor engorda. | 1,1 s |
-| `garage_sliding` | Garaje con puerta corredera | El panel **se desliza** en horizontal hacia la derecha y se esconde tras la jamba, con sus ranuras y su tirador. | 1,0 s |
+| `garage_roller` | Garaje con puerta enrollable | Silueta de `mdi:garage-variant`: la puerta de lamas **sube y se enrolla** bajo el dintel; las lamas se pierden por arriba y abierto queda solo la inferior. | 1,1 s |
+| `garage_sliding` | Garaje con puerta corredera | Silueta de `mdi:garage-variant`: el panel (lamas y montante) **se desliza** en horizontal hacia la derecha y se esconde tras la jamba. | 1,0 s |
 
 En estado de error (sin entidad válida) se muestra `mdi:close` con cualquier icono.
 
@@ -122,8 +122,8 @@ animating.
 |---|---|---|---|
 | `padlock` (default) | Padlock | The shackle **lifts**, pulling its short leg out of the body, and then **swings** around the long leg, which stays attached: seen from the front it narrows to edge-on and opens out the other way. | 0.66 s |
 | `door` | Door | The leaf **opens towards you**, swinging on its hinge: the free edge approaches the hinge, the leaf grows with perspective and the doorway behind is revealed. | 0.8 s |
-| `garage_roller` | Garage with roller door | The slatted door **rises and rolls up** into the drum under the lintel; the slats vanish at the top and the drum thickens. | 1.1 s |
-| `garage_sliding` | Garage with sliding door | The panel **slides** sideways to the right and hides behind the jamb, with its grooves and handle. | 1.0 s |
+| `garage_roller` | Garage with roller door | `mdi:garage-variant` silhouette: the slatted door **rises and rolls up** under the lintel; the slats vanish at the top and only the bottom one is left when open. | 1.1 s |
+| `garage_sliding` | Garage with sliding door | `mdi:garage-variant` silhouette: the panel (slats and stile) **slides** sideways to the right and hides behind the jamb. | 1.0 s |
 
 In the error state (no valid entity) `mdi:close` is shown with any icon.
 

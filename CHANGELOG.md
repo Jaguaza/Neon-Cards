@@ -9,6 +9,12 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Changed
+
+- Lock Card: los iconos de garaje (`garage_roller` y `garage_sliding`)
+  pasan a la silueta de `mdi:garage-variant` (tejado y jambas macizos, tres
+  lamas), manteniendo la animación de enrollar y de deslizar.
+
 ## [1.2.0] - 2026-10-11
 
 ### Added

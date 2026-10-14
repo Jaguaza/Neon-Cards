@@ -3,8 +3,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ACTION_FLASH_MS } from './constants';
 import { POSE_TOTAL_MS, shacklePath } from './icons/padlock-geometry';
 import { DOOR_DURATION_MS, doorLeafPath } from './icons/door';
-import { GARAGE_ROLLER_DURATION_MS, rollerGeometry } from './icons/garage-roller';
-import { GARAGE_SLIDING_DURATION_MS } from './icons/garage-sliding';
+import { GARAGE_ROLLER_DURATION_MS, rollerGeometry, slatsPath } from './icons/garage-roller';
+import { GARAGE_SLIDING_DURATION_MS, panelPath, slidingGeometry } from './icons/garage-sliding';
 
 (globalThis as { __DEV__?: boolean }).__DEV__ = false;
 
@@ -261,23 +261,23 @@ describe('NeonLockCard', () => {
   it('lock_icon: garage_roller enrolla la puerta', async () => {
     vi.useFakeTimers();
     const el = await mount({ lock_icon: 'garage_roller' });
-    const barY = () => el.shadowRoot!.querySelector('.bar')!.getAttribute('y');
-    expect(barY()).toBe(String(rollerGeometry(0).barY));
+    const slats = () => el.shadowRoot!.querySelector('.slats')!.getAttribute('d');
+    expect(slats()).toBe(slatsPath(rollerGeometry(0).slats));
     el.hass = hassWith('unlocked');
     await el.updateComplete;
     vi.advanceTimersByTime(GARAGE_ROLLER_DURATION_MS + 50);
-    expect(barY()).toBe(String(rollerGeometry(1).barY));
+    expect(slats()).toBe(slatsPath(rollerGeometry(1).slats));
   });
 
   it('lock_icon: garage_sliding desliza el panel', async () => {
     vi.useFakeTimers();
     const el = await mount({ lock_icon: 'garage_sliding' });
     const panel = () => el.shadowRoot!.querySelector('.panel')!.getAttribute('d');
-    expect(panel()).toBe('M3.9 11.6H20.1V20.6H3.9Z');
+    expect(panel()).toBe(panelPath(slidingGeometry(0)));
     el.hass = hassWith('unlocked');
     await el.updateComplete;
     vi.advanceTimersByTime(GARAGE_SLIDING_DURATION_MS + 50);
-    expect(panel()).toBe('M17.1 11.6H20.1V20.6H17.1Z');
+    expect(panel()).toBe(panelPath(slidingGeometry(1)));
   });
 
   it('cambiar de icono desde la config coloca el nuevo en la pose actual sin animar', async () => {

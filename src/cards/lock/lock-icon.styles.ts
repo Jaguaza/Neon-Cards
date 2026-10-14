@@ -39,8 +39,4 @@ export const NEON_LOCK_ICON_STYLES = css`
     stroke-linecap: round;
     stroke-linejoin: round;
   }
-  .lock-icon .slats,
-  .lock-icon .groove {
-    stroke-width: 1.1;
-  }
 `;

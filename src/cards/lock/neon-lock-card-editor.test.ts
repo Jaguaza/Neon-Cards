@@ -67,8 +67,8 @@ describe('NeonLockCardEditor', () => {
     const d = (type: string, sel: string) => el.shadowRoot!.querySelector(`.icon-tile[data-icon="${type}"] ${sel}`)?.getAttribute('d');
     expect(d('padlock', '.shackle')).toBe('M8.5 17.5V10A3.5 3.5 0 0 1 15.5 10V13.6');
     expect(d('door', '.leaf')).toMatch(/^M6\.3 5L17\.7 5/);
-    expect(d('garage_sliding', '.panel')).toBe('M3.9 11.6H20.1V20.6H3.9Z');
-    expect(d('garage_roller', '.slats')).toContain('M3.9 17.7H20.1');
+    expect(d('garage_sliding', '.panel')).toBe('M5 12H19V14H5ZM5 15H19V17H5ZM5 18H19V20H5ZM5 12H6V20H5Z');
+    expect(d('garage_roller', '.slats')).toBe('M5 12H19V14H5ZM5 15H19V17H5ZM5 18H19V20H5Z');
   });
 
   it('elegir un icono guarda lock_icon; elegir el candado lo quita de la config', async () => {
