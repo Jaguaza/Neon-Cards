@@ -27,9 +27,7 @@ export function isLockAlert(state: LockVisualState | undefined): boolean {
 
 /**
  * Cerradura accionándose (cerrando, abriendo el pestillo o la puerta):
- * halo neón encendido y el icono pulsa. En reposo (`locked`, `unlocked`,
- * `open`) la tarjeta no lleva halo — este es el único estado, junto con
- * el destello al pulsar (ver ACTION_FLASH_MS), que lo enciende.
+ * el icono pulsa mientras dura el movimiento.
  */
 export function isLockMoving(state: LockVisualState | undefined): boolean {
   return state === 'locking' || state === 'unlocking' || state === 'opening';
@@ -44,4 +42,17 @@ export function isLockMoving(state: LockVisualState | undefined): boolean {
  */
 export function isLockOpenPose(state: LockVisualState | undefined): boolean {
   return state === 'unlocking' || state === 'unlocked' || state === 'open' || state === 'opening';
+}
+
+/**
+ * Halo neón encendido: desde que la cerradura se abre (`unlocking`,
+ * `unlocked`, `opening`, `open`) y se mantiene mientras siga abierta,
+ * también al cerrarse (`locking`), hasta que llega a `locked`. Cerrada,
+ * atascada (que lleva el rojo de alerta aparte) y sin datos no hay halo.
+ * Depende solo del estado de la entidad, así que todas las tarjetas de la
+ * misma entidad lo muestran a la vez y no hay temporizadores que lo
+ * apaguen y lo vuelvan a encender.
+ */
+export function isLockHaloOn(state: LockVisualState | undefined): boolean {
+  return state === 'unlocking' || state === 'unlocked' || state === 'open' || state === 'opening' || state === 'locking';
 }

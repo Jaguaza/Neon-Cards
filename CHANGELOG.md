@@ -9,18 +9,15 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
-### Fixed
-
-- Lock Card: el halo ya no «rebota» al accionar una cerradura lenta: tras
-  pulsar una acción que la opera espera encendido (hasta 6 s) el cambio de
-  estado en vez de apagarse a los 1,5 s y volver a dibujarse al llegar.
-- Lock Card: el halo se enciende en todas las tarjetas de una misma
-  entidad cuando esta cambia de estado, no solo en la pulsada (antes, si la
-  cerradura saltaba de `locked` a `unlocked` sin pasar por un estado
-  intermedio, solo se veía en la tarjeta pulsada).
-
 ### Changed
 
+- Lock Card: el halo pasa a seguir el estado de la cerradura en vez de un
+  destello temporizado: se enciende cuando se abre, permanece encendido
+  mientras esté abierta (también al cerrarse) y se apaga al llegar a
+  `locked`. Todas las tarjetas de la misma entidad lo muestran a la vez y
+  desaparece el «rebote» con cerraduras lentas. Al pulsar una acción que
+  opera la cerradura (`toggle`, `call-service`) el halo se enciende ya y
+  espera el cambio de estado (hasta 6 s).
 - Lock Card: el icono `door` pasa a ser `mdi:door-closed` y se anima
   hasta `mdi:door-open` (la hoja gira sobre la jamba izquierda).
 - Lock Card: los iconos de garaje (`garage_roller` y `garage_sliding`)

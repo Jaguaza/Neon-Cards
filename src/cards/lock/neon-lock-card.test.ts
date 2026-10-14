@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ACTION_FLASH_MS, ACTION_PENDING_MS } from './constants';
+import { ACTION_PENDING_MS } from './constants';
 import { POSE_TOTAL_MS, shacklePath } from './icons/padlock-geometry';
 import { DOOR_DURATION_MS, doorLeafPath } from './icons/door';
 import { GARAGE_ROLLER_DURATION_MS, rollerGeometry, slatsPath } from './icons/garage-roller';
@@ -59,9 +59,10 @@ describe('NeonLockCard', () => {
     expect(el.shadowRoot!.querySelector('.name')!.textContent).toBe('Puerta');
   });
 
-  it('abierta: en reposo sin halo y con el arco del candado abierto', async () => {
+  it('abierta: halo encendido y con el arco del candado abierto', async () => {
     const el = await mount({}, hassWith('unlocked'));
-    expect(active(el)).toBe(false);
+    expect(active(el)).toBe(true);
+    expect(card(el).classList.contains('lock-moving')).toBe(false);
     expect(isOpen(el)).toBe(true);
     expect(subtitle(el)).toBe('Abierta');
   });
@@ -74,26 +75,50 @@ describe('NeonLockCard', () => {
     }
   });
 
-  it('al pulsar una acción que no opera la cerradura enciende el halo y lo apaga pasado ACTION_FLASH_MS', async () => {
+  it('el halo sigue al estado: encendido si está abierta o moviéndose, apagado si está cerrada o atascada', async () => {
+    for (const [state, halo] of [['locked', false], ['unlocked', true], ['open', true], ['unlocking', true], ['opening', true], ['locking', true], ['jammed', false]] as const) {
+      const el = await mount({}, hassWith(state));
+      expect(active(el), state).toBe(halo);
+    }
+  });
+
+  it('el halo permanece encendido mientras está abierta y se apaga solo al llegar a cerrada', async () => {
     vi.useFakeTimers();
-    const el = await mount({ tap_action: { action: 'more-info' } });
-    expect(active(el)).toBe(false);
-    click(el);
+    const el = await mount({}, hassWith('unlocked'));
+    vi.advanceTimersByTime(60_000); // por mucho que pase el tiempo, sigue encendido
     await el.updateComplete;
     expect(active(el)).toBe(true);
-    vi.advanceTimersByTime(ACTION_FLASH_MS - 1);
+    el.hass = hassWith('locking');
     await el.updateComplete;
     expect(active(el)).toBe(true);
-    vi.advanceTimersByTime(1);
+    vi.advanceTimersByTime(60_000);
+    await el.updateComplete;
+    expect(active(el)).toBe(true);
+    el.hass = hassWith('locked');
     await el.updateComplete;
     expect(active(el)).toBe(false);
   });
 
-  it('al operar la cerradura el halo espera encendido el cambio de estado, sin hueco, y se apaga ACTION_FLASH_MS después', async () => {
+  it('todas las tarjetas de la misma entidad muestran el halo a la vez, la pulse quien la pulse', async () => {
+    const cards = [await mount({ lock_icon: 'padlock' }), await mount({ lock_icon: 'door' }), await mount({ lock_icon: 'garage_roller' })];
+    click(cards[0]);
+    for (const el of cards) {
+      el.hass = hassWith('unlocked'); // salta de locked a unlocked sin estado intermedio
+      await el.updateComplete;
+    }
+    expect(cards.map(active)).toEqual([true, true, true]);
+    for (const el of cards) {
+      el.hass = hassWith('locked');
+      await el.updateComplete;
+    }
+    expect(cards.map(active)).toEqual([false, false, false]);
+  });
+
+  it('al pulsar para operar la cerradura el halo se enciende ya y espera el cambio de estado, sin hueco ni rebote', async () => {
     vi.useFakeTimers();
     const el = await mount({});
     click(el);
-    // La cerradura tarda más que el destello en cambiar de estado: nunca hay un instante apagado.
+    // La cerradura tarda 2,1 s en cambiar de estado: nunca hay un instante apagado.
     for (let ms = 0; ms < 2100; ms += 100) {
       await el.updateComplete;
       expect(active(el)).toBe(true);
@@ -101,16 +126,29 @@ describe('NeonLockCard', () => {
     }
     el.hass = hassWith('unlocked');
     await el.updateComplete;
-    expect(active(el)).toBe(true);
-    vi.advanceTimersByTime(ACTION_FLASH_MS - 1);
+    expect(active(el)).toBe(true); // ahora lo mantiene el estado
+    vi.advanceTimersByTime(ACTION_PENDING_MS * 2);
     await el.updateComplete;
     expect(active(el)).toBe(true);
-    vi.advanceTimersByTime(1);
+  });
+
+  it('al cerrar una cerradura abierta el halo sigue hasta `locked` y se apaga en ese momento, sin esperas', async () => {
+    vi.useFakeTimers();
+    const el = await mount({}, hassWith('unlocked'));
+    click(el);
+    await el.updateComplete;
+    expect(active(el)).toBe(true);
+    vi.advanceTimersByTime(2100);
+    el.hass = hassWith('locking');
+    await el.updateComplete;
+    expect(active(el)).toBe(true);
+    vi.advanceTimersByTime(2100);
+    el.hass = hassWith('locked');
     await el.updateComplete;
     expect(active(el)).toBe(false);
   });
 
-  it('si tras operar la cerradura el estado no cambia, el halo se apaga al agotarse ACTION_PENDING_MS', async () => {
+  it('si tras pulsar el estado no cambia, el halo se apaga al agotarse ACTION_PENDING_MS', async () => {
     vi.useFakeTimers();
     const el = await mount({});
     click(el);
@@ -118,6 +156,13 @@ describe('NeonLockCard', () => {
     await el.updateComplete;
     expect(active(el)).toBe(true);
     vi.advanceTimersByTime(1);
+    await el.updateComplete;
+    expect(active(el)).toBe(false);
+  });
+
+  it('una acción que no opera la cerradura (más info) no enciende el halo', async () => {
+    const el = await mount({ tap_action: { action: 'more-info' } });
+    click(el);
     await el.updateComplete;
     expect(active(el)).toBe(false);
   });
@@ -237,7 +282,7 @@ describe('NeonLockCard', () => {
     expect(isOpen(el)).toBe(true);
   });
 
-  it('un halo cuyo temporizador no llegó a dispararse se apaga con la siguiente actualización de hass', async () => {
+  it('una espera cuyo temporizador no llegó a dispararse se da por vencida con la siguiente actualización de hass', async () => {
     let now = 1000;
     const spy = vi.spyOn(performance, 'now').mockImplementation(() => now);
     try {
@@ -246,7 +291,7 @@ describe('NeonLockCard', () => {
       await el.updateComplete;
       expect(active(el)).toBe(true);
       now += ACTION_PENDING_MS + 1; // pasa el tiempo, pero el temporizador real no se dispara
-      el.hass = hassWith('locked'); // llega una actualización de HA
+      el.hass = hassWith('locked'); // llega una actualización de HA sin cambio de estado
       await el.updateComplete;
       expect(active(el)).toBe(false);
     } finally {
@@ -254,44 +299,24 @@ describe('NeonLockCard', () => {
     }
   });
 
-  it('un cambio de estado de la entidad enciende el halo en todas las tarjetas, no solo en la pulsada', async () => {
-    vi.useFakeTimers();
-    const a = await mount({ lock_icon: 'padlock' });
-    const b = await mount({ lock_icon: 'door' });
-    click(a);
-    for (const el of [a, b]) {
-      el.hass = hassWith('unlocked'); // salta de locked a unlocked sin estado intermedio
-      await el.updateComplete;
-    }
-    expect(active(a)).toBe(true);
-    expect(active(b)).toBe(true);
-    vi.advanceTimersByTime(ACTION_FLASH_MS + 1);
-    await a.updateComplete;
-    await b.updateComplete;
-    expect(active(a)).toBe(false);
-    expect(active(b)).toBe(false);
-  });
-
-  it('sin cambio de estado no hay halo: ni el primer hass, ni un hass igual, ni cambiar de entidad, ni volver de error', async () => {
-    const el = await mount({});
-    expect(active(el)).toBe(false);
-    el.hass = hassWith('locked');
-    await el.updateComplete;
-    expect(active(el)).toBe(false);
+  it('el halo sigue al estado también tras cambiar de entidad en la config o volver de error', async () => {
+    const el = await mount({}, hassWith('unlocked'));
+    expect(active(el)).toBe(true);
     el.hass = hassWith('unavailable');
     await el.updateComplete;
+    expect(active(el)).toBe(false);
     el.hass = hassWith('unlocked');
     await el.updateComplete;
-    expect(active(el)).toBe(false); // volver de error no es un cambio de estado
+    expect(active(el)).toBe(true);
     el.setConfig({ entity: 'lock.otra' });
     el.hass = { ...hassWith('locked'), states: { 'lock.otra': { entity_id: 'lock.otra', state: 'locked', last_changed: '', last_updated: '', attributes: {} } } };
     await el.updateComplete;
-    expect(active(el)).toBe(false); // otra entidad
+    expect(active(el)).toBe(false);
   });
 
-  it('desconectar y reconectar a mitad del destello lo retoma y lo apaga a su hora', async () => {
+  it('desconectar y reconectar a mitad de la espera la retoma y la termina a su hora', async () => {
     vi.useFakeTimers();
-    const el = await mount({ tap_action: { action: 'more-info' } });
+    const el = await mount({});
     click(el);
     await el.updateComplete;
     vi.advanceTimersByTime(500);
@@ -299,7 +324,7 @@ describe('NeonLockCard', () => {
     document.body.appendChild(el);
     await el.updateComplete;
     expect(active(el)).toBe(true);
-    vi.advanceTimersByTime(ACTION_FLASH_MS - 500);
+    vi.advanceTimersByTime(ACTION_PENDING_MS - 500);
     await el.updateComplete;
     expect(active(el)).toBe(false);
   });

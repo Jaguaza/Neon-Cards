@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isLockAlert, isLockMoving, isLockOpenPose, resolveLockState } from './lock-state';
+import { isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, resolveLockState } from './lock-state';
 import { HA_LOCK_STATES } from './constants';
 import type { HomeAssistant } from '../../ha/types';
 
@@ -63,6 +63,13 @@ describe('isLockMoving', () => {
   it('solo en los estados transitorios', () => {
     for (const s of ['locking', 'unlocking', 'opening'] as const) expect(isLockMoving(s)).toBe(true);
     for (const s of ['locked', 'unlocked', 'jammed', 'open', 'error', undefined] as const) expect(isLockMoving(s)).toBe(false);
+  });
+});
+
+describe('isLockHaloOn', () => {
+  it('encendido mientras está abierta o moviéndose, apagado al llegar a locked', () => {
+    for (const s of ['unlocking', 'unlocked', 'open', 'opening', 'locking'] as const) expect(isLockHaloOn(s)).toBe(true);
+    for (const s of ['locked', 'jammed', 'error', undefined] as const) expect(isLockHaloOn(s)).toBe(false);
   });
 });
 

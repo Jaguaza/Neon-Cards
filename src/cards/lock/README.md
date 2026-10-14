@@ -4,12 +4,13 @@
 
 `custom:neon-lock-card` — tarjeta para entidades `lock` de Home Assistant
 (cerraduras, pestillos, cerraduras de garaje). Muestra el estado con un
-icono propio y el halo neón de la familia Neón Cards. En reposo la
-tarjeta no lleva halo: se enciende al accionar la cerradura y también
-cuando la entidad cambia de estado, en todas las tarjetas que la muestran.
-Tras pulsar una acción que opera la cerradura (`toggle`, `call-service`) el
-halo espera encendido el cambio de estado (hasta 6 s) y se apaga 1,5 s
-después, sin parpadeos aunque la cerradura tarde.
+icono propio y el halo neón de la familia Neón Cards. El halo sigue al
+estado de la cerradura: se enciende cuando se abre, permanece encendido
+mientras esté abierta (también al cerrarse) y se apaga cuando llega a
+cerrada. Como depende solo del estado, todas las tarjetas de la misma
+entidad lo muestran a la vez. Al pulsar una acción que opera la cerradura
+(`toggle`, `call-service`) el halo se enciende ya y espera el cambio de
+estado (hasta 6 s) para las cerraduras lentas.
 
 Misma base visual que la [Button Card](../button) (icono protagonista,
 nombre, subtítulo, halo neón que se dibuja desde la esquina superior
@@ -19,11 +20,11 @@ izquierda) y mismo framework (`src/core`, `src/shared`, `src/ha`).
 
 | Estado de HA | Icono | Halo neón | Extra |
 |---|---|---|---|
-| `locked` | cerrado | apagado (reposo) | |
-| `unlocked` | abierto | apagado (reposo) | |
-| `open` | abierto | apagado (reposo) | |
+| `locked` | cerrado | apagado | |
+| `unlocked` | abierto | encendido | |
+| `open` | abierto | encendido | |
 | `unlocking` / `opening` | se abre | encendido | el icono pulsa |
-| `locking` | se cierra | encendido | el icono pulsa |
+| `locking` | se cierra | encendido (hasta llegar a `locked`) | el icono pulsa |
 | `jammed` | cerrado | rojo de alerta | |
 | sin entidad, inexistente, `unavailable`/`unknown` | `mdi:close` (sin candado) | rojo de alerta | "No disponible" |
 
@@ -65,7 +66,7 @@ name: Puerta principal
 | `lock_icon` | `padlock` \| `door` \| `garage_roller` \| `garage_sliding` | `padlock` | Icono animado (ver Iconos). Un valor no válido usa el candado. |
 | `subtitle_type` | `state` \| `custom` \| `last-changed` \| `last-updated` \| `none` | `state` | Qué se muestra bajo el nombre. `state` es el estado traducido (Cerrada, Abierta…). |
 | `subtitle` | string | — | Texto libre cuando `subtitle_type: custom`. |
-| `neon_palette` | `emerald` \| `cyberpunk` \| `electric` \| `sunset` \| `toxic` \| `custom` | `emerald` | Paleta del halo (al accionar). |
+| `neon_palette` | `emerald` \| `cyberpunk` \| `electric` \| `sunset` \| `toxic` \| `custom` | `emerald` | Paleta del halo. |
 | `neon_color1/2/3` | color | — | Solo con `neon_palette: custom`. |
 | `tap_action` | acción | `toggle` | Cierra o abre la cerradura. |
 | `hold_action` | acción | `more-info` | |
@@ -89,12 +90,13 @@ tap_action:
 
 `custom:neon-lock-card` — card for Home Assistant `lock` entities (door
 locks, latches, garage locks). Shows the state with a dedicated icon and
-the neon halo of the Neón Cards family. At rest the card has no halo: it
-lights up when the lock is operated and also when the entity changes
-state, on every card that shows it.
-After an action that operates the lock (`toggle`, `call-service`) the halo
-stays on waiting for the state change (up to 6 s) and goes off 1.5 s
-later, with no flicker even if the lock is slow.
+the neon halo of the Neón Cards family. The halo follows the lock state: it
+lights up when the lock opens, stays on while it is open (also while it
+closes) and goes off when it reaches locked. Since it depends only on the
+state, every card of the same entity shows it at the same time. When an
+action that operates the lock (`toggle`, `call-service`) is pressed, the
+halo lights up right away and waits for the state change (up to 6 s) for
+slow locks.
 
 Same visual base as the [Button Card](../button) (large icon, name,
 subtitle, neon halo drawn from the top-left corner) and the same
@@ -104,11 +106,11 @@ framework (`src/core`, `src/shared`, `src/ha`).
 
 | HA state | Icon | Neon halo | Extra |
 |---|---|---|---|
-| `locked` | closed | off (rest) | |
-| `unlocked` | open | off (rest) | |
-| `open` | open | off (rest) | |
+| `locked` | closed | off | |
+| `unlocked` | open | lit | |
+| `open` | open | lit | |
 | `unlocking` / `opening` | opens | lit | icon pulses |
-| `locking` | closes | lit | icon pulses |
+| `locking` | closes | lit (until it reaches `locked`) | icon pulses |
 | `jammed` | closed | alert red | |
 | no entity, missing, `unavailable`/`unknown` | `mdi:close` (no padlock) | alert red | "Unavailable" |
 
@@ -150,7 +152,7 @@ name: Front door
 | `lock_icon` | `padlock` \| `door` \| `garage_roller` \| `garage_sliding` | `padlock` | Animated icon (see Icons). An invalid value uses the padlock. |
 | `subtitle_type` | `state` \| `custom` \| `last-changed` \| `last-updated` \| `none` | `state` | What is shown under the name. `state` is the translated state (Locked, Unlocked…). |
 | `subtitle` | string | — | Free text when `subtitle_type: custom`. |
-| `neon_palette` | `emerald` \| `cyberpunk` \| `electric` \| `sunset` \| `toxic` \| `custom` | `emerald` | Halo palette (on action). |
+| `neon_palette` | `emerald` \| `cyberpunk` \| `electric` \| `sunset` \| `toxic` \| `custom` | `emerald` | Halo palette. |
 | `neon_color1/2/3` | color | — | Only with `neon_palette: custom`. |
 | `tap_action` | action | `toggle` | Locks or unlocks. |
 | `hold_action` | action | `more-info` | |

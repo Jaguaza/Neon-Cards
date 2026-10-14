@@ -23,29 +23,17 @@ export const HA_LOCK_STATES: readonly LockVisualState[] = [
 ];
 
 /**
- * Duración (ms) del halo que se enciende al pulsar una acción (tap, hold
- * o double_tap distinta de `none`) y, en todas las tarjetas de la entidad,
- * cuando esta cambia de estado: el aro tarda 900 ms en dibujarse (ver
- * `transition` de `NEON_RING_SPLIT_STYLES` en `src/shared/glow.ts`) y se
- * mantiene un instante encendido antes de apagarse. Da respuesta
- * inmediata aunque la integración tarde en pasar a `locking`/`unlocking`
- * o salte directamente de `locked` a `unlocked`.
- */
-export const ACTION_FLASH_MS = 1500;
-
-/**
  * Acciones que operan la cerradura y, por tanto, van a provocar un cambio
  * de estado de la entidad (las demás —más info, navegar…— no).
  */
 export const OPERATING_ACTIONS: readonly string[] = ['toggle', 'call-service', 'perform-action'];
 
 /**
- * Tiempo máximo (ms) que el halo espera, encendido, el cambio de estado
- * tras una acción que opera la cerradura. Hay cerraduras (portones) que
- * tardan más de `ACTION_FLASH_MS` en cambiar de estado: con solo el
- * destello fijo el halo se retiraba a medias y volvía a dibujarse al
- * llegar el cambio (un «rebote»). Con la espera sigue encendido sin hueco;
- * al llegar el cambio, el halo se mantiene `ACTION_FLASH_MS` más. Si el
- * estado no cambia (acción fallida), se apaga al agotarse.
+ * El halo sigue al estado de la cerradura (encendido mientras está abierta,
+ * apagado al llegar a `locked`; ver `isLockHaloOn`). Para dar respuesta
+ * inmediata al pulsar una acción que la opera —hay cerraduras que tardan
+ * un par de segundos en cambiar de estado—, el halo se enciende ya y
+ * espera, como máximo este tiempo (ms), a que el estado cambie; en cuanto
+ * cambia manda el estado. Si no cambia (acción fallida) se apaga al agotarse.
  */
 export const ACTION_PENDING_MS = 6000;

@@ -20,12 +20,12 @@ import {
   neonRingSplitTemplate,
   RingSizeController,
 } from '../../shared';
-import { ACTION_FLASH_MS, ACTION_PENDING_MS, ERROR_ICON, OPERATING_ACTIONS } from './constants';
+import { ACTION_PENDING_MS, ERROR_ICON, OPERATING_ACTIONS } from './constants';
 import { LOCK_ICONS, resolveLockIconType } from './icons';
 import type { LockIconDef } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
 import { LockPoseAnimator } from './lock-pose-animator';
-import { isLockAlert, isLockMoving, isLockOpenPose, resolveLockState } from './lock-state';
+import { isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, resolveLockState } from './lock-state';
 import { NEON_LOCK_CARD_STYLES } from './neon-lock-card.styles';
 import { LOCK_TRANSLATIONS } from './translations';
 import type { LockVisualState, NeonLockCardConfig } from './types';
@@ -38,9 +38,9 @@ import type { LockVisualState, NeonLockCardConfig } from './types';
  * Tarjeta para entidades `lock` de Home Assistant: icono animado que se
  * abre y se cierra de verdad según el estado de la cerradura — candado,
  * puerta, garaje con puerta enrollable o garaje con puerta corredera
- * (`lock_icon`) — y en reposo sin halo. El halo neón se enciende
- * al accionarla (pulsación de una acción o cerradura en movimiento) y
- * se apaga al terminar; rojo de alerta si se atasca o la entidad falla. Ver `src/cards/lock/README.md` para la especificación.
+ * (`lock_icon`). El halo neón sigue al estado: encendido mientras la
+ * cerradura está abierta (o abriéndose/cerrándose) y apagado cuando llega
+ * a cerrada; rojo de alerta si se atasca o la entidad falla. Ver `src/cards/lock/README.md` para la especificación.
  */
 export class NeonLockCard extends BaseNeonCard {
   static properties = {
@@ -56,20 +56,15 @@ export class NeonLockCard extends BaseNeonCard {
   /** Tamaño real de ha-card para el aro SVG (ver RingSizeController). */
   private readonly _ring = new RingSizeController(this);
   /**
-   * Instante (performance.now) hasta el que el halo está encendido por una
-   * pulsación. Se guarda la MARCA DE TIEMPO y no un booleano: el halo se
+   * Instante (performance.now) hasta el que el halo espera encendido el
+   * cambio de estado tras pulsar una acción que opera la cerradura (ver
+   * `ACTION_PENDING_MS`). Se guarda la MARCA DE TIEMPO y no un booleano: se
    * decide comparando con el reloj en cada render, así que aunque el
-   * temporizador de abajo no llegase a dispararse, cualquier actualización
-   * de `hass` apaga el halo. El temporizador solo provoca el re-render.
-   */
-  private _flashUntil = 0;
-  private _flashTimer?: ReturnType<typeof setTimeout>;
-  /**
-   * Instante hasta el que el halo espera el cambio de estado tras una
-   * acción que opera la cerradura (ver `ACTION_PENDING_MS`). Se anula en
-   * cuanto el estado cambia.
+   * temporizador no llegase a dispararse, cualquier actualización de
+   * `hass` lo da por vencido. Se anula en cuanto el estado cambia.
    */
   private _pendingUntil = 0;
+  private _pendingTimer?: ReturnType<typeof setTimeout>;
   /** Último estado visto de la entidad, para detectar su cambio (ver `willUpdate`). */
   private _lastSeen?: { entity: string | undefined; state: LockVisualState };
   /** Lleva el icono entre cerrado y abierto (ver lock-pose-animator.ts). */
@@ -160,17 +155,12 @@ export class NeonLockCard extends BaseNeonCard {
   }
 
   private _handleAction(actionType: string): void {
-    // Enciende el halo al accionar la cerradura — salvo que el gesto no
-    // tenga acción (`none`) o no haya entidad válida a la que accionar.
-    const action = this._actionFor(actionType).action;
-    if (action !== 'none' && resolveLockState(this._config, this.hass) !== 'error') {
-      this._startFlash();
-      // Si la acción opera la cerradura, el halo espera encendido el cambio
-      // de estado (sin hueco entre el destello y el cambio): ver `ACTION_PENDING_MS`.
-      if (OPERATING_ACTIONS.includes(action)) {
-        this._pendingUntil = performance.now() + ACTION_PENDING_MS;
-        this._scheduleFlashEnd(ACTION_PENDING_MS);
-      }
+    // Si la acción opera la cerradura, el halo se enciende ya y espera el
+    // cambio de estado (ver `ACTION_PENDING_MS`); no hay entidad válida a la
+    // que accionar si está en `error`.
+    if (OPERATING_ACTIONS.includes(this._actionFor(actionType).action) && resolveLockState(this._config, this.hass) !== 'error') {
+      this._pendingUntil = performance.now() + ACTION_PENDING_MS;
+      this._schedulePendingEnd(ACTION_PENDING_MS);
       this.requestUpdate();
     }
     dispatchHassAction(
@@ -194,7 +184,7 @@ export class NeonLockCard extends BaseNeonCard {
 
     return html`
       <ha-card
-        class="neon-ring-host ${isLockMoving(state) || this._isFlashing() ? 'neon-halo-active' : ''} ${isLockAlert(state) ? 'neon-halo-error' : ''} ${isLockMoving(state) ? 'lock-moving' : ''}"
+        class="neon-ring-host ${isLockHaloOn(state) || this._isPending() ? 'neon-halo-active' : ''} ${isLockAlert(state) ? 'neon-halo-error' : ''} ${isLockMoving(state) ? 'lock-moving' : ''}"
         style=${neonHaloVars(colors)}
         @pointerdown=${(ev: PointerEvent) => handlePointerDown(this._gesture, ev, '.-none-', () => this._handleAction('hold'))}
         @pointerup=${() => cancelHold(this._gesture)}
@@ -220,17 +210,12 @@ export class NeonLockCard extends BaseNeonCard {
     `;
   }
 
-  private _startFlash(): void {
-    this._flashUntil = performance.now() + ACTION_FLASH_MS;
-    this._scheduleFlashEnd(ACTION_FLASH_MS);
-  }
-
   /**
-   * El halo no es solo de la tarjeta pulsada: cuando la entidad cambia de
-   * estado (la accionó otra tarjeta, la app de HA, una automatización o el
-   * propio dispositivo) se enciende en TODAS las tarjetas que la muestran,
-   * igual que el icono se anima en todas. No cuenta el primer estado que se
-   * ve, cambiar de entidad en la config ni volver de `error`.
+   * Cuando la entidad cambia de estado (la accionó esta tarjeta, otra, la
+   * app de HA, una automatización o el propio dispositivo) manda el
+   * estado: la espera de `_pendingUntil` se da por terminada. No cuenta el
+   * primer estado que se ve, cambiar de entidad en la config ni volver de
+   * `error`.
    */
   protected willUpdate(changed: PropertyValues): void {
     super.willUpdate(changed);
@@ -241,21 +226,17 @@ export class NeonLockCard extends BaseNeonCard {
     }
     const entity = this._config?.entity;
     const last = this._lastSeen;
-    if (last && last.entity === entity && last.state !== state) {
-      this._pendingUntil = 0;
-      this._startFlash();
-    }
+    if (last && last.entity === entity && last.state !== state) this._pendingUntil = 0;
     this._lastSeen = { entity, state };
   }
 
-  private _isFlashing(): boolean {
-    const now = performance.now();
-    return now < this._flashUntil || now < this._pendingUntil;
+  private _isPending(): boolean {
+    return performance.now() < this._pendingUntil;
   }
 
-  private _scheduleFlashEnd(ms: number): void {
-    clearTimeout(this._flashTimer);
-    this._flashTimer = setTimeout(() => this.requestUpdate(), ms);
+  private _schedulePendingEnd(ms: number): void {
+    clearTimeout(this._pendingTimer);
+    this._pendingTimer = setTimeout(() => this.requestUpdate(), ms);
   }
 
   private _paintIcon(s: number): void {
@@ -283,16 +264,16 @@ export class NeonLockCard extends BaseNeonCard {
 
   connectedCallback(): void {
     super.connectedCallback();
-    // Si se reconecta a mitad de un destello o de un movimiento, se retoman
-    // desde el reloj: nada se queda a medias.
-    const remaining = Math.max(this._flashUntil, this._pendingUntil) - performance.now();
-    if (remaining > 0) this._scheduleFlashEnd(remaining);
+    // Si se reconecta a mitad de la espera de un cambio de estado, se
+    // retoma desde el reloj: nada se queda a medias.
+    const remaining = this._pendingUntil - performance.now();
+    if (remaining > 0) this._schedulePendingEnd(remaining);
     this._pose.set(isLockOpenPose(resolveLockState(this._config, this.hass)));
   }
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    clearTimeout(this._flashTimer);
+    clearTimeout(this._pendingTimer);
     this._pose.dispose();
   }
 }
