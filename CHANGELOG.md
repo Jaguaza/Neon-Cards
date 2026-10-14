@@ -11,6 +11,9 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- Lock Card: el halo ya no «rebota» al accionar una cerradura lenta: tras
+  pulsar una acción que la opera espera encendido (hasta 6 s) el cambio de
+  estado en vez de apagarse a los 1,5 s y volver a dibujarse al llegar.
 - Lock Card: el halo se enciende en todas las tarjetas de una misma
   entidad cuando esta cambia de estado, no solo en la pulsada (antes, si la
   cerradura saltaba de `locked` a `unlocked` sin pasar por un estado

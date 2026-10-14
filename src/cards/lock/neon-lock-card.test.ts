@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ACTION_FLASH_MS } from './constants';
+import { ACTION_FLASH_MS, ACTION_PENDING_MS } from './constants';
 import { POSE_TOTAL_MS, shacklePath } from './icons/padlock-geometry';
 import { DOOR_DURATION_MS, doorLeafPath } from './icons/door';
 import { GARAGE_ROLLER_DURATION_MS, rollerGeometry, slatsPath } from './icons/garage-roller';
@@ -74,14 +74,47 @@ describe('NeonLockCard', () => {
     }
   });
 
-  it('al pulsar una acción enciende el halo y lo apaga pasado ACTION_FLASH_MS', async () => {
+  it('al pulsar una acción que no opera la cerradura enciende el halo y lo apaga pasado ACTION_FLASH_MS', async () => {
     vi.useFakeTimers();
-    const el = await mount({});
+    const el = await mount({ tap_action: { action: 'more-info' } });
     expect(active(el)).toBe(false);
     click(el);
     await el.updateComplete;
     expect(active(el)).toBe(true);
     vi.advanceTimersByTime(ACTION_FLASH_MS - 1);
+    await el.updateComplete;
+    expect(active(el)).toBe(true);
+    vi.advanceTimersByTime(1);
+    await el.updateComplete;
+    expect(active(el)).toBe(false);
+  });
+
+  it('al operar la cerradura el halo espera encendido el cambio de estado, sin hueco, y se apaga ACTION_FLASH_MS después', async () => {
+    vi.useFakeTimers();
+    const el = await mount({});
+    click(el);
+    // La cerradura tarda más que el destello en cambiar de estado: nunca hay un instante apagado.
+    for (let ms = 0; ms < 2100; ms += 100) {
+      await el.updateComplete;
+      expect(active(el)).toBe(true);
+      vi.advanceTimersByTime(100);
+    }
+    el.hass = hassWith('unlocked');
+    await el.updateComplete;
+    expect(active(el)).toBe(true);
+    vi.advanceTimersByTime(ACTION_FLASH_MS - 1);
+    await el.updateComplete;
+    expect(active(el)).toBe(true);
+    vi.advanceTimersByTime(1);
+    await el.updateComplete;
+    expect(active(el)).toBe(false);
+  });
+
+  it('si tras operar la cerradura el estado no cambia, el halo se apaga al agotarse ACTION_PENDING_MS', async () => {
+    vi.useFakeTimers();
+    const el = await mount({});
+    click(el);
+    vi.advanceTimersByTime(ACTION_PENDING_MS - 1);
     await el.updateComplete;
     expect(active(el)).toBe(true);
     vi.advanceTimersByTime(1);
@@ -212,7 +245,7 @@ describe('NeonLockCard', () => {
       click(el);
       await el.updateComplete;
       expect(active(el)).toBe(true);
-      now += ACTION_FLASH_MS + 1; // pasa el tiempo, pero el temporizador real no se dispara
+      now += ACTION_PENDING_MS + 1; // pasa el tiempo, pero el temporizador real no se dispara
       el.hass = hassWith('locked'); // llega una actualización de HA
       await el.updateComplete;
       expect(active(el)).toBe(false);
@@ -258,7 +291,7 @@ describe('NeonLockCard', () => {
 
   it('desconectar y reconectar a mitad del destello lo retoma y lo apaga a su hora', async () => {
     vi.useFakeTimers();
-    const el = await mount({});
+    const el = await mount({ tap_action: { action: 'more-info' } });
     click(el);
     await el.updateComplete;
     vi.advanceTimersByTime(500);

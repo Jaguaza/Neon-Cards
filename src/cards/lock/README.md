@@ -7,6 +7,9 @@
 icono propio y el halo neón de la familia Neón Cards. En reposo la
 tarjeta no lleva halo: se enciende al accionar la cerradura y también
 cuando la entidad cambia de estado, en todas las tarjetas que la muestran.
+Tras pulsar una acción que opera la cerradura (`toggle`, `call-service`) el
+halo espera encendido el cambio de estado (hasta 6 s) y se apaga 1,5 s
+después, sin parpadeos aunque la cerradura tarde.
 
 Misma base visual que la [Button Card](../button) (icono protagonista,
 nombre, subtítulo, halo neón que se dibuja desde la esquina superior
@@ -89,6 +92,9 @@ locks, latches, garage locks). Shows the state with a dedicated icon and
 the neon halo of the Neón Cards family. At rest the card has no halo: it
 lights up when the lock is operated and also when the entity changes
 state, on every card that shows it.
+After an action that operates the lock (`toggle`, `call-service`) the halo
+stays on waiting for the state change (up to 6 s) and goes off 1.5 s
+later, with no flicker even if the lock is slow.
 
 Same visual base as the [Button Card](../button) (large icon, name,
 subtitle, neon halo drawn from the top-left corner) and the same

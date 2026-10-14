@@ -20,7 +20,7 @@ import {
   neonRingSplitTemplate,
   RingSizeController,
 } from '../../shared';
-import { ACTION_FLASH_MS, ERROR_ICON } from './constants';
+import { ACTION_FLASH_MS, ACTION_PENDING_MS, ERROR_ICON, OPERATING_ACTIONS } from './constants';
 import { LOCK_ICONS, resolveLockIconType } from './icons';
 import type { LockIconDef } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
@@ -64,6 +64,12 @@ export class NeonLockCard extends BaseNeonCard {
    */
   private _flashUntil = 0;
   private _flashTimer?: ReturnType<typeof setTimeout>;
+  /**
+   * Instante hasta el que el halo espera el cambio de estado tras una
+   * acción que opera la cerradura (ver `ACTION_PENDING_MS`). Se anula en
+   * cuanto el estado cambia.
+   */
+  private _pendingUntil = 0;
   /** Último estado visto de la entidad, para detectar su cambio (ver `willUpdate`). */
   private _lastSeen?: { entity: string | undefined; state: LockVisualState };
   /** Lleva el icono entre cerrado y abierto (ver lock-pose-animator.ts). */
@@ -156,8 +162,15 @@ export class NeonLockCard extends BaseNeonCard {
   private _handleAction(actionType: string): void {
     // Enciende el halo al accionar la cerradura — salvo que el gesto no
     // tenga acción (`none`) o no haya entidad válida a la que accionar.
-    if (this._actionFor(actionType).action !== 'none' && resolveLockState(this._config, this.hass) !== 'error') {
+    const action = this._actionFor(actionType).action;
+    if (action !== 'none' && resolveLockState(this._config, this.hass) !== 'error') {
       this._startFlash();
+      // Si la acción opera la cerradura, el halo espera encendido el cambio
+      // de estado (sin hueco entre el destello y el cambio): ver `ACTION_PENDING_MS`.
+      if (OPERATING_ACTIONS.includes(action)) {
+        this._pendingUntil = performance.now() + ACTION_PENDING_MS;
+        this._scheduleFlashEnd(ACTION_PENDING_MS);
+      }
       this.requestUpdate();
     }
     dispatchHassAction(
@@ -228,12 +241,16 @@ export class NeonLockCard extends BaseNeonCard {
     }
     const entity = this._config?.entity;
     const last = this._lastSeen;
-    if (last && last.entity === entity && last.state !== state) this._startFlash();
+    if (last && last.entity === entity && last.state !== state) {
+      this._pendingUntil = 0;
+      this._startFlash();
+    }
     this._lastSeen = { entity, state };
   }
 
   private _isFlashing(): boolean {
-    return performance.now() < this._flashUntil;
+    const now = performance.now();
+    return now < this._flashUntil || now < this._pendingUntil;
   }
 
   private _scheduleFlashEnd(ms: number): void {
@@ -268,7 +285,7 @@ export class NeonLockCard extends BaseNeonCard {
     super.connectedCallback();
     // Si se reconecta a mitad de un destello o de un movimiento, se retoman
     // desde el reloj: nada se queda a medias.
-    const remaining = this._flashUntil - performance.now();
+    const remaining = Math.max(this._flashUntil, this._pendingUntil) - performance.now();
     if (remaining > 0) this._scheduleFlashEnd(remaining);
     this._pose.set(isLockOpenPose(resolveLockState(this._config, this.hass)));
   }
