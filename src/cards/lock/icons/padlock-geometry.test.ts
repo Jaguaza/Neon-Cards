@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LIFT_SHARE, shackleGeometry, shacklePath } from './lock-geometry';
+import { LIFT_SHARE, shackleGeometry, shacklePath } from './padlock-geometry';
 
 const steps = Array.from({ length: 101 }, (_, i) => i / 100);
 

@@ -1,5 +1,3 @@
-import { POSE_TOTAL_MS } from './lock-geometry';
-
 export interface PoseClock {
   now(): number;
   request(callback: () => void): number;
@@ -16,8 +14,9 @@ const prefersReducedMotion = (): boolean =>
   typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /**
- * Lleva el candado entre cerrado (0) y abierto (1) a velocidad constante
- * (POSE_TOTAL_MS para el recorrido completo) y avisa de cada valor.
+ * Lleva el icono entre cerrado (0) y abierto (1) a velocidad constante
+ * (`durationMs` para el recorrido completo, distinta según el icono) y
+ * avisa de cada valor.
  *
  * Diseñado para no poder quedarse atascado:
  *  - `value()` se calcula SIEMPRE a partir del reloj, no del número de
@@ -34,16 +33,22 @@ export class LockPoseAnimator {
   private _start = 0;
   private _frame?: number;
 
+  /** Duración del recorrido completo; cámbiala solo con el icono en reposo (junto a `snap`). */
+  durationMs: number;
+
   constructor(
     private readonly _apply: (s: number) => void,
     private readonly _clock: PoseClock = browserClock,
-    private readonly _reducedMotion: () => boolean = prefersReducedMotion
-  ) {}
+    private readonly _reducedMotion: () => boolean = prefersReducedMotion,
+    durationMs = 660
+  ) {
+    this.durationMs = durationMs;
+  }
 
   /** Progreso actual (0 cerrado, 1 abierto), calculado a partir del reloj. */
   value(): number {
     if (this._from === this._to) return this._to;
-    const duration = Math.abs(this._to - this._from) * POSE_TOTAL_MS;
+    const duration = Math.abs(this._to - this._from) * this.durationMs;
     const progress = (this._clock.now() - this._start) / duration;
     if (progress >= 1) return this._to;
     return this._from + (this._to - this._from) * Math.max(progress, 0);

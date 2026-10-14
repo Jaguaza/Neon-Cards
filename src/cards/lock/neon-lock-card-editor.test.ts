@@ -48,6 +48,40 @@ describe('NeonLockCardEditor', () => {
     expect('subtitle_type' in last()).toBe(false);
   });
 
+  it('ofrece cuatro iconos en fichas, con el candado marcado por defecto', async () => {
+    const { el } = await mount({ entity: 'lock.puerta' });
+    const tiles = Array.from(el.shadowRoot!.querySelectorAll('.icon-tile')) as HTMLElement[];
+    expect(tiles.map((t) => t.dataset.icon)).toEqual(['padlock', 'door', 'garage_roller', 'garage_sliding']);
+    expect(tiles.map((t) => t.getAttribute('aria-checked'))).toEqual(['true', 'false', 'false', 'false']);
+    expect(tiles.map((t) => t.textContent!.trim())).toEqual(['Candado', 'Puerta abriéndose', 'Garaje con puerta enrollable', 'Garaje con puerta corredera']);
+  });
+
+  it('marca la ficha del icono configurado', async () => {
+    const { el } = await mount({ entity: 'lock.puerta', lock_icon: 'garage_sliding' });
+    const checked = Array.from(el.shadowRoot!.querySelectorAll('.icon-tile[aria-checked="true"]')) as HTMLElement[];
+    expect(checked.map((t) => t.dataset.icon)).toEqual(['garage_sliding']);
+  });
+
+  it('cada ficha trae su dibujo ya pintado (cerrado)', async () => {
+    const { el } = await mount({ entity: 'lock.puerta' });
+    const d = (type: string, sel: string) => el.shadowRoot!.querySelector(`.icon-tile[data-icon="${type}"] ${sel}`)?.getAttribute('d');
+    expect(d('padlock', '.shackle')).toBe('M8.5 17.5V10A3.5 3.5 0 0 1 15.5 10V13.6');
+    expect(d('door', '.leaf')).toMatch(/^M6\.3 5L17\.7 5/);
+    expect(d('garage_sliding', '.panel')).toBe('M3.9 11.6H20.1V20.6H3.9Z');
+    expect(d('garage_roller', '.slats')).toContain('M3.9 17.7H20.1');
+  });
+
+  it('elegir un icono guarda lock_icon; elegir el candado lo quita de la config', async () => {
+    const { el, last } = await mount({ entity: 'lock.puerta' });
+    const tile = (type: string) => el.shadowRoot!.querySelector(`.icon-tile[data-icon="${type}"]`) as HTMLButtonElement;
+    tile('garage_roller').click();
+    expect(last().lock_icon).toBe('garage_roller');
+    await el.updateComplete;
+    expect(tile('garage_roller').getAttribute('aria-checked')).toBe('true');
+    tile('padlock').click();
+    expect('lock_icon' in last()).toBe(false);
+  });
+
   it('paleta custom muestra tres selectores de color', async () => {
     const { el } = await mount({ entity: 'lock.puerta', neon_palette: 'custom' });
     expect(el.shadowRoot!.querySelectorAll('input[type="color"]').length).toBe(3);

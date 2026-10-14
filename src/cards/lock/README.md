@@ -13,7 +13,7 @@ izquierda) y mismo framework (`src/core`, `src/shared`, `src/ha`).
 
 ## Estados
 
-| Estado de HA | Candado | Halo neón | Extra |
+| Estado de HA | Icono | Halo neón | Extra |
 |---|---|---|---|
 | `locked` | cerrado | apagado (reposo) | |
 | `unlocked` | abierto | apagado (reposo) | |
@@ -23,18 +23,28 @@ izquierda) y mismo framework (`src/core`, `src/shared`, `src/ha`).
 | `jammed` | cerrado | rojo de alerta | |
 | sin entidad, inexistente, `unavailable`/`unknown` | `mdi:close` (sin candado) | rojo de alerta | "No disponible" |
 
-El candado es un SVG propio, no un icono `mdi`, para animar la apertura
-como la de un candado real: el cuerpo queda fijo, el arco **sube sacando
-la pata corta del cuerpo** y después **gira sobre la pata larga** (la que
-sigue unida): visto de frente se estrecha hasta quedar de canto y se abre
-hacia el otro lado (≈0,7 s). Al cerrar hace el recorrido inverso (primero
-gira de vuelta y después baja). La forma del arco se calcula para cada
-fotograma (no hay transiciones CSS ni giros por escala, que se dibujan
-distinto según el navegador); si la cerradura cambia de estado a mitad
-del recorrido, el arco continúa desde donde esté, sin saltos. Los estados
-transitorios adoptan ya la pose de destino, así la animación arranca en
-cuanto la cerradura empieza a moverse. Con `prefers-reduced-motion` el
-arco cambia de pose sin animación.
+## Iconos
+
+El icono se elige con `lock_icon` (o desde el editor visual, que muestra una
+ficha con el dibujo de cada uno). Los iconos son SVG propios, no `mdi`,
+para animar la apertura de verdad; todos se mueven con la misma garantía:
+la forma se calcula para cada fotograma (no hay transiciones CSS ni giros
+por escala, que se dibujan distinto según el navegador); si la cerradura
+cambia de estado a mitad del recorrido, el icono continúa desde donde esté,
+sin saltos; y si el navegador retrasa la animación, la posición correcta se
+recupera con la siguiente actualización. Los estados transitorios adoptan ya
+la pose de destino (`unlocking` y `opening` abren, `locking` cierra), así la
+animación arranca en cuanto la cerradura empieza a moverse. Con
+`prefers-reduced-motion` el icono cambia de pose sin animación.
+
+| `lock_icon` | Dibujo | Abrir (cerrar es el recorrido inverso) | Duración |
+|---|---|---|---|
+| `padlock` (por defecto) | Candado | El arco **sube** sacando la pata corta del cuerpo y después **gira** sobre la pata larga, que sigue unida: visto de frente se estrecha hasta quedar de canto y se abre hacia el otro lado. | 0,66 s |
+| `door` | Puerta | La hoja **se abre hacia ti** girando sobre su bisagra: el canto libre se acerca a la bisagra, la hoja crece por la perspectiva y se descubre el hueco de detrás. | 0,8 s |
+| `garage_roller` | Garaje con puerta enrollable | La puerta de lamas **sube y se enrolla** en el tambor bajo el dintel; las lamas desaparecen por arriba y el tambor engorda. | 1,1 s |
+| `garage_sliding` | Garaje con puerta corredera | El panel **se desliza** en horizontal hacia la derecha y se esconde tras la jamba, con sus ranuras y su tirador. | 1,0 s |
+
+En estado de error (sin entidad válida) se muestra `mdi:close` con cualquier icono.
 
 ## Config
 
@@ -48,6 +58,7 @@ name: Puerta principal
 |---|---|---|---|
 | `entity` | string | — | Entidad del dominio `lock`. |
 | `name` | string | `friendly_name` | Nombre mostrado. |
+| `lock_icon` | `padlock` \| `door` \| `garage_roller` \| `garage_sliding` | `padlock` | Icono animado (ver Iconos). Un valor no válido usa el candado. |
 | `subtitle_type` | `state` \| `custom` \| `last-changed` \| `last-updated` \| `none` | `state` | Qué se muestra bajo el nombre. `state` es el estado traducido (Cerrada, Abierta…). |
 | `subtitle` | string | — | Texto libre cuando `subtitle_type: custom`. |
 | `neon_palette` | `emerald` \| `cyberpunk` \| `electric` \| `sunset` \| `toxic` \| `custom` | `emerald` | Paleta del halo (al accionar). |
@@ -83,7 +94,7 @@ framework (`src/core`, `src/shared`, `src/ha`).
 
 ## States
 
-| HA state | Padlock | Neon halo | Extra |
+| HA state | Icon | Neon halo | Extra |
 |---|---|---|---|
 | `locked` | closed | off (rest) | |
 | `unlocked` | open | off (rest) | |
@@ -93,18 +104,28 @@ framework (`src/core`, `src/shared`, `src/ha`).
 | `jammed` | closed | alert red | |
 | no entity, missing, `unavailable`/`unknown` | `mdi:close` (no padlock) | alert red | "Unavailable" |
 
-The padlock is a custom SVG, not an `mdi` icon, so it can animate the
-opening like a real padlock: the body stays fixed, the shackle **lifts,
-pulling its short leg out of the body**, and then **swings around the
-long leg** (the one that stays attached): seen from the front it narrows
-to edge-on and opens out the other way (≈0.7 s). Closing plays the same
-path in reverse (it swings back first, then drops). The shackle's shape is
-computed for every frame (no CSS transitions or scale-based flips, which
-render differently across browsers); if the lock changes state midway,
-the shackle continues from wherever it is, with no jumps. Transitional
-states already take the target pose, so the animation starts as soon as
-the lock begins to move. Under `prefers-reduced-motion` the shackle
-switches pose without animating.
+## Icons
+
+The icon is chosen with `lock_icon` (or from the visual editor, which shows a
+tile with the drawing of each one). The icons are custom SVGs, not `mdi`, so
+they can animate a real opening; all of them move with the same guarantees:
+the shape is computed for every frame (no CSS transitions or scale-based
+flips, which render differently across browsers); if the lock changes state
+midway, the icon continues from wherever it is, with no jumps; and if the
+browser delays the animation, the right position is recovered on the next
+update. Transitional states already take the target pose (`unlocking` and
+`opening` open, `locking` closes), so the animation starts as soon as the lock
+begins to move. Under `prefers-reduced-motion` the icon switches pose without
+animating.
+
+| `lock_icon` | Drawing | Opening (closing is the reverse path) | Duration |
+|---|---|---|---|
+| `padlock` (default) | Padlock | The shackle **lifts**, pulling its short leg out of the body, and then **swings** around the long leg, which stays attached: seen from the front it narrows to edge-on and opens out the other way. | 0.66 s |
+| `door` | Door | The leaf **opens towards you**, swinging on its hinge: the free edge approaches the hinge, the leaf grows with perspective and the doorway behind is revealed. | 0.8 s |
+| `garage_roller` | Garage with roller door | The slatted door **rises and rolls up** into the drum under the lintel; the slats vanish at the top and the drum thickens. | 1.1 s |
+| `garage_sliding` | Garage with sliding door | The panel **slides** sideways to the right and hides behind the jamb, with its grooves and handle. | 1.0 s |
+
+In the error state (no valid entity) `mdi:close` is shown with any icon.
 
 ## Config
 
@@ -118,6 +139,7 @@ name: Front door
 |---|---|---|---|
 | `entity` | string | — | Entity of the `lock` domain. |
 | `name` | string | `friendly_name` | Displayed name. |
+| `lock_icon` | `padlock` \| `door` \| `garage_roller` \| `garage_sliding` | `padlock` | Animated icon (see Icons). An invalid value uses the padlock. |
 | `subtitle_type` | `state` \| `custom` \| `last-changed` \| `last-updated` \| `none` | `state` | What is shown under the name. `state` is the translated state (Locked, Unlocked…). |
 | `subtitle` | string | — | Free text when `subtitle_type: custom`. |
 | `neon_palette` | `emerald` \| `cyberpunk` \| `electric` \| `sunset` \| `toxic` \| `custom` | `emerald` | Halo palette (on action). |

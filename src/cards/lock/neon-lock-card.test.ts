@@ -1,7 +1,10 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ACTION_FLASH_MS } from './constants';
-import { POSE_TOTAL_MS, shacklePath } from './lock-geometry';
+import { POSE_TOTAL_MS, shacklePath } from './icons/padlock-geometry';
+import { DOOR_DURATION_MS, doorLeafPath } from './icons/door';
+import { GARAGE_ROLLER_DURATION_MS, rollerGeometry } from './icons/garage-roller';
+import { GARAGE_SLIDING_DURATION_MS } from './icons/garage-sliding';
 
 (globalThis as { __DEV__?: boolean }).__DEV__ = false;
 
@@ -231,6 +234,83 @@ describe('NeonLockCard', () => {
     vi.advanceTimersByTime(ACTION_FLASH_MS - 500);
     await el.updateComplete;
     expect(active(el)).toBe(false);
+  });
+
+  it('lock_icon por defecto o inválido es el candado', async () => {
+    const def = await mount({});
+    expect(def.shadowRoot!.querySelector('.shackle')).not.toBeNull();
+    const bad = await mount({ lock_icon: 'puerta-rara' });
+    expect(bad.shadowRoot!.querySelector('.shackle')).not.toBeNull();
+  });
+
+  it('lock_icon: door dibuja la puerta y la abre con su propia duración', async () => {
+    vi.useFakeTimers();
+    const el = await mount({ lock_icon: 'door' });
+    const leaf = () => el.shadowRoot!.querySelector('.leaf')!.getAttribute('d');
+    expect(el.shadowRoot!.querySelector('.shackle')).toBeNull();
+    expect(leaf()).toBe(doorLeafPath(0));
+    el.hass = hassWith('unlocked');
+    await el.updateComplete;
+    vi.advanceTimersByTime(DOOR_DURATION_MS / 2);
+    expect(leaf()).not.toBe(doorLeafPath(0));
+    expect(leaf()).not.toBe(doorLeafPath(1));
+    vi.advanceTimersByTime(DOOR_DURATION_MS);
+    expect(leaf()).toBe(doorLeafPath(1));
+  });
+
+  it('lock_icon: garage_roller enrolla la puerta', async () => {
+    vi.useFakeTimers();
+    const el = await mount({ lock_icon: 'garage_roller' });
+    const barY = () => el.shadowRoot!.querySelector('.bar')!.getAttribute('y');
+    expect(barY()).toBe(String(rollerGeometry(0).barY));
+    el.hass = hassWith('unlocked');
+    await el.updateComplete;
+    vi.advanceTimersByTime(GARAGE_ROLLER_DURATION_MS + 50);
+    expect(barY()).toBe(String(rollerGeometry(1).barY));
+  });
+
+  it('lock_icon: garage_sliding desliza el panel', async () => {
+    vi.useFakeTimers();
+    const el = await mount({ lock_icon: 'garage_sliding' });
+    const panel = () => el.shadowRoot!.querySelector('.panel')!.getAttribute('d');
+    expect(panel()).toBe('M3.9 11.6H20.1V20.6H3.9Z');
+    el.hass = hassWith('unlocked');
+    await el.updateComplete;
+    vi.advanceTimersByTime(GARAGE_SLIDING_DURATION_MS + 50);
+    expect(panel()).toBe('M17.1 11.6H20.1V20.6H17.1Z');
+  });
+
+  it('cambiar de icono desde la config coloca el nuevo en la pose actual sin animar', async () => {
+    const el = await mount({}, hassWith('unlocked'));
+    expect(el.shadowRoot!.querySelector('.shackle')).not.toBeNull();
+    el.setConfig({ entity: 'lock.puerta', lock_icon: 'door' });
+    await el.updateComplete;
+    expect(el.shadowRoot!.querySelector('.shackle')).toBeNull();
+    expect(el.shadowRoot!.querySelector('.leaf')!.getAttribute('d')).toBe(doorLeafPath(1));
+  });
+
+  it('con cualquier icono, entidad no disponible muestra mdi:close y no el dibujo', async () => {
+    for (const lock_icon of ['door', 'garage_roller', 'garage_sliding']) {
+      const el = await mount({ lock_icon }, hassWith('unavailable'));
+      expect(el.shadowRoot!.querySelector('svg.lock-icon')).toBeNull();
+      expect(el.shadowRoot!.querySelector('ha-icon')?.getAttribute('icon')).toBe('mdi:close');
+    }
+  });
+
+  it('abrir-cerrar-abrir en ráfaga termina en la pose correcta con cada icono', async () => {
+    for (const lock_icon of ['door', 'garage_roller', 'garage_sliding']) {
+      vi.useFakeTimers();
+      const el = await mount({ lock_icon });
+      const fresh = await mount({ lock_icon }, hassWith('unlocked'));
+      for (const state of ['unlocked', 'locked', 'unlocked', 'locked', 'unlocked']) {
+        el.hass = hassWith(state);
+        await el.updateComplete;
+        vi.advanceTimersByTime(90);
+      }
+      vi.advanceTimersByTime(3000);
+      expect(el.shadowRoot!.querySelector('svg.lock-icon')!.innerHTML).toBe(fresh.shadowRoot!.querySelector('svg.lock-icon')!.innerHTML);
+      vi.useRealTimers();
+    }
   });
 
   it('getStubConfig elige una lock de hass o un ejemplo', () => {

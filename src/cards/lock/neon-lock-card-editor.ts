@@ -1,9 +1,11 @@
-import { LitElement, html, nothing } from 'lit';
-import type { TemplateResult } from 'lit';
+import { LitElement, css, html, nothing } from 'lit';
+import type { PropertyValues, TemplateResult } from 'lit';
 import type { ActionConfig, HomeAssistant, ValueChangedEvent } from '../../ha/types';
 import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
 import { getInfoLabels, localize } from '../../core';
+import { LOCK_ICON_TYPES, LOCK_ICONS, resolveLockIconType } from './icons';
+import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
 import { LOCK_TRANSLATIONS } from './translations';
 import type { LockTranslations } from './translations';
 import type { LockSubtitleType, NeonLockCardConfig } from './types';
@@ -22,7 +24,51 @@ export class NeonLockCardEditor extends LitElement {
   hass?: HomeAssistant;
   private _config?: NeonLockCardConfig;
 
-  static styles = [NEON_EDITOR_FORM_STYLES];
+  static styles = [
+    NEON_EDITOR_FORM_STYLES,
+    NEON_LOCK_ICON_STYLES,
+    css`
+      .icon-picker {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+      .icon-tile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 6px;
+        border: 1px solid var(--divider-color);
+        border-radius: 12px;
+        background: transparent;
+        color: var(--primary-text-color);
+        font: inherit;
+        font-size: 12px;
+        line-height: 15px;
+        text-align: center;
+        cursor: pointer;
+      }
+      .icon-tile:hover {
+        background: var(--secondary-background-color);
+      }
+      .icon-tile:focus-visible {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+      }
+      .icon-tile.selected {
+        border-color: var(--primary-color);
+        box-shadow: inset 0 0 0 1px var(--primary-color);
+      }
+      .icon-tile .lock-icon {
+        margin-bottom: 0;
+        color: var(--primary-text-color);
+      }
+      .icon-tile.selected .lock-icon {
+        color: var(--primary-color);
+      }
+    `,
+  ];
 
   setConfig(config: NeonLockCardConfig): void {
     this._config = config;
@@ -82,6 +128,7 @@ export class NeonLockCardEditor extends LitElement {
           .value=${config.name || ''}
           @input=${(ev: InputEvent) => this._configChanged('name', (ev.target as HTMLInputElement).value)}
         />
+        ${this._renderIconPicker()}
         <label class="native-select-label" for="subtitle-type">${this._t('subtitle_label')}</label>
         <select
           id="subtitle-type"
@@ -111,6 +158,46 @@ export class NeonLockCardEditor extends LitElement {
           : nothing}
       </div>
     `;
+  }
+
+  /**
+   * Selector de icono: una ficha por icono con su dibujo (cerrado) y su
+   * nombre. Es un grupo de radio accesible; el candado es el valor por
+   * defecto y por eso no se guarda en la config.
+   */
+  private _renderIconPicker(): TemplateResult {
+    const selected = resolveLockIconType(this._config?.lock_icon);
+    return html`
+      <span class="native-select-label" id="icon-label">${this._t('icon_label')}</span>
+      <div class="icon-picker" role="radiogroup" aria-labelledby="icon-label">
+        ${LOCK_ICON_TYPES.map((type) => {
+          const label = this._t(`icon_${type}`);
+          return html`
+            <button
+              type="button"
+              class="icon-tile ${type === selected ? 'selected' : ''}"
+              data-icon=${type}
+              role="radio"
+              aria-checked=${type === selected ? 'true' : 'false'}
+              @click=${() => this._configChanged('lock_icon', type === 'padlock' ? undefined : type)}
+            >
+              ${LOCK_ICONS[type].template(false)}
+              <span>${label}</span>
+            </button>
+          `;
+        })}
+      </div>
+    `;
+  }
+
+  /** Las fichas llevan el icono sin geometría variable: se pinta cerrado tras cada render. */
+  protected updated(changed: PropertyValues): void {
+    super.updated(changed);
+    const tiles = Array.from(this.renderRoot.querySelectorAll('.icon-tile')) as HTMLElement[];
+    for (const tile of tiles) {
+      const svg = tile.querySelector('svg.lock-icon') as SVGElement | null;
+      if (svg) LOCK_ICONS[resolveLockIconType(tile.dataset.icon)].paint(svg, 0);
+    }
   }
 
   private _renderHaloSection(): TemplateResult {

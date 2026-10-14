@@ -17,6 +17,11 @@ export interface LockTranslations {
   section_main: string;
   entity_label: string;
   name_label: string;
+  icon_label: string;
+  icon_padlock: string;
+  icon_door: string;
+  icon_garage_roller: string;
+  icon_garage_sliding: string;
   subtitle_label: string;
   subtitle_type_custom: string;
   subtitle_placeholder: string;

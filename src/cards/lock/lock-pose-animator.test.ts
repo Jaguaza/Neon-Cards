@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { LockPoseAnimator } from './lock-pose-animator';
 import type { PoseClock } from './lock-pose-animator';
-import { POSE_TOTAL_MS } from './lock-geometry';
+import { POSE_TOTAL_MS } from './icons/padlock-geometry';
 
 function fakeClock() {
   let t = 0;

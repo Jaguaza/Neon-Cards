@@ -26,11 +26,21 @@ export type LockVisualState =
  */
 export type LockSubtitleType = 'custom' | Exclude<InfoOption, 'name'>;
 
+/**
+ * Icono de la tarjeta, cada uno con su propia animación de abrir/cerrar:
+ * `padlock` (candado, por defecto), `door` (puerta que se abre),
+ * `garage_roller` (garaje con puerta enrollable) y `garage_sliding`
+ * (garaje con puerta corredera).
+ */
+export type LockIconType = 'padlock' | 'door' | 'garage_roller' | 'garage_sliding';
+
 export interface NeonLockCardConfig {
   type?: string;
   /** Entidad del dominio `lock`. Obligatoria para que la tarjeta sea útil. */
   entity?: string;
   name?: string;
+  /** Icono animado; por defecto `padlock`. */
+  lock_icon?: LockIconType;
   subtitle_type?: LockSubtitleType;
   /** Texto libre cuando subtitle_type es 'custom'. */
   subtitle?: string;
