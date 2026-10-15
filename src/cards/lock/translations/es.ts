@@ -2,9 +2,9 @@ import type { LockTranslations } from './types';
 
 export const es: LockTranslations = {
   state_locked: 'Cerrada',
-  state_unlocked: 'Abierta',
+  state_unlocked: 'Desbloqueada',
   state_locking: 'Cerrando…',
-  state_unlocking: 'Abriendo…',
+  state_unlocking: 'Desbloqueando…',
   state_jammed: 'Atascada',
   state_open: 'Puerta abierta',
   state_opening: 'Abriendo puerta…',

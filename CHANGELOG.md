@@ -37,6 +37,9 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- Lock Card: en español, `unlocked` se muestra como «Desbloqueada» (antes
+  «Abierta», que se confundía con la puerta abierta) y `unlocking` como
+  «Desbloqueando…». «Puerta abierta» queda solo para `open`.
 - Lock Card: el estado `jammed` (atascada) muestra la X de error
   (`mdi:close`) con el halo rojo, como la entidad inexistente o no disponible
   y como las demás tarjetas; el subtítulo sigue diciendo «Atascada».

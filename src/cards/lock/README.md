@@ -64,7 +64,7 @@ name: Puerta principal
 | `entity` | string | — | Entidad del dominio `lock`. |
 | `name` | string | `friendly_name` | Nombre mostrado. |
 | `lock_icon` | `padlock` \| `door` \| `garage_roller` \| `garage_sliding` | `padlock` | Icono animado (ver Iconos). Un valor no válido usa el candado. |
-| `subtitle_type` | `state` \| `custom` \| `last-changed` \| `last-updated` \| `none` | `state` | Qué se muestra bajo el nombre. `state` es el estado traducido (Cerrada, Abierta…). |
+| `subtitle_type` | `state` \| `custom` \| `last-changed` \| `last-updated` \| `none` | `state` | Qué se muestra bajo el nombre. `state` es el estado traducido (Cerrada, Desbloqueada, Puerta abierta…). |
 | `subtitle` | string | — | Texto libre cuando `subtitle_type: custom`. |
 | `neon_palette` | `emerald` \| `cyberpunk` \| `electric` \| `sunset` \| `toxic` \| `custom` | `emerald` | Paleta del halo. |
 | `neon_color1/2/3` | color | — | Solo con `neon_palette: custom`. |

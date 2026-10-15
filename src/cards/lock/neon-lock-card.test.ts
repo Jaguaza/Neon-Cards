@@ -66,7 +66,22 @@ describe('NeonLockCard', () => {
     expect(active(el)).toBe(true);
     expect(card(el).classList.contains('lock-moving')).toBe(false);
     expect(isOpen(el)).toBe(true);
-    expect(subtitle(el)).toBe('Abierta');
+    expect(subtitle(el)).toBe('Desbloqueada');
+  });
+
+  it('los textos de estado en español distinguen desbloqueada (pestillo) de abierta (puerta)', async () => {
+    const texts: Record<string, string> = {
+      locked: 'Cerrada',
+      unlocked: 'Desbloqueada',
+      open: 'Puerta abierta',
+      locking: 'Cerrando…',
+      unlocking: 'Desbloqueando…',
+      opening: 'Abriendo puerta…',
+      jammed: 'Atascada',
+    };
+    for (const [state, text] of Object.entries(texts)) {
+      expect(subtitle(await mount({}, hassWith(state))), state).toBe(text);
+    }
   });
 
   it('en movimiento (cerrando, abriendo): halo encendido y clase de pulso', async () => {
