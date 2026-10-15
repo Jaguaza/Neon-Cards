@@ -406,6 +406,23 @@ describe('NeonLockCard', () => {
       expect(confirmView(el)).toBeNull();
     });
 
+    it('mientras la vista está abierta se oculta el contenido original (para que no se transparente), y se recupera al cerrarla', async () => {
+      const el = await mount({});
+      const content = () => el.shadowRoot!.querySelector('.content')!;
+      expect(content().classList.contains('content--hidden')).toBe(false);
+      click(el);
+      await el.updateComplete;
+      expect(content().classList.contains('content--hidden')).toBe(false); // aún no se ha mostrado la vista
+      vi.advanceTimersByTime(CONFIRM_REVEAL_MS);
+      await el.updateComplete;
+      expect(content().classList.contains('content--hidden')).toBe(true);
+      expect(content().getAttribute('aria-hidden')).toBe('true');
+      btn(el, 'cancel').click();
+      await el.updateComplete;
+      expect(content().classList.contains('content--hidden')).toBe(false);
+      expect(content().getAttribute('aria-hidden')).toBe('false');
+    });
+
     it('se muestra en inglés con el idioma de HA en inglés', async () => {
       const el = await mount({}, hassWith('locked', 'en'));
       await ask(el);

@@ -16,6 +16,11 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   se enciende primero y la vista aparece 120 ms después, y se quita el
   `backdrop-filter` de la vista, que da problemas con las transiciones en
   WebKit.
+- Lock Card: la vista de confirmación ya no depende de un fondo o de un
+  difuminado para tapar el contenido de la tarjeta (con temas de cristal
+  translúcidos, y en iOS, el texto de debajo se transparentaba). Mientras la
+  vista está abierta se oculta el contenido original, sin cambiar el tamaño
+  de la tarjeta.
 
 ### Added
 
