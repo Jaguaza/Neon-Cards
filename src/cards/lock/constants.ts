@@ -44,3 +44,13 @@ export const ACTION_PENDING_MS = 6000;
  * pendiente indefinidamente si alguien pulsa y se va.
  */
 export const CONFIRM_TIMEOUT_MS = 8000;
+
+/**
+ * Retardo (ms) entre encender el halo y mostrar la vista de confirmación.
+ * El aro se dibuja con una transición CSS (`stroke-dashoffset`) y WebKit
+ * (iOS, la app de HA) no la arranca si en el MISMO fotograma se inserta
+ * además una capa nueva: el halo aparecía ya dibujado. Encendiendo primero
+ * el halo y mostrando la vista un instante después, la transición empieza
+ * limpia y el aro se dibuja mientras la vista aparece.
+ */
+export const CONFIRM_REVEAL_MS = 120;

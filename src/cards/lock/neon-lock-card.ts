@@ -20,7 +20,7 @@ import {
   neonRingSplitTemplate,
   RingSizeController,
 } from '../../shared';
-import { ACTION_PENDING_MS, CONFIRM_TIMEOUT_MS, ERROR_ICON, OPERATING_ACTIONS } from './constants';
+import { ACTION_PENDING_MS, CONFIRM_REVEAL_MS, CONFIRM_TIMEOUT_MS, ERROR_ICON, OPERATING_ACTIONS } from './constants';
 import { LOCK_ICONS, resolveLockIconType } from './icons';
 import type { LockIconDef } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
@@ -70,6 +70,9 @@ export class NeonLockCard extends BaseNeonCard {
   /** Vista «¿Abrir?» abierta: el gesto que la provocó, para ejecutarlo al aceptar. */
   private _confirm?: { actionType: string; choices: LockCommand[] };
   private _confirmTimer?: ReturnType<typeof setTimeout>;
+  /** La vista se muestra `CONFIRM_REVEAL_MS` después de encender el halo (ver esa constante). */
+  private _confirmShown = false;
+  private _revealTimer?: ReturnType<typeof setTimeout>;
   private _confirmFocused = false;
   /** Último estado visto de la entidad, para detectar su cambio (ver `willUpdate`). */
   private _lastSeen?: { entity: string | undefined; state: LockVisualState };
@@ -161,6 +164,7 @@ export class NeonLockCard extends BaseNeonCard {
   }
 
   private _handleAction(actionType: string): void {
+    if (this._confirm) return; // ya se está preguntando
     if (this._config?.confirm_open !== false) {
       const action = this._actionFor(actionType);
       const state = resolveLockState(this._config, this.hass);
@@ -214,9 +218,17 @@ export class NeonLockCard extends BaseNeonCard {
   }
 
   private _askConfirm(actionType: string, choices: LockCommand[]): void {
+    // Primero el halo (la clase se aplica por `_confirm`) y, un instante
+    // después, la vista: así la transición del aro arranca limpia.
     this._confirm = { actionType, choices };
+    this._confirmShown = false;
     clearTimeout(this._confirmTimer);
+    clearTimeout(this._revealTimer);
     this._confirmTimer = setTimeout(() => this._cancelConfirm(), CONFIRM_TIMEOUT_MS);
+    this._revealTimer = setTimeout(() => {
+      this._confirmShown = true;
+      this.requestUpdate();
+    }, CONFIRM_REVEAL_MS);
     this.requestUpdate();
   }
 
@@ -238,7 +250,9 @@ export class NeonLockCard extends BaseNeonCard {
   /** Cierra la vista sin pedir render (para usarlo también desde `willUpdate`). */
   private _dropConfirm(): void {
     clearTimeout(this._confirmTimer);
+    clearTimeout(this._revealTimer);
     this._confirm = undefined;
+    this._confirmShown = false;
   }
 
   /**
@@ -315,7 +329,7 @@ export class NeonLockCard extends BaseNeonCard {
             ${subtitle !== nothing ? html`<span class="subtitle">${subtitle}</span>` : nothing}
           </div>
         </div>
-      ${this._confirm ? this._renderConfirm() : nothing}
+      ${this._confirm && this._confirmShown ? this._renderConfirm() : nothing}
       </ha-card>
     `;
   }
@@ -363,10 +377,10 @@ export class NeonLockCard extends BaseNeonCard {
     super.updated(changed);
     // Al abrirse la vista «¿Abrir?» el foco va a «Cancelar»: así Intro o
     // Espacio no abren la cerradura por accidente.
-    if (this._confirm && !this._confirmFocused) {
+    if (this._confirmShown && !this._confirmFocused) {
       this._confirmFocused = true;
       this.renderRoot.querySelector<HTMLElement>('.confirm .cancel')?.focus();
-    } else if (!this._confirm) {
+    } else if (!this._confirmShown) {
       this._confirmFocused = false;
     }
     const svg = this.renderRoot.querySelector<SVGElement>('svg.lock-icon') ?? undefined;

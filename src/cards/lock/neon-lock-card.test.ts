@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ACTION_PENDING_MS, CONFIRM_TIMEOUT_MS } from './constants';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ACTION_PENDING_MS, CONFIRM_REVEAL_MS, CONFIRM_TIMEOUT_MS } from './constants';
 import { POSE_TOTAL_MS, shacklePath } from './icons/padlock-geometry';
 import { DOOR_DURATION_MS, doorLeafPath } from './icons/door';
 import { GARAGE_ROLLER_DURATION_MS, rollerGeometry, slatsPath } from './icons/garage-roller';
@@ -342,6 +342,14 @@ describe('NeonLockCard', () => {
   });
 
   describe('confirmación al abrir', () => {
+    const ask = async (el: Card) => {
+      click(el);
+      vi.advanceTimersByTime(CONFIRM_REVEAL_MS); // primero el halo, un instante después la vista
+      await el.updateComplete;
+    };
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
     const confirmView = (el: Card) => el.shadowRoot!.querySelector('.confirm');
     const btn = (el: Card, cls: 'accept' | 'cancel') => el.shadowRoot!.querySelector<HTMLButtonElement>(`.confirm .${cls}`)!;
     const listen = (el: Card) => {
@@ -353,8 +361,7 @@ describe('NeonLockCard', () => {
     it('pulsar una cerradura cerrada muestra «¿Abrir?» con el halo encendido y NO ejecuta la acción', async () => {
       const el = await mount({});
       const actions = listen(el);
-      click(el);
-      await el.updateComplete;
+      await ask(el);
       expect(confirmView(el)).not.toBeNull();
       expect(confirmView(el)!.getAttribute('role')).toBe('alertdialog');
       expect(el.shadowRoot!.querySelector('.confirm-title')!.textContent).toBe('¿Abrir?');
@@ -365,10 +372,43 @@ describe('NeonLockCard', () => {
       expect(actions).toEqual([]);
     });
 
-    it('se muestra en inglés con el idioma de HA en inglés', async () => {
-      const el = await mount({}, hassWith('locked', 'en'));
+    it('primero se enciende el halo y la vista aparece un instante después (para que el aro se dibuje bien en iOS)', async () => {
+      const el = await mount({});
       click(el);
       await el.updateComplete;
+      expect(active(el)).toBe(true); // el halo ya está encendido…
+      expect(confirmView(el)).toBeNull(); // …y la vista todavía no
+      vi.advanceTimersByTime(CONFIRM_REVEAL_MS - 1);
+      await el.updateComplete;
+      expect(confirmView(el)).toBeNull();
+      vi.advanceTimersByTime(1);
+      await el.updateComplete;
+      expect(confirmView(el)).not.toBeNull();
+      expect(active(el)).toBe(true);
+    });
+
+    it('una segunda pulsación mientras se pregunta no reinicia ni duplica la vista', async () => {
+      const el = await mount({});
+      click(el);
+      click(el);
+      vi.advanceTimersByTime(CONFIRM_REVEAL_MS);
+      await el.updateComplete;
+      expect(el.shadowRoot!.querySelectorAll('.confirm').length).toBe(1);
+    });
+
+    it('cancelar antes de que aparezca la vista no la deja programada', async () => {
+      const el = await mount({});
+      click(el);
+      el.hass = hassWith('unlocked'); // cambia el estado antes de revelarse
+      await el.updateComplete;
+      vi.advanceTimersByTime(CONFIRM_REVEAL_MS + 10);
+      await el.updateComplete;
+      expect(confirmView(el)).toBeNull();
+    });
+
+    it('se muestra en inglés con el idioma de HA en inglés', async () => {
+      const el = await mount({}, hassWith('locked', 'en'));
+      await ask(el);
       expect(el.shadowRoot!.querySelector('.confirm-title')!.textContent).toBe('Open?');
       expect(btn(el, 'accept').textContent).toBe('Open');
       expect(btn(el, 'cancel').textContent).toBe('Cancel');
@@ -376,16 +416,14 @@ describe('NeonLockCard', () => {
 
     it('el foco va a «Cancelar» para que Intro no abra por accidente', async () => {
       const el = await mount({});
-      click(el);
-      await el.updateComplete;
+      await ask(el);
       expect(el.shadowRoot!.activeElement).toBe(btn(el, 'cancel'));
     });
 
     it('Abrir ejecuta la acción original una sola vez y cierra la vista', async () => {
       const el = await mount({});
       const actions = listen(el);
-      click(el);
-      await el.updateComplete;
+      await ask(el);
       btn(el, 'accept').click();
       await el.updateComplete;
       expect(actions).toEqual(['tap']);
@@ -396,8 +434,7 @@ describe('NeonLockCard', () => {
     it('Cancelar cierra la vista sin ejecutar nada y apaga el halo', async () => {
       const el = await mount({});
       const actions = listen(el);
-      click(el);
-      await el.updateComplete;
+      await ask(el);
       btn(el, 'cancel').click();
       await el.updateComplete;
       expect(confirmView(el)).toBeNull();
@@ -407,8 +444,7 @@ describe('NeonLockCard', () => {
 
     it('los gestos dentro de la vista no llegan a la tarjeta (no re-piden confirmación ni mantienen)', async () => {
       const el = await mount({});
-      click(el);
-      await el.updateComplete;
+      await ask(el);
       const view = confirmView(el)!;
       view.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
       view.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
@@ -418,8 +454,7 @@ describe('NeonLockCard', () => {
 
     it('Escape cancela', async () => {
       const el = await mount({});
-      click(el);
-      await el.updateComplete;
+      await ask(el);
       confirmView(el)!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }));
       await el.updateComplete;
       expect(confirmView(el)).toBeNull();
@@ -429,9 +464,8 @@ describe('NeonLockCard', () => {
       vi.useFakeTimers();
       const el = await mount({});
       const actions = listen(el);
-      click(el);
-      await el.updateComplete;
-      vi.advanceTimersByTime(CONFIRM_TIMEOUT_MS - 1);
+      await ask(el);
+      vi.advanceTimersByTime(CONFIRM_TIMEOUT_MS - CONFIRM_REVEAL_MS - 1);
       await el.updateComplete;
       expect(confirmView(el)).not.toBeNull();
       vi.advanceTimersByTime(1);
@@ -442,8 +476,7 @@ describe('NeonLockCard', () => {
 
     it('si la cerradura cambia de estado mientras se pregunta, la vista se cierra', async () => {
       const el = await mount({});
-      click(el);
-      await el.updateComplete;
+      await ask(el);
       el.hass = hassWith('unlocked'); // la abrió otra tarjeta, la app, una automatización…
       await el.updateComplete;
       expect(confirmView(el)).toBeNull();
@@ -451,8 +484,7 @@ describe('NeonLockCard', () => {
 
     it('si la entidad deja de estar disponible mientras se pregunta, la vista se cierra', async () => {
       const el = await mount({});
-      click(el);
-      await el.updateComplete;
+      await ask(el);
       el.hass = hassWith('unavailable');
       await el.updateComplete;
       expect(confirmView(el)).toBeNull();
@@ -461,8 +493,7 @@ describe('NeonLockCard', () => {
     it('cerrar NO pide confirmación: la acción se ejecuta directamente', async () => {
       const el = await mount({}, hassWith('unlocked'));
       const actions = listen(el);
-      click(el);
-      await el.updateComplete;
+      await ask(el);
       expect(confirmView(el)).toBeNull();
       expect(actions).toEqual(['tap']);
     });
@@ -470,8 +501,7 @@ describe('NeonLockCard', () => {
     it('confirm_open: false la desactiva y abre directamente', async () => {
       const el = await mount({ confirm_open: false });
       const actions = listen(el);
-      click(el);
-      await el.updateComplete;
+      await ask(el);
       expect(confirmView(el)).toBeNull();
       expect(actions).toEqual(['tap']);
     });
@@ -479,34 +509,38 @@ describe('NeonLockCard', () => {
     it('las acciones que no operan la cerradura (más info, navegar) no piden confirmación', async () => {
       const el = await mount({ tap_action: { action: 'more-info' } });
       const actions = listen(el);
-      click(el);
-      await el.updateComplete;
+      await ask(el);
       expect(confirmView(el)).toBeNull();
       expect(actions).toEqual(['tap']);
     });
 
     it('un servicio lock.lock no pide confirmación; lock.unlock sí', async () => {
       const lockSvc = await mount({ tap_action: { action: 'call-service', service: 'lock.lock' } });
-      click(lockSvc);
-      await lockSvc.updateComplete;
+      await ask(lockSvc);
       expect(confirmView(lockSvc)).toBeNull();
       const unlockSvc = await mount({ tap_action: { action: 'call-service', service: 'lock.unlock' } });
-      click(unlockSvc);
-      await unlockSvc.updateComplete;
+      await ask(unlockSvc);
       expect(confirmView(unlockSvc)).not.toBeNull();
     });
 
     it('el aviso se cancela al desconectar la tarjeta', async () => {
       vi.useFakeTimers();
       const el = await mount({});
-      click(el);
-      await el.updateComplete;
+      await ask(el);
       el.remove();
       expect(() => vi.advanceTimersByTime(CONFIRM_TIMEOUT_MS + 1)).not.toThrow();
     });
   });
 
   describe('cerraduras con varias órdenes (supported_features: abrir)', () => {
+    const ask = async (el: Card) => {
+      click(el);
+      vi.advanceTimersByTime(CONFIRM_REVEAL_MS); // primero el halo, un instante después la vista
+      await el.updateComplete;
+    };
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
     const OPEN = { supported_features: 1 };
     const confirmView = (el: Card) => el.shadowRoot!.querySelector('.confirm');
     const choices = (el: Card) => Array.from(el.shadowRoot!.querySelectorAll<HTMLButtonElement>('.confirm .accept')).map((b) => b.dataset.command);
@@ -514,8 +548,7 @@ describe('NeonLockCard', () => {
 
     it('cerrada: pregunta qué hacer y ofrece Desbloquear o Abrir', async () => {
       const el = await mount({}, hassWith('locked', 'es', OPEN));
-      click(el);
-      await el.updateComplete;
+      await ask(el);
       expect(el.shadowRoot!.querySelector('.confirm-title')!.textContent).toBe('¿Qué quieres hacer?');
       expect(choices(el)).toEqual(['unlock', 'open']);
       const labels = Array.from(el.shadowRoot!.querySelectorAll('.confirm .accept')).map((b) => b.textContent);
@@ -524,8 +557,7 @@ describe('NeonLockCard', () => {
 
     it('desbloqueada: pregunta y ofrece Bloquear o Abrir', async () => {
       const el = await mount({}, hassWith('unlocked', 'es', OPEN));
-      click(el);
-      await el.updateComplete;
+      await ask(el);
       expect(choices(el)).toEqual(['lock', 'open']);
       const labels = Array.from(el.shadowRoot!.querySelectorAll('.confirm .accept')).map((b) => b.textContent);
       expect(labels).toEqual(['Bloquear', 'Abrir']);
@@ -535,8 +567,7 @@ describe('NeonLockCard', () => {
       for (const [state, command] of [['locked', 'unlock'], ['locked', 'open'], ['unlocked', 'lock'], ['unlocked', 'open']] as const) {
         const calls: unknown[][] = [];
         const el = await mount({}, hassWith(state, 'es', OPEN, calls));
-        click(el);
-        await el.updateComplete;
+        await ask(el);
         choose(el, command);
         await el.updateComplete;
         expect(calls, `${state} → ${command}`).toEqual([['lock', command, { entity_id: 'lock.puerta' }]]);
@@ -548,8 +579,7 @@ describe('NeonLockCard', () => {
     it('la ✕ cancela sin llamar a ningún servicio', async () => {
       const calls: unknown[][] = [];
       const el = await mount({}, hassWith('locked', 'es', OPEN, calls));
-      click(el);
-      await el.updateComplete;
+      await ask(el);
       el.shadowRoot!.querySelector<HTMLButtonElement>('.confirm .cancel')!.click();
       await el.updateComplete;
       expect(confirmView(el)).toBeNull();
@@ -558,28 +588,24 @@ describe('NeonLockCard', () => {
 
     it('sin soporte de abrir sigue la pregunta simple: cerrada «¿Abrir?»; desbloqueada, cierra directamente', async () => {
       const locked = await mount({}, hassWith('locked', 'es', { supported_features: 0 }));
-      click(locked);
-      await locked.updateComplete;
+      await ask(locked);
       expect(locked.shadowRoot!.querySelector('.confirm-title')!.textContent).toBe('¿Abrir?');
       const unlocked = await mount({}, hassWith('unlocked', 'es', { supported_features: 0 }));
-      click(unlocked);
-      await unlocked.updateComplete;
+      await ask(unlocked);
       expect(confirmView(unlocked)).toBeNull();
     });
 
     it('en estado open (puerta abierta) o en movimiento no hay nada que elegir: cierra directamente', async () => {
       for (const state of ['open', 'locking', 'unlocking', 'opening']) {
         const el = await mount({}, hassWith(state, 'es', OPEN));
-        click(el);
-        await el.updateComplete;
+        await ask(el);
         expect(confirmView(el), state).toBeNull();
       }
     });
 
     it('con una acción de servicio explícita no hay elección: manda esa acción (con su confirmación si abre)', async () => {
       const el = await mount({ tap_action: { action: 'call-service', service: 'lock.unlock' } }, hassWith('locked', 'es', OPEN));
-      click(el);
-      await el.updateComplete;
+      await ask(el);
       expect(el.shadowRoot!.querySelector('.confirm-title')!.textContent).toBe('¿Abrir?');
     });
 
@@ -587,16 +613,14 @@ describe('NeonLockCard', () => {
       const el = await mount({ confirm_open: false }, hassWith('locked', 'es', OPEN));
       const actions: string[] = [];
       el.addEventListener('hass-action', (ev) => actions.push((ev as CustomEvent).detail.action));
-      click(el);
-      await el.updateComplete;
+      await ask(el);
       expect(confirmView(el)).toBeNull();
       expect(actions).toEqual(['tap']);
     });
 
     it('en inglés: What do you want to do? / Unlock / Open', async () => {
       const el = await mount({}, hassWith('locked', 'en', OPEN));
-      click(el);
-      await el.updateComplete;
+      await ask(el);
       expect(el.shadowRoot!.querySelector('.confirm-title')!.textContent).toBe('What do you want to do?');
       expect(Array.from(el.shadowRoot!.querySelectorAll('.confirm .accept')).map((b) => b.textContent)).toEqual(['Unlock', 'Open']);
     });

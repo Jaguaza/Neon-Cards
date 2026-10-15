@@ -80,9 +80,11 @@ export const NEON_LOCK_CARD_STYLES = css`
       opacity: 0.45;
     }
   }
-  /* Vista «¿Abrir?»: cristal oscuro sobre la tarjeta, con el halo del
-     aro encendido y botones de contorno neón (--neon-c1/c2 de la paleta).
-     Se separa 3px del borde para no tapar el aro (trazo de 2,4px). */
+  /* Vista «¿Abrir?»: fondo oscuro sobre la tarjeta, con el halo del aro
+     encendido y botones de contorno neón (--neon-c1/c2 de la paleta).
+     Se separa 3px del borde para no tapar el aro (trazo de 2,4px). Sin
+     backdrop-filter: en WebKit (iOS) las capas compuestas nuevas dan
+     problemas con las transiciones del aro. */
   .confirm {
     position: absolute;
     inset: 3px;
@@ -96,9 +98,7 @@ export const NEON_LOCK_CARD_STYLES = css`
     gap: 6px 12px;
     padding: 0 17px;
     border-radius: calc(var(--ha-card-border-radius, 12px) - 3px);
-    background: color-mix(in srgb, var(--ha-card-background, var(--card-background-color, #1c1c1c)) 92%, transparent);
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
+    background: color-mix(in srgb, var(--ha-card-background, var(--card-background-color, #1c1c1c)) 94%, transparent);
     cursor: default;
     animation: confirm-in 180ms ease-out;
   }

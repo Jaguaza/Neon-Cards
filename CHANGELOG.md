@@ -9,6 +9,14 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Lock Card: en iOS (app de HA / WebKit) el halo aparecía ya dibujado al
+  abrirse la vista de confirmación, sin la animación del aro. Ahora el halo
+  se enciende primero y la vista aparece 120 ms después, y se quita el
+  `backdrop-filter` de la vista, que da problemas con las transiciones en
+  WebKit.
+
 ### Added
 
 - Lock Card: si la cerradura soporta además abrir (`supported_features`), al
