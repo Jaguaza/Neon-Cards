@@ -115,6 +115,14 @@ export const NEON_LOCK_CARD_STYLES = css`
   .lock-moving .status-dot {
     animation: lock-pulse 1.1s ease-in-out infinite;
   }
+  /* Sin los tres puntos (entidad no disponible) se reserva su hueco: el
+     estado queda donde está en una tarjeta operativa y no se pega a la
+     esquina redondeada del borde. */
+  .menu-spacer {
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+  }
   .menu {
     display: inline-flex;
     align-items: center;
@@ -144,7 +152,7 @@ export const NEON_LOCK_CARD_STYLES = css`
   .footer {
     position: relative;
     display: flex;
-    align-items: center;
+    align-items: stretch;
     flex-wrap: wrap;
     row-gap: 8px;
     padding-top: 12px;
@@ -158,15 +166,17 @@ export const NEON_LOCK_CARD_STYLES = css`
     height: 1px;
     background: linear-gradient(90deg, color-mix(in srgb, var(--neon-c1) 85%, transparent), color-mix(in srgb, var(--neon-c2) 55%, transparent) 60%, transparent);
   }
+  /* Cada dato reparte a partes iguales el ancho sobrante y centra su
+     contenido: el pie se ve repartido por toda la tarjeta y no
+     apelotonado a la izquierda. */
   .item {
+    flex: 1 1 auto;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     min-width: 0;
-    padding: 0 14px;
-  }
-  .item:first-child {
-    padding-left: 0;
+    padding: 0 12px;
   }
   .item + .item {
     border-left: 1px solid color-mix(in srgb, var(--primary-text-color) 20%, transparent);

@@ -71,11 +71,11 @@ describe('NeonLockCard', () => {
     expect(status(el)).toBe('Desbloqueada');
   });
 
-  it('los textos de estado en español distinguen desbloqueada (pestillo) de abierta (puerta)', async () => {
+  it('los textos de estado en español (sin sensor de puerta): el estado open es «Abriendo puerta…», nunca «Puerta abierta»', async () => {
     const texts: Record<string, string> = {
       locked: 'Cerrada',
       unlocked: 'Desbloqueada',
-      open: 'Puerta abierta',
+      open: 'Abriendo puerta…',
       locking: 'Cerrando…',
       unlocking: 'Desbloqueando…',
       opening: 'Abriendo puerta…',
@@ -683,8 +683,8 @@ describe('NeonLockCard', () => {
       expect(subtitle(await mount({ subtitle_type: 'state' }))).toBe('Cerrada');
     });
 
-    it('el punto de estado: cerrada verde, desbloqueada/abierta ámbar, avería roja (por data-state)', async () => {
-      for (const [state, expected] of [['locked', 'locked'], ['locking', 'locking'], ['unlocked', 'unlocked'], ['open', 'open'], ['unlocking', 'unlocking'], ['jammed', 'jammed'], ['unavailable', 'error']] as const) {
+    it('el punto de estado: cerrada verde, desbloqueada/abriéndose ámbar, avería roja (por data-state)', async () => {
+      for (const [state, expected] of [['locked', 'locked'], ['locking', 'locking'], ['unlocked', 'unlocked'], ['open', 'opening'], ['unlocking', 'unlocking'], ['jammed', 'jammed'], ['unavailable', 'error']] as const) {
         expect(dot(await mount({}, hassWith(state))), state).toBe(expected);
       }
     });
@@ -867,5 +867,168 @@ describe('NeonLockCard', () => {
     expect(Ctor.getStubConfig(hassWith('locked')).entity).toBe('lock.puerta');
     expect(Ctor.getStubConfig(undefined, ['light.a', 'lock.b']).entity).toBe('lock.b');
     expect(Ctor.getStubConfig().entity).toBe('lock.example_lock');
+  });
+});
+
+describe('rótulo de estado, sensor de puerta y «Abriendo puerta…»', () => {
+  const DOOR = 'binary_sensor.puerta';
+  const OPEN = { supported_features: 1 };
+
+  /** Cerradura `lock.puerta` más, si se indica, el sensor `binary_sensor.puerta`. */
+  function hassWithDoor(lockState: string, doorState: string | undefined, attributes: Record<string, unknown> = {}, calls: unknown[][] = []) {
+    const hass = hassWith(lockState, 'es', attributes, calls);
+    if (doorState !== undefined) {
+      (hass.states as Record<string, unknown>)[DOOR] = { entity_id: DOOR, state: doorState, last_changed: '', last_updated: '', attributes: {} };
+    }
+    return hass;
+  }
+  const dot = (el: Card) => el.shadowRoot!.querySelector('.status')!.getAttribute('data-state');
+
+  it('sin sensor de puerta «Puerta abierta» no sale con ningún estado', async () => {
+    for (const state of ['locked', 'unlocked', 'locking', 'unlocking', 'jammed', 'open', 'opening']) {
+      expect(status(await mount({}, hassWith(state))), state).not.toBe('Puerta abierta');
+    }
+  });
+
+  it('con el sensor de puerta activo sale «Puerta abierta» si la cerradura no está cerrada con llave', async () => {
+    for (const state of ['unlocked', 'unlocking', 'open', 'opening']) {
+      const el = await mount({ door_entity: DOOR }, hassWithDoor(state, 'on'));
+      expect(status(el), state).toBe('Puerta abierta');
+      expect(dot(el), state).toBe('open');
+    }
+  });
+
+  it('el sensor activo no cambia el rótulo de cerrada, cerrando ni atascada', async () => {
+    const texts: Record<string, string> = { locked: 'Cerrada', locking: 'Cerrando…', jammed: 'Atascada' };
+    for (const [state, text] of Object.entries(texts)) {
+      expect(status(await mount({ door_entity: DOOR }, hassWithDoor(state, 'on'))), state).toBe(text);
+    }
+  });
+
+  it('con el sensor de puerta inactivo, open es «Abriendo puerta…» y desbloqueada sigue siendo «Desbloqueada»', async () => {
+    expect(status(await mount({ door_entity: DOOR }, hassWithDoor('open', 'off')))).toBe('Abriendo puerta…');
+    expect(status(await mount({ door_entity: DOOR }, hassWithDoor('opening', 'off')))).toBe('Abriendo puerta…');
+    expect(status(await mount({ door_entity: DOOR }, hassWithDoor('unlocked', 'off')))).toBe('Desbloqueada');
+  });
+
+  it('un sensor configurado que no existe o no da dato (unavailable, unknown) cuenta como sin sensor', async () => {
+    for (const door of [undefined, 'unavailable', 'unknown']) {
+      for (const state of ['open', 'unlocked']) {
+        const el = await mount({ door_entity: DOOR }, hassWithDoor(state, door));
+        expect(status(el), `${state} / ${String(door)}`).toBe(state === 'open' ? 'Abriendo puerta…' : 'Desbloqueada');
+      }
+    }
+  });
+
+  it('el sensor de puerta se tiene en cuenta aunque el pie no lo muestre', async () => {
+    const el = await mount({ door_entity: DOOR, footer_items: ['battery'] }, hassWithDoor('unlocked', 'on'));
+    expect(status(el)).toBe('Puerta abierta');
+  });
+
+  it('cuando el sensor cambia, el rótulo cambia en el acto', async () => {
+    const el = await mount({ door_entity: DOOR }, hassWithDoor('unlocked', 'off'));
+    expect(status(el)).toBe('Desbloqueada');
+    el.hass = hassWithDoor('unlocked', 'on');
+    await el.updateComplete;
+    expect(status(el)).toBe('Puerta abierta');
+    el.hass = hassWithDoor('unlocked', 'off');
+    await el.updateComplete;
+    expect(status(el)).toBe('Desbloqueada');
+  });
+
+  it('subtitle_type: state repite el rótulo mostrado', async () => {
+    const el = await mount({ door_entity: DOOR, subtitle_type: 'state' }, hassWithDoor('unlocked', 'on'));
+    expect(subtitle(el)).toBe('Puerta abierta');
+    expect(subtitle(await mount({ subtitle_type: 'state' }, hassWithDoor('open', undefined)))).toBe('Abriendo puerta…');
+  });
+
+  it('en inglés: «Door open» y «Opening door…»', async () => {
+    const door = await mount({ door_entity: DOOR }, { ...hassWithDoor('unlocked', 'on'), locale: { language: 'en' } });
+    expect(status(door)).toBe('Door open');
+    const opening = await mount({}, hassWith('open', 'en'));
+    expect(status(opening)).toBe('Opening door…');
+  });
+
+  describe('al pulsar «Abrir»', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+    const ask = async (el: Card) => {
+      click(el);
+      vi.advanceTimersByTime(CONFIRM_REVEAL_MS);
+      await el.updateComplete;
+    };
+    const choose = (el: Card, command: string) => el.shadowRoot!.querySelector<HTMLButtonElement>(`.confirm .accept[data-command="${command}"]`)!.click();
+
+    it('el rótulo dice «Abriendo puerta…» desde ya, aunque la entidad aún no haya cambiado', async () => {
+      for (const state of ['locked', 'unlocked']) {
+        const el = await mount({}, hassWith(state, 'es', OPEN));
+        await ask(el);
+        choose(el, 'open');
+        await el.updateComplete;
+        expect(status(el), state).toBe('Abriendo puerta…');
+        expect(dot(el), state).toBe('opening');
+      }
+    });
+
+    it('cuando la entidad cambia manda su estado: open sin sensor sigue «Abriendo puerta…» y con el sensor activo pasa a «Puerta abierta»', async () => {
+      const el = await mount({ door_entity: DOOR }, hassWithDoor('locked', 'off', OPEN));
+      await ask(el);
+      choose(el, 'open');
+      await el.updateComplete;
+      el.hass = hassWithDoor('open', 'off', OPEN);
+      await el.updateComplete;
+      expect(status(el)).toBe('Abriendo puerta…');
+      el.hass = hassWithDoor('open', 'on', OPEN);
+      await el.updateComplete;
+      expect(status(el)).toBe('Puerta abierta');
+    });
+
+    it('si la entidad no cambia, pasado ACTION_PENDING_MS el rótulo vuelve al estado real', async () => {
+      const el = await mount({}, hassWith('locked', 'es', OPEN));
+      await ask(el);
+      choose(el, 'open');
+      await el.updateComplete;
+      vi.advanceTimersByTime(ACTION_PENDING_MS + 1);
+      await el.updateComplete;
+      expect(status(el)).toBe('Cerrada');
+    });
+
+    it('Desbloquear o Bloquear no dicen «Abriendo puerta…»', async () => {
+      for (const [state, command, expected] of [['locked', 'unlock', 'Cerrada'], ['unlocked', 'lock', 'Desbloqueada']] as const) {
+        const el = await mount({}, hassWith(state, 'es', OPEN));
+        await ask(el);
+        choose(el, command);
+        await el.updateComplete;
+        expect(status(el), command).toBe(expected);
+      }
+    });
+
+    it('sin soporte de abrir, el «Abrir» de la pregunta simple también dice «Abriendo puerta…»', async () => {
+      const el = await mount({}, hassWith('locked', 'es', { supported_features: 0 }));
+      await ask(el);
+      el.shadowRoot!.querySelector<HTMLButtonElement>('.confirm .accept')!.click();
+      await el.updateComplete;
+      expect(status(el)).toBe('Abriendo puerta…');
+    });
+
+    it('cerrar una cerradura desbloqueada no dice «Abriendo puerta…»', async () => {
+      const el = await mount({}, hassWith('unlocked', 'es', { supported_features: 0 }));
+      click(el);
+      await el.updateComplete;
+      expect(status(el)).toBe('Desbloqueada');
+    });
+  });
+
+  describe('entidad no disponible', () => {
+    it('reserva el hueco de los tres puntos para que el estado quede donde en una tarjeta operativa', async () => {
+      const broken = await mount({}, hassWith('unavailable'));
+      expect(broken.shadowRoot!.querySelector('.top-right .menu-spacer')).not.toBeNull();
+      expect(broken.shadowRoot!.querySelector('.top-right .menu')).toBeNull();
+      expect(status(broken)).toBe('No disponible');
+      const ok = await mount({});
+      expect(ok.shadowRoot!.querySelector('.top-right .menu')).not.toBeNull();
+      expect(ok.shadowRoot!.querySelector('.top-right .menu-spacer')).toBeNull();
+    });
   });
 });

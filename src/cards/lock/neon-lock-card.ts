@@ -25,7 +25,7 @@ import { LOCK_ICONS, resolveLockIconType } from './icons';
 import type { LockIconDef } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
 import { LockPoseAnimator } from './lock-pose-animator';
-import { isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, isOpeningAction, lockChoices, lockSupportsOpen, resolveLockState } from './lock-state';
+import { displayState, doorSensorOpen, isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, isOpeningAction, lockChoices, lockSupportsOpen, resolveLockState } from './lock-state';
 import type { LockCommand } from './lock-state';
 import { NEON_LOCK_CARD_STYLES } from './neon-lock-card.styles';
 import { LOCK_TRANSLATIONS } from './translations';
@@ -69,6 +69,8 @@ export class NeonLockCard extends BaseNeonCard {
    */
   private _pendingUntil = 0;
   private _pendingTimer?: ReturnType<typeof setTimeout>;
+  /** La orden pendiente es abrir: el rótulo dice «Abriendo puerta…» desde ya (ver `displayState`). */
+  private _pendingOpening = false;
   /** Vista «¿Abrir?» abierta: el gesto que la provocó, para ejecutarlo al aceptar. */
   private _confirm?: { actionType: string; choices: LockCommand[] };
   private _confirmTimer?: ReturnType<typeof setTimeout>;
@@ -190,7 +192,8 @@ export class NeonLockCard extends BaseNeonCard {
   }
 
   /** Enciende el halo en espera del cambio de estado (ver `ACTION_PENDING_MS`). */
-  private _startPending(): void {
+  private _startPending(opening = false): void {
+    this._pendingOpening = opening;
     this._pendingUntil = performance.now() + ACTION_PENDING_MS;
     this._schedulePendingEnd(ACTION_PENDING_MS);
     this.requestUpdate();
@@ -199,7 +202,7 @@ export class NeonLockCard extends BaseNeonCard {
   /** Lanza directamente la orden elegida (`lock.lock`, `lock.unlock` o `lock.open`). */
   private _runCommand(command: LockCommand): void {
     if (!this._config?.entity || !this.hass) return;
-    this._startPending();
+    this._startPending(command === 'open');
     void this.hass.callService('lock', command, { entity_id: this._config.entity });
   }
 
@@ -207,8 +210,10 @@ export class NeonLockCard extends BaseNeonCard {
     // Si la acción opera la cerradura, el halo se enciende ya y espera el
     // cambio de estado (ver `ACTION_PENDING_MS`); no hay entidad válida a la
     // que accionar si está en `error`.
-    if (OPERATING_ACTIONS.includes(this._actionFor(actionType).action) && resolveLockState(this._config, this.hass) !== 'error') {
-      this._startPending();
+    const state = resolveLockState(this._config, this.hass);
+    const action = this._actionFor(actionType);
+    if (OPERATING_ACTIONS.includes(action.action) && state !== 'error') {
+      this._startPending(isOpeningAction(action, state));
     }
     dispatchHassAction(
       this,
@@ -354,7 +359,10 @@ export class NeonLockCard extends BaseNeonCard {
     if (!this._config) return nothing;
     const colors = resolveGradientColors(this._config);
     const state = resolveLockState(this._config, this.hass);
-    const subtitle = this._subtitle(state);
+    // Lo que dice el rótulo: «Puerta abierta» solo con el sensor de puerta
+    // activo y «Abriendo puerta…» al abrir (ver `displayState`).
+    const shown = displayState(state, doorSensorOpen(this._config, this.hass), this._isPending() && this._pendingOpening);
+    const subtitle = this._subtitle(shown);
     const footer = resolveFooterItems(this._config, this.hass, this._stateObj);
     const hasDoubleTap = !!this._config.double_tap_action && this._config.double_tap_action.action !== 'none';
 
@@ -382,7 +390,9 @@ export class NeonLockCard extends BaseNeonCard {
               <span class="name">${this._name}</span>
               ${subtitle !== nothing ? html`<span class="subtitle">${subtitle}</span>` : nothing}
             </div>
-            ${state ? html`<div class="top-right">${this._renderStatus(state)}${state !== 'error' ? this._renderMenu() : nothing}</div>` : nothing}
+            ${state && shown
+              ? html`<div class="top-right">${this._renderStatus(shown)}${state !== 'error' ? this._renderMenu() : html`<span class="menu-spacer"></span>`}</div>`
+              : nothing}
           </div>
           ${footer.length ? html`<div class="footer">${footer.map((item) => this._renderFooterItem(item))}</div>` : nothing}
         </div>

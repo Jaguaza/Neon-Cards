@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, isOpeningAction, lockChoices, lockSupportsOpen, resolveLockState } from './lock-state';
+import { displayState, doorSensorOpen, isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, isOpeningAction, lockChoices, lockSupportsOpen, resolveLockState } from './lock-state';
+import type { LockVisualState } from './types';
 import { HA_LOCK_STATES } from './constants';
 import type { HomeAssistant } from '../../ha/types';
 
@@ -130,5 +131,65 @@ describe('lockChoices', () => {
     for (const s of ['open', 'locking', 'unlocking', 'opening', 'jammed', 'error', undefined] as const) expect(lockChoices(toggle, s, true)).toEqual([]);
     expect(lockChoices({ action: 'call-service', service: 'lock.unlock' }, 'locked', true)).toEqual([]);
     expect(lockChoices({ action: 'more-info' }, 'locked', true)).toEqual([]);
+  });
+});
+
+describe('doorSensorOpen', () => {
+  const hass = hassWith({ 'binary_sensor.abierta': 'on', 'binary_sensor.cerrada': 'off', 'binary_sensor.caida': 'unavailable', 'binary_sensor.rara': 'unknown' });
+
+  it('true con el sensor activo, false con el inactivo', () => {
+    expect(doorSensorOpen({ door_entity: 'binary_sensor.abierta' }, hass)).toBe(true);
+    expect(doorSensorOpen({ door_entity: 'binary_sensor.cerrada' }, hass)).toBe(false);
+  });
+
+  it('undefined sin sensor configurado, sin hass, inexistente o sin dato válido', () => {
+    expect(doorSensorOpen({}, hass)).toBeUndefined();
+    expect(doorSensorOpen(undefined, hass)).toBeUndefined();
+    expect(doorSensorOpen({ door_entity: 'binary_sensor.abierta' }, undefined)).toBeUndefined();
+    expect(doorSensorOpen({ door_entity: 'binary_sensor.no_existe' }, hass)).toBeUndefined();
+    expect(doorSensorOpen({ door_entity: 'binary_sensor.caida' }, hass)).toBeUndefined();
+    expect(doorSensorOpen({ door_entity: 'binary_sensor.rara' }, hass)).toBeUndefined();
+  });
+});
+
+describe('displayState', () => {
+  const all: LockVisualState[] = ['locked', 'unlocked', 'locking', 'unlocking', 'jammed', 'open', 'opening', 'error'];
+
+  it('sin sensor activo, «Puerta abierta» (open) no sale nunca: el estado open se muestra como opening', () => {
+    for (const door of [undefined, false]) {
+      for (const state of all) expect(displayState(state, door), `${state} / ${String(door)}`).not.toBe('open');
+      expect(displayState('open', door)).toBe('opening');
+    }
+  });
+
+  it('con el sensor activo sale open si la cerradura está desbloqueada, desbloqueándose o abierta/abriéndose', () => {
+    for (const state of ['unlocked', 'unlocking', 'open', 'opening'] as const) expect(displayState(state, true), state).toBe('open');
+  });
+
+  it('con el sensor activo el resto de estados no cambia', () => {
+    for (const state of ['locked', 'locking', 'jammed', 'error'] as const) expect(displayState(state, true), state).toBe(state);
+  });
+
+  it('sin sensor, el resto de estados es el de la entidad', () => {
+    for (const state of ['locked', 'unlocked', 'locking', 'unlocking', 'jammed', 'opening', 'error'] as const) {
+      expect(displayState(state, undefined), state).toBe(state);
+    }
+  });
+
+  it('sin estado (sin hass) devuelve undefined', () => {
+    expect(displayState(undefined, true)).toBeUndefined();
+    expect(displayState(undefined, undefined, true)).toBeUndefined();
+  });
+
+  it('con «Abrir» pendiente y la entidad sin cambiar (cerrada o desbloqueada) muestra opening', () => {
+    expect(displayState('locked', undefined, true)).toBe('opening');
+    expect(displayState('unlocked', undefined, true)).toBe('opening');
+    expect(displayState('locked', false, true)).toBe('opening');
+  });
+
+  it('el pendiente no pisa avería, error ni el sensor activo', () => {
+    expect(displayState('jammed', undefined, true)).toBe('jammed');
+    expect(displayState('error', undefined, true)).toBe('error');
+    expect(displayState('unlocked', true, true)).toBe('open');
   });
 });

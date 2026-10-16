@@ -18,10 +18,14 @@ estado (hasta 6 s) para las cerraduras lentas.
   el **estado** con un punto de color (verde cerrada, ámbar desbloqueada o
   abierta, rojo atascada o no disponible) y los **tres puntos**, que abren el
   diálogo de «más información» de la entidad sin disparar la acción de la
-  tarjeta.
+  tarjeta. Con la entidad no disponible no hay tres puntos, pero se reserva su
+  hueco para que el estado quede en el mismo sitio que en una tarjeta
+  operativa.
 - **Abajo (opcional):** una línea de neón y hasta **tres datos** a elegir
   entre sensor de puerta, batería y último acceso (ver
-  [Pie informativo](#pie-informativo)).
+  [Pie informativo](#pie-informativo)). Los datos se reparten a partes
+  iguales por todo el ancho de la tarjeta, cada uno centrado en su hueco y
+  separados por una línea.
 
 Misma base visual que la [Button Card](../button) (halo neón que se dibuja
 desde la esquina superior izquierda) y mismo framework (`src/core`,
@@ -38,6 +42,24 @@ desde la esquina superior izquierda) y mismo framework (`src/core`,
 | `locking` | se cierra | encendido (hasta llegar a `locked`) | el icono pulsa |
 | `jammed` | `mdi:close` (sin candado) | rojo de alerta | "Atascada" |
 | sin entidad, inexistente, `unavailable`/`unknown` | `mdi:close` (sin candado) | rojo de alerta | "No disponible" |
+
+### Texto del estado: «Abriendo puerta…» y «Puerta abierta»
+
+El rótulo de estado (y el subtítulo si es `state`) no siempre repite el estado
+de la entidad:
+
+- **«Puerta abierta» solo sale con el sensor de puerta activo** (`door_entity`
+  en `on`) y la cerradura sin cerrar con llave (`unlocked`, `unlocking`,
+  `open` u `opening`). **Sin sensor no sale nunca.** El sensor se tiene en
+  cuenta aunque el pie no lo muestre; si no existe o no da dato
+  (`unavailable`, `unknown`) cuenta como si no hubiera sensor.
+- **«Abriendo puerta…»** sale al pulsar **Abrir** (también el «Abrir» de la
+  pregunta simple), desde el primer momento y hasta que la entidad cambie de
+  estado (como mucho 6 s si no cambia), y mientras la cerradura esté en `open`
+  u `opening` con el sensor sin activar: el pestillo está liberado pero la
+  puerta aún no está abierta. Desbloquear y Bloquear no lo muestran.
+- Con el sensor activo, «Puerta abierta» tiene prioridad sobre «Abriendo
+  puerta…». `locked`, `locking`, `jammed` y el error no cambian nunca.
 
 ## Iconos
 
@@ -183,10 +205,14 @@ slow locks.
 - **Top:** the icon, with the name and subtitle next to it. On the right, the
   **state** with a coloured dot (green locked, amber unlocked or open, red
   jammed or unavailable) and the **three dots**, which open the entity's
-  "more info" dialog without triggering the card's action.
+  "more info" dialog without triggering the card's action. With the entity
+  unavailable there are no three dots, but their space is reserved so the state
+  stays in the same place as on a working card.
 - **Bottom (optional):** a neon line and up to **three data points** to pick
   from door sensor, battery and last access (see
-  [Information footer](#information-footer)).
+  [Information footer](#information-footer)). The data points share the full
+  width of the card equally, each one centred in its slot and separated by a
+  line.
 
 Same visual base as the [Button Card](../button) (neon halo drawn from the
 top-left corner) and the same framework (`src/core`, `src/shared`,
@@ -203,6 +229,24 @@ top-left corner) and the same framework (`src/core`, `src/shared`,
 | `locking` | closes | lit (until it reaches `locked`) | icon pulses |
 | `jammed` | `mdi:close` (no padlock) | alert red | "Jammed" |
 | no entity, missing, `unavailable`/`unknown` | `mdi:close` (no padlock) | alert red | "Unavailable" |
+
+### State text: "Opening door…" and "Door open"
+
+The state label (and the subtitle when it is `state`) does not always repeat
+the entity's state:
+
+- **"Door open" only appears with the door sensor active** (`door_entity` at
+  `on`) and the lock not locked (`unlocked`, `unlocking`, `open` or
+  `opening`). **Without a sensor it never appears.** The sensor is used even if
+  the footer does not show it; if it does not exist or gives no data
+  (`unavailable`, `unknown`) it counts as no sensor.
+- **"Opening door…"** appears when **Open** is pressed (also the "Open" of the
+  simple prompt), right away and until the entity changes state (at most 6 s if
+  it does not), and while the lock is in `open` or `opening` with the sensor
+  inactive: the latch is released but the door is not open yet. Unlock and Lock
+  do not show it.
+- With the sensor active, "Door open" takes priority over "Opening door…".
+  `locked`, `locking`, `jammed` and the error never change.
 
 ## Icons
 

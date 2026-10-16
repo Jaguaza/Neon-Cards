@@ -22,6 +22,46 @@ export function resolveLockState(
   return (HA_LOCK_STATES as readonly string[]).includes(state ?? '') ? (state as LockVisualState) : 'error';
 }
 
+/**
+ * Estado del sensor de puerta configurado (`door_entity`, un `binary_sensor`):
+ * `true` si está activo (`on`, puerta abierta), `false` si no (`off`) y
+ * `undefined` si no hay sensor, no existe o no da un valor válido
+ * (`unavailable`, `unknown`). Funciona aunque el pie no muestre el sensor.
+ */
+export function doorSensorOpen(config: NeonLockCardConfig | undefined, hass: HomeAssistant | undefined): boolean | undefined {
+  const id = config?.door_entity;
+  if (!id || !hass) return undefined;
+  const state = hass.states[id]?.state;
+  if (state === 'on') return true;
+  if (state === 'off') return false;
+  return undefined;
+}
+
+/**
+ * Estado que se MUESTRA en el rótulo de estado (arriba a la derecha y, si
+ * se pide, en el subtítulo). No siempre es el de la entidad:
+ *
+ *  - «Puerta abierta» (`open`) solo sale con el sensor de puerta activo
+ *    (`doorOpen`) y la cerradura sin cerrar con llave (`unlocked`,
+ *    `unlocking`, `open`, `opening`). Sin sensor no sale nunca.
+ *  - El estado `open` de la cerradura (pestillo liberado) sin el sensor
+ *    activo es «Abriendo puerta…» (`opening`): la puerta aún no está abierta.
+ *  - Con `openingPending` (se acaba de pulsar «Abrir» y la entidad todavía
+ *    no ha cambiado) también sale «Abriendo puerta…» desde ya.
+ *  - `error` y `jammed` no se tocan; el resto es el estado de la entidad.
+ */
+export function displayState(
+  state: LockVisualState | undefined,
+  doorOpen: boolean | undefined,
+  openingPending = false
+): LockVisualState | undefined {
+  if (!state || state === 'error' || state === 'jammed') return state;
+  if (doorOpen && (state === 'unlocked' || state === 'unlocking' || state === 'open' || state === 'opening')) return 'open';
+  if (state === 'open') return 'opening';
+  if (openingPending && (state === 'locked' || state === 'unlocked')) return 'opening';
+  return state;
+}
+
 /** Rojo de alerta (`.neon-halo-error` de src/shared): atascada o entidad rota. */
 export function isLockAlert(state: LockVisualState | undefined): boolean {
   return state === 'jammed' || state === 'error';
