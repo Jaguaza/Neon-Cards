@@ -14,6 +14,10 @@ export interface LockTranslations {
   state_open: string;
   state_opening: string;
   state_error: string;
+  last_access: string;
+  door_open: string;
+  door_closed: string;
+  more_info: string;
   section_main: string;
   entity_label: string;
   name_label: string;
@@ -35,4 +39,14 @@ export interface LockTranslations {
   command_unlock: string;
   command_open: string;
   confirm_open_label: string;
+  section_footer: string;
+  footer_hint: string;
+  footer_slot: string;
+  footer_none: string;
+  footer_door: string;
+  footer_battery: string;
+  footer_last_user: string;
+  door_entity_label: string;
+  battery_entity_label: string;
+  last_user_entity_label: string;
 }

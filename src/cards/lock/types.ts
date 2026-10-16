@@ -34,6 +34,9 @@ export type LockSubtitleType = 'custom' | Exclude<InfoOption, 'name'>;
  */
 export type LockIconType = 'padlock' | 'door' | 'garage_roller' | 'garage_sliding';
 
+/** Iconos informativos que se pueden poner en el pie de la tarjeta. */
+export type LockFooterItem = 'door' | 'battery' | 'last_user';
+
 export interface NeonLockCardConfig {
   type?: string;
   /** Entidad del dominio `lock`. Obligatoria para que la tarjeta sea útil. */
@@ -48,6 +51,22 @@ export interface NeonLockCardConfig {
   neon_color1?: string;
   neon_color2?: string;
   neon_color3?: string;
+  /**
+   * Hasta tres iconos informativos en el pie de la tarjeta, en este orden:
+   * `door` (sensor de puerta, requiere `door_entity`), `battery` (batería de
+   * la cerradura) y `last_user` (quién abrió la última vez y cuándo).
+   * Un tipo repetido o desconocido se ignora.
+   */
+  footer_items?: LockFooterItem[];
+  /** Sensor de puerta (`binary_sensor`): `on` es abierta, `off` es cerrada. */
+  door_entity?: string;
+  /** Sensor de batería (`sensor`, en %). Si falta se usa el atributo `battery_level` (o `battery`) de la cerradura. */
+  battery_entity?: string;
+  /**
+   * Entidad con el nombre de quien accedió por última vez (`sensor`,
+   * `input_text`…). Si falta se usa el atributo `changed_by` de la cerradura.
+   */
+  last_user_entity?: string;
   /**
    * Pide confirmación («¿Abrir?») en una vista neón dentro de la tarjeta
    * antes de ejecutar una acción que ABRE la cerradura. Activo por

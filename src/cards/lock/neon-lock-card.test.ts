@@ -37,8 +37,10 @@ async function mount(config: Record<string, unknown>, hass: unknown = hassWith('
 const card = (el: Card) => el.shadowRoot!.querySelector('ha-card')!;
 const padlock = (el: Card) => el.shadowRoot!.querySelector('svg.lock-icon');
 const isOpen = (el: Card) => !!padlock(el)?.classList.contains('is-open');
-const errorIcon = (el: Card) => el.shadowRoot!.querySelector('ha-icon')?.getAttribute('icon');
+const errorIcon = (el: Card) => el.shadowRoot!.querySelector('ha-icon.neon-halo-icon')?.getAttribute('icon');
 const subtitle = (el: Card) => el.shadowRoot!.querySelector('.subtitle')?.textContent?.trim();
+const status = (el: Card) => el.shadowRoot!.querySelector('.status-text')?.textContent?.trim();
+const xIcon = (el: Card) => el.shadowRoot!.querySelector('ha-icon.neon-halo-icon');
 
 const shackleD = (el: Card) => el.shadowRoot!.querySelector('path.shackle')!.getAttribute('d');
 const active = (el: Card) => card(el).classList.contains('neon-halo-active');
@@ -56,8 +58,8 @@ describe('NeonLockCard', () => {
     expect(card(el).classList.contains('neon-halo-error')).toBe(false);
     expect(padlock(el)).not.toBeNull();
     expect(isOpen(el)).toBe(false);
-    expect(el.shadowRoot!.querySelector('ha-icon')).toBeNull();
-    expect(subtitle(el)).toBe('Cerrada');
+    expect(xIcon(el)).toBeNull();
+    expect(status(el)).toBe('Cerrada');
     expect(el.shadowRoot!.querySelector('.name')!.textContent).toBe('Puerta');
   });
 
@@ -66,7 +68,7 @@ describe('NeonLockCard', () => {
     expect(active(el)).toBe(true);
     expect(card(el).classList.contains('lock-moving')).toBe(false);
     expect(isOpen(el)).toBe(true);
-    expect(subtitle(el)).toBe('Desbloqueada');
+    expect(status(el)).toBe('Desbloqueada');
   });
 
   it('los textos de estado en español distinguen desbloqueada (pestillo) de abierta (puerta)', async () => {
@@ -80,7 +82,7 @@ describe('NeonLockCard', () => {
       jammed: 'Atascada',
     };
     for (const [state, text] of Object.entries(texts)) {
-      expect(subtitle(await mount({}, hassWith(state))), state).toBe(text);
+      expect(status(await mount({}, hassWith(state))), state).toBe(text);
     }
   });
 
@@ -199,19 +201,19 @@ describe('NeonLockCard', () => {
     expect(card(el).classList.contains('neon-halo-error')).toBe(true);
   });
 
-  it('atascada: halo rojo, la X de error en lugar del icono y subtítulo «Atascada»', async () => {
+  it('atascada: halo rojo, la X de error en lugar del icono y estado «Atascada»', async () => {
     const el = await mount({}, hassWith('jammed'));
     expect(card(el).classList.contains('neon-halo-error')).toBe(true);
-    expect(el.shadowRoot!.querySelector('ha-icon')!.getAttribute('icon')).toBe('mdi:close');
+    expect(xIcon(el)!.getAttribute('icon')).toBe('mdi:close');
     expect(padlock(el)).toBeNull();
-    expect(subtitle(el)).toBe('Atascada');
+    expect(status(el)).toBe('Atascada');
   });
 
   it('al salir de un error el icono vuelve a su pose sin saltos raros', async () => {
     const el = await mount({}, hassWith('jammed'));
     el.hass = hassWith('unlocked');
     await el.updateComplete;
-    expect(el.shadowRoot!.querySelector('ha-icon')).toBeNull();
+    expect(xIcon(el)).toBeNull();
     expect(isOpen(el)).toBe(true);
   });
 
@@ -239,14 +241,14 @@ describe('NeonLockCard', () => {
     expect(card(caida).classList.contains('neon-halo-error')).toBe(true);
     expect(errorIcon(caida)).toBe('mdi:close');
     expect(padlock(caida)).toBeNull();
-    expect(subtitle(caida)).toBe('No disponible');
+    expect(status(caida)).toBe('No disponible');
     const sinEntidad = await mount({ entity: undefined });
     expect(errorIcon(sinEntidad)).toBe('mdi:close');
   });
 
   it('traduce el estado al idioma de hass', async () => {
     const el = await mount({}, hassWith('locked', 'en'));
-    expect(subtitle(el)).toBe('Locked');
+    expect(status(el)).toBe('Locked');
   });
 
   it('subtitle_type: custom usa el texto libre y none lo oculta', async () => {
@@ -658,6 +660,129 @@ describe('NeonLockCard', () => {
     });
   });
 
+  describe('cabecera: icono, nombre y estado con los tres puntos', () => {
+    const dot = (el: Card) => el.shadowRoot!.querySelector('.status')!.getAttribute('data-state');
+    const menu = (el: Card) => el.shadowRoot!.querySelector<HTMLButtonElement>('.menu');
+
+    it('el nombre y el subtítulo van al lado del icono, y el estado con los tres puntos a la derecha', async () => {
+      const el = await mount({ subtitle_type: 'custom', subtitle: 'Cerradura inteligente' });
+      const header = el.shadowRoot!.querySelector('.header')!;
+      expect(Array.from(header.children).map((c) => (c.getAttribute('class') ?? '').split(' ')[0])).toEqual(['lock-icon', 'text', 'top-right']);
+      expect(header.querySelector('.text .name')!.textContent).toBe('Puerta');
+      expect(header.querySelector('.text .subtitle')!.textContent).toBe('Cerradura inteligente');
+      expect(Array.from(header.querySelector('.top-right')!.children).map((c) => c.className)).toEqual(['status', 'menu']);
+    });
+
+    it('por defecto no hay subtítulo (el estado ya va arriba a la derecha)', async () => {
+      const el = await mount({});
+      expect(subtitle(el)).toBeUndefined();
+      expect(status(el)).toBe('Cerrada');
+    });
+
+    it('subtitle_type: state sigue repitiendo el estado bajo el nombre', async () => {
+      expect(subtitle(await mount({ subtitle_type: 'state' }))).toBe('Cerrada');
+    });
+
+    it('el punto de estado: cerrada verde, desbloqueada/abierta ámbar, avería roja (por data-state)', async () => {
+      for (const [state, expected] of [['locked', 'locked'], ['locking', 'locking'], ['unlocked', 'unlocked'], ['open', 'open'], ['unlocking', 'unlocking'], ['jammed', 'jammed'], ['unavailable', 'error']] as const) {
+        expect(dot(await mount({}, hassWith(state))), state).toBe(expected);
+      }
+    });
+
+    it('los tres puntos abren «más información» de la entidad y NO disparan la acción de la tarjeta ni su confirmación', async () => {
+      const el = await mount({});
+      const events: { action: string; config: { entity?: string; tap_action?: { action: string } } }[] = [];
+      el.addEventListener('hass-action', (ev) => events.push((ev as CustomEvent).detail));
+      menu(el)!.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+      menu(el)!.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, composed: true }));
+      menu(el)!.click();
+      await el.updateComplete;
+      expect(events).toHaveLength(1);
+      expect(events[0].action).toBe('tap');
+      expect(events[0].config.entity).toBe('lock.puerta');
+      expect(events[0].config.tap_action).toEqual({ action: 'more-info' });
+      expect(el.shadowRoot!.querySelector('.confirm')).toBeNull();
+      expect(active(el)).toBe(false);
+    });
+
+    it('el botón tiene etiqueta accesible y no aparece si la entidad no existe', async () => {
+      const el = await mount({});
+      expect(menu(el)!.getAttribute('aria-label')).toBe('Más información');
+      expect(menu(await mount({}, hassWith('unavailable')))).toBeNull();
+      expect(menu(await mount({ entity: 'lock.nada' }))).toBeNull();
+      expect(status(await mount({ entity: 'lock.nada' }))).toBe('No disponible');
+    });
+
+    it('la cabecera ocupa media rejilla', async () => {
+      const el = await mount({});
+      expect(el.getGridOptions()).toEqual({ rows: 'auto', columns: 6, min_columns: 4 });
+    });
+  });
+
+  describe('pie con hasta tres iconos informativos', () => {
+    const items = (el: Card) => Array.from(el.shadowRoot!.querySelectorAll<HTMLElement>('.footer .item'));
+    const iso = new Date().toISOString();
+    const hass = (lockAttrs: Record<string, unknown> = {}, extra: Record<string, unknown> = {}) => {
+      const base = hassWith('locked', 'es', lockAttrs);
+      (base.states as Record<string, unknown>)['lock.puerta'] = { ...(base.states['lock.puerta'] as object), last_changed: iso, last_updated: iso };
+      return { ...base, states: { ...base.states, ...extra } };
+    };
+    const sensor = (id: string, state: string, attributes: Record<string, unknown> = {}) => ({ [id]: { entity_id: id, state, last_changed: iso, last_updated: iso, attributes } });
+
+    it('sin footer_items no hay pie', async () => {
+      expect(await mount({})).toSatisfy((el: Card) => !el.shadowRoot!.querySelector('.footer'));
+    });
+
+    it('muestra los tres datos, en el orden configurado, con su icono y su texto', async () => {
+      const el = await mount(
+        { footer_items: ['battery', 'door', 'last_user'], door_entity: 'binary_sensor.puerta' },
+        hass({ battery_level: 85, changed_by: 'Jorge' }, sensor('binary_sensor.puerta', 'on'))
+      );
+      const rows = items(el);
+      expect(rows.map((r) => r.dataset.type)).toEqual(['battery', 'door', 'last_user']);
+      expect(rows.map((r) => r.querySelector('ha-icon')!.getAttribute('icon'))).toEqual(['mdi:battery-90', 'mdi:door-open', 'mdi:account']);
+      expect(rows[0].querySelector('.item-value')!.textContent).toBe('85 %');
+      expect(rows[1].querySelector('.item-value')!.textContent).toBe('Abierta');
+      expect(rows[1].classList.contains('item--warn')).toBe(true);
+      expect(rows[2].querySelector('.item-label')!.textContent).toBe('Último acceso');
+      expect(rows[2].querySelector('.item-value')!.textContent).toMatch(/^Jorge · \d{1,2}:\d{2}$/);
+    });
+
+    it('un tipo repetido se ignora y se muestran como mucho tres', async () => {
+      const el = await mount({ footer_items: ['battery', 'battery', 'door', 'last_user', 'door'], door_entity: 'binary_sensor.puerta' }, hass({ battery_level: 50 }, sensor('binary_sensor.puerta', 'off')));
+      expect(items(el).map((r) => r.dataset.type)).toEqual(['battery', 'door', 'last_user']);
+    });
+
+    it('un dato sin información se muestra como «—», no desaparece', async () => {
+      const el = await mount({ footer_items: ['battery', 'last_user'] }, hass());
+      expect(items(el).map((r) => r.querySelector('.item-value')!.textContent)).toEqual(['—', '—']);
+      expect(items(el).every((r) => r.classList.contains('item--muted'))).toBe(true);
+    });
+
+    it('batería baja en rojo', async () => {
+      const el = await mount({ footer_items: ['battery'] }, hass({ battery_level: 12 }));
+      expect(items(el)[0].classList.contains('item--alert')).toBe(true);
+    });
+
+    it('se actualiza cuando cambia el sensor', async () => {
+      const el = await mount({ footer_items: ['door'], door_entity: 'binary_sensor.puerta' }, hass({}, sensor('binary_sensor.puerta', 'off')));
+      expect(items(el)[0].querySelector('.item-value')!.textContent).toBe('Cerrada');
+      el.hass = hass({}, sensor('binary_sensor.puerta', 'on'));
+      await el.updateComplete;
+      expect(items(el)[0].querySelector('.item-value')!.textContent).toBe('Abierta');
+    });
+
+    it('sigue visible mientras no hay confirmación y se oculta con ella, junto al resto del contenido', async () => {
+      vi.useFakeTimers();
+      const el = await mount({ footer_items: ['battery'] }, hass({ battery_level: 85 }));
+      click(el);
+      vi.advanceTimersByTime(CONFIRM_REVEAL_MS);
+      await el.updateComplete;
+      expect(el.shadowRoot!.querySelector('.content')!.classList.contains('content--hidden')).toBe(true);
+      expect(el.shadowRoot!.querySelector('.content .footer')).not.toBeNull();
+    });
+  });
+
   it('lock_icon por defecto o inválido es el candado', async () => {
     const def = await mount({});
     expect(def.shadowRoot!.querySelector('.shackle')).not.toBeNull();
@@ -715,7 +840,7 @@ describe('NeonLockCard', () => {
     for (const lock_icon of ['door', 'garage_roller', 'garage_sliding']) {
       const el = await mount({ lock_icon }, hassWith('unavailable'));
       expect(el.shadowRoot!.querySelector('svg.lock-icon')).toBeNull();
-      expect(el.shadowRoot!.querySelector('ha-icon')?.getAttribute('icon')).toBe('mdi:close');
+      expect(xIcon(el)?.getAttribute('icon')).toBe('mdi:close');
     }
   });
 

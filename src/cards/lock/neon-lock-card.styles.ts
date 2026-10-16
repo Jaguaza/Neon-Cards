@@ -15,7 +15,7 @@ export const NEON_LOCK_CARD_STYLES = css`
   }
   ha-card {
     box-sizing: border-box;
-    padding: 4px 20px;
+    padding: 14px 16px;
     height: auto;
     max-height: 100%;
     cursor: pointer;
@@ -30,9 +30,20 @@ export const NEON_LOCK_CARD_STYLES = css`
   .content {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
+    gap: 12px;
     height: auto;
+  }
+  /* Cabecera: icono, nombre con subtítulo a su lado y, a la derecha, el
+     estado y los tres puntos. */
+  .header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+  }
+  .header > .text {
+    flex: 1 1 auto;
+    align-self: center;
   }
   /* Solo el icono de error (mdi:close); el candado es lock-icon.styles.ts. */
   ha-icon {
@@ -46,7 +57,6 @@ export const NEON_LOCK_CARD_STYLES = css`
     flex-direction: column;
     gap: 2px;
     min-width: 0;
-    width: 100%;
   }
   .name {
     font-size: 18px;
@@ -64,6 +74,140 @@ export const NEON_LOCK_CARD_STYLES = css`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  .top-right {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex: 0 0 auto;
+    margin: -6px -8px 0 0;
+  }
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--primary-text-color);
+    white-space: nowrap;
+  }
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--dot-color);
+    box-shadow: 0 0 6px var(--dot-color);
+  }
+  /* Verde: cerrada. Ámbar: desbloqueada o abierta. Rojo: avería. */
+  .status {
+    --dot-color: #39e07a;
+  }
+  .status[data-state='unlocked'],
+  .status[data-state='unlocking'],
+  .status[data-state='open'],
+  .status[data-state='opening'] {
+    --dot-color: #ffb02e;
+  }
+  .status[data-state='jammed'],
+  .status[data-state='error'] {
+    --dot-color: #ff5c5c;
+  }
+  .lock-moving .status-dot {
+    animation: lock-pulse 1.1s ease-in-out infinite;
+  }
+  .menu {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--secondary-text-color);
+    cursor: pointer;
+    transition: background 150ms ease-out, color 150ms ease-out;
+  }
+  .menu:hover,
+  .menu:focus-visible {
+    background: color-mix(in srgb, var(--neon-c1) 18%, transparent);
+    color: var(--primary-text-color);
+    outline: none;
+  }
+  .menu ha-icon {
+    --mdc-icon-size: 20px;
+    margin: 0;
+    color: inherit;
+  }
+  /* Pie: línea de neón y hasta tres datos (puerta, batería, último acceso). */
+  .footer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    row-gap: 8px;
+    padding-top: 12px;
+  }
+  .footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--neon-c1) 85%, transparent), color-mix(in srgb, var(--neon-c2) 55%, transparent) 60%, transparent);
+  }
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 0 14px;
+  }
+  .item:first-child {
+    padding-left: 0;
+  }
+  .item + .item {
+    border-left: 1px solid color-mix(in srgb, var(--primary-text-color) 20%, transparent);
+  }
+  .item ha-icon {
+    --mdc-icon-size: 22px;
+    flex: 0 0 auto;
+    margin: 0;
+    color: var(--primary-text-color);
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--neon-c1) 55%, transparent));
+  }
+  .item-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .item-label {
+    font-size: 10px;
+    line-height: 12px;
+    color: var(--secondary-text-color);
+  }
+  .item-value {
+    font-size: 13px;
+    line-height: 16px;
+    font-weight: 500;
+    color: var(--primary-text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .item--warn ha-icon,
+  .item--warn .item-value {
+    color: #ffb02e;
+  }
+  .item--alert ha-icon,
+  .item--alert .item-value {
+    color: #ff5c5c;
+  }
+  .item--muted ha-icon,
+  .item--muted .item-value {
+    color: var(--secondary-text-color);
   }
   /* Cerradura en movimiento (cerrando / abriendo): el icono pulsa
      mientras dura la transición, para que se vea que la orden se está

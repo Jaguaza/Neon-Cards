@@ -24,6 +24,13 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
+- Lock Card: nuevo diseño. Arriba el icono con el nombre y el subtítulo a su
+  lado y, a la derecha, el estado (punto verde/ámbar/rojo y texto) y los tres
+  puntos de «más información». Abajo, una línea de neón y hasta tres datos
+  (`footer_items`): sensor de puerta (`door_entity`), batería
+  (`battery_entity` o atributo `battery_level`) y último acceso
+  (`last_user_entity` o atributo `changed_by`). Editor visual con tres
+  huecos y sus selectores de entidad.
 - Lock Card: si la cerradura soporta además abrir (`supported_features`), al
   pulsar con el `toggle` por defecto se elige entre **Desbloquear/Abrir**
   (cerrada) o **Bloquear/Abrir** (desbloqueada); la opción llama a
@@ -37,6 +44,10 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- Lock Card: `subtitle_type` pasa a valer `none` por defecto, porque el estado
+  ya se muestra arriba a la derecha (antes era `state`; se puede volver con
+  `subtitle_type: state`). La tarjeta ocupa por defecto media rejilla
+  (`columns: 6`) y es más alta.
 - Lock Card: en español, `unlocked` se muestra como «Desbloqueada» (antes
   «Abierta», que se confundía con la puerta abierta) y `unlocking` como
   «Desbloqueando…». «Puerta abierta» queda solo para `open`.

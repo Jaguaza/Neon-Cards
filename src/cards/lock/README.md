@@ -12,9 +12,20 @@ entidad lo muestran a la vez. Al pulsar una acción que opera la cerradura
 (`toggle`, `call-service`) el halo se enciende ya y espera el cambio de
 estado (hasta 6 s) para las cerraduras lentas.
 
-Misma base visual que la [Button Card](../button) (icono protagonista,
-nombre, subtítulo, halo neón que se dibuja desde la esquina superior
-izquierda) y mismo framework (`src/core`, `src/shared`, `src/ha`).
+## Diseño
+
+- **Arriba:** el icono, y a su lado el nombre con el subtítulo. A la derecha,
+  el **estado** con un punto de color (verde cerrada, ámbar desbloqueada o
+  abierta, rojo atascada o no disponible) y los **tres puntos**, que abren el
+  diálogo de «más información» de la entidad sin disparar la acción de la
+  tarjeta.
+- **Abajo (opcional):** una línea de neón y hasta **tres datos** a elegir
+  entre sensor de puerta, batería y último acceso (ver
+  [Pie informativo](#pie-informativo)).
+
+Misma base visual que la [Button Card](../button) (halo neón que se dibuja
+desde la esquina superior izquierda) y mismo framework (`src/core`,
+`src/shared`, `src/ha`).
 
 ## Estados
 
@@ -64,10 +75,14 @@ name: Puerta principal
 | `entity` | string | — | Entidad del dominio `lock`. |
 | `name` | string | `friendly_name` | Nombre mostrado. |
 | `lock_icon` | `padlock` \| `door` \| `garage_roller` \| `garage_sliding` | `padlock` | Icono animado (ver Iconos). Un valor no válido usa el candado. |
-| `subtitle_type` | `state` \| `custom` \| `last-changed` \| `last-updated` \| `none` | `state` | Qué se muestra bajo el nombre. `state` es el estado traducido (Cerrada, Desbloqueada, Puerta abierta…). |
+| `subtitle_type` | `none` \| `state` \| `custom` \| `last-changed` \| `last-updated` | `none` | Qué se muestra bajo el nombre. Por defecto nada: el estado ya va arriba a la derecha (`state` lo repite bajo el nombre). |
 | `subtitle` | string | — | Texto libre cuando `subtitle_type: custom`. |
 | `neon_palette` | `emerald` \| `cyberpunk` \| `electric` \| `sunset` \| `toxic` \| `custom` | `emerald` | Paleta del halo. |
 | `neon_color1/2/3` | color | — | Solo con `neon_palette: custom`. |
+| `footer_items` | lista de `door` \| `battery` \| `last_user` | — | Hasta tres datos en el pie, en ese orden. Los repetidos y los desconocidos se ignoran. |
+| `door_entity` | string | — | Sensor de puerta (`binary_sensor`) para `door`: `on` abierta, `off` cerrada. |
+| `battery_entity` | string | atributo `battery_level` | Sensor de batería (%) para `battery`. Si falta se usa el atributo `battery_level` (o `battery`) de la cerradura. |
+| `last_user_entity` | string | atributo `changed_by` | Entidad con el nombre de quien accedió, para `last_user`. Si falta se usa el atributo `changed_by` de la cerradura. |
 | `confirm_open` | booleano | `true` | Pide confirmación («¿Abrir?») antes de abrir; ver [Confirmación al abrir](#confirmación-al-abrir). `false` la desactiva. |
 | `tap_action` | acción | `toggle` | Cierra o abre la cerradura. |
 | `hold_action` | acción | `more-info` | |
@@ -123,6 +138,34 @@ desbloquear; cerrar sin preguntar). Una acción con servicio explícito
 (`call-service`) no ofrece elección: manda ese servicio. Con
 `confirm_open: false` no se pregunta ni se elige.
 
+## Pie informativo
+
+`footer_items` pone hasta tres datos bajo una línea de neón, separados entre
+sí. Un dato que no se puede obtener se muestra como «—» (en gris), no
+desaparece, para que se note una entidad mal configurada.
+
+| Dato | Muestra | De dónde sale |
+| --- | --- | --- |
+| `door` | Icono de puerta (abierta/cerrada) y «Abierta» (ámbar) o «Cerrada». Con `device_class: garage_door` o `window` usa su icono. | `door_entity` (obligatoria). |
+| `battery` | Icono de batería según el nivel y «85 %». Con 20 % o menos, en rojo. | `battery_entity` o, si falta, el atributo `battery_level` (o `battery`) de la cerradura. |
+| `last_user` | «Último acceso» y «Jorge · 08:42» (si no es de hoy, «12 oct, 21:05»). | El nombre: `last_user_entity` (su estado) o el atributo `changed_by` de la cerradura. La hora: `last_updated` de `last_user_entity` o `last_changed` de la cerradura. |
+
+```yaml
+type: custom:neon-lock-card
+entity: lock.puerta_principal
+name: Puerta Principal
+subtitle_type: custom
+subtitle: Cerradura inteligente
+lock_icon: padlock
+footer_items: [battery, door, last_user]
+door_entity: binary_sensor.puerta_principal
+```
+
+La hora del último acceso es la del último cambio de estado de la entidad
+que la aporta: si la cerradura se vuelve a cerrar sola, esa hora es la del
+cierre. Para una hora exacta de apertura usa una entidad propia en
+`last_user_entity`.
+
 # src/cards/lock (English)
 
 `custom:neon-lock-card` — card for Home Assistant `lock` entities (door
@@ -135,9 +178,19 @@ action that operates the lock (`toggle`, `call-service`) is pressed, the
 halo lights up right away and waits for the state change (up to 6 s) for
 slow locks.
 
-Same visual base as the [Button Card](../button) (large icon, name,
-subtitle, neon halo drawn from the top-left corner) and the same
-framework (`src/core`, `src/shared`, `src/ha`).
+## Layout
+
+- **Top:** the icon, with the name and subtitle next to it. On the right, the
+  **state** with a coloured dot (green locked, amber unlocked or open, red
+  jammed or unavailable) and the **three dots**, which open the entity's
+  "more info" dialog without triggering the card's action.
+- **Bottom (optional):** a neon line and up to **three data points** to pick
+  from door sensor, battery and last access (see
+  [Information footer](#information-footer)).
+
+Same visual base as the [Button Card](../button) (neon halo drawn from the
+top-left corner) and the same framework (`src/core`, `src/shared`,
+`src/ha`).
 
 ## States
 
@@ -187,10 +240,14 @@ name: Front door
 | `entity` | string | — | Entity of the `lock` domain. |
 | `name` | string | `friendly_name` | Displayed name. |
 | `lock_icon` | `padlock` \| `door` \| `garage_roller` \| `garage_sliding` | `padlock` | Animated icon (see Icons). An invalid value uses the padlock. |
-| `subtitle_type` | `state` \| `custom` \| `last-changed` \| `last-updated` \| `none` | `state` | What is shown under the name. `state` is the translated state (Locked, Unlocked…). |
+| `subtitle_type` | `none` \| `state` \| `custom` \| `last-changed` \| `last-updated` | `none` | What is shown under the name. Nothing by default: the state is already at the top right (`state` repeats it under the name). |
 | `subtitle` | string | — | Free text when `subtitle_type: custom`. |
 | `neon_palette` | `emerald` \| `cyberpunk` \| `electric` \| `sunset` \| `toxic` \| `custom` | `emerald` | Halo palette. |
 | `neon_color1/2/3` | color | — | Only with `neon_palette: custom`. |
+| `footer_items` | list of `door` \| `battery` \| `last_user` | — | Up to three data points in the footer, in that order. Duplicates and unknown values are ignored. |
+| `door_entity` | string | — | Door sensor (`binary_sensor`) for `door`: `on` open, `off` closed. |
+| `battery_entity` | string | `battery_level` attribute | Battery sensor (%) for `battery`. If missing, the lock's `battery_level` (or `battery`) attribute is used. |
+| `last_user_entity` | string | `changed_by` attribute | Entity holding the name of who accessed, for `last_user`. If missing, the lock's `changed_by` attribute is used. |
 | `confirm_open` | boolean | `true` | Asks for confirmation ("Open?") before opening; see [Confirmation before opening](#confirmation-before-opening). `false` turns it off. |
 | `tap_action` | action | `toggle` | Locks or unlocks. |
 | `hold_action` | action | `more-info` | |
@@ -242,3 +299,19 @@ support open, everything works as before ("Open?" when unlocking; locking
 without asking). An explicit service action (`call-service`) offers no
 choice: it sends that service. With `confirm_open: false` it neither asks
 nor offers a choice.
+
+## Information footer
+
+`footer_items` puts up to three data points under a neon line, separated
+from each other. Data that cannot be obtained is shown as "—" (greyed out),
+it does not disappear, so a misconfigured entity is noticeable.
+
+| Item | Shows | Where it comes from |
+| --- | --- | --- |
+| `door` | Door icon (open/closed) and "Open" (amber) or "Closed". With `device_class: garage_door` or `window` it uses their icon. | `door_entity` (required). |
+| `battery` | Battery icon by level and "85 %". At 20 % or less, in red. | `battery_entity` or, if missing, the lock's `battery_level` (or `battery`) attribute. |
+| `last_user` | "Last access" and "Jorge · 08:42" (if not today, "Oct 12, 9:05 PM"). | The name: `last_user_entity` (its state) or the lock's `changed_by` attribute. The time: `last_updated` of `last_user_entity` or `last_changed` of the lock. |
+
+The last-access time is that of the last state change of the entity that
+provides it: if the lock re-locks by itself, that time is the lock time. For
+an exact opening time use your own entity in `last_user_entity`.

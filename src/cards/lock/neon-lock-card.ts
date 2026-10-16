@@ -29,6 +29,8 @@ import { isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, isOpeningActio
 import type { LockCommand } from './lock-state';
 import { NEON_LOCK_CARD_STYLES } from './neon-lock-card.styles';
 import { LOCK_TRANSLATIONS } from './translations';
+import { resolveFooterItems } from './footer';
+import type { FooterItemView } from './footer';
 import type { LockTranslations } from './translations';
 import type { LockVisualState, NeonLockCardConfig } from './types';
 
@@ -129,11 +131,12 @@ export class NeonLockCard extends BaseNeonCard {
   }
 
   getCardSize(): number {
-    return 2;
+    return 3;
   }
 
-  getGridOptions(): { rows: 'auto'; columns: number } {
-    return { rows: 'auto', columns: 3 };
+  /** Cabecera (icono, nombre, estado) y pie con hasta tres iconos: pide media rejilla. */
+  getGridOptions(): { rows: 'auto'; columns: number; min_columns: number } {
+    return { rows: 'auto', columns: 6, min_columns: 4 };
   }
 
   private get _stateObj() {
@@ -144,12 +147,14 @@ export class NeonLockCard extends BaseNeonCard {
     return this._config?.name || (this._stateObj?.attributes.friendly_name as string | undefined) || '';
   }
 
-  /** Subtítulo según `subtitle_type`: 'state' (por defecto) es el estado
-      TRADUCIDO de la cerradura; 'custom' el texto libre; el resto delega
-      en `computeInfoDisplay` de `src/core`, igual que Button y Entity. */
+  /** Subtítulo según `subtitle_type`: 'none' (por defecto: el estado ya
+      va arriba a la derecha) no muestra nada; 'state' repite el estado
+      TRADUCIDO; 'custom' el texto libre; el resto delega en
+      `computeInfoDisplay` de `src/core`, igual que Button y Entity. */
   private _subtitle(state: ReturnType<typeof resolveLockState>): string | TemplateResult | typeof nothing {
-    const type = this._config?.subtitle_type || 'state';
+    const type = this._config?.subtitle_type || 'none';
     if (type === 'custom') return this._config?.subtitle || nothing;
+    if (type === 'none') return nothing;
     if (type === 'state') return state ? localize(this.hass, LOCK_TRANSLATIONS, `state_${state}`) : nothing;
     const stateObj = this._stateObj;
     if (!stateObj || !this.hass) return nothing;
@@ -255,6 +260,53 @@ export class NeonLockCard extends BaseNeonCard {
     this._confirmShown = false;
   }
 
+  /** Estado arriba a la derecha: punto de color (verde cerrada, ámbar abierta, rojo avería) y texto. */
+  private _renderStatus(state: NonNullable<ReturnType<typeof resolveLockState>>): TemplateResult {
+    return html`<span class="status" data-state=${state}><span class="status-dot"></span><span class="status-text">${this._t(`state_${state}`)}</span></span>`;
+  }
+
+  /** Los tres puntos: abre el diálogo «más información» de la entidad sin disparar la acción de la tarjeta. */
+  private _renderMenu(): TemplateResult {
+    const stop = (ev: Event) => ev.stopPropagation();
+    return html`
+      <button
+        type="button"
+        class="menu"
+        aria-label=${this._t('more_info')}
+        title=${this._t('more_info')}
+        @pointerdown=${stop}
+        @pointerup=${stop}
+        @pointercancel=${stop}
+        @click=${(ev: Event) => {
+          ev.stopPropagation();
+          this._openMoreInfo();
+        }}
+      >
+        <ha-icon icon="mdi:dots-vertical"></ha-icon>
+      </button>
+    `;
+  }
+
+  private _openMoreInfo(): void {
+    dispatchHassAction(
+      this,
+      { entity: this._config?.entity, tap_action: { action: 'more-info' }, hold_action: { action: 'none' }, double_tap_action: { action: 'none' } },
+      'tap'
+    );
+  }
+
+  private _renderFooterItem(item: FooterItemView): TemplateResult {
+    return html`
+      <div class="item item--${item.tone}" data-type=${item.type}>
+        <ha-icon icon=${item.icon}></ha-icon>
+        <div class="item-text">
+          ${item.label ? html`<span class="item-label">${item.label}</span>` : nothing}
+          <span class="item-value">${item.text}</span>
+        </div>
+      </div>
+    `;
+  }
+
   /**
    * La vista «¿Abrir?» cuelga encima del contenido y recoge sus propios
    * gestos: sin cortar la propagación, el clic en un botón llegaría al
@@ -303,6 +355,7 @@ export class NeonLockCard extends BaseNeonCard {
     const colors = resolveGradientColors(this._config);
     const state = resolveLockState(this._config, this.hass);
     const subtitle = this._subtitle(state);
+    const footer = resolveFooterItems(this._config, this.hass, this._stateObj);
     const hasDoubleTap = !!this._config.double_tap_action && this._config.double_tap_action.action !== 'none';
 
     return html`
@@ -321,13 +374,17 @@ export class NeonLockCard extends BaseNeonCard {
       >
         ${neonRingSplitTemplate(this._ringUid, this._ring.size.width, this._ring.size.height, this._ring.size.radius)}
         <div class="content ${this._confirm && this._confirmShown ? 'content--hidden' : ''}" aria-hidden=${this._confirm && this._confirmShown ? 'true' : 'false'}>
-          ${isLockAlert(state)
-            ? html`<ha-icon class="neon-halo-icon" icon=${ERROR_ICON}></ha-icon>`
-            : this._iconDef.template(isLockOpenPose(state))}
-          <div class="text">
-            <span class="name">${this._name}</span>
-            ${subtitle !== nothing ? html`<span class="subtitle">${subtitle}</span>` : nothing}
+          <div class="header">
+            ${isLockAlert(state)
+              ? html`<ha-icon class="neon-halo-icon" icon=${ERROR_ICON}></ha-icon>`
+              : this._iconDef.template(isLockOpenPose(state))}
+            <div class="text">
+              <span class="name">${this._name}</span>
+              ${subtitle !== nothing ? html`<span class="subtitle">${subtitle}</span>` : nothing}
+            </div>
+            ${state ? html`<div class="top-right">${this._renderStatus(state)}${state !== 'error' ? this._renderMenu() : nothing}</div>` : nothing}
           </div>
+          ${footer.length ? html`<div class="footer">${footer.map((item) => this._renderFooterItem(item))}</div>` : nothing}
         </div>
       ${this._confirm && this._confirmShown ? this._renderConfirm() : nothing}
       </ha-card>

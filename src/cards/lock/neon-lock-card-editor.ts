@@ -8,12 +8,20 @@ import { LOCK_ICON_TYPES, LOCK_ICONS, resolveLockIconType } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
 import { LOCK_TRANSLATIONS } from './translations';
 import type { LockTranslations } from './translations';
-import type { LockSubtitleType, NeonLockCardConfig } from './types';
+import { LOCK_FOOTER_ITEM_TYPES, MAX_FOOTER_ITEMS, normalizeFooterItems } from './footer';
+import type { LockFooterItem, LockSubtitleType, NeonLockCardConfig } from './types';
 
 const ALLOWED_ACTIONS = ['more-info', 'toggle', 'navigate', 'url', 'call-service', 'assist', 'none'];
 
-/** Orden de las opciones del selector de subtítulo; 'state' es el valor por defecto. */
-const SUBTITLE_TYPES: readonly LockSubtitleType[] = ['state', 'custom', 'last-changed', 'last-updated', 'none'];
+/** Orden de las opciones del selector de subtítulo; 'none' es el valor por defecto (el estado ya va arriba a la derecha). */
+const SUBTITLE_TYPES: readonly LockSubtitleType[] = ['none', 'state', 'custom', 'last-changed', 'last-updated'];
+
+/** Dominios que ofrece el selector de entidad de cada dato del pie. */
+const FOOTER_ENTITY_DOMAINS = {
+  door: ['binary_sensor'],
+  battery: ['sensor'],
+  last_user: ['sensor', 'input_text', 'text', 'input_select', 'select'],
+} as const;
 
 export class NeonLockCardEditor extends LitElement {
   static properties = {
@@ -103,14 +111,14 @@ export class NeonLockCardEditor extends LitElement {
     if (!this.hass || !this._config) return nothing;
     return html`
       <div class="editor-container">
-        ${this._renderMainSection()} ${this._renderHaloSection()} ${this._renderActionsSection()}
+        ${this._renderMainSection()} ${this._renderFooterSection()} ${this._renderHaloSection()} ${this._renderActionsSection()}
       </div>
     `;
   }
 
   private _renderMainSection(): TemplateResult {
     const config = this._config!;
-    const current: LockSubtitleType = config.subtitle_type || 'state';
+    const current: LockSubtitleType = config.subtitle_type || 'none';
     const labels = getInfoLabels(this.hass);
     return html`
       <div class="editor-section">
@@ -139,8 +147,8 @@ export class NeonLockCardEditor extends LitElement {
           .value=${current}
           @change=${(ev: Event) => {
             const value = (ev.target as HTMLSelectElement).value;
-            if (!value || value === (this._config?.subtitle_type || 'state')) return;
-            this._configChanged('subtitle_type', value === 'state' ? undefined : value);
+            if (!value || value === (this._config?.subtitle_type || 'none')) return;
+            this._configChanged('subtitle_type', value === 'none' ? undefined : value);
           }}
         >
           ${SUBTITLE_TYPES.map(
@@ -201,6 +209,66 @@ export class NeonLockCardEditor extends LitElement {
       const svg = tile.querySelector('svg.lock-icon') as SVGElement | null;
       if (svg) LOCK_ICONS[resolveLockIconType(tile.dataset.icon)].paint(svg, 0);
     }
+  }
+
+  /**
+   * Pie de la tarjeta: tres huecos (cada uno elige ninguno, sensor de puerta,
+   * batería o último acceso) y, para cada dato elegido, su entidad. Un dato
+   * ya elegido en otro hueco se mueve al nuevo (no se repiten).
+   */
+  private _renderFooterSection(): TemplateResult {
+    const config = this._config!;
+    const chosen = normalizeFooterItems(config.footer_items);
+    const slots: (LockFooterItem | '')[] = Array.from({ length: MAX_FOOTER_ITEMS }, (_, i) => chosen[i] ?? '');
+    const footerLabel = (type: LockFooterItem) => this._t(`footer_${type}`);
+    return html`
+      <div class="editor-section">
+        <div class="section-header">${this._t('section_footer')}</div>
+        <span class="native-select-label">${this._t('footer_hint')}</span>
+        ${slots.map(
+          (current, index) => html`
+            <label class="native-select-label" for=${`footer-${index + 1}`}>${this._t('footer_slot')} ${index + 1}</label>
+            <select
+              id=${`footer-${index + 1}`}
+              class="native-select"
+              .value=${current}
+              @change=${(ev: Event) => this._setFooterSlot(index, (ev.target as HTMLSelectElement).value as LockFooterItem | '')}
+            >
+              <option value="" ?selected=${current === ''}>${this._t('footer_none')}</option>
+              ${LOCK_FOOTER_ITEM_TYPES.map((type) => html`<option value=${type} ?selected=${type === current}>${footerLabel(type)}</option>`)}
+            </select>
+          `
+        )}
+        ${chosen.includes('door') ? this._renderFooterEntity('door_entity', 'door_entity_label', FOOTER_ENTITY_DOMAINS.door) : nothing}
+        ${chosen.includes('battery') ? this._renderFooterEntity('battery_entity', 'battery_entity_label', FOOTER_ENTITY_DOMAINS.battery) : nothing}
+        ${chosen.includes('last_user') ? this._renderFooterEntity('last_user_entity', 'last_user_entity_label', FOOTER_ENTITY_DOMAINS.last_user) : nothing}
+      </div>
+    `;
+  }
+
+  private _renderFooterEntity(
+    configKey: 'door_entity' | 'battery_entity' | 'last_user_entity',
+    labelKey: 'door_entity_label' | 'battery_entity_label' | 'last_user_entity_label',
+    domains: readonly string[]
+  ): TemplateResult {
+    return html`
+      <ha-entity-picker
+        .hass=${this.hass}
+        .value=${(this._config?.[configKey] as string | undefined) || ''}
+        .includeDomains=${domains}
+        label=${this._t(labelKey)}
+        allow-custom-entity
+        @value-changed=${(ev: ValueChangedEvent) => this._configChanged(configKey, ev.detail.value)}
+      ></ha-entity-picker>
+    `;
+  }
+
+  private _setFooterSlot(index: number, value: LockFooterItem | ''): void {
+    const slots: (LockFooterItem | '')[] = Array.from({ length: MAX_FOOTER_ITEMS }, (_, i) => normalizeFooterItems(this._config?.footer_items)[i] ?? '');
+    for (let i = 0; i < slots.length; i++) if (value && slots[i] === value) slots[i] = ''; // sin repetidos: se mueve
+    slots[index] = value;
+    const next = slots.filter((slot): slot is LockFooterItem => slot !== '');
+    this._configChanged('footer_items', next.length ? next : undefined);
   }
 
   private _renderHaloSection(): TemplateResult {
