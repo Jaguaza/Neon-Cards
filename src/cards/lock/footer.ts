@@ -1,5 +1,7 @@
 import type { HomeAssistant } from '../../ha/types';
 import { localize } from '../../core';
+import { STATUS_DOT_DEFAULTS } from './constants';
+import { statusDotColor } from './lock-state';
 import { LOCK_TRANSLATIONS } from './translations';
 import type { LockFooterItem, NeonLockCardConfig } from './types';
 
@@ -27,6 +29,11 @@ export interface FooterItemView {
   label?: string;
   text: string;
   tone: FooterTone;
+  /**
+   * Color CSS del icono y del valor cuando el dato está ACTIVO y comparte color
+   * con el punto de estado (hoy, la puerta abierta). Sin él manda el de `tone`.
+   */
+  color?: string;
 }
 
 /** Entidad de HA tal como la usa el pie (solo lo que lee). */
@@ -98,11 +105,16 @@ function doorItem(config: NeonLockCardConfig, hass: HomeAssistant | undefined): 
   }
   const [openIcon, closedIcon] = DOOR_ICONS[String(entity.attributes.device_class)] ?? DOOR_ICONS.door;
   const open = entity.state === 'on';
+  // Solo cuando la puerta está ABIERTA (sensor activo) el dato toma el color del
+  // punto de estado de «desbloqueada/abierta» (el elegido en la config o el de por
+  // defecto), para que se lean igual. Cerrada se queda en el color normal.
+  const color = open ? (statusDotColor(config, 'open') ?? STATUS_DOT_DEFAULTS.open) : undefined;
   return {
     type: 'door',
     icon: open ? openIcon : closedIcon,
     text: localize(hass, LOCK_TRANSLATIONS, open ? 'door_open' : 'door_closed'),
     tone: open ? 'warn' : 'normal',
+    ...(color ? { color } : {}),
   };
 }
 

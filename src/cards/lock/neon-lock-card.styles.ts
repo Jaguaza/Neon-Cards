@@ -207,9 +207,13 @@ export const NEON_LOCK_CARD_STYLES = css`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  /* Dato activo (puerta abierta): el color del punto de estado de
+     «desbloqueada/abierta». --item-color lo pone la tarjeta con el elegido en
+     la config; sin él vale este, igual que el punto por defecto. Cerrada
+     (normal) y sin dato (muted) no lo llevan. */
   .item--warn ha-icon,
   .item--warn .item-value {
-    color: #ffb02e;
+    color: var(--item-color, #ffb02e);
   }
   .item--alert ha-icon,
   .item--alert .item-value {

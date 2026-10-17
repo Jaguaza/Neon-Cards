@@ -304,7 +304,7 @@ export class NeonLockCard extends BaseNeonCard {
 
   private _renderFooterItem(item: FooterItemView): TemplateResult {
     return html`
-      <div class="item item--${item.tone}" data-type=${item.type}>
+      <div class="item item--${item.tone}" data-type=${item.type} style=${item.color ? `--item-color: ${item.color}` : nothing}>
         <ha-icon icon=${item.icon}></ha-icon>
         <div class="item-text">
           ${item.label ? html`<span class="item-label">${item.label}</span>` : nothing}

@@ -29,6 +29,10 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   atascada/no disponible; por defecto verde, ámbar y rojo). Selectores de
   color en el editor visual con «Restablecer colores». Cualquier color CSS en
   YAML; un valor inválido se ignora.
+- Lock Card: el dato de puerta del pie, cuando el sensor está activo (puerta
+  abierta), toma el color del estado «desbloqueada o abierta»
+  (`status_color_open`, ámbar por defecto) en el icono y el texto; cerrada
+  se queda en el color normal.
 - Lock Card: nuevo diseño. Arriba el icono con el nombre y el subtítulo a su
   lado y, a la derecha, el estado (punto verde/ámbar/rojo y texto) y los tres
   puntos de «más información». Abajo, una línea de neón y hasta tres datos

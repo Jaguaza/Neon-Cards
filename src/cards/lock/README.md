@@ -171,7 +171,7 @@ desaparece, para que se note una entidad mal configurada.
 
 | Dato | Muestra | De dónde sale |
 | --- | --- | --- |
-| `door` | Icono de puerta (abierta/cerrada) y «Abierta» (ámbar) o «Cerrada». Con `device_class: garage_door` o `window` usa su icono. | `door_entity` (obligatoria). |
+| `door` | Icono de puerta (abierta/cerrada) y «Abierta» o «Cerrada». Con la puerta **abierta** (sensor activo) el icono y el texto toman el color del estado «desbloqueada o abierta» (`status_color_open`, ámbar por defecto); cerrada se queda en el color normal. Con `device_class: garage_door` o `window` usa su icono. | `door_entity` (obligatoria). |
 | `battery` | Icono de batería según el nivel y «85 %». Con 20 % o menos, en rojo. | `battery_entity` o, si falta, el atributo `battery_level` (o `battery`) de la cerradura. |
 | `last_user` | «Último acceso» y «Jorge · 08:42» (si no es de hoy, «12 oct, 21:05»). | El nombre: `last_user_entity` (su estado) o el atributo `changed_by` de la cerradura. La hora: `last_updated` de `last_user_entity` o `last_changed` de la cerradura. |
 
@@ -227,6 +227,10 @@ status_color_alert: var(--error-color)
 El selector de color del navegador solo entiende `#rrggbb`: si en YAML pones
 otro formato, el editor muestra el color por defecto en su selector, pero la
 tarjeta usa el de YAML hasta que toques ese selector.
+
+El color de «desbloqueada o abierta» también lo toma el dato de **puerta** del
+pie cuando el sensor está activo (puerta abierta): así se lee igual que el
+punto de estado. Con la puerta cerrada no lleva color.
 
 # src/cards/lock (English)
 
@@ -395,7 +399,7 @@ it does not disappear, so a misconfigured entity is noticeable.
 
 | Item | Shows | Where it comes from |
 | --- | --- | --- |
-| `door` | Door icon (open/closed) and "Open" (amber) or "Closed". With `device_class: garage_door` or `window` it uses their icon. | `door_entity` (required). |
+| `door` | Door icon (open/closed) and "Open" or "Closed". With the door **open** (sensor active) the icon and text take the colour of the "unlocked or open" state (`status_color_open`, amber by default); closed it keeps the normal colour. With `device_class: garage_door` or `window` it uses their icon. | `door_entity` (required). |
 | `battery` | Battery icon by level and "85 %". At 20 % or less, in red. | `battery_entity` or, if missing, the lock's `battery_level` (or `battery`) attribute. |
 | `last_user` | "Last access" and "Jorge · 08:42" (if not today, "Oct 12, 9:05 PM"). | The name: `last_user_entity` (its state) or the lock's `changed_by` attribute. The time: `last_updated` of `last_user_entity` or `last_changed` of the lock. |
 

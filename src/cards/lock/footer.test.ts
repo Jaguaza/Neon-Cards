@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { STATUS_DOT_DEFAULTS } from './constants';
 import { LOCK_FOOTER_ITEM_TYPES, batteryIcon, formatAccessTime, normalizeFooterItems, resolveFooterItems } from './footer';
 
 const NOW = new Date('2026-10-15T12:00:00');
@@ -59,9 +60,26 @@ describe('resolveFooterItems · puerta', () => {
   const door = (state: string, attributes = {}) => hassOf({ 'binary_sensor.puerta': entity(state, attributes) });
   const cfg = { entity: 'lock.p', footer_items: ['door' as const], door_entity: 'binary_sensor.puerta' };
 
-  it('off es cerrada y on es abierta (en ámbar), con su icono', () => {
+  it('off es cerrada (sin color propio) y on es abierta (con el color del estado «abierta»), con su icono', () => {
     expect(resolveFooterItems(cfg, door('off'), undefined, NOW)).toEqual([{ type: 'door', icon: 'mdi:door-closed', text: 'Cerrada', tone: 'normal' }]);
-    expect(resolveFooterItems(cfg, door('on'), undefined, NOW)).toEqual([{ type: 'door', icon: 'mdi:door-open', text: 'Abierta', tone: 'warn' }]);
+    expect(resolveFooterItems(cfg, door('on'), undefined, NOW)).toEqual([{ type: 'door', icon: 'mdi:door-open', text: 'Abierta', tone: 'warn', color: STATUS_DOT_DEFAULTS.open }]);
+  });
+  it('abierta usa el color elegido para «desbloqueada o abierta»; cerrada no lleva ninguno aunque se haya elegido el de «cerrada»', () => {
+    const custom = { ...cfg, status_color_open: '#00aaff', status_color_closed: '#ff00ff' };
+    expect(resolveFooterItems(custom, door('on'), undefined, NOW)[0].color).toBe('#00aaff');
+    expect('color' in resolveFooterItems(custom, door('off'), undefined, NOW)[0]).toBe(false);
+  });
+  it('un color inválido en la config se ignora y abierta usa el de por defecto', () => {
+    expect(resolveFooterItems({ ...cfg, status_color_open: 'red; x: y' }, door('on'), undefined, NOW)[0].color).toBe(STATUS_DOT_DEFAULTS.open);
+  });
+  it('sin dato (no disponible, sin sensor) no hay color: se queda en gris', () => {
+    expect('color' in resolveFooterItems(cfg, door('unavailable'), undefined, NOW)[0]).toBe(false);
+    expect('color' in resolveFooterItems({ ...cfg, door_entity: undefined }, door('on'), undefined, NOW)[0]).toBe(false);
+  });
+  it('batería y último acceso no llevan color propio', () => {
+    const lock = entity('locked', { battery_level: 85, changed_by: 'Jorge' });
+    const out = resolveFooterItems({ entity: 'lock.p', footer_items: ['battery', 'last_user'] }, hassOf({}), lock, NOW);
+    expect(out.every((i) => !('color' in i))).toBe(true);
   });
   it('el icono sigue la device_class (garaje, ventana)', () => {
     expect(resolveFooterItems(cfg, door('on', { device_class: 'garage_door' }), undefined, NOW)[0].icon).toBe('mdi:garage-open');

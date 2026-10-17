@@ -817,6 +817,38 @@ describe('NeonLockCard', () => {
       expect(items(el).every((r) => r.classList.contains('item--muted'))).toBe(true);
     });
 
+    it('el sensor de puerta ACTIVO (abierta) toma el color del estado «desbloqueada o abierta»; cerrado no lleva color', async () => {
+      const cfg = { footer_items: ['door'] as never, door_entity: 'binary_sensor.puerta' };
+      const style = (el: Card) => el.shadowRoot!.querySelector('.footer .item')!.getAttribute('style');
+      expect(style(await mount(cfg, hass({}, sensor('binary_sensor.puerta', 'on'))))).toBe(`--item-color: ${STATUS_DOT_DEFAULTS.open}`);
+      expect(style(await mount({ ...cfg, status_color_open: '#00aaff' }, hass({}, sensor('binary_sensor.puerta', 'on'))))).toBe('--item-color: #00aaff');
+      expect(style(await mount({ ...cfg, status_color_open: '#00aaff', status_color_closed: '#ff00ff' }, hass({}, sensor('binary_sensor.puerta', 'off'))))).toBeNull();
+      expect(style(await mount(cfg, hass({}, sensor('binary_sensor.puerta', 'unavailable'))))).toBeNull();
+    });
+
+    it('el color del icono de la puerta cambia con el sensor y con el color elegido', async () => {
+      const cfg = { footer_items: ['door'] as never, door_entity: 'binary_sensor.puerta', status_color_open: '#00aaff' };
+      const el = await mount(cfg, hass({}, sensor('binary_sensor.puerta', 'off')));
+      const row = () => el.shadowRoot!.querySelector('.footer .item')!;
+      expect(row().getAttribute('style')).toBeNull();
+      el.hass = hass({}, sensor('binary_sensor.puerta', 'on'));
+      await el.updateComplete;
+      expect(row().getAttribute('style')).toBe('--item-color: #00aaff');
+      expect(row().classList.contains('item--warn')).toBe(true);
+      el.setConfig({ ...cfg, status_color_open: '#112233', entity: 'lock.puerta' });
+      await el.updateComplete;
+      expect(row().getAttribute('style')).toBe('--item-color: #112233');
+    });
+
+    it('batería y último acceso nunca llevan color de estado', async () => {
+      const el = await mount({ footer_items: ['battery', 'last_user'], status_color_open: '#00aaff' }, hass({ battery_level: 85, changed_by: 'Jorge' }));
+      expect(items(el).map((r) => r.getAttribute('style'))).toEqual([null, null]);
+    });
+
+    it('el color por defecto del dato activo en la hoja de estilos coincide con STATUS_DOT_DEFAULTS.open', () => {
+      expect(NEON_LOCK_CARD_STYLES.cssText).toContain(`color: var(--item-color, ${STATUS_DOT_DEFAULTS.open});`);
+    });
+
     it('batería baja en rojo', async () => {
       const el = await mount({ footer_items: ['battery'] }, hass({ battery_level: 12 }));
       expect(items(el)[0].classList.contains('item--alert')).toBe(true);
