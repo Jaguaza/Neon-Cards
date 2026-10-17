@@ -24,6 +24,11 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
+- Lock Card: el color del punto de estado se puede elegir (`status_color_closed`,
+  `status_color_open`, `status_color_alert`: cerrada, desbloqueada/abierta y
+  atascada/no disponible; por defecto verde, ámbar y rojo). Selectores de
+  color en el editor visual con «Restablecer colores». Cualquier color CSS en
+  YAML; un valor inválido se ignora.
 - Lock Card: nuevo diseño. Arriba el icono con el nombre y el subtítulo a su
   lado y, a la derecha, el estado (punto verde/ámbar/rojo y texto) y los tres
   puntos de «más información». Abajo, una línea de neón y hasta tres datos

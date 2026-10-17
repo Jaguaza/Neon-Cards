@@ -9,12 +9,22 @@ import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
 import { LOCK_TRANSLATIONS } from './translations';
 import type { LockTranslations } from './translations';
 import { FOOTER_ORDER, normalizeFooterItems } from './footer';
+import { STATUS_DOT_DEFAULTS } from './constants';
+import { isCssColor } from './lock-state';
 import type { LockFooterItem, LockSubtitleType, NeonLockCardConfig } from './types';
 
 const ALLOWED_ACTIONS = ['more-info', 'toggle', 'navigate', 'url', 'call-service', 'assist', 'none'];
 
 /** Orden de las opciones del selector de subtítulo; 'none' es el valor por defecto (el estado ya va arriba a la derecha). */
 const SUBTITLE_TYPES: readonly LockSubtitleType[] = ['none', 'state', 'custom', 'last-changed', 'last-updated'];
+
+/** `#rgb` o `#rrggbb` → `#rrggbb` (lo único que acepta `<input type=color>`); otro formato → `undefined`. */
+function toHex6(color: string): string | undefined {
+  const value = color.trim().toLowerCase();
+  if (/^#[0-9a-f]{6}$/.test(value)) return value;
+  if (/^#[0-9a-f]{3}$/.test(value)) return `#${value[1]}${value[1]}${value[2]}${value[2]}${value[3]}${value[3]}`;
+  return undefined;
+}
 
 /** Dominios que ofrece el selector de entidad de cada dato del pie. */
 const FOOTER_ENTITY_DOMAINS = {
@@ -49,6 +59,18 @@ export class NeonLockCardEditor extends LitElement {
     NEON_EDITOR_FORM_STYLES,
     NEON_LOCK_ICON_STYLES,
     css`
+      .reset-colors {
+        align-self: flex-start;
+        margin-top: 4px;
+        padding: 4px 0;
+        border: 0;
+        background: transparent;
+        color: var(--primary-color);
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+        text-decoration: underline;
+      }
       .icon-picker {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -179,7 +201,7 @@ export class NeonLockCardEditor extends LitElement {
     if (!this.hass || !this._config) return nothing;
     return html`
       <div class="editor-container">
-        ${this._renderMainSection()} ${this._renderFooterSection()} ${this._renderHaloSection()} ${this._renderActionsSection()}
+        ${this._renderMainSection()} ${this._renderFooterSection()} ${this._renderHaloSection()} ${this._renderStatusColorsSection()} ${this._renderActionsSection()}
       </div>
     `;
   }
@@ -393,6 +415,52 @@ export class NeonLockCardEditor extends LitElement {
         <input type="color" .value=${value} @input=${(ev: Event) => this._configChanged(configKey, (ev.target as HTMLInputElement).value)} />
       </div>
     `;
+  }
+
+  /**
+   * Colores del punto de estado: uno por grupo de estados. El selector de
+   * color del navegador solo entiende `#rrggbb`: si en YAML hay otro formato
+   * (un nombre, rgb(), var(--x)) se muestra el color por defecto en el
+   * selector, pero la tarjeta sigue usando el valor de YAML hasta que se toque.
+   */
+  private _renderStatusColorsSection(): TemplateResult {
+    const config = this._config!;
+    const anySet = (['status_color_closed', 'status_color_open', 'status_color_alert'] as const).some((key) => config[key] !== undefined);
+    return html`
+      <div class="editor-section">
+        <div class="section-header">${this._t('section_status')}</div>
+        <span class="native-select-label">${this._t('status_color_hint')}</span>
+        <div class="custom-colors-grid">
+          ${this._renderStatusColor('status_color_closed', 'closed')} ${this._renderStatusColor('status_color_open', 'open')}
+          ${this._renderStatusColor('status_color_alert', 'alert')}
+        </div>
+        ${anySet
+          ? html`<button type="button" class="reset-colors" @click=${() => this._resetStatusColors()}>${this._t('status_color_reset')}</button>`
+          : nothing}
+      </div>
+    `;
+  }
+
+  private _renderStatusColor(configKey: 'status_color_closed' | 'status_color_open' | 'status_color_alert', group: keyof typeof STATUS_DOT_DEFAULTS): TemplateResult {
+    const configured = this._config?.[configKey];
+    const value = isCssColor(configured) ? toHex6(configured) ?? STATUS_DOT_DEFAULTS[group] : STATUS_DOT_DEFAULTS[group];
+    return html`
+      <div class="color-picker-wrapper">
+        <span>${this._t(`status_color_${group}`)}</span>
+        <input type="color" .value=${value} @input=${(ev: Event) => this._configChanged(configKey, (ev.target as HTMLInputElement).value)} />
+      </div>
+    `;
+  }
+
+  /** Quita los tres colores de una vez (un solo `config-changed`). */
+  private _resetStatusColors(): void {
+    if (!this._config) return;
+    const newConfig: NeonLockCardConfig = { ...this._config };
+    delete newConfig.status_color_closed;
+    delete newConfig.status_color_open;
+    delete newConfig.status_color_alert;
+    this._config = newConfig;
+    this.dispatchEvent(new CustomEvent('config-changed', { detail: { config: newConfig }, bubbles: true, composed: true }));
   }
 
   private _renderActionsSection(): TemplateResult {

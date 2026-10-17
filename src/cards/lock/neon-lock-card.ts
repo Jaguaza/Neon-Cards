@@ -25,7 +25,7 @@ import { LOCK_ICONS, resolveLockIconType } from './icons';
 import type { LockIconDef } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
 import { LockPoseAnimator } from './lock-pose-animator';
-import { displayState, doorSensorOpen, isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, isOpeningAction, lockChoices, lockSupportsOpen, resolveLockState } from './lock-state';
+import { displayState, doorSensorOpen, isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, isOpeningAction, lockChoices, lockSupportsOpen, resolveLockState, statusDotColor } from './lock-state';
 import type { LockCommand } from './lock-state';
 import { NEON_LOCK_CARD_STYLES } from './neon-lock-card.styles';
 import { LOCK_TRANSLATIONS } from './translations';
@@ -267,7 +267,9 @@ export class NeonLockCard extends BaseNeonCard {
 
   /** Estado arriba a la derecha: punto de color (verde cerrada, ámbar abierta, rojo avería) y texto. */
   private _renderStatus(state: NonNullable<ReturnType<typeof resolveLockState>>): TemplateResult {
-    return html`<span class="status" data-state=${state}><span class="status-dot"></span><span class="status-text">${this._t(`state_${state}`)}</span></span>`;
+    // Color del punto elegido en la config (ya validado); sin él manda el de la hoja de estilos.
+    const color = statusDotColor(this._config, state);
+    return html`<span class="status" data-state=${state} style=${color ? `--dot-color: ${color}` : nothing}><span class="status-dot"></span><span class="status-text">${this._t(`state_${state}`)}</span></span>`;
   }
 
   /** Los tres puntos: abre el diálogo «más información» de la entidad sin disparar la acción de la tarjeta. */

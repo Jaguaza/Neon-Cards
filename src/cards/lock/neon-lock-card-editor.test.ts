@@ -85,9 +85,13 @@ describe('NeonLockCardEditor', () => {
     expect('lock_icon' in last()).toBe(false);
   });
 
-  it('paleta custom muestra tres selectores de color', async () => {
+  it('paleta custom muestra tres selectores de color del halo (además de los tres del punto de estado)', async () => {
+    const preset = await mount({ entity: 'lock.puerta' });
+    expect(preset.el.shadowRoot!.querySelectorAll('.custom-colors-grid').length).toBe(1); // solo el punto de estado
     const { el } = await mount({ entity: 'lock.puerta', neon_palette: 'custom' });
-    expect(el.shadowRoot!.querySelectorAll('input[type="color"]').length).toBe(3);
+    const grids = el.shadowRoot!.querySelectorAll('.custom-colors-grid');
+    expect(grids.length).toBe(2);
+    expect(Array.from(grids).map((g) => g.querySelectorAll('input[type="color"]').length)).toEqual([3, 3]);
   });
 
   it('el interruptor de confirmación al abrir está activo por defecto y desactivarlo guarda confirm_open: false', async () => {
@@ -217,6 +221,64 @@ describe('NeonLockCardEditor', () => {
       expect(card(withSensor.el, 'door').querySelector('.data-warning')).toBeNull();
       const battery = await mount({ entity: 'lock.puerta', footer_items: ['battery'] });
       expect(card(battery.el, 'battery').querySelector('.data-warning')).toBeNull(); // batería y último acceso funcionan sin entidad
+    });
+  });
+
+  describe('punto de estado', () => {
+    const statusInputs = (el: Editor) => Array.from(el.shadowRoot!.querySelectorAll('.custom-colors-grid')).pop()!.querySelectorAll<HTMLInputElement>('input[type="color"]');
+    const setColor = (input: HTMLInputElement, value: string) => {
+      input.value = value;
+      input.dispatchEvent(new Event('input'));
+    };
+    const reset = (el: Editor) => el.shadowRoot!.querySelector<HTMLButtonElement>('.reset-colors');
+
+    it('ofrece tres colores (cerrada, desbloqueada o abierta, atascada o no disponible) con los valores por defecto', async () => {
+      const { el } = await mount({ entity: 'lock.puerta' });
+      expect(Array.from(statusInputs(el)).map((i) => i.value)).toEqual(['#39e07a', '#ffb02e', '#ff5c5c']);
+      const labels = Array.from(el.shadowRoot!.querySelectorAll('.custom-colors-grid')).pop()!.querySelectorAll('.color-picker-wrapper span');
+      expect(Array.from(labels).map((s) => s.textContent)).toEqual(['Cerrada', 'Desbloqueada o abierta', 'Atascada o no disponible']);
+    });
+
+    it('elegir un color guarda su clave y los otros dos no se tocan', async () => {
+      const { el, last } = await mount({ entity: 'lock.puerta' });
+      setColor(statusInputs(el)[0], '#ff00ff');
+      expect(last().status_color_closed).toBe('#ff00ff');
+      setColor(statusInputs(el)[1], '#00aaff');
+      setColor(statusInputs(el)[2], '#112233');
+      expect(last()).toMatchObject({ status_color_closed: '#ff00ff', status_color_open: '#00aaff', status_color_alert: '#112233' });
+    });
+
+    it('muestra los colores de la config; #rgb se amplía y un formato que el selector no entiende deja el color por defecto', async () => {
+      const { el } = await mount({ entity: 'lock.puerta', status_color_closed: '#f0a', status_color_open: 'orange', status_color_alert: 'rgb(255, 0, 0)' });
+      expect(Array.from(statusInputs(el)).map((i) => i.value)).toEqual(['#ff00aa', '#ffb02e', '#ff5c5c']);
+    });
+
+    it('un valor de YAML que no es un color válido no se muestra', async () => {
+      const { el } = await mount({ entity: 'lock.puerta', status_color_closed: 'red; background: url(x)' });
+      expect(statusInputs(el)[0].value).toBe('#39e07a');
+    });
+
+    it('«Restablecer colores» solo aparece con algún color puesto y los quita los tres en un solo cambio', async () => {
+      const { el, last } = await mount({ entity: 'lock.puerta' });
+      expect(reset(el)).toBeNull();
+      const changes: Record<string, unknown>[] = [];
+      el.addEventListener('config-changed', (ev) => changes.push((ev as CustomEvent).detail.config));
+      setColor(statusInputs(el)[0], '#ff00ff');
+      setColor(statusInputs(el)[2], '#112233');
+      await el.updateComplete;
+      expect(reset(el)).not.toBeNull();
+      changes.length = 0;
+      reset(el)!.click();
+      expect(changes).toHaveLength(1);
+      expect('status_color_closed' in last() || 'status_color_open' in last() || 'status_color_alert' in last()).toBe(false);
+      await el.updateComplete;
+      expect(reset(el)).toBeNull();
+    });
+
+    it('restablecer no toca el resto de la config', async () => {
+      const { el, last } = await mount({ entity: 'lock.puerta', name: 'Puerta', status_color_open: '#00aaff', neon_palette: 'sunset' });
+      reset(el)!.click();
+      expect(last()).toMatchObject({ entity: 'lock.puerta', name: 'Puerta', neon_palette: 'sunset' });
     });
   });
 

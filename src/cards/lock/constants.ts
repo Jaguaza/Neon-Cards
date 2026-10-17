@@ -54,3 +54,12 @@ export const CONFIRM_TIMEOUT_MS = 8000;
  * limpia y el aro se dibuja mientras la vista aparece.
  */
 export const CONFIRM_REVEAL_MS = 120;
+
+/**
+ * Colores por defecto del punto de estado, uno por grupo de estados:
+ * cerrada (`locked`, `locking`), desbloqueada o abierta (`unlocked`,
+ * `unlocking`, `open`, `opening`) y avería (`jammed`, `error`). Son los
+ * mismos que usa la hoja de estilos; el editor los muestra como valor
+ * inicial y un test comprueba que coinciden.
+ */
+export const STATUS_DOT_DEFAULTS = { closed: '#39e07a', open: '#ffb02e', alert: '#ff5c5c' } as const;

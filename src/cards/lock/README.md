@@ -101,6 +101,9 @@ name: Puerta principal
 | `subtitle` | string | — | Texto libre cuando `subtitle_type: custom`. |
 | `neon_palette` | `emerald` \| `cyberpunk` \| `electric` \| `sunset` \| `toxic` \| `custom` | `emerald` | Paleta del halo. |
 | `neon_color1/2/3` | color | — | Solo con `neon_palette: custom`. |
+| `status_color_closed` | color CSS | `#39e07a` (verde) | Color del punto de estado con la cerradura cerrada (`locked`, `locking`). |
+| `status_color_open` | color CSS | `#ffb02e` (ámbar) | Color del punto con la cerradura desbloqueada o abierta (`unlocked`, `unlocking`, `open`, `opening`). |
+| `status_color_alert` | color CSS | `#ff5c5c` (rojo) | Color del punto con la cerradura atascada o no disponible (`jammed`, `error`). |
 | `footer_items` | lista de `door` \| `battery` \| `last_user` | — | Hasta tres datos en el pie, en ese orden. Los repetidos y los desconocidos se ignoran. |
 | `door_entity` | string | — | Sensor de puerta (`binary_sensor`) para `door`: `on` abierta, `off` cerrada. |
 | `battery_entity` | string | atributo `battery_level` | Sensor de batería (%) para `battery`. Si falta se usa el atributo `battery_level` (o `battery`) de la cerradura. |
@@ -206,6 +209,25 @@ que la aporta: si la cerradura se vuelve a cerrar sola, esa hora es la del
 cierre. Para una hora exacta de apertura usa una entidad propia en
 `last_user_entity`.
 
+## Color del punto de estado
+
+El punto junto al estado tiene un color por grupo de estados (cerrada,
+desbloqueada o abierta, atascada o no disponible). En el editor visual, el
+apartado **Punto de estado** tiene un selector de color para cada uno y un
+enlace **Restablecer colores** que los quita los tres. En YAML vale cualquier
+color CSS (`#39e07a`, `rgb(...)`, `hsl(...)`, un nombre o `var(--mi-color)`);
+un valor que no sea un color válido se ignora y se usa el de por defecto.
+
+```yaml
+status_color_closed: '#39e07a'
+status_color_open: orange
+status_color_alert: var(--error-color)
+```
+
+El selector de color del navegador solo entiende `#rrggbb`: si en YAML pones
+otro formato, el editor muestra el color por defecto en su selector, pero la
+tarjeta usa el de YAML hasta que toques ese selector.
+
 # src/cards/lock (English)
 
 `custom:neon-lock-card` — card for Home Assistant `lock` entities (door
@@ -306,6 +328,9 @@ name: Front door
 | `subtitle` | string | — | Free text when `subtitle_type: custom`. |
 | `neon_palette` | `emerald` \| `cyberpunk` \| `electric` \| `sunset` \| `toxic` \| `custom` | `emerald` | Halo palette. |
 | `neon_color1/2/3` | color | — | Only with `neon_palette: custom`. |
+| `status_color_closed` | CSS colour | `#39e07a` (green) | Colour of the status dot when the lock is closed (`locked`, `locking`). |
+| `status_color_open` | CSS colour | `#ffb02e` (amber) | Colour of the dot when the lock is unlocked or open (`unlocked`, `unlocking`, `open`, `opening`). |
+| `status_color_alert` | CSS colour | `#ff5c5c` (red) | Colour of the dot when the lock is jammed or unavailable (`jammed`, `error`). |
 | `footer_items` | list of `door` \| `battery` \| `last_user` | — | Up to three data points in the footer, in that order. Duplicates and unknown values are ignored. |
 | `door_entity` | string | — | Door sensor (`binary_sensor`) for `door`: `on` open, `off` closed. |
 | `battery_entity` | string | `battery_level` attribute | Battery sensor (%) for `battery`. If missing, the lock's `battery_level` (or `battery`) attribute is used. |
@@ -394,3 +419,16 @@ for its entity with a hint of what happens if you leave it empty:
 The last-access time is that of the last state change of the entity that
 provides it: if the lock re-locks by itself, that time is the lock time. For
 an exact opening time use your own entity in `last_user_entity`.
+
+## Status dot colour
+
+The dot next to the state has one colour per group of states (closed,
+unlocked or open, jammed or unavailable). In the visual editor, the **Status
+dot** section has a colour picker for each one and a **Reset colours** link
+that clears all three. In YAML any CSS colour works (`#39e07a`, `rgb(...)`,
+`hsl(...)`, a name or `var(--my-colour)`); a value that is not a valid colour
+is ignored and the default is used.
+
+The browser's colour picker only understands `#rrggbb`: if you use another
+format in YAML, the editor shows the default colour in its picker, but the
+card keeps using the YAML one until you touch that picker.

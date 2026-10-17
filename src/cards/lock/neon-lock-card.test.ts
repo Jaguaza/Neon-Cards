@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ACTION_PENDING_MS, CONFIRM_REVEAL_MS, CONFIRM_TIMEOUT_MS } from './constants';
+import { ACTION_PENDING_MS, CONFIRM_REVEAL_MS, CONFIRM_TIMEOUT_MS, STATUS_DOT_DEFAULTS } from './constants';
+import { NEON_LOCK_CARD_STYLES } from './neon-lock-card.styles';
 import { POSE_TOTAL_MS, shacklePath } from './icons/padlock-geometry';
 import { DOOR_DURATION_MS, doorLeafPath } from './icons/door';
 import { GARAGE_ROLLER_DURATION_MS, rollerGeometry, slatsPath } from './icons/garage-roller';
@@ -716,6 +717,63 @@ describe('NeonLockCard', () => {
     it('la cabecera ocupa media rejilla', async () => {
       const el = await mount({});
       expect(el.getGridOptions()).toEqual({ rows: 'auto', columns: 6, min_columns: 4 });
+    });
+  });
+
+  describe('color del punto de estado', () => {
+    const dotStyle = (el: Card) => el.shadowRoot!.querySelector('.status')!.getAttribute('style');
+    const colors = { status_color_closed: '#ff00ff', status_color_open: '#00aaff', status_color_alert: '#112233' };
+
+    it('sin colores en la config no hay estilo en línea: manda la hoja de estilos', async () => {
+      expect(dotStyle(await mount({}))).toBeNull();
+    });
+
+    it('cada grupo de estados usa su color', async () => {
+      for (const [state, expected] of [
+        ['locked', '#ff00ff'],
+        ['locking', '#ff00ff'],
+        ['unlocked', '#00aaff'],
+        ['unlocking', '#00aaff'],
+        ['open', '#00aaff'],
+        ['opening', '#00aaff'],
+        ['jammed', '#112233'],
+        ['unavailable', '#112233'],
+      ] as const) {
+        expect(dotStyle(await mount(colors, hassWith(state))), state).toBe(`--dot-color: ${expected}`);
+      }
+    });
+
+    it('un color puesto solo en un grupo no afecta a los demás', async () => {
+      const only = { status_color_open: '#00aaff' };
+      expect(dotStyle(await mount(only, hassWith('locked')))).toBeNull();
+      expect(dotStyle(await mount(only, hassWith('unlocked')))).toBe('--dot-color: #00aaff');
+    });
+
+    it('acepta rgb(), hsl(), nombres y var(--x)', async () => {
+      for (const color of ['rgb(1, 2, 3)', 'hsl(120 50% 50%)', 'orange', 'var(--primary-color)']) {
+        expect(dotStyle(await mount({ status_color_closed: color })), color).toBe(`--dot-color: ${color}`);
+      }
+    });
+
+    it('un valor inválido o malicioso se ignora y no llega al estilo', async () => {
+      for (const bad of ['red; background: url(https://x.test/a.png)', 'red}', 'expression(1)', '<b>', 5]) {
+        expect(dotStyle(await mount({ status_color_closed: bad as never })), String(bad)).toBeNull();
+      }
+    });
+
+    it('se actualiza al cambiar la config', async () => {
+      const el = await mount({ status_color_closed: '#ff00ff' });
+      expect(dotStyle(el)).toBe('--dot-color: #ff00ff');
+      el.setConfig({ entity: 'lock.puerta' });
+      await el.updateComplete;
+      expect(dotStyle(el)).toBeNull();
+    });
+
+    it('los colores por defecto de la hoja de estilos coinciden con STATUS_DOT_DEFAULTS (lo que muestra el editor)', () => {
+      const css = NEON_LOCK_CARD_STYLES.cssText;
+      expect(css).toContain(`--dot-color: ${STATUS_DOT_DEFAULTS.closed};`);
+      expect(css).toContain(`--dot-color: ${STATUS_DOT_DEFAULTS.open};`);
+      expect(css).toContain(`--dot-color: ${STATUS_DOT_DEFAULTS.alert};`);
     });
   });
 

@@ -31,6 +31,12 @@ export interface LockTranslations {
   subtitle_placeholder: string;
   section_halo: string;
   palette_label: string;
+  section_status: string;
+  status_color_hint: string;
+  status_color_closed: string;
+  status_color_open: string;
+  status_color_alert: string;
+  status_color_reset: string;
   confirm_title: string;
   confirm_accept: string;
   confirm_cancel: string;

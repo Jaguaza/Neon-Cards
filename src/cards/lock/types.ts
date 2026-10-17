@@ -52,6 +52,17 @@ export interface NeonLockCardConfig {
   neon_color2?: string;
   neon_color3?: string;
   /**
+   * Color del punto de estado, uno por grupo de estados. Cualquier color
+   * CSS válido (`#39e07a`, `rgb(...)`, `hsl(...)`, un nombre o `var(--x)`);
+   * si falta o no es válido se usa el color por defecto del grupo.
+   * `status_color_closed`: cerrada (por defecto verde).
+   * `status_color_open`: desbloqueada o abierta (por defecto ámbar).
+   * `status_color_alert`: atascada o no disponible (por defecto rojo).
+   */
+  status_color_closed?: string;
+  status_color_open?: string;
+  status_color_alert?: string;
+  /**
    * Hasta tres iconos informativos en el pie de la tarjeta, en este orden:
    * `door` (sensor de puerta, requiere `door_entity`), `battery` (batería de
    * la cerradura) y `last_user` (quién abrió la última vez y cuándo).

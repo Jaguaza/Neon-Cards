@@ -141,3 +141,41 @@ export function lockChoices(action: ActionConfig, state: LockVisualState | undef
   if (state === 'unlocked') return ['lock', 'open'];
   return [];
 }
+
+/** Grupo de estados que comparten el color del punto de estado. */
+export type StatusColorGroup = 'closed' | 'open' | 'alert';
+
+/** Cerrada y cerrándose → `closed`; desbloqueada, abierta o abriéndose → `open`; avería → `alert`. */
+export function statusColorGroup(state: LockVisualState): StatusColorGroup {
+  if (state === 'locked' || state === 'locking') return 'closed';
+  if (state === 'jammed' || state === 'error') return 'alert';
+  return 'open';
+}
+
+/** Lista blanca de colores CSS que se aceptan en la config: hex, rgb/hsl, un nombre o `var(--x)`. */
+const CSS_COLOR = /^(#[0-9a-f]{3,8}|[a-z]{3,30}|(rgb|hsl)a?\([0-9a-z%.,/\s-]{1,60}\)|var\(--[\w-]{1,60}\))$/i;
+
+/**
+ * ¿Es un color que se puede escribir tal cual en un estilo? La config viene
+ * de YAML y acaba en un atributo `style`: solo pasa la lista blanca (sin `;`,
+ * llaves ni comillas, así que no puede colar otras propiedades) y, donde el
+ * navegador lo sabe comprobar, que CSS lo reconozca como color.
+ */
+export function isCssColor(value: unknown): value is string {
+  if (typeof value !== 'string') return false;
+  const color = value.trim();
+  if (!CSS_COLOR.test(color)) return false;
+  return typeof CSS === 'undefined' || typeof CSS.supports !== 'function' || CSS.supports('color', color);
+}
+
+const STATUS_COLOR_KEYS = {
+  closed: 'status_color_closed',
+  open: 'status_color_open',
+  alert: 'status_color_alert',
+} as const;
+
+/** Color elegido en la config para el punto de este estado; `undefined` si no hay o no es válido (vale el de la hoja de estilos). */
+export function statusDotColor(config: NeonLockCardConfig | undefined, state: LockVisualState): string | undefined {
+  const value = config?.[STATUS_COLOR_KEYS[statusColorGroup(state)]];
+  return isCssColor(value) ? value.trim() : undefined;
+}

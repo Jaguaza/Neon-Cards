@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { displayState, doorSensorOpen, isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, isOpeningAction, lockChoices, lockSupportsOpen, resolveLockState } from './lock-state';
+import { displayState, doorSensorOpen, isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, isOpeningAction, lockChoices, lockSupportsOpen, resolveLockState, isCssColor, statusColorGroup, statusDotColor } from './lock-state';
 import type { LockVisualState } from './types';
 import { HA_LOCK_STATES } from './constants';
 import type { HomeAssistant } from '../../ha/types';
@@ -191,5 +191,44 @@ describe('displayState', () => {
     expect(displayState('jammed', undefined, true)).toBe('jammed');
     expect(displayState('error', undefined, true)).toBe('error');
     expect(displayState('unlocked', true, true)).toBe('open');
+  });
+});
+
+describe('statusColorGroup', () => {
+  it('agrupa los estados en cerrada, desbloqueada/abierta y avería', () => {
+    expect(['locked', 'locking'].map((s) => statusColorGroup(s as never))).toEqual(['closed', 'closed']);
+    expect(['unlocked', 'unlocking', 'open', 'opening'].map((s) => statusColorGroup(s as never))).toEqual(['open', 'open', 'open', 'open']);
+    expect(['jammed', 'error'].map((s) => statusColorGroup(s as never))).toEqual(['alert', 'alert']);
+  });
+});
+
+describe('isCssColor', () => {
+  it('acepta hex, rgb/hsl, nombres y var(--x)', () => {
+    for (const ok of ['#fff', '#39e07a', '#39e07a80', 'rgb(255, 0, 0)', 'rgba(255,0,0,.5)', 'hsl(120 50% 50%)', 'orange', 'var(--primary-color)', '  #fff  ']) {
+      expect(isCssColor(ok), ok).toBe(true);
+    }
+  });
+  it('rechaza lo que no es un color o intenta colar otras propiedades', () => {
+    for (const bad of ['', '   ', 'red; background: url(x)', 'red}', '#12', '#ggg', 'url(x)', 'expression(alert(1))', 'rgb(1,2,3); x:y', 'var(--a); color: red', '"red"', 5, null, undefined, {}]) {
+      expect(isCssColor(bad), String(bad)).toBe(false);
+    }
+  });
+});
+
+describe('statusDotColor', () => {
+  const cfg = { status_color_closed: '#111111', status_color_open: ' #222222 ', status_color_alert: 'rgb(3, 3, 3)' };
+  it('devuelve el color del grupo del estado', () => {
+    expect(statusDotColor(cfg, 'locked')).toBe('#111111');
+    expect(statusDotColor(cfg, 'locking')).toBe('#111111');
+    expect(statusDotColor(cfg, 'unlocked')).toBe('#222222'); // recortado
+    expect(statusDotColor(cfg, 'open')).toBe('#222222');
+    expect(statusDotColor(cfg, 'jammed')).toBe('rgb(3, 3, 3)');
+    expect(statusDotColor(cfg, 'error')).toBe('rgb(3, 3, 3)');
+  });
+  it('sin color en la config, o inválido, no devuelve nada (vale el de la hoja de estilos)', () => {
+    expect(statusDotColor({}, 'locked')).toBeUndefined();
+    expect(statusDotColor(undefined, 'locked')).toBeUndefined();
+    expect(statusDotColor({ status_color_closed: 'red; x:y' }, 'locked')).toBeUndefined();
+    expect(statusDotColor({ status_color_closed: '#111111' }, 'unlocked')).toBeUndefined(); // otro grupo
   });
 });
