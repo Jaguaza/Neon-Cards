@@ -9,6 +9,13 @@ export const MAX_FOOTER_ITEMS = 3;
 /** Tipos válidos, en el orden en que los ofrece el editor. */
 export const LOCK_FOOTER_ITEM_TYPES: readonly LockFooterItem[] = ['door', 'battery', 'last_user'];
 
+/**
+ * Orden fijo en que el editor visual escribe `footer_items` y en que
+ * aparecen sus tarjetas. En YAML se respeta el orden que se escriba; el
+ * editor lo normaliza a este al tocar un interruptor.
+ */
+export const FOOTER_ORDER: readonly LockFooterItem[] = ['battery', 'last_user', 'door'];
+
 /** Aspecto del valor: `warn` ámbar (puerta abierta), `alert` rojo (batería baja), `muted` sin dato. */
 export type FooterTone = 'normal' | 'warn' | 'alert' | 'muted';
 

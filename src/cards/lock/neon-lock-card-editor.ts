@@ -8,7 +8,7 @@ import { LOCK_ICON_TYPES, LOCK_ICONS, resolveLockIconType } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
 import { LOCK_TRANSLATIONS } from './translations';
 import type { LockTranslations } from './translations';
-import { LOCK_FOOTER_ITEM_TYPES, MAX_FOOTER_ITEMS, normalizeFooterItems } from './footer';
+import { FOOTER_ORDER, normalizeFooterItems } from './footer';
 import type { LockFooterItem, LockSubtitleType, NeonLockCardConfig } from './types';
 
 const ALLOWED_ACTIONS = ['more-info', 'toggle', 'navigate', 'url', 'call-service', 'assist', 'none'];
@@ -22,6 +22,19 @@ const FOOTER_ENTITY_DOMAINS = {
   battery: ['sensor'],
   last_user: ['sensor', 'input_text', 'text', 'input_select', 'select'],
 } as const;
+
+/** Cómo se dibuja y se configura cada dato del pie en el editor. */
+interface FooterRow {
+  icon: string;
+  entityKey: 'door_entity' | 'battery_entity' | 'last_user_entity';
+  domains: readonly string[];
+}
+
+const FOOTER_ROWS: Record<LockFooterItem, FooterRow> = {
+  battery: { icon: 'mdi:battery', entityKey: 'battery_entity', domains: FOOTER_ENTITY_DOMAINS.battery },
+  last_user: { icon: 'mdi:account', entityKey: 'last_user_entity', domains: FOOTER_ENTITY_DOMAINS.last_user },
+  door: { icon: 'mdi:door-closed', entityKey: 'door_entity', domains: FOOTER_ENTITY_DOMAINS.door },
+};
 
 export class NeonLockCardEditor extends LitElement {
   static properties = {
@@ -77,6 +90,61 @@ export class NeonLockCardEditor extends LitElement {
       }
       .icon-tile.selected .lock-icon {
         color: var(--primary-color);
+      }
+      .data-card {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px 14px;
+        border: 1px solid var(--divider-color);
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.12);
+      }
+      .data-card.on {
+        border-color: var(--primary-color);
+      }
+      .data-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .data-icon {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--secondary-background-color);
+        color: var(--secondary-text-color);
+        --mdc-icon-size: 20px;
+      }
+      .data-card.on .data-icon {
+        background: color-mix(in srgb, var(--primary-color) 18%, transparent);
+        color: var(--primary-color);
+      }
+      .data-text {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .data-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--primary-text-color);
+      }
+      .data-desc,
+      .data-hint {
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--secondary-text-color);
+      }
+      .data-warning {
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--warning-color, #ffa600);
       }
     `,
   ];
@@ -212,62 +280,68 @@ export class NeonLockCardEditor extends LitElement {
   }
 
   /**
-   * Pie de la tarjeta: tres huecos (cada uno elige ninguno, sensor de puerta,
-   * batería o último acceso) y, para cada dato elegido, su entidad. Un dato
-   * ya elegido en otro hueco se mueve al nuevo (no se repiten).
+   * Pie de la tarjeta: una tarjeta por dato (batería, último acceso, puerta),
+   * cada una con su interruptor «mostrar» y, dentro, su entidad. Siempre en
+   * el orden en que aparecen en la tarjeta (`FOOTER_ORDER`).
    */
   private _renderFooterSection(): TemplateResult {
-    const config = this._config!;
-    const chosen = normalizeFooterItems(config.footer_items);
-    const slots: (LockFooterItem | '')[] = Array.from({ length: MAX_FOOTER_ITEMS }, (_, i) => chosen[i] ?? '');
-    const footerLabel = (type: LockFooterItem) => this._t(`footer_${type}`);
     return html`
       <div class="editor-section">
         <div class="section-header">${this._t('section_footer')}</div>
-        <span class="native-select-label">${this._t('footer_hint')}</span>
-        ${slots.map(
-          (current, index) => html`
-            <label class="native-select-label" for=${`footer-${index + 1}`}>${this._t('footer_slot')} ${index + 1}</label>
-            <select
-              id=${`footer-${index + 1}`}
-              class="native-select"
-              .value=${current}
-              @change=${(ev: Event) => this._setFooterSlot(index, (ev.target as HTMLSelectElement).value as LockFooterItem | '')}
-            >
-              <option value="" ?selected=${current === ''}>${this._t('footer_none')}</option>
-              ${LOCK_FOOTER_ITEM_TYPES.map((type) => html`<option value=${type} ?selected=${type === current}>${footerLabel(type)}</option>`)}
-            </select>
-          `
-        )}
-        ${chosen.includes('door') ? this._renderFooterEntity('door_entity', 'door_entity_label', FOOTER_ENTITY_DOMAINS.door) : nothing}
-        ${chosen.includes('battery') ? this._renderFooterEntity('battery_entity', 'battery_entity_label', FOOTER_ENTITY_DOMAINS.battery) : nothing}
-        ${chosen.includes('last_user') ? this._renderFooterEntity('last_user_entity', 'last_user_entity_label', FOOTER_ENTITY_DOMAINS.last_user) : nothing}
+        <span class="data-hint">${this._t('footer_hint')}</span>
+        ${FOOTER_ORDER.map((type) => this._renderFooterCard(type))}
       </div>
     `;
   }
 
-  private _renderFooterEntity(
-    configKey: 'door_entity' | 'battery_entity' | 'last_user_entity',
-    labelKey: 'door_entity_label' | 'battery_entity_label' | 'last_user_entity_label',
-    domains: readonly string[]
-  ): TemplateResult {
+  private _renderFooterCard(type: LockFooterItem): TemplateResult {
+    const row = FOOTER_ROWS[type];
+    const on = normalizeFooterItems(this._config?.footer_items).includes(type);
+    const entity = (this._config?.[row.entityKey] as string | undefined) || '';
+    const title = this._t(`footer_${type}`);
+    // El sensor de puerta también alimenta el estado «Puerta abierta» aunque
+    // el dato no se muestre, así que, si ya hay uno elegido, no se esconde.
+    const expanded = on || (type === 'door' && entity !== '');
     return html`
-      <ha-entity-picker
-        .hass=${this.hass}
-        .value=${(this._config?.[configKey] as string | undefined) || ''}
-        .includeDomains=${domains}
-        label=${this._t(labelKey)}
-        allow-custom-entity
-        @value-changed=${(ev: ValueChangedEvent) => this._configChanged(configKey, ev.detail.value)}
-      ></ha-entity-picker>
+      <div class="data-card ${on ? 'on' : ''}" data-footer=${type}>
+        <div class="data-head">
+          <span class="data-icon"><ha-icon icon=${row.icon}></ha-icon></span>
+          <div class="data-text">
+            <span class="data-title">${title}</span>
+            <span class="data-desc">${this._t(`footer_${type}_desc`)}</span>
+          </div>
+          <ha-switch
+            aria-label=${`${this._t('footer_show')}: ${title}`}
+            .checked=${on}
+            @change=${(ev: Event) => this._setFooterItem(type, (ev.target as HTMLInputElement).checked)}
+          ></ha-switch>
+        </div>
+        ${expanded ? this._renderFooterEntity(type, row, entity, on) : nothing}
+      </div>
     `;
   }
 
-  private _setFooterSlot(index: number, value: LockFooterItem | ''): void {
-    const slots: (LockFooterItem | '')[] = Array.from({ length: MAX_FOOTER_ITEMS }, (_, i) => normalizeFooterItems(this._config?.footer_items)[i] ?? '');
-    for (let i = 0; i < slots.length; i++) if (value && slots[i] === value) slots[i] = ''; // sin repetidos: se mueve
-    slots[index] = value;
-    const next = slots.filter((slot): slot is LockFooterItem => slot !== '');
+  private _renderFooterEntity(type: LockFooterItem, row: FooterRow, entity: string, on: boolean): TemplateResult {
+    return html`
+      <ha-entity-picker
+        .hass=${this.hass}
+        .value=${entity}
+        .includeDomains=${row.domains}
+        label=${this._t(`${type}_entity_label`)}
+        allow-custom-entity
+        @value-changed=${(ev: ValueChangedEvent) => this._configChanged(row.entityKey, ev.detail.value)}
+      ></ha-entity-picker>
+      <span class="data-hint">${this._t(`${type}_entity_hint`)}</span>
+      ${on && type === 'door' && !entity ? html`<span class="data-warning">${this._t('door_entity_missing')}</span>` : nothing}
+    `;
+  }
+
+  /** Activa o desactiva un dato del pie; `footer_items` se escribe siempre en `FOOTER_ORDER`. */
+  private _setFooterItem(type: LockFooterItem, on: boolean): void {
+    const chosen = new Set(normalizeFooterItems(this._config?.footer_items));
+    if (on) chosen.add(type);
+    else chosen.delete(type);
+    const next = FOOTER_ORDER.filter((item) => chosen.has(item));
     this._configChanged('footer_items', next.length ? next : undefined);
   }
 

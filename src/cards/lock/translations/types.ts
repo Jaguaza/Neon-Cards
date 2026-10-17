@@ -41,12 +41,18 @@ export interface LockTranslations {
   confirm_open_label: string;
   section_footer: string;
   footer_hint: string;
-  footer_slot: string;
-  footer_none: string;
   footer_door: string;
   footer_battery: string;
   footer_last_user: string;
   door_entity_label: string;
   battery_entity_label: string;
   last_user_entity_label: string;
+  footer_show: string;
+  footer_battery_desc: string;
+  footer_last_user_desc: string;
+  footer_door_desc: string;
+  battery_entity_hint: string;
+  last_user_entity_hint: string;
+  door_entity_hint: string;
+  door_entity_missing: string;
 }

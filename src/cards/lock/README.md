@@ -183,6 +183,24 @@ footer_items: [battery, door, last_user]
 door_entity: binary_sensor.puerta_principal
 ```
 
+### Cómo se configura en el editor visual
+
+El apartado **Pie de la tarjeta** tiene una tarjeta por dato —**Batería**,
+**Último acceso** y **Puerta**, siempre en ese orden, que es el orden en que
+salen en la tarjeta—. Cada una lleva su interruptor para mostrarla y, al
+activarla, el selector de su entidad con una pista de lo que pasa si lo dejas
+vacío:
+
+- **Batería** y **Último acceso**: la entidad es opcional; sin ella se usan los
+  datos de la propia cerradura.
+- **Puerta**: necesita un sensor de puerta (si lo activas sin sensor, el editor
+  avisa). El sensor también sirve para el texto «Puerta abierta» del estado
+  (ver [Texto del estado](#texto-del-estado-abriendo-puerta-y-puerta-abierta)),
+  así que si ya hay uno elegido se sigue viendo aunque el dato esté apagado.
+- Desactivar un dato no borra su entidad. Al tocar un interruptor, `footer_items`
+  se escribe en el orden fijo (batería, último acceso, puerta); en YAML se respeta
+  el orden que escribas.
+
 La hora del último acceso es la del último cambio de estado de la entidad
 que la aporta: si la cerradura se vuelve a cerrar sola, esa hora es la del
 cierre. Para una hora exacta de apertura usa una entidad propia en
@@ -355,6 +373,23 @@ it does not disappear, so a misconfigured entity is noticeable.
 | `door` | Door icon (open/closed) and "Open" (amber) or "Closed". With `device_class: garage_door` or `window` it uses their icon. | `door_entity` (required). |
 | `battery` | Battery icon by level and "85 %". At 20 % or less, in red. | `battery_entity` or, if missing, the lock's `battery_level` (or `battery`) attribute. |
 | `last_user` | "Last access" and "Jorge · 08:42" (if not today, "Oct 12, 9:05 PM"). | The name: `last_user_entity` (its state) or the lock's `changed_by` attribute. The time: `last_updated` of `last_user_entity` or `last_changed` of the lock. |
+
+### How it is set up in the visual editor
+
+The **Card footer** section has one card per data point —**Battery**, **Last
+access** and **Door**, always in that order, which is the order they appear in
+on the card—. Each one has its own switch to show it and, once on, the picker
+for its entity with a hint of what happens if you leave it empty:
+
+- **Battery** and **Last access**: the entity is optional; without it the
+  lock's own data is used.
+- **Door**: needs a door sensor (if you turn it on without one, the editor
+  warns you). The sensor is also used for the "Door open" status text (see
+  [State text](#state-text-opening-door-and-door-open)), so if one is already
+  chosen it stays visible even when the data point is off.
+- Turning a data point off does not delete its entity. When a switch is
+  touched, `footer_items` is written in the fixed order (battery, last access,
+  door); in YAML the order you write is respected.
 
 The last-access time is that of the last state change of the entity that
 provides it: if the lock re-locks by itself, that time is the lock time. For

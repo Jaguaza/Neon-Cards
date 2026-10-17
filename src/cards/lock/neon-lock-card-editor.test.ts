@@ -92,7 +92,7 @@ describe('NeonLockCardEditor', () => {
 
   it('el interruptor de confirmación al abrir está activo por defecto y desactivarlo guarda confirm_open: false', async () => {
     const { el, last } = await mount({ entity: 'lock.puerta' });
-    const sw = q(el, 'ha-switch') as unknown as HTMLInputElement;
+    const sw = q(el, 'ha-formfield ha-switch') as unknown as HTMLInputElement;
     expect(sw.checked).toBe(true);
     sw.checked = false;
     sw.dispatchEvent(new Event('change'));
@@ -102,58 +102,121 @@ describe('NeonLockCardEditor', () => {
     expect('confirm_open' in last()).toBe(false); // el valor por defecto no se guarda
   });
 
-  describe('información inferior', () => {
-    const slot = (el: Editor, n: number) => q(el, `#footer-${n}`) as HTMLSelectElement;
-    const choose = (el: Editor, n: number, value: string) => {
-      slot(el, n).value = value;
-      slot(el, n).dispatchEvent(new Event('change'));
+  describe('pie de la tarjeta', () => {
+    type Picker = HTMLElement & { includeDomains: string[]; value: string };
+    const card = (el: Editor, type: string) => q(el, `.data-card[data-footer="${type}"]`) as HTMLElement;
+    const sw = (el: Editor, type: string) => card(el, type).querySelector('ha-switch') as HTMLElement & { checked: boolean };
+    const picker = (el: Editor, type: string) => card(el, type).querySelector('ha-entity-picker') as Picker | null;
+    const toggle = (el: Editor, type: string, on: boolean) => {
+      sw(el, type).checked = on;
+      sw(el, type).dispatchEvent(new Event('change'));
     };
-    const pickers = (el: Editor) => Array.from(el.shadowRoot!.querySelectorAll('ha-entity-picker')) as unknown as { label: string; includeDomains: string[]; value: string }[];
+    const text = (el: Editor, type: string) => card(el, type).textContent!.replace(/\s+/g, ' ').trim();
 
-    it('ofrece tres huecos con ninguno, sensor de puerta, batería y último acceso', async () => {
+    it('muestra una tarjeta por dato, en el orden en que salen en la tarjeta: batería, último acceso, puerta', async () => {
       const { el } = await mount({ entity: 'lock.puerta' });
-      for (const n of [1, 2, 3]) {
-        expect(Array.from(slot(el, n).options).map((o) => o.value)).toEqual(['', 'door', 'battery', 'last_user']);
-        expect(slot(el, n).value).toBe('');
-      }
-      expect(Array.from(slot(el, 1).options).map((o) => o.textContent!.trim())).toEqual(['Ninguno', 'Sensor de puerta', 'Batería de la cerradura', 'Quién abrió la última vez']);
+      const cards = Array.from(el.shadowRoot!.querySelectorAll('.data-card')) as HTMLElement[];
+      expect(cards.map((c) => c.dataset.footer)).toEqual(['battery', 'last_user', 'door']);
+      expect(cards.map((c) => c.querySelector('.data-title')!.textContent)).toEqual(['Batería', 'Último acceso', 'Puerta']);
+      expect(q(el, '#footer-1')).toBeNull(); // ya no hay huecos numerados ni desplegables
     });
 
-    it('elegir datos guarda footer_items en orden y mostrar solo las entidades de los elegidos', async () => {
+    it('cada tarjeta explica qué dato es', async () => {
+      const { el } = await mount({ entity: 'lock.puerta' });
+      expect(text(el, 'battery')).toContain('Nivel de batería de la cerradura.');
+      expect(text(el, 'last_user')).toContain('Quién la abrió o cerró por última vez y a qué hora.');
+      expect(text(el, 'door')).toContain('Si está abierta o cerrada.');
+    });
+
+    it('sin nada configurado los tres interruptores están apagados y solo se ve el interruptor (sin selectores de entidad)', async () => {
+      const { el } = await mount({ entity: 'lock.puerta' });
+      for (const type of ['battery', 'last_user', 'door']) {
+        expect(sw(el, type).checked, type).toBe(false);
+        expect(picker(el, type), type).toBeNull();
+      }
+    });
+
+    it('el interruptor tiene un nombre accesible con el dato', async () => {
+      const { el } = await mount({ entity: 'lock.puerta' });
+      expect(sw(el, 'battery').getAttribute('aria-label')).toBe('Mostrar: Batería');
+      expect(sw(el, 'door').getAttribute('aria-label')).toBe('Mostrar: Puerta');
+    });
+
+    it('activar un dato lo guarda en footer_items y despliega su entidad con su pista', async () => {
       const { el, last } = await mount({ entity: 'lock.puerta' });
-      expect(pickers(el)).toHaveLength(1); // solo la de la cerradura
-      choose(el, 1, 'battery');
+      toggle(el, 'battery', true);
       expect(last().footer_items).toEqual(['battery']);
       await el.updateComplete;
-      choose(el, 2, 'door');
-      await el.updateComplete;
-      choose(el, 3, 'last_user');
-      expect(last().footer_items).toEqual(['battery', 'door', 'last_user']);
-      await el.updateComplete;
-      expect(pickers(el).map((p) => p.includeDomains)).toEqual([['lock'], ['binary_sensor'], ['sensor'], ['sensor', 'input_text', 'text', 'input_select', 'select']]);
+      expect(card(el, 'battery').classList.contains('on')).toBe(true);
+      expect(picker(el, 'battery')!.getAttribute('label')).toBe('Sensor de batería (opcional)');
+      expect(picker(el, 'battery')!.includeDomains).toEqual(['sensor']);
+      expect(text(el, 'battery')).toContain('Si no eliges ninguno, se usa la batería de la propia cerradura.');
     });
 
-    it('un dato ya elegido se mueve al nuevo hueco (no se repite)', async () => {
+    it('footer_items se escribe siempre en el orden fijo, sea cual sea el orden en que se activen', async () => {
+      const { el, last } = await mount({ entity: 'lock.puerta' });
+      for (const type of ['door', 'last_user', 'battery']) {
+        toggle(el, type, true);
+        await el.updateComplete;
+      }
+      expect(last().footer_items).toEqual(['battery', 'last_user', 'door']);
+    });
+
+    it('un YAML con otro orden se normaliza al orden fijo al tocar un interruptor', async () => {
+      const { el, last } = await mount({ entity: 'lock.puerta', footer_items: ['door', 'battery'] });
+      expect(sw(el, 'door').checked).toBe(true);
+      expect(sw(el, 'battery').checked).toBe(true);
+      toggle(el, 'last_user', true);
+      expect(last().footer_items).toEqual(['battery', 'last_user', 'door']);
+    });
+
+    it('desactivar un dato lo quita; al quitar el último desaparece footer_items', async () => {
       const { el, last } = await mount({ entity: 'lock.puerta', footer_items: ['battery', 'door'] });
-      choose(el, 3, 'battery');
-      expect(last().footer_items).toEqual(['door', 'battery']);
-    });
-
-    it('dejar todos en ninguno quita footer_items de la config', async () => {
-      const { el, last } = await mount({ entity: 'lock.puerta', footer_items: ['door'] });
-      choose(el, 1, '');
+      toggle(el, 'battery', false);
+      expect(last().footer_items).toEqual(['door']);
+      await el.updateComplete;
+      toggle(el, 'door', false);
       expect('footer_items' in last()).toBe(false);
     });
 
-    it('los selectores reflejan la config y guardan la entidad elegida', async () => {
-      const { el, last } = await mount({ entity: 'lock.puerta', footer_items: ['door'], door_entity: 'binary_sensor.puerta' });
-      expect(slot(el, 1).value).toBe('door');
-      const picker = el.shadowRoot!.querySelectorAll('ha-entity-picker')[1] as HTMLElement & { value: string };
-      expect(picker.value).toBe('binary_sensor.puerta');
-      picker.dispatchEvent(new CustomEvent('value-changed', { detail: { value: 'binary_sensor.garaje' } }));
+    it('desactivar un dato no borra su entidad: al volver a activarlo sigue ahí', async () => {
+      const { el, last } = await mount({ entity: 'lock.puerta', footer_items: ['battery'], battery_entity: 'sensor.bateria' });
+      toggle(el, 'battery', false);
+      expect(last().battery_entity).toBe('sensor.bateria');
+      await el.updateComplete;
+      toggle(el, 'battery', true);
+      await el.updateComplete;
+      expect(picker(el, 'battery')!.value).toBe('sensor.bateria');
+    });
+
+    it('cada entidad se elige dentro de su propia tarjeta, con sus dominios, y se borra al vaciarla', async () => {
+      const { el, last } = await mount({ entity: 'lock.puerta', footer_items: ['battery', 'last_user', 'door'], door_entity: 'binary_sensor.puerta' });
+      expect(picker(el, 'door')!.includeDomains).toEqual(['binary_sensor']);
+      expect(picker(el, 'last_user')!.includeDomains).toEqual(['sensor', 'input_text', 'text', 'input_select', 'select']);
+      expect(picker(el, 'door')!.value).toBe('binary_sensor.puerta');
+      picker(el, 'door')!.dispatchEvent(new CustomEvent('value-changed', { detail: { value: 'binary_sensor.garaje' } }));
       expect(last().door_entity).toBe('binary_sensor.garaje');
-      picker.dispatchEvent(new CustomEvent('value-changed', { detail: { value: '' } }));
+      picker(el, 'last_user')!.dispatchEvent(new CustomEvent('value-changed', { detail: { value: 'sensor.ultimo' } }));
+      expect(last().last_user_entity).toBe('sensor.ultimo');
+      picker(el, 'door')!.dispatchEvent(new CustomEvent('value-changed', { detail: { value: '' } }));
       expect('door_entity' in last()).toBe(false);
+    });
+
+    it('un sensor de puerta ya elegido no se esconde aunque el dato esté apagado, porque también alimenta el estado «Puerta abierta»', async () => {
+      const { el } = await mount({ entity: 'lock.puerta', door_entity: 'binary_sensor.puerta' });
+      expect(sw(el, 'door').checked).toBe(false);
+      expect(picker(el, 'door')!.value).toBe('binary_sensor.puerta');
+      expect(text(el, 'door')).toContain('También sirve para mostrar «Puerta abierta» en el estado de la tarjeta.');
+      expect(card(el, 'door').classList.contains('on')).toBe(false);
+    });
+
+    it('activar la puerta sin sensor avisa de que falta; con sensor no avisa', async () => {
+      const { el } = await mount({ entity: 'lock.puerta', footer_items: ['door'] });
+      expect(card(el, 'door').querySelector('.data-warning')!.textContent).toBe('Elige un sensor de puerta para ver este dato.');
+      const withSensor = await mount({ entity: 'lock.puerta', footer_items: ['door'], door_entity: 'binary_sensor.puerta' });
+      expect(card(withSensor.el, 'door').querySelector('.data-warning')).toBeNull();
+      const battery = await mount({ entity: 'lock.puerta', footer_items: ['battery'] });
+      expect(card(battery.el, 'battery').querySelector('.data-warning')).toBeNull(); // batería y último acceso funcionan sin entidad
     });
   });
 
