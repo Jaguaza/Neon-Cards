@@ -89,20 +89,21 @@ export const NEON_SENSOR_CARD_STYLES = css`
     --mdc-icon-size: 20px;
   }
 
-  /* Valor arriba y gráfico debajo ocupando lo que sobra: el alto lo da el
-     hueco de la rejilla, no el ancho de la tarjeta. */
+  /* Valor a la izquierda y gráfico a su derecha, en la MISMA fila: el
+     gráfico se encoge (nunca salta de línea) y ocupa todo el alto que queda.
+     Así el alto lo da el hueco de la rejilla, no el ancho de la tarjeta. */
   .body {
     display: flex;
-    flex-direction: column;
+    align-items: stretch;
     flex: 1 1 auto;
     min-height: 0;
-    gap: 6px;
+    gap: 10px;
   }
   .reading {
     flex: 0 1 auto;
     min-width: 0;
+    align-self: center;
     display: flex;
-    flex-wrap: wrap;
     align-items: baseline;
     gap: 2px 6px;
   }
@@ -143,9 +144,9 @@ export const NEON_SENSOR_CARD_STYLES = css`
   /* ---- Gráfico: trazo de monitor de constantes vitales ---- */
   .graph {
     position: relative;
-    flex: 1 1 28px;
-    min-width: 0;
-    min-height: 28px;
+    flex: 1 1 0;
+    min-width: 40px;
+    min-height: 0;
   }
   .graph svg {
     position: absolute;
@@ -229,6 +230,13 @@ export const NEON_SENSOR_CARD_STYLES = css`
   }
 
   /* ---- Tamaños ---- */
+  /* Mediano: cabe en 2 filas de la rejilla (120 px), así que lleva menos
+     relleno y menos hueco entre bloques. */
+  .size-normal {
+    padding: 10px 12px 8px;
+    gap: 4px;
+  }
+
   /* Pequeño: el más compacto posible y sin gráfico (no se pinta). Se
      quitan el menú ⋮ y el subtítulo para ganar sitio; tocar la tarjeta
      abre igualmente «más información». Nada se corta: se ajusta. */
@@ -270,7 +278,7 @@ export const NEON_SENSOR_CARD_STYLES = css`
 
   /* Grande: ancho máximo (12 columnas), más aire y gráfico más alto. */
   .size-large {
-    padding: 16px 20px 14px;
+    padding: 14px 20px 12px;
     gap: 8px;
   }
   .size-large .icon {
@@ -280,8 +288,7 @@ export const NEON_SENSOR_CARD_STYLES = css`
     font-size: clamp(2.2em, 12cqi, 3em);
   }
   .size-large .graph {
-    flex-basis: 48px;
-    min-height: 48px;
+    min-width: 80px;
   }
   .size-large .trace {
     stroke-width: 3.5px;

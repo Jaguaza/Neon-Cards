@@ -27,8 +27,8 @@ describe('gridOptionsFor', () => {
   it('cada tamaño ocupa un hueco fijo: columnas × filas', () => {
     expect(SIZE_GRID).toEqual({
       compact: { columns: 3, rows: 2 },
-      normal: { columns: 6, rows: 3 },
-      large: { columns: 12, rows: 4 },
+      normal: { columns: 6, rows: 2 },
+      large: { columns: 12, rows: 3 },
     });
   });
   it('el grande ocupa el ancho máximo (12 columnas)', () => {
