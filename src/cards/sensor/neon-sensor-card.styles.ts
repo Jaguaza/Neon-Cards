@@ -66,6 +66,7 @@ export const NEON_SENSOR_CARD_STYLES = css`
     line-clamp: 2;
     overflow: hidden;
     overflow-wrap: anywhere;
+    line-height: 1.2;
     font-weight: 500;
     color: var(--primary-text-color);
   }
@@ -73,6 +74,7 @@ export const NEON_SENSOR_CARD_STYLES = css`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1.25;
     font-size: 0.85em;
     color: var(--secondary-text-color);
   }
@@ -82,6 +84,7 @@ export const NEON_SENSOR_CARD_STYLES = css`
     padding: 4px;
     background: none;
     cursor: pointer;
+    line-height: 0;
     color: var(--secondary-text-color);
     --mdc-icon-size: 20px;
   }
@@ -116,6 +119,8 @@ export const NEON_SENSOR_CARD_STYLES = css`
   }
 
   .status {
+    flex: none;
+    line-height: 1.25;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -232,13 +237,16 @@ export const NEON_SENSOR_CARD_STYLES = css`
     gap: 4px;
   }
   .size-compact .header {
-    gap: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
   }
   .size-compact .icon {
     --mdc-icon-size: 30px;
   }
   .size-compact .texts {
-    flex-basis: 40px;
+    flex: none;
+    width: 100%;
   }
   .size-compact .name {
     font-size: 0.85em;
@@ -277,5 +285,22 @@ export const NEON_SENSOR_CARD_STYLES = css`
   }
   .size-large .trace {
     stroke-width: 3.5px;
+  }
+
+  /* Tarjeta estrecha (p. ej. «mediana» en un dashboard de pocas columnas):
+     icono y menú más pequeños para que el nombre quepa en una línea en vez
+     de partirse y comerle el alto al gráfico. */
+  @container (max-width: 180px) {
+    .size-normal .header {
+      gap: 8px;
+    }
+    .size-normal .icon {
+      --mdc-icon-size: 32px;
+    }
+    .size-normal .menu {
+      padding: 2px;
+      margin-right: -4px;
+      --mdc-icon-size: 18px;
+    }
   }
 `;

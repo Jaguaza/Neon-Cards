@@ -11,6 +11,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- Sensor Card: ajustes de diseño tras el hueco fijo. Interlineados explícitos en nombre, subtítulo y etiqueta (HA heredaba uno de ~1,5 que engordaba la cabecera y aplastaba el gráfico); en tarjetas estrechas el icono y el menú ⋮ de la mediana se reducen para que el nombre quepa en una línea; y en la pequeña el icono va arriba y el nombre debajo a todo el ancho (antes se quedaba en «Te m….»).
 - Sensor Card: las gráficas se salían de la tarjeta. El alto del contenido dependía del ancho (en tarjetas estrechas el menú ⋮ y el gráfico saltaban a otra línea) y HA reservaba un alto menor. Ahora cada tamaño ocupa un hueco fijo en la rejilla (pequeño 3×2, mediano 6×3, grande 12×4, columnas × filas, sin redimensionar) y el layout no cambia de alto con el ancho: el menú no salta, el nombre ocupa como mucho dos líneas, el valor va arriba y el gráfico rellena el resto. Lo que no quepa se recorta dentro de la tarjeta.
 - Button Card: en tarjetas estrechas los valores del pie de sensores se
   cortaban con «…» («21....»). Ahora el relleno va solo entre sensores, un hueco
@@ -318,6 +319,7 @@ and this project follows [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Sensor Card: design tweaks after the fixed slot. Explicit line-heights on name, subtitle and label (HA inherited ~1.5, which fattened the header and squashed the graph); in narrow cards the medium size's icon and ⋮ menu shrink so the name fits on one line; and in small the icon goes on top with the name below at full width (it used to end up as "Te m…").
 - Sensor Card: the graphs were drawn outside the card. The content height depended on the width (in narrow cards the ⋮ menu and the graph wrapped onto new lines) and HA reserved a smaller height. Each size now takes a fixed slot in the grid (small 3×2, medium 6×3, large 12×4, columns × rows, not resizable) and the layout height no longer changes with width: the menu doesn't wrap, the name takes at most two lines, the value sits on top and the graph fills the rest. Anything that doesn't fit is clipped inside the card.
 - Thermostat Card: each size now takes a fixed slot in the HA grid and can't be resized: small 5×4, medium 8×5 and large 12×5 (columns × rows). In the editor, the "Normal" size is now called "Medium" (the YAML value is still `normal`).
 
