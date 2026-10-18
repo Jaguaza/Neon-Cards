@@ -11,7 +11,7 @@ export const en: ThermostatTranslations = {
   section_appearance: 'Appearance',
   size_label: 'Size',
   size_large: 'Large',
-  size_normal: 'Normal',
+  size_normal: 'Medium',
   size_compact: 'Compact',
   section_colors: 'Colors by state',
   colors_hint: 'Every state the entity supports has a default color — you can change it.',

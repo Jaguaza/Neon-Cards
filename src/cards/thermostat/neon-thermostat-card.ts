@@ -127,26 +127,34 @@ export class NeonThermostatCard extends BaseNeonCard {
     this._prevEntityModes.clear();
   }
 
-  getCardSize(): number {
+  /** Tamaño fijo en la rejilla de Home Assistant, en columnas × filas:
+      pequeña (`compact`) 5×4, mediana (`normal`) 8×5, grande (`large`) 12×5. */
+  private get _gridSize(): { columns: number; rows: number } {
     switch (this._size) {
       case 'large':
-        return 5;
+        return { columns: 12, rows: 5 };
       case 'compact':
-        return 4;
+        return { columns: 5, rows: 4 };
       default:
-        return 6;
+        return { columns: 8, rows: 5 };
     }
   }
 
-  getGridOptions(): { rows: number | 'auto'; columns: number } {
-    switch (this._size) {
-      case 'large':
-        return { rows: 'auto', columns: 12 };
-      case 'compact':
-        return { rows: 'auto', columns: 4 };
-      default:
-        return { rows: 'auto', columns: 6 };
-    }
+  getCardSize(): number {
+    return this._gridSize.rows;
+  }
+
+  getGridOptions(): {
+    rows: number;
+    columns: number;
+    min_rows: number;
+    max_rows: number;
+    min_columns: number;
+    max_columns: number;
+  } {
+    const { columns, rows } = this._gridSize;
+    // min = max = tamaño: la tarjeta queda fija y no se deforma al redimensionar.
+    return { rows, columns, min_rows: rows, max_rows: rows, min_columns: columns, max_columns: columns };
   }
 
   private get _size(): ThermostatSize {

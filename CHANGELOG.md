@@ -16,6 +16,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   no encoge por debajo de su contenido y, si número y unidad no caben juntos,
   se oculta primero la unidad y solo después se recorta el número. El
   separador vertical sigue sin tocar el contenido.
+- Thermostat Card: cada tamaño ocupa ahora un hueco fijo en la rejilla de HA y no se puede redimensionar: pequeña 5×4, mediana 8×5 y grande 12×5 (columnas × filas). En el editor, el tamaño «Normal» pasa a llamarse «Mediana» (el valor de YAML sigue siendo `normal`).
+
 - Lock Card: en iOS (app de HA / WebKit) el halo aparecía ya dibujado al
   abrirse la vista de confirmación, sin la animación del aro. Ahora el halo
   se enciende primero y la vista aparece 120 ms después, y se quita el
@@ -312,6 +314,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+### Fixed
+
+- Thermostat Card: each size now takes a fixed slot in the HA grid and can't be resized: small 5×4, medium 8×5 and large 12×5 (columns × rows). In the editor, the "Normal" size is now called "Medium" (the YAML value is still `normal`).
 
 ## [1.2.0] - 2026-10-11
 

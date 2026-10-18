@@ -21,6 +21,15 @@ alrededor de la temperatura actual, y `compact` no dibuja ningún
 indicador (solo la temperatura y la píldora −/+) ni muestra footer de
 sensores.
 
+Cada tamaño ocupa un hueco **fijo** en la rejilla de Home Assistant
+(columnas × filas) y no se puede redimensionar desde el dashboard:
+
+| `size` | Nombre en el editor | Tamaño |
+|---|---|---|
+| `compact` | Compacta | 5 × 4 |
+| `normal` | Mediana | 8 × 5 |
+| `large` | Grande | 12 × 5 |
+
 ## Config mínima
 
 ```yaml
@@ -164,6 +173,15 @@ with the `size` key (`'large' | 'normal' | 'compact'`, defaulting to
 appears in `large`; `normal` uses a ring around the current
 temperature, and `compact` draws no indicator at all (just the
 temperature and the −/+ pill) and shows no sensor footer.
+
+Each size takes a **fixed** slot in the Home Assistant grid
+(columns × rows) and cannot be resized from the dashboard:
+
+| `size` | Editor name | Size |
+|---|---|---|
+| `compact` | Compact | 5 × 4 |
+| `normal` | Medium | 8 × 5 |
+| `large` | Large | 12 × 5 |
 
 ## Minimal config
 
