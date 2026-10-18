@@ -1,4 +1,4 @@
-import { DEFAULT_SIZE, MIN_COLUMNS, SIZE_COLUMNS } from './constants';
+import { DEFAULT_SIZE, SIZE_GRID } from './constants';
 import type { NeonSensorCardConfig, SensorSize } from './types';
 
 /** Tamaño efectivo: cualquier valor desconocido cae al tamaño mediano. */
@@ -12,7 +12,17 @@ export function hasGraph(size: SensorSize): boolean {
   return size !== 'compact';
 }
 
-/** Opciones de grid de HA (secciones) de cada tamaño. */
-export function gridOptionsFor(size: SensorSize): { rows: 'auto'; columns: number; min_columns: number } {
-  return { rows: 'auto', columns: SIZE_COLUMNS[size], min_columns: MIN_COLUMNS };
+export interface SensorGridOptions {
+  columns: number;
+  rows: number;
+  min_columns: number;
+  max_columns: number;
+  min_rows: number;
+  max_rows: number;
+}
+
+/** Opciones de grid de HA de cada tamaño: hueco fijo (mínimo = máximo). */
+export function gridOptionsFor(size: SensorSize): SensorGridOptions {
+  const { columns, rows } = SIZE_GRID[size];
+  return { columns, rows, min_columns: columns, max_columns: columns, min_rows: rows, max_rows: rows };
 }

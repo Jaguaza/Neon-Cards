@@ -32,19 +32,17 @@ export const THEME_COLOR = 'var(--primary-color)';
 export const DEFAULT_SIZE: SensorSize = 'normal';
 
 /**
- * Columnas del grid de HA (12 por sección) que ocupa cada tamaño. Es el
- * único sitio donde se calibran:
- * - `large`: las 12 columnas, el ancho máximo.
- * - `normal`: el ancho más reducido en el que el valor y el gráfico caben
- *   uno junto al otro sin perder datos.
- * - `compact`: el más pequeño, sin gráfico (nombre, valor, unidad y
- *   etiqueta caben ajustándose en varias líneas).
+ * Hueco FIJO de cada tamaño en el grid de HA (secciones: 12 columnas por
+ * sección, filas de 56 px + 8 px de separación). No es «alto automático»:
+ * con el alto según contenido, el que HA reserva no coincidía con el que
+ * necesitaba el layout y el gráfico se salía de la tarjeta.
+ * - `compact` (3×2): el más pequeño, sin gráfico (nombre, valor, unidad y
+ *   etiqueta).
+ * - `normal` (6×3): cabecera, valor y gráfico.
+ * - `large` (12×4): el ancho máximo, con el gráfico más alto.
  */
-export const SIZE_COLUMNS: Record<SensorSize, number> = {
-  compact: 3,
-  normal: 6,
-  large: 12,
+export const SIZE_GRID: Record<SensorSize, { columns: number; rows: number }> = {
+  compact: { columns: 3, rows: 2 },
+  normal: { columns: 6, rows: 3 },
+  large: { columns: 12, rows: 4 },
 };
-
-/** Mínimo de columnas al redimensionar a mano en el editor de HA. */
-export const MIN_COLUMNS = 3;

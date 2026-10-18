@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { gridOptionsFor, hasGraph, resolveSize } from './sensor-size';
-import { MIN_COLUMNS, SIZE_COLUMNS } from './constants';
+import { SIZE_GRID } from './constants';
 
 describe('resolveSize', () => {
   it('por defecto (y con valores desconocidos) es mediano', () => {
@@ -24,17 +24,22 @@ describe('hasGraph', () => {
 });
 
 describe('gridOptionsFor', () => {
+  it('cada tamaño ocupa un hueco fijo: columnas × filas', () => {
+    expect(SIZE_GRID).toEqual({
+      compact: { columns: 3, rows: 2 },
+      normal: { columns: 6, rows: 3 },
+      large: { columns: 12, rows: 4 },
+    });
+  });
   it('el grande ocupa el ancho máximo (12 columnas)', () => {
     expect(gridOptionsFor('large').columns).toBe(12);
   });
-  it('el pequeño es el más estrecho y el mediano queda en medio', () => {
-    expect(SIZE_COLUMNS.compact).toBeLessThan(SIZE_COLUMNS.normal);
-    expect(SIZE_COLUMNS.normal).toBeLessThan(SIZE_COLUMNS.large);
-    expect(SIZE_COLUMNS.compact).toBe(MIN_COLUMNS);
-  });
-  it('alto automático y mínimo de columnas en todos los tamaños', () => {
+  it('el hueco queda bloqueado: mínimo = máximo en columnas y filas', () => {
     for (const size of ['compact', 'normal', 'large'] as const) {
-      expect(gridOptionsFor(size)).toEqual({ rows: 'auto', columns: SIZE_COLUMNS[size], min_columns: MIN_COLUMNS });
+      const { columns, rows } = SIZE_GRID[size];
+      expect(gridOptionsFor(size)).toEqual({
+        columns, rows, min_columns: columns, max_columns: columns, min_rows: rows, max_rows: rows,
+      });
     }
   });
 });

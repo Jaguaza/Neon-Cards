@@ -14,11 +14,12 @@ import {
   openMoreInfo,
 } from '../../core';
 import { NEON_HALO_STYLES, neonHaloVars } from '../../shared';
-import { DEFAULT_GRAPH_HOURS, ERROR_ICON } from './constants';
+import { DEFAULT_GRAPH_HOURS, ERROR_ICON, SIZE_GRID } from './constants';
 import { HistoryController } from './history-controller';
 import { buildStepPath, buildTracePath, TRACE_HEIGHT, TRACE_WIDTH } from './monitor-trace';
 import { resolveCardColors, resolveEdgeColor, resolveEffect } from './sensor-colors';
 import { gridOptionsFor, hasGraph, resolveSize } from './sensor-size';
+import type { SensorGridOptions } from './sensor-size';
 import { computeSensorStatus } from './sensor-status';
 import type { SensorStatus } from './sensor-status';
 import { isSensorEntity } from './sensor-state';
@@ -92,11 +93,11 @@ export class NeonSensorCard extends BaseNeonCard {
   }
 
   getCardSize(): number {
-    return 2;
+    return SIZE_GRID[resolveSize(this._config)].rows;
   }
 
-  /** Columnas según `size` (ver `SIZE_COLUMNS`); alto automático. */
-  getGridOptions(): { rows: 'auto'; columns: number; min_columns: number } {
+  /** Hueco fijo según `size` (ver `SIZE_GRID`). */
+  getGridOptions(): SensorGridOptions {
     return gridOptionsFor(resolveSize(this._config));
   }
 

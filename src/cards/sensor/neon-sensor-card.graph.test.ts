@@ -325,11 +325,14 @@ describe('NeonSensorCard · tamaños', () => {
     expect(q(el, 'ha-card')!.classList.contains('size-normal')).toBe(true);
   });
 
-  it('el grid de HA: grande a 12 columnas, mediano 6, pequeño 3, alto automático', async () => {
-    expect(grid(await mount({ size: 'large' }))).toEqual({ rows: 'auto', columns: 12, min_columns: 3 });
-    expect(grid(await mount({ size: 'normal' }))).toEqual({ rows: 'auto', columns: 6, min_columns: 3 });
-    expect(grid(await mount({ size: 'compact' }))).toEqual({ rows: 'auto', columns: 3, min_columns: 3 });
-    expect(grid(await mount({}))).toEqual({ rows: 'auto', columns: 6, min_columns: 3 });
+  it('el grid de HA: hueco fijo — grande 12×4, mediano 6×3 (por defecto), pequeño 3×2', async () => {
+    const fixed = (columns: number, rows: number) => ({
+      columns, rows, min_columns: columns, max_columns: columns, min_rows: rows, max_rows: rows,
+    });
+    expect(grid(await mount({ size: 'large' }))).toEqual(fixed(12, 4));
+    expect(grid(await mount({ size: 'normal' }))).toEqual(fixed(6, 3));
+    expect(grid(await mount({ size: 'compact' }))).toEqual(fixed(3, 2));
+    expect(grid(await mount({}))).toEqual(fixed(6, 3));
   });
 
   it('el pequeño no pide el histórico; el mediano sí', async () => {

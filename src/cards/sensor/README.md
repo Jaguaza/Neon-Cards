@@ -20,19 +20,21 @@ No lleva pie de sensores: es una tarjeta de una sola entidad.
 Se elige con `size` (como en la Thermostat Card). Hay tres: dos con
 gráfico y uno sin gráfico.
 
-| `size` | Tamaño | Gráfico | Columnas por defecto (12 por sección) |
+| `size` | Tamaño | Gráfico | Columnas × filas (fijas) |
 |---|---|---|---|
-| `large` | Grande: el ancho máximo | Sí | 12 |
-| `normal` (por defecto) | Mediano: lo más reducido en que valor y gráfico caben juntos | Sí | 6 |
-| `compact` | Pequeño: lo más pequeño posible | No | 3 |
+| `large` | Grande: el ancho máximo | Sí | 12 × 4 |
+| `normal` (por defecto) | Mediano | Sí | 6 × 3 |
+| `compact` | Pequeño: lo más pequeño posible | No | 3 × 2 |
 
-En ningún tamaño se corta nada fuera de la tarjeta: nombre, valor,
-unidad y etiqueta se ajustan en varias líneas y, en el mediano, si el
-gráfico no cabe junto al valor pasa a su propia línea. En el pequeño se
+Cada tamaño ocupa un hueco **fijo** en la rejilla de HA y no se puede
+redimensionar desde el dashboard. El contenido está pensado para que su
+alto no dependa del ancho de la tarjeta: el menú ⋮ no salta de línea, el
+nombre ocupa como mucho dos líneas (el subtítulo se abrevia con «…»), el
+valor va arriba y el gráfico rellena el alto que queda. Lo que no cupiera
+se recorta dentro de la tarjeta, nunca se pinta fuera. En el pequeño se
 ocultan el menú ⋮ y el subtítulo «Sensor» (tocar la tarjeta abre igualmente
-«más información») y no se pide el histórico. Las columnas se pueden
-cambiar a mano en el editor de HA (mínimo 3) o con `grid_options`; los
-valores por defecto están en `SIZE_COLUMNS` (`constants.ts`).
+«más información») y no se pide el histórico. Los tamaños están en
+`SIZE_GRID` (`constants.ts`).
 
 ```yaml
 type: custom:neon-sensor-card
@@ -184,19 +186,21 @@ It has no sensor footer: it is a single-entity card.
 Chosen with `size` (like the Thermostat Card). There are three: two with
 a graph and one without.
 
-| `size` | Size | Graph | Default columns (12 per section) |
+| `size` | Size | Graph | Columns × rows (fixed) |
 |---|---|---|---|
-| `large` | Large: full width | Yes | 12 |
-| `normal` (default) | Medium: the narrowest where value and graph fit side by side | Yes | 6 |
-| `compact` | Small: as small as possible | No | 3 |
+| `large` | Large: full width | Yes | 12 × 4 |
+| `normal` (default) | Medium | Yes | 6 × 3 |
+| `compact` | Small: as small as possible | No | 3 × 2 |
 
-Nothing is clipped outside the card at any size: name, value, unit and
-label wrap onto several lines and, in medium, if the graph does not fit
-beside the value it moves to its own line. In small the ⋮ menu and the
-"Sensor" subtitle are hidden (tapping the card still opens "more info")
-and history is not requested. Columns can be changed by hand in HA's
-editor (minimum 3) or with `grid_options`; the defaults live in
-`SIZE_COLUMNS` (`constants.ts`).
+Each size takes a **fixed** slot in the HA grid and cannot be resized from
+the dashboard. The content is built so that its height does not depend on
+the card's width: the ⋮ menu never wraps onto its own line, the name takes
+at most two lines (the subtitle is cut with "…"), the value sits on top
+and the graph fills the remaining height. Anything that doesn't fit is
+clipped inside the card, never drawn outside it. In small the ⋮ menu and
+the "Sensor" subtitle are hidden (tapping the card still opens "more
+info") and history is not requested. The sizes live in `SIZE_GRID`
+(`constants.ts`).
 
 ```yaml
 type: custom:neon-sensor-card

@@ -4,10 +4,13 @@ import { css } from 'lit';
  * Estilos propios de Sensor Card (acuerdo nº7: separados del componente).
  * El tamaño lo da la clave `size` (clase `size-compact|normal|large` en
  * `ha-card`): `compact` es el más pequeño y sin gráfico; `normal` y
- * `large` llevan gráfico. Nada se recorta fuera de la tarjeta: nombre,
- * valor y etiqueta se ajustan en varias líneas y el gráfico pasa a su
- * propia línea si no cabe junto al valor. `container-type` permite que
- * el valor escale con el ancho real (`cqi`).
+ * `large` llevan gráfico. Cada tamaño ocupa un hueco FIJO de la rejilla
+ * de HA (ver `SIZE_GRID`), así que el alto del contenido no puede depender
+ * del ancho: la cabecera no salta de línea (el nombre se parte en dos
+ * líneas como mucho y el subtítulo se abrevia), el valor va arriba y el
+ * gráfico rellena el alto que sobra. `overflow: hidden` es la red de
+ * seguridad: nada se pinta fuera de la tarjeta. `container-type` permite
+ * que el valor escale con el ancho real (`cqi`).
  */
 export const NEON_SENSOR_CARD_STYLES = css`
   :host {
@@ -19,6 +22,7 @@ export const NEON_SENSOR_CARD_STYLES = css`
     box-sizing: border-box;
     height: 100%;
     padding: 12px 14px 10px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -39,7 +43,7 @@ export const NEON_SENSOR_CARD_STYLES = css`
   .header {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
+    flex: none;
     gap: 10px;
   }
   /* Icono sin círculo: ocupa el tamaño que antes tenía el círculo que lo
@@ -49,17 +53,26 @@ export const NEON_SENSOR_CARD_STYLES = css`
     --mdc-icon-size: 40px;
   }
   .texts {
-    flex: 1 1 56px;
+    flex: 1 1 0;
     min-width: 0;
     display: flex;
     flex-direction: column;
   }
   .name {
+    /* Como mucho dos líneas (la altura de la cabecera no crece). */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
     overflow-wrap: anywhere;
     font-weight: 500;
     color: var(--primary-text-color);
   }
   .kind {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 0.85em;
     color: var(--secondary-text-color);
   }
@@ -73,11 +86,14 @@ export const NEON_SENSOR_CARD_STYLES = css`
     --mdc-icon-size: 20px;
   }
 
+  /* Valor arriba y gráfico debajo ocupando lo que sobra: el alto lo da el
+     hueco de la rejilla, no el ancho de la tarjeta. */
   .body {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 14px;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    gap: 6px;
   }
   .reading {
     flex: 0 1 auto;
@@ -122,9 +138,9 @@ export const NEON_SENSOR_CARD_STYLES = css`
   /* ---- Gráfico: trazo de monitor de constantes vitales ---- */
   .graph {
     position: relative;
-    flex: 1 1 72px;
-    min-width: 72px;
-    height: 40px;
+    flex: 1 1 28px;
+    min-width: 0;
+    min-height: 28px;
   }
   .graph svg {
     position: absolute;
@@ -167,7 +183,7 @@ export const NEON_SENSOR_CARD_STYLES = css`
      viajan juntos con la ventana. */
   .sweep {
     position: absolute;
-    inset: -14px -8px;
+    inset: -8px;
     -webkit-mask-image: linear-gradient(
       90deg,
       transparent 14%,
@@ -183,9 +199,9 @@ export const NEON_SENSOR_CARD_STYLES = css`
     animation: monitor-sweep 6.5s linear infinite;
   }
   .sweep svg {
-    inset: 14px 8px;
+    inset: 8px;
     width: calc(100% - 16px);
-    height: calc(100% - 28px);
+    height: calc(100% - 16px);
   }
   /* De 75% (cabeza en el borde izquierdo) a -28% (la estela entera ya
      fuera por la derecha): al reiniciar el bucle no hay salto. */
@@ -232,6 +248,10 @@ export const NEON_SENSOR_CARD_STYLES = css`
   .size-compact .menu {
     display: none;
   }
+  /* Sin gráfico: el valor queda abajo, pegado al pie de la tarjeta. */
+  .size-compact .body {
+    justify-content: flex-end;
+  }
   .size-compact .value {
     font-size: clamp(1.25em, 22cqi, 1.9em);
   }
@@ -252,9 +272,8 @@ export const NEON_SENSOR_CARD_STYLES = css`
     font-size: clamp(2.2em, 12cqi, 3em);
   }
   .size-large .graph {
-    flex-basis: 120px;
-    min-width: 120px;
-    height: 64px;
+    flex-basis: 48px;
+    min-height: 48px;
   }
   .size-large .trace {
     stroke-width: 3.5px;
