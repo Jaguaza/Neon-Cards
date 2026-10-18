@@ -128,8 +128,9 @@ export const NEON_BUTTON_CARD_STYLES = css`
        va centrado en él: así los sensores se reparten por toda la fila (no
        se amontonan a un lado) y, como todos tienen la misma holgura, el
        separador queda a la misma distancia de los dos sensores que separa.
-       Si la tarjeta es tan estrecha que no cabe todo, los huecos encogen a
-       la vez y el valor se trunca con puntos suspensivos, nunca se pisa. */
+       Si la tarjeta es tan estrecha que no cabe todo, primero se oculta la
+       unidad de cada valor y solo después se recorta el número; el
+       separador nunca toca el contenido. */
     display: flex;
     align-items: center;
     width: 100%;
@@ -141,19 +142,27 @@ export const NEON_BUTTON_CARD_STYLES = css`
     align-items: center;
     justify-content: center;
     gap: 4px;
-    min-width: 0;
-    /* Relleno a ambos lados: nunca menos que esto entre el contenido y un
-       separador, ni siquiera con la tarjeta al límite. */
+    /* Sin «min-width: 0»: un hueco no puede encoger por debajo de su
+       contenido (icono + la palabra más ancha del valor), así el contenido
+       no se recorta antes de tiempo ni se pisa con el vecino. */
+    /* Relleno solo ENTRE sensores (ver first/last-child): es lo que separa
+       el contenido del separador, sin gastar ancho en los extremos. */
     padding: 0 8px;
     font-size: 11px;
     line-height: 14px;
     color: var(--secondary-text-color);
   }
+  .sensor:first-child {
+    padding-left: 0;
+  }
+  .sensor:last-child {
+    padding-right: 0;
+  }
   /* Con 1 solo sensor no hay "huecos" que repartir — se queda a la
      izquierda en vez de centrado en toda la tarjeta. */
   .sensors.sensors-single .sensor {
     flex: 0 1 auto;
-    padding-left: 0;
+    padding: 0;
   }
   .sensor.sensor--divided {
     /* Separador como borde del propio hueco (que ocupa todo su ancho), no
@@ -191,6 +200,29 @@ export const NEON_BUTTON_CARD_STYLES = css`
        seguridad, ya no hace falta un mínimo grande. */
     min-width: 2ch;
   }
+  /* Valor de los sensores agrupados: número y unidad en una caja flex de
+     una línea de alto. Si no caben juntos, la unidad pasa a una segunda
+     línea que la altura fija recorta — se oculta la unidad ANTES de
+     recortar el número. El número solo se recorta (con «…») cuando él solo
+     ya no cabe. */
+  .sensor .value {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: center;
+    column-gap: 0.28em;
+    height: 14px;
+    min-width: min-content;
+  }
+  .sensor .num {
+    max-width: 10ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .sensor .unit {
+    white-space: nowrap;
+  }
 
   /* Tarjeta MUY estrecha (móvil en listados densos, 2-3 tarjetas por
      fila): reduce icono/tipografía antes de necesitar el salto de
@@ -212,7 +244,7 @@ export const NEON_BUTTON_CARD_STYLES = css`
       font-size: 9px;
     }
     .sensor {
-      padding: 0 5px;
+      padding: 0 4px;
     }
   }
 `;

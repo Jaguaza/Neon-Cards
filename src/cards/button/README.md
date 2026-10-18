@@ -73,8 +73,9 @@ con icono + estado + unidad.
   separador vertical entre cada uno para mantenerla legible.
   Los sensores se reparten por toda la fila, cada uno centrado en su hueco
   y con el separador a la misma distancia de los dos que separa. Si la
-  tarjeta es tan estrecha que no caben, el valor se trunca con puntos
-  suspensivos antes de pisar el separador.
+  tarjeta es tan estrecha que no caben, se oculta primero la unidad de cada
+  valor y solo después se recorta el número; el separador nunca toca el
+  contenido.
 
 Cada sensor (`top_sensor` o cualquier elemento de `sensors`) admite
 `icon` (si no se indica, se calcula automáticamente por `device_class`)
@@ -191,8 +192,9 @@ icon, state, and unit are always read automatically from Home Assistant.
   vertical separator between each one to keep it readable.
   The sensors share the whole row, each one centred in its own slot, with
   the separator at the same distance from the two it separates. If the card
-  is so narrow that they do not fit, the value is truncated with an ellipsis
-  before it overlaps the separator.
+  is so narrow that they do not fit, the unit of each value is hidden first
+  and only then is the number clipped; the separator never touches the
+  content.
 
 Each sensor (`top_sensor` or any item in `sensors`) accepts `icon` (auto
 by `device_class` when omitted) and `decimals` (defaults to 1) to round

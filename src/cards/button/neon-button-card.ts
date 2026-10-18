@@ -262,7 +262,7 @@ export class NeonButtonCard extends BaseNeonCard {
           (d, i) => html`
             <div class="sensor ${i > 0 ? 'sensor--divided' : ''}">
               <ha-icon icon=${d.icon}></ha-icon>
-              <span class="value">${d.state}${d.unit ? ` ${d.unit}` : ''}</span>
+              <span class="value"><span class="num">${d.state}</span>${d.unit ? html` <span class="unit">${d.unit}</span>` : nothing}</span>
             </div>
           `
         )}

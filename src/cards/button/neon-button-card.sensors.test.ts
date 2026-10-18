@@ -29,7 +29,8 @@ async function mount(sensors: unknown[]): Promise<Card> {
   return el;
 }
 
-const css = NEON_BUTTON_CARD_STYLES.cssText;
+// Sin comentarios: los tests miran las declaraciones, no lo que dicen las notas del CSS.
+const css = NEON_BUTTON_CARD_STYLES.cssText.replace(/\/\*[\s\S]*?\*\//g, '');
 /** Declaraciones de la primera regla con ese selector exacto (o de la que sigue a `after`). */
 function rule(selector: string, after = ''): string {
   const from = after ? css.indexOf(after) : 0;
@@ -47,6 +48,13 @@ describe('pie de sensores de la Button Card', () => {
     expect(Array.from(row.querySelectorAll('.sensor')).map((s) => s.classList.contains('sensor--divided'))).toEqual([false, true, true]);
     expect(row.getAttribute('style')).toBeNull(); // sin rejilla de columnas fijas
     expect(row.classList.contains('sensors-single')).toBe(false);
+  });
+
+  it('cada valor separa el número de la unidad; sin unidad (binary_sensor) no hay .unit', async () => {
+    const sensors = Array.from((await mount(three)).shadowRoot!.querySelectorAll('.sensor'));
+    const parts = sensors.map((s) => [s.querySelector('.value .num')?.textContent, s.querySelector('.value .unit')?.textContent]);
+    expect(parts).toEqual([['23.06', '°C'], ['60.82', '%'], ['off', undefined]]);
+    expect(sensors[0].querySelector('.value')!.textContent!.trim()).toBe('23.06 °C'); // el texto accesible sigue siendo «23.06 °C»
   });
 
   it('con un solo sensor la fila es sensors-single y sin separador', async () => {
@@ -67,12 +75,28 @@ describe('pie de sensores de la Button Card', () => {
       expect(sensors).not.toContain('grid');
     });
 
-    it('cada sensor ocupa su hueco entero, centra su contenido y lleva relleno a ambos lados', () => {
+    it('cada sensor ocupa su hueco entero, centra su contenido y lleva relleno a ambos lados, sin min-width: 0', () => {
       const sensor = rule('.sensor');
       expect(sensor).toContain('flex: 1 1 auto');
       expect(sensor).toContain('justify-content: center');
       expect(sensor).toMatch(/padding:\s*0 8px/);
-      expect(sensor).toContain('min-width: 0'); // permite truncar el valor en vez de desbordar
+      expect(sensor).not.toContain('min-width'); // un hueco no encoge por debajo de su contenido
+    });
+
+    it('el relleno solo va ENTRE sensores: ni el primero a la izquierda ni el último a la derecha, y el sensor único sin relleno', () => {
+      expect(rule('.sensor:first-child')).toMatch(/padding-left:\s*0/);
+      expect(rule('.sensor:last-child')).toMatch(/padding-right:\s*0/);
+      expect(rule('.sensors.sensors-single .sensor')).toMatch(/padding:\s*0;/);
+    });
+
+    it('número y unidad son cajas separadas: la unidad pasa a una segunda línea recortada antes de recortar el número', () => {
+      const value = rule('.sensor .value', '.top-sensor .value {');
+      expect(value).toContain('display: flex');
+      expect(value).toContain('flex-wrap: wrap');
+      expect(value).toContain('height: 14px');
+      expect(value).toContain('min-width: min-content');
+      expect(rule('.sensor .num')).toContain('text-overflow: ellipsis');
+      expect(rule('.sensor .unit')).toContain('white-space: nowrap');
     });
 
     it('el separador es el borde del hueco y no añade un relleno asimétrico', () => {
@@ -81,7 +105,7 @@ describe('pie de sensores de la Button Card', () => {
       expect(divided).not.toContain('padding');
     });
 
-    it('el valor se trunca con puntos suspensivos antes de pisar el separador', () => {
+    it('la regla base del valor mantiene el recorte con puntos suspensivos como último recurso', () => {
       const value = rule('.sensor .value,\n  .top-sensor .value');
       expect(value).toContain('overflow: hidden');
       expect(value).toContain('text-overflow: ellipsis');
@@ -89,7 +113,7 @@ describe('pie de sensores de la Button Card', () => {
 
     it('en tarjeta muy estrecha el relleno baja, pero sigue siendo simétrico', () => {
       const narrow = rule('.sensor', '@container (max-width: 220px)');
-      expect(narrow).toMatch(/padding:\s*0 5px/);
+      expect(narrow).toMatch(/padding:\s*0 4px/);
       expect(narrow).not.toContain('padding-left');
     });
   });

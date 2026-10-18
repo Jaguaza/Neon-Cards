@@ -11,6 +11,11 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- Button Card: en tarjetas estrechas los valores del pie de sensores se
+  cortaban con «…» («21....»). Ahora el relleno va solo entre sensores, un hueco
+  no encoge por debajo de su contenido y, si número y unidad no caben juntos,
+  se oculta primero la unidad y solo después se recorta el número. El
+  separador vertical sigue sin tocar el contenido.
 - Lock Card: en iOS (app de HA / WebKit) el halo aparecía ya dibujado al
   abrirse la vista de confirmación, sin la animación del aro. Ahora el halo
   se enciende primero y la vista aparece 120 ms después, y se quita el
@@ -448,6 +453,11 @@ the framework evolves without being redesigned.
 
 ### Fixed
 
+- Button Card: in narrow cards the values in the sensor footer were cut off
+  with "…" ("21...."). Padding now goes only between sensors, a slot no longer
+  shrinks below its content and, when number and unit do not fit together, the
+  unit is hidden first and only then is the number clipped. The vertical
+  separator still never touches the content.
 - `NeonPreset.name` restored: the translation infrastructure had broken
   the frozen surface without going through the exception process.
 
