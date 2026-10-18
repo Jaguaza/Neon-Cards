@@ -123,21 +123,28 @@ export const NEON_BUTTON_CARD_STYLES = css`
     color: var(--secondary-text-color);
   }
   .sensors {
-    /* Cuadrícula de N columnas iguales (una por sensor, calculada al
-       renderizar) — cada sensor centrado dentro de su propio hueco,
-       no el grupo entero centrado en bloque. Así 2 sensores no quedan
-       amontonados en el medio: cada uno tiene su mitad de la fila. */
-    display: grid;
+    /* Fila de huecos, uno por sensor. Cada hueco mide lo que ocupa su
+       contenido más un reparto IGUAL del espacio sobrante, y el contenido
+       va centrado en él: así los sensores se reparten por toda la fila (no
+       se amontonan a un lado) y, como todos tienen la misma holgura, el
+       separador queda a la misma distancia de los dos sensores que separa.
+       Si la tarjeta es tan estrecha que no cabe todo, los huecos encogen a
+       la vez y el valor se trunca con puntos suspensivos, nunca se pisa. */
+    display: flex;
     align-items: center;
     width: 100%;
     min-width: 0;
   }
   .sensor {
+    flex: 1 1 auto;
     display: flex;
     align-items: center;
-    justify-self: center;
+    justify-content: center;
     gap: 4px;
     min-width: 0;
+    /* Relleno a ambos lados: nunca menos que esto entre el contenido y un
+       separador, ni siquiera con la tarjeta al límite. */
+    padding: 0 8px;
     font-size: 11px;
     line-height: 14px;
     color: var(--secondary-text-color);
@@ -145,13 +152,14 @@ export const NEON_BUTTON_CARD_STYLES = css`
   /* Con 1 solo sensor no hay "huecos" que repartir — se queda a la
      izquierda en vez de centrado en toda la tarjeta. */
   .sensors.sensors-single .sensor {
-    justify-self: start;
+    flex: 0 1 auto;
+    padding-left: 0;
   }
   .sensor.sensor--divided {
-    /* Separador como borde en vez de un elemento aparte — así no
-       cuenta como columna extra en la cuadrícula. */
+    /* Separador como borde del propio hueco (que ocupa todo su ancho), no
+       del contenido: queda justo en la frontera entre dos huecos, con el
+       relleno de arriba a cada lado. */
     border-left: 1px solid var(--divider-color, rgba(255, 255, 255, 0.12));
-    padding-left: 12px;
   }
   .sensor ha-icon,
   .top-sensor ha-icon {
@@ -203,8 +211,8 @@ export const NEON_BUTTON_CARD_STYLES = css`
     .top-sensor .value {
       font-size: 9px;
     }
-    .sensor.sensor--divided {
-      padding-left: 8px;
+    .sensor {
+      padding: 0 5px;
     }
   }
 `;

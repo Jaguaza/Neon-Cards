@@ -71,6 +71,10 @@ con icono + estado + unidad.
   sin agrupar.
 - `sensors` (opcional, máximo 3): fila agrupada bajo el divisor, con un
   separador vertical entre cada uno para mantenerla legible.
+  Los sensores se reparten por toda la fila, cada uno centrado en su hueco
+  y con el separador a la misma distancia de los dos que separa. Si la
+  tarjeta es tan estrecha que no caben, el valor se trunca con puntos
+  suspensivos antes de pisar el separador.
 
 Cada sensor (`top_sensor` o cualquier elemento de `sensors`) admite
 `icon` (si no se indica, se calcula automáticamente por `device_class`)
@@ -185,6 +189,10 @@ icon, state, and unit are always read automatically from Home Assistant.
 - `top_sensor` (optional): a single, ungrouped sensor above the divider.
 - `sensors` (optional, max 3): the grouped row below the divider, with a
   vertical separator between each one to keep it readable.
+  The sensors share the whole row, each one centred in its own slot, with
+  the separator at the same distance from the two it separates. If the card
+  is so narrow that they do not fit, the value is truncated with an ellipsis
+  before it overlaps the separator.
 
 Each sensor (`top_sensor` or any item in `sensors`) accepts `icon` (auto
 by `device_class` when omitted) and `decimals` (defaults to 1) to round

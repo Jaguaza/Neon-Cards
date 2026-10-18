@@ -257,7 +257,7 @@ export class NeonButtonCard extends BaseNeonCard {
     if (!displays.length) return nothing;
 
     return html`
-      <div class="sensors ${displays.length === 1 ? 'sensors-single' : ''}" style="grid-template-columns: repeat(${displays.length}, 1fr);">
+      <div class="sensors ${displays.length === 1 ? 'sensors-single' : ''}">
         ${displays.map(
           (d, i) => html`
             <div class="sensor ${i > 0 ? 'sensor--divided' : ''}">
