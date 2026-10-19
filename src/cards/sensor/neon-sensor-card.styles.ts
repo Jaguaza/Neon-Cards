@@ -245,16 +245,19 @@ export const NEON_SENSOR_CARD_STYLES = css`
   }
 
   /* Pequeño: el más compacto posible y sin gráfico (no se pinta). Se
-     quitan el menú ⋮ y el subtítulo para ganar sitio; tocar la tarjeta
-     abre igualmente «más información». Nada se corta: se ajusta. */
+     quita el menú ⋮ para ganar sitio; tocar la tarjeta abre igualmente
+     «más información». Mide lo que necesita su contenido (height: auto) en
+     vez de estirarse hasta rellenar las 2 filas de la rejilla; siempre
+     cabe en ellas, así que nunca se sale. */
   .size-compact {
-    padding: 10px 10px 8px;
-    gap: 4px;
+    height: auto;
+    padding: 8px 10px 7px;
+    gap: 3px;
   }
   .size-compact .header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
+    gap: 3px;
   }
   .size-compact .icon {
     --mdc-icon-size: 30px;
