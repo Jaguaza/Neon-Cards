@@ -892,13 +892,17 @@ siempre se deriva del modo HVAC actual (`HVAC_MODE_ICONS`).
 ### `getGridOptions()` — tamaño según `size`
 
 A diferencia de Button, el tamaño no se calcula del contenido — lo
-elige directamente la clave `size`:
+elige directamente la clave `size`, y cada tamaño ocupa un hueco **fijo**
+en la rejilla (`min_*` = `max_*`, así que no se redimensiona). En el
+editor, `normal` se llama «Mediana».
 
 | `size` | `columns` | `rows` |
 |---|---|---|
-| `'compact'` | `4` | `'auto'` |
-| `'normal'` (por defecto) | `6` | `'auto'` |
-| `'large'` | `12` | `'auto'` |
+| `'compact'` | `5` | `4` |
+| `'normal'` (por defecto) | `8` | `5` |
+| `'large'` | `12` | `5` |
+
+`getCardSize()` devuelve las `rows` del tamaño elegido.
 
 ### Ejemplo completo
 
@@ -935,10 +939,10 @@ Todas las claves de `NeonSensorCardConfig`
 |---|---|---|---|
 | `entity` | `string` | — (requerida) | Entidad `sensor.*` o `binary_sensor.*`. Cualquier otro dominio se rechaza con un error de configuración. |
 | `name` | `string` | `friendly_name` de la entidad | Título de la tarjeta. |
-| `subtitle` | `string` | `Sensor` / `Sensor binario` | Texto bajo el título. Si falta o está en blanco, se muestra el de por defecto. No se muestra en el tamaño `compact`. |
+| `subtitle` | `string` | `Sensor` / `Sensor binario` | Texto bajo el título. Si falta o está en blanco, se muestra el de por defecto. Se muestra en los tres tamaños. |
 | `show_subtitle` | `boolean` | `true` | `false` oculta el subtítulo por completo (también el personalizado, que se conserva). |
 | `icon` | `string` | calculado por `device_class` | Icono propio. |
-| `decimals` | `number` | `1` | Decimales del valor (solo `sensor` numérico). |
+| `decimals` | `number` | `1` | Decimales del valor (solo `sensor` numérico). Se ignora en el tamaño `compact`, que siempre muestra un decimal (`xx.x`); el editor no ofrece el campo ahí. |
 | `size` | `'large' \| 'normal' \| 'compact'` | `'normal'` | Tamaño: `large` = grande, ancho máximo (12 columnas) con gráfico; `normal` = mediano (6 columnas) con gráfico; `compact` = pequeño (3 columnas), sin gráfico ni consulta de histórico. Ver `getGridOptions()`. |
 | `graph_hours` | `number` | `24` | Horas de histórico del gráfico. Solo con `size` `normal` o `large`. |
 | `neon_effect` | `'normal' \| 'halo' \| 'single'` | `'halo'` | Efecto de color del gráfico y del icono (no del perímetro): `halo` = gráfico y resplandor en tres colores con desplazamiento; `single` = un solo color con desplazamiento; `normal` = color del tema, sin desplazamiento. |
@@ -959,19 +963,24 @@ No lleva pie de sensores.
 
 ### `getGridOptions()` — tamaño según `size`
 
-Igual que la Thermostat Card, el tamaño se elige con `size`. Las columnas
-salen de `SIZE_COLUMNS` (`src/cards/sensor/constants.ts`) y el alto es
-automático; `min_columns` es `3` en todos.
+Igual que la Thermostat Card, el tamaño se elige con `size` y cada tamaño
+ocupa un hueco **fijo** de la rejilla (`SIZE_GRID` en
+`src/cards/sensor/constants.ts`; `min_*` = `max_*`, así que no se
+redimensiona).
 
 | `size` | Tamaño | Gráfico | `columns` | `rows` |
 |---|---|---|---|---|
-| `'compact'` | Pequeño | No | `3` | `'auto'` |
-| `'normal'` (por defecto) | Mediano | Sí | `6` | `'auto'` |
-| `'large'` | Grande (ancho máximo) | Sí | `12` | `'auto'` |
+| `'compact'` | Pequeño | No | `3` | `2` |
+| `'normal'` (por defecto) | Mediano | Sí | `6` | `2` |
+| `'large'` | Grande (ancho máximo) | Sí | `12` | `2` |
 
-Nada se corta fuera de la tarjeta: los textos se ajustan en varias líneas
-y, si en el mediano el gráfico no cabe junto al valor, pasa a su propia
-línea.
+`getCardSize()` devuelve las `rows` del tamaño elegido. El alto del
+contenido no depende del ancho: el menú ⋮ no salta de línea, el nombre
+ocupa como mucho dos líneas y el valor y el gráfico van en la misma fila
+(el gráfico se encoge en vez de saltar). Nada se pinta fuera de la
+tarjeta: lo que no cupiera se recorta dentro. La tarjeta pequeña mide lo
+que necesita su contenido (≈ 90 px sin subtítulo, ≈ 103 px con él) en vez
+de rellenar sus 2 filas.
 
 ### Ejemplo completo
 

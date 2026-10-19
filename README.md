@@ -157,11 +157,11 @@ Termostato con dial neón arrastrable, color por modo y soporte para **una o dos
 
 ### **Tres vistas**
 
-| Vista (`size`) | Qué muestra | Ancho en el grid |
+| Vista (`size`) | Qué muestra | Tamaño fijo en el grid (columnas × filas) |
 |---|---|---|
-| `large` | Temperatura actual a la izquierda y dial semicircular arrastrable a la derecha, con selectores de modo, preset y ventilador | 12 columnas |
-| `normal` *(predeterminada)* | Aro semicircular arrastrable alrededor de la temperatura actual | 6 columnas |
-| `compact` | Temperatura actual y píldora −/+, sin indicador gráfico ni sensores de pie | 4 columnas |
+| `large` | Temperatura actual a la izquierda y dial semicircular arrastrable a la derecha, con selectores de modo, preset y ventilador | 12 × 5 |
+| `normal` *(predeterminada; «Mediana» en el editor)* | Aro semicircular arrastrable alrededor de la temperatura actual | 8 × 5 |
+| `compact` | Temperatura actual y píldora −/+, sin indicador gráfico ni sensores de pie | 5 × 4 |
 
 La consigna se ajusta arrastrando el dial o el aro (en `large` y `normal`) o con la píldora **−/+** (en las tres vistas). El salto lo marca `step`; si no lo indicas, se usa el de la entidad y, si no tiene, 0,5 °.
 
@@ -239,13 +239,13 @@ Tarjeta de solo lectura para **una** entidad `sensor` o `binary_sensor`: nombre,
 
 ### **Tres tamaños**
 
-| Tamaño (`size`) | Qué muestra | Ancho en el grid |
+| Tamaño (`size`) | Qué muestra | Tamaño fijo en el grid (columnas × filas) |
 |---|---|---|
-| `large` | Valor y gráfico, a todo el ancho | 12 columnas |
-| `normal` *(predeterminado)* | Valor y gráfico, en lo más reducido en que caben juntos (si no caben, el gráfico pasa a su propia línea) | 6 columnas |
-| `compact` | Nombre, valor, unidad y etiqueta, sin gráfico ni menú ⋮ | 3 columnas |
+| `large` | Cabecera arriba; debajo, el valor y la etiqueta del umbral a la izquierda y el gráfico a la derecha | 12 × 2 |
+| `normal` *(predeterminado)* | Cabecera y, debajo, el valor y el gráfico en la misma fila (el gráfico se encoge en vez de saltar de línea) | 6 × 2 |
+| `compact` | Nombre, subtítulo, valor (siempre con un decimal, `xx.x`) y etiqueta, sin gráfico ni menú ⋮ | 3 × 2 |
 
-En ningún tamaño se corta nada fuera de la tarjeta: los textos se ajustan en varias líneas.
+Cada tamaño ocupa un hueco fijo y no se redimensiona desde el dashboard. Nada se pinta fuera de la tarjeta: lo que no cupiera se recorta dentro. La tarjeta pequeña mide lo que necesita su contenido (≈ 90 px sin subtítulo) en vez de rellenar sus 2 filas.
 
 ### **Efecto de color del gráfico**
 
@@ -501,11 +501,11 @@ Thermostat with a draggable neon dial, a color per mode and support for **one or
 
 ### **Three views**
 
-| View (`size`) | What it shows | Width in the grid |
+| View (`size`) | What it shows | Fixed grid size (columns × rows) |
 |---|---|---|
-| `large` | Current temperature on the left and a draggable semicircular dial on the right, with mode, preset and fan selectors | 12 columns |
-| `normal` *(default)* | Draggable semicircular ring around the current temperature | 6 columns |
-| `compact` | Current temperature and a −/+ pill, with no graphic indicator or sensor footer | 4 columns |
+| `large` | Current temperature on the left and a draggable semicircular dial on the right, with mode, preset and fan selectors | 12 × 5 |
+| `normal` *(default; "Medium" in the editor)* | Draggable semicircular ring around the current temperature | 8 × 5 |
+| `compact` | Current temperature and a −/+ pill, with no graphic indicator or sensor footer | 5 × 4 |
 
 The target is adjusted by dragging the dial or ring (in `large` and `normal`) or with the **−/+** pill (in all three views). The jump is set by `step`; if you omit it, the entity's own step is used and, if it has none, 0.5°.
 
@@ -582,13 +582,13 @@ Read-only card for **one** `sensor` or `binary_sensor` entity: name, icon, value
 
 ### **Three sizes**
 
-| Size (`size`) | What it shows | Width in the grid |
+| Size (`size`) | What it shows | Fixed grid size (columns × rows) |
 |---|---|---|
-| `large` | Value and graph, at full width | 12 columns |
-| `normal` *(default)* | Value and graph, as narrow as they fit together (if they don't, the graph moves to its own line) | 6 columns |
-| `compact` | Name, value, unit and label, with no graph or ⋮ menu | 3 columns |
+| `large` | Header on top; below, the value and threshold label on the left and the graph on the right | 12 × 2 |
+| `normal` *(default)* | Header and, below, the value and graph in the same row (the graph shrinks instead of wrapping) | 6 × 2 |
+| `compact` | Name, subtitle, value (always one decimal, `xx.x`) and label, with no graph or ⋮ menu | 3 × 2 |
 
-At no size is anything cut off outside the card: texts wrap onto several lines.
+Each size takes a fixed slot and cannot be resized from the dashboard. Nothing is drawn outside the card: anything that doesn't fit is clipped inside. The small card measures what its content needs (≈ 90 px without subtitle) instead of filling its 2 rows.
 
 ### **Graph color effect**
 

@@ -890,13 +890,17 @@ always derived from the current HVAC mode (`HVAC_MODE_ICONS`).
 ### `getGridOptions()` — size driven by `size`
 
 Unlike Button, the size isn't computed from content — it's chosen
-directly by the `size` key:
+directly by the `size` key, and each size takes a **fixed** slot in the
+grid (`min_*` = `max_*`, so it can't be resized). In the editor, `normal`
+is called "Medium".
 
 | `size` | `columns` | `rows` |
 |---|---|---|
-| `'compact'` | `4` | `'auto'` |
-| `'normal'` (default) | `6` | `'auto'` |
-| `'large'` | `12` | `'auto'` |
+| `'compact'` | `5` | `4` |
+| `'normal'` (default) | `8` | `5` |
+| `'large'` | `12` | `5` |
+
+`getCardSize()` returns the `rows` of the chosen size.
 
 ### Full example
 
@@ -932,10 +936,10 @@ examples in [`examples/`](../../examples/README.md).
 |---|---|---|---|
 | `entity` | `string` | — (required) | `sensor.*` or `binary_sensor.*` entity. Any other domain is rejected with a configuration error. |
 | `name` | `string` | the entity's `friendly_name` | Card title. |
-| `subtitle` | `string` | `Sensor` / `Binary sensor` | Text under the title. If missing or blank, the default is shown. Not shown at the `compact` size. |
+| `subtitle` | `string` | `Sensor` / `Binary sensor` | Text under the title. If missing or blank, the default is shown. Shown at all three sizes. |
 | `show_subtitle` | `boolean` | `true` | `false` hides the subtitle entirely (the custom one too, which is kept). |
 | `icon` | `string` | computed from `device_class` | Custom icon. |
-| `decimals` | `number` | `1` | Value decimals (numeric `sensor` only). |
+| `decimals` | `number` | `1` | Value decimals (numeric `sensor` only). Ignored at the `compact` size, which always shows one decimal (`xx.x`); the editor does not offer the field there. |
 | `size` | `'large' \| 'normal' \| 'compact'` | `'normal'` | Size: `large` = full width (12 columns) with graph; `normal` = medium (6 columns) with graph; `compact` = small (3 columns), no graph and no history query. See `getGridOptions()`. |
 | `graph_hours` | `number` | `24` | Hours of history the graph covers. Only with `size` `normal` or `large`. |
 | `neon_effect` | `'normal' \| 'halo' \| 'single'` | `'halo'` | Color effect of the graph and the icon (not of the perimeter): `halo` = three-color graph and glow with the sweep; `single` = one color with the sweep; `normal` = theme color, no sweep. |
@@ -956,19 +960,24 @@ There is no sensor footer.
 
 ### `getGridOptions()` — size driven by `size`
 
-Like the Thermostat Card, the size is chosen with `size`. Columns come
-from `SIZE_COLUMNS` (`src/cards/sensor/constants.ts`) and height is
-automatic; `min_columns` is `3` in all of them.
+Like the Thermostat Card, the size is chosen with `size` and each size
+takes a **fixed** slot in the grid (`SIZE_GRID` in
+`src/cards/sensor/constants.ts`; `min_*` = `max_*`, so it can't be
+resized).
 
 | `size` | Size | Graph | `columns` | `rows` |
 |---|---|---|---|---|
-| `'compact'` | Small | No | `3` | `'auto'` |
-| `'normal'` (default) | Medium | Yes | `6` | `'auto'` |
-| `'large'` | Large (full width) | Yes | `12` | `'auto'` |
+| `'compact'` | Small | No | `3` | `2` |
+| `'normal'` (default) | Medium | Yes | `6` | `2` |
+| `'large'` | Large (full width) | Yes | `12` | `2` |
 
-Nothing is clipped outside the card: texts wrap onto several lines and,
-in medium, if the graph does not fit beside the value it moves to its
-own line.
+`getCardSize()` returns the `rows` of the chosen size. The content height
+does not depend on the width: the ⋮ menu never wraps onto its own line,
+the name takes at most two lines, and the value and graph share one row
+(the graph shrinks instead of wrapping). Nothing is drawn outside the
+card: anything that doesn't fit is clipped inside. The small card
+measures what its content needs (≈ 90 px without subtitle, ≈ 103 px with
+it) instead of filling its 2 rows.
 
 ### Full example
 

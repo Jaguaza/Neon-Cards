@@ -96,7 +96,7 @@ muestra el de siempre: «Sensor» o «Sensor binario». Para **no mostrar
 ningún subtítulo** pon `show_subtitle: false` (en el editor, desmarca
 «Mostrar subtítulo»); ese ajuste manda sobre `subtitle`, que se conserva
 por si vuelves a activarlo. El subtítulo no depende del estado ni de los
-umbrales, y no se muestra en el tamaño `compact`.
+umbrales, y se muestra en los tres tamaños.
 
 ```yaml
 type: custom:neon-sensor-card
@@ -266,7 +266,7 @@ is shown: "Sensor" or "Binary sensor". To **show no subtitle at all**
 set `show_subtitle: false` (in the editor, untick "Show subtitle"); it
 takes precedence over `subtitle`, which is kept in case you turn it back
 on. The subtitle does not depend on the state or the thresholds, and is
-not shown at the `compact` size.
+shown at all three sizes.
 
 ```yaml
 type: custom:neon-sensor-card

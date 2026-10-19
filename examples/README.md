@@ -162,7 +162,9 @@ A diferencia de Button, su tamaño no se calcula del contenido — se
 elige con la clave `size` (`large`/`normal`/`compact`), cada uno con
 su propio layout: el dial completo solo aparece en `large`,
 `normal`/`compact` usan un indicador circular más pequeño, y
-`compact` no muestra footer de sensores. Admite opcionalmente una
+`compact` no muestra footer de sensores. Cada tamaño ocupa un hueco
+fijo de la rejilla: `compact` 5×4, `normal` («Mediana» en el editor) 8×5
+y `large` 12×5 (columnas × filas). Admite opcionalmente una
 segunda entidad `climate` (`entity_2`) para representar dos equipos
 separados (p. ej. calefacción + aire acondicionado) como uno solo — el
 selector de modo muestra la unión de los modos de ambas entidades, y
@@ -263,8 +265,10 @@ ambos es Correcto, cada nivel con su color (`threshold_colors`) en el
 borde y con su nombre (`threshold_names`) en la etiqueta de estado bajo
 el valor. Sin umbrales no hay etiqueta y el perímetro se ve normal. El
 tamaño se elige con `size`: `large` (grande, ancho máximo, con gráfico),
-`normal` (mediano, con gráfico) o `compact` (pequeño, sin gráfico). No
-lleva pie de sensores.
+`normal` (mediano, con gráfico) o `compact` (pequeño, sin gráfico). Cada
+tamaño ocupa un hueco fijo de la rejilla (columnas × filas): `compact` 3×2,
+`normal` 6×2 y `large` 12×2. El pequeño muestra siempre un decimal
+(`xx.x`). No lleva pie de sensores.
 
 ---
 
@@ -433,7 +437,9 @@ semicircular (180°) dial/ring colored by the active HVAC mode. Unlike
 Button, its size isn't computed from content — it's chosen with the
 `size` key (`large`/`normal`/`compact`), each with its own layout: the
 full dial only appears in `large`, `normal`/`compact` use a smaller
-circular indicator, and `compact` shows no sensor footer. It optionally
+circular indicator, and `compact` shows no sensor footer. Each size takes a fixed grid slot:
+`compact` 5×4, `normal` ("Medium" in the editor) 8×5 and `large` 12×5
+(columns × rows). It optionally
 supports a second `climate` entity (`entity_2`) to represent two
 separate units (e.g. heating + AC) as one — the mode selector shows the
 union of both entities' modes, and the two are never left active in
@@ -531,4 +537,6 @@ its own color (`threshold_colors`) on the border and its own name
 (`threshold_names`) in the status label under the value. Without
 thresholds there is no label and the perimeter looks normal. Size is chosen with `size`: `large`
 (full width, with graph), `normal` (medium, with graph) or `compact`
-(small, no graph). It has no sensor footer.
+(small, no graph). Each size takes a fixed grid slot (columns × rows):
+`compact` 3×2, `normal` 6×2 and `large` 12×2. Small always shows one
+decimal (`xx.x`). It has no sensor footer.
