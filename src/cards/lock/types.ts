@@ -1,4 +1,5 @@
 import type { ActionConfig } from '../../ha/types';
+import type { InfoOption } from '../../core';
 
 /**
  * Estados visuales de la tarjeta. Los siete primeros son los estados
@@ -19,6 +20,19 @@ export type LockVisualState =
   | 'error';
 
 /**
+ * Tamaño: `large` (por defecto) es la tarjeta de siempre; `medium` es la
+ * mediana, sin subtítulo y con el estado bajo el nombre.
+ */
+export type LockSize = 'medium' | 'large';
+
+/**
+ * Qué mostrar bajo el nombre: 'state' (por defecto, estado traducido de
+ * la cerradura), 'custom' (texto libre en `subtitle`) o cualquier
+ * InfoOption de src/core salvo 'name' (el nombre ya se muestra encima).
+ */
+export type LockSubtitleType = 'custom' | Exclude<InfoOption, 'name'>;
+
+/**
  * Icono de la tarjeta, cada uno con su propia animación de abrir/cerrar:
  * `padlock` (candado, por defecto), `door` (puerta que se abre),
  * `garage_roller` (garaje con puerta enrollable) y `garage_sliding`
@@ -36,6 +50,11 @@ export interface NeonLockCardConfig {
   name?: string;
   /** Icono animado; por defecto `padlock`. */
   lock_icon?: LockIconType;
+  /** Tamaño de la tarjeta (ver `LockSize`). La mediana no tiene subtítulo. */
+  size?: LockSize;
+  subtitle_type?: LockSubtitleType;
+  /** Texto libre cuando subtitle_type es 'custom'. */
+  subtitle?: string;
   neon_palette?: string;
   neon_color1?: string;
   neon_color2?: string;

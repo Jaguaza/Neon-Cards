@@ -14,7 +14,6 @@ export const NEON_LOCK_CARD_STYLES = css`
     height: 100%;
   }
   ha-card {
-    container-type: inline-size;
     box-sizing: border-box;
     padding: 14px 16px;
     height: auto;
@@ -34,10 +33,9 @@ export const NEON_LOCK_CARD_STYLES = css`
     gap: 12px;
     height: auto;
   }
-  /* Cabecera: icono, el nombre con el estado debajo (donde antes iba el
-     subtítulo) y, a la derecha, los tres puntos. */
+  /* Cabecera: icono, nombre con subtítulo a su lado y, a la derecha, el
+     estado y los tres puntos. */
   .header {
-    position: relative;
     display: flex;
     align-items: flex-start;
     gap: 12px;
@@ -61,9 +59,6 @@ export const NEON_LOCK_CARD_STYLES = css`
     min-width: 0;
   }
   .name {
-    /* Deja libre la esquina de los tres puntos (van en posición absoluta):
-       el estado, una línea más abajo, usa todo el ancho. */
-    padding-right: 28px;
     font-size: 18px;
     line-height: 22px;
     font-weight: 500;
@@ -72,23 +67,31 @@ export const NEON_LOCK_CARD_STYLES = css`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .subtitle {
+    font-size: 11px;
+    line-height: 14px;
+    color: var(--secondary-text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .top-right {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex: 0 0 auto;
+    margin: -6px -8px 0 0;
+  }
   .status {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    min-width: 0;
     font-size: 12px;
     line-height: 16px;
     color: var(--primary-text-color);
     white-space: nowrap;
   }
-  .status-text {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
   .status-dot {
-    flex: none;
     width: 8px;
     height: 8px;
     border-radius: 50%;
@@ -112,10 +115,15 @@ export const NEON_LOCK_CARD_STYLES = css`
   .lock-moving .status-dot {
     animation: lock-pulse 1.1s ease-in-out infinite;
   }
+  /* Sin los tres puntos (entidad no disponible) se reserva su hueco: el
+     estado queda donde está en una tarjeta operativa y no se pega a la
+     esquina redondeada del borde. */
+  .menu-spacer {
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+  }
   .menu {
-    position: absolute;
-    top: -6px;
-    right: -8px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -145,7 +153,8 @@ export const NEON_LOCK_CARD_STYLES = css`
     position: relative;
     display: flex;
     align-items: stretch;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
+    row-gap: 8px;
     padding-top: 12px;
   }
   .footer::before {
@@ -165,15 +174,15 @@ export const NEON_LOCK_CARD_STYLES = css`
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 8px;
     min-width: 0;
-    padding: 0 8px;
+    padding: 0 12px;
   }
   .item + .item {
     border-left: 1px solid color-mix(in srgb, var(--primary-text-color) 20%, transparent);
   }
   .item ha-icon {
-    --mdc-icon-size: 20px;
+    --mdc-icon-size: 22px;
     flex: 0 0 auto;
     margin: 0;
     color: var(--primary-text-color);
@@ -188,9 +197,6 @@ export const NEON_LOCK_CARD_STYLES = css`
     font-size: 10px;
     line-height: 12px;
     color: var(--secondary-text-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
   .item-value {
     font-size: 13px;
@@ -369,27 +375,73 @@ export const NEON_LOCK_CARD_STYLES = css`
     }
   }
 
-  /* Tarjeta estrecha (p. ej. 6 columnas en un móvil): el pie sigue en una
-     sola fila, con menos relleno e iconos más pequeños; con tres datos se
-     quitan los iconos para que los textos quepan. */
+  /* ───────── Tamaño mediano (.size-medium) ─────────
+     Sin subtítulo: el estado va bajo el nombre y los tres puntos quedan en
+     la esquina. Todo cuelga de .size-medium: la tarjeta grande no cambia. */
+  .size-medium {
+    container-type: inline-size;
+  }
+  .size-medium .header {
+    position: relative;
+  }
+  /* Los tres puntos van en posición absoluta: el estado, una línea más abajo,
+     usa todo el ancho. El nombre deja libre esa esquina. */
+  .size-medium .name {
+    padding-right: 28px;
+  }
+  .size-medium .menu {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+  }
+  .size-medium .status {
+    min-width: 0;
+  }
+  .size-medium .status-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .size-medium .status-dot {
+    flex: none;
+  }
+  /* El pie va siempre en una sola fila (sin saltos ni rayas sueltas). */
+  .size-medium .footer {
+    flex-wrap: nowrap;
+    row-gap: 0;
+  }
+  .size-medium .item {
+    gap: 6px;
+    padding: 0 8px;
+  }
+  .size-medium .item ha-icon {
+    --mdc-icon-size: 20px;
+  }
+  .size-medium .item-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* Tarjeta estrecha (p. ej. 6 columnas en un móvil): menos relleno e iconos
+     más pequeños. */
   @container (max-width: 200px) {
-    .item {
+    .size-medium .item {
       gap: 4px;
       padding: 0 4px;
     }
-    .item ha-icon {
+    .size-medium .item ha-icon {
       --mdc-icon-size: 18px;
     }
   }
   /* Con tres datos en el pie hacen falta ~275 px: por debajo, sin iconos. */
   @container (max-width: 300px) {
-    .footer:has(> .item:nth-child(3)) .item ha-icon {
+    .size-medium .footer:has(> .item:nth-child(3)) .item ha-icon {
       display: none;
     }
-    .footer:has(> .item:nth-child(3)) .item {
+    .size-medium .footer:has(> .item:nth-child(3)) .item {
       padding: 0 3px;
     }
-    .footer:has(> .item:nth-child(3)) .item-value {
+    .size-medium .footer:has(> .item:nth-child(3)) .item-value {
       font-size: 12px;
     }
   }

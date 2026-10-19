@@ -14,22 +14,28 @@ estado (hasta 6 s) para las cerraduras lentas.
 
 ## Diseño
 
-- **Arriba:** el icono y, a su lado, el nombre con el **estado** debajo (en
-  el sitio donde antes iba el subtítulo), con un punto de color (verde
-  cerrada, ámbar desbloqueada o abierta, rojo atascada o no disponible). A la
-  derecha, los **tres puntos**, que abren el diálogo de «más información» de
-  la entidad sin disparar la acción de la tarjeta; con la entidad no
-  disponible no se muestran. **La tarjeta no tiene subtítulo** (no hay opción
-  para ponerlo): las claves antiguas `subtitle_type` y `subtitle` se ignoran.
+- **Arriba:** el icono, y a su lado el nombre con el subtítulo. A la derecha,
+  el **estado** con un punto de color (verde cerrada, ámbar desbloqueada o
+  abierta, rojo atascada o no disponible) y los **tres puntos**, que abren el
+  diálogo de «más información» de la entidad sin disparar la acción de la
+  tarjeta. Con la entidad no disponible no hay tres puntos, pero se reserva su
+  hueco para que el estado quede en el mismo sitio que en una tarjeta
+  operativa.
 - **Abajo (opcional):** una línea de neón y hasta **tres datos** a elegir
   entre sensor de puerta, batería y último acceso (ver
   [Pie informativo](#pie-informativo)). Los datos se reparten a partes
   iguales por todo el ancho de la tarjeta, cada uno centrado en su hueco y
-  separados por una línea. Van siempre en **una sola fila**: en tarjetas
-  estrechas (p. ej. 6 columnas en un móvil) se reducen el relleno y los
-  iconos y, con tres datos, se quitan los iconos para que los textos quepan.
-  Los tres puntos van en la esquina, así que el estado de debajo del nombre
-  usa todo el ancho.
+  separados por una línea.
+
+### Tamaños (`size`)
+
+| `size` | Nombre en el editor | Diseño |
+|---|---|---|
+| `large` (por defecto) | Grande | La tarjeta de siempre: el nombre con el subtítulo a un lado del icono y, a la derecha, el estado y los tres puntos. |
+| `medium` | Mediana | **Sin subtítulo** (no hay opción para ponerlo): el estado, con su punto de color, ocupa el sitio del subtítulo bajo el nombre y los tres puntos quedan en la esquina. El pie va siempre en una sola fila; en tarjetas estrechas (p. ej. 6 columnas en un móvil) se reducen el relleno y los iconos y, con tres datos, se quitan los iconos para que los textos quepan. |
+
+La tarjeta grande no cambia respecto a versiones anteriores. En la mediana se
+ignoran `subtitle_type` y `subtitle`.
 
 Misma base visual que la [Button Card](../button) (halo neón que se dibuja
 desde la esquina superior izquierda) y mismo framework (`src/core`,
@@ -49,7 +55,8 @@ desde la esquina superior izquierda) y mismo framework (`src/core`,
 
 ### Texto del estado: «Abriendo puerta…» y «Puerta abierta»
 
-El rótulo de estado no siempre repite el estado de la entidad:
+El rótulo de estado (y el subtítulo si es `state`) no siempre repite el estado
+de la entidad:
 
 - **«Puerta abierta» solo sale con el sensor de puerta activo** (`door_entity`
   en `on`) y la cerradura sin cerrar con llave (`unlocked`, `unlocking`,
@@ -100,6 +107,9 @@ name: Puerta principal
 | `entity` | string | — | Entidad del dominio `lock`. |
 | `name` | string | `friendly_name` | Nombre mostrado. |
 | `lock_icon` | `padlock` \| `door` \| `garage_roller` \| `garage_sliding` | `padlock` | Icono animado (ver Iconos). Un valor no válido usa el candado. |
+| `size` | `large` \| `medium` | `large` | Tamaño de la tarjeta (ver [Tamaños](#tamaños-size)). |
+| `subtitle_type` | `none` \| `state` \| `custom` \| `last-changed` \| `last-updated` | `none` | Qué se muestra bajo el nombre. Por defecto nada: el estado ya va arriba a la derecha (`state` lo repite bajo el nombre). Solo en el tamaño `large`. |
+| `subtitle` | string | — | Texto libre cuando `subtitle_type: custom`. Solo en el tamaño `large`. |
 | `neon_palette` | `emerald` \| `cyberpunk` \| `electric` \| `sunset` \| `toxic` \| `custom` | `emerald` | Paleta del halo. |
 | `neon_color1/2/3` | color | — | Solo con `neon_palette: custom`. |
 | `status_color_closed` | color CSS | `#39e07a` (verde) | Color del punto de estado con la cerradura cerrada (`locked`, `locking`). |
@@ -180,6 +190,8 @@ desaparece, para que se note una entidad mal configurada.
 type: custom:neon-lock-card
 entity: lock.puerta_principal
 name: Puerta Principal
+subtitle_type: custom
+subtitle: Cerradura inteligente
 lock_icon: padlock
 footer_items: [battery, door, last_user]
 door_entity: binary_sensor.puerta_principal
@@ -245,21 +257,27 @@ slow locks.
 
 ## Layout
 
-- **Top:** the icon and, next to it, the name with the **state** below (where
-  the subtitle used to be), with a coloured dot (green locked, amber unlocked
-  or open, red jammed or unavailable). On the right, the **three dots**, which
-  open the entity's "more info" dialog without triggering the card's action;
-  with the entity unavailable they are not shown. **The card has no subtitle**
-  (there is no option to set one): the old `subtitle_type` and `subtitle` keys
-  are ignored.
+- **Top:** the icon, with the name and subtitle next to it. On the right, the
+  **state** with a coloured dot (green locked, amber unlocked or open, red
+  jammed or unavailable) and the **three dots**, which open the entity's
+  "more info" dialog without triggering the card's action. With the entity
+  unavailable there are no three dots, but their space is reserved so the state
+  stays in the same place as on a working card.
 - **Bottom (optional):** a neon line and up to **three data points** to pick
   from door sensor, battery and last access (see
   [Information footer](#information-footer)). The data points share the full
   width of the card equally, each one centred in its slot and separated by a
-  line. They always stay on a **single row**: in narrow cards (e.g. 6 columns
-  on a phone) the padding and icons shrink and, with three data points, the
-  icons are dropped so the texts fit. The three dots sit in the corner, so the
-  state under the name uses the full width.
+  line.
+
+### Sizes (`size`)
+
+| `size` | Editor name | Layout |
+|---|---|---|
+| `large` (default) | Large | The card as it has always been: the name with the subtitle beside the icon and, on the right, the state and the three dots. |
+| `medium` | Medium | **No subtitle** (there is no option to set one): the state, with its coloured dot, takes the subtitle's place under the name and the three dots sit in the corner. The footer always stays on a single row; in narrow cards (e.g. 6 columns on a phone) the padding and icons shrink and, with three data points, the icons are dropped so the texts fit. |
+
+The large card is unchanged from previous versions. In medium, `subtitle_type`
+and `subtitle` are ignored.
 
 Same visual base as the [Button Card](../button) (neon halo drawn from the
 top-left corner) and the same framework (`src/core`, `src/shared`,
@@ -279,7 +297,8 @@ top-left corner) and the same framework (`src/core`, `src/shared`,
 
 ### State text: "Opening door…" and "Door open"
 
-The state label does not always repeat the entity's state:
+The state label (and the subtitle when it is `state`) does not always repeat
+the entity's state:
 
 - **"Door open" only appears with the door sensor active** (`door_entity` at
   `on`) and the lock not locked (`unlocked`, `unlocking`, `open` or
@@ -330,6 +349,9 @@ name: Front door
 | `entity` | string | — | Entity of the `lock` domain. |
 | `name` | string | `friendly_name` | Displayed name. |
 | `lock_icon` | `padlock` \| `door` \| `garage_roller` \| `garage_sliding` | `padlock` | Animated icon (see Icons). An invalid value uses the padlock. |
+| `size` | `large` \| `medium` | `large` | Card size (see [Sizes](#sizes-size)). |
+| `subtitle_type` | `none` \| `state` \| `custom` \| `last-changed` \| `last-updated` | `none` | What is shown under the name. Nothing by default: the state is already at the top right (`state` repeats it under the name). Only in the `large` size. |
+| `subtitle` | string | — | Free text when `subtitle_type: custom`. Only in the `large` size. |
 | `neon_palette` | `emerald` \| `cyberpunk` \| `electric` \| `sunset` \| `toxic` \| `custom` | `emerald` | Halo palette. |
 | `neon_color1/2/3` | color | — | Only with `neon_palette: custom`. |
 | `status_color_closed` | CSS colour | `#39e07a` (green) | Colour of the status dot when the lock is closed (`locked`, `locking`). |

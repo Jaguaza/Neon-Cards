@@ -27,10 +27,28 @@ describe('NeonLockCardEditor', () => {
     expect((q(el, 'ha-entity-picker') as unknown as { includeDomains: string[] }).includeDomains).toEqual(['lock']);
   });
 
-  it('no ofrece subtítulo: el estado ocupa su lugar bajo el nombre', async () => {
+  it('el subtítulo ofrece ninguno (por defecto), estado, personalizado, cambio y actualización', async () => {
     const { el } = await mount({ entity: 'lock.puerta' });
-    expect(q(el, '#subtitle-type')).toBeNull();
+    const select = q(el, '#subtitle-type') as HTMLSelectElement;
+    expect(Array.from(select.options).map((o) => o.value)).toEqual(['none', 'state', 'custom', 'last-changed', 'last-updated']);
+    expect(select.value).toBe('none');
     expect(q(el, '#subtitle')).toBeNull();
+  });
+
+  it('elegir personalizado guarda subtitle_type y muestra el texto libre; ninguno (el valor por defecto) lo elimina', async () => {
+    const { el, last } = await mount({ entity: 'lock.puerta' });
+    const select = q(el, '#subtitle-type') as HTMLSelectElement;
+    select.value = 'custom';
+    select.dispatchEvent(new Event('change'));
+    expect(last().subtitle_type).toBe('custom');
+    await el.updateComplete;
+    expect(q(el, '#subtitle')).not.toBeNull();
+    (q(el, '#subtitle-type') as HTMLSelectElement).value = 'state';
+    q(el, '#subtitle-type')!.dispatchEvent(new Event('change'));
+    expect(last().subtitle_type).toBe('state'); // repetir el estado ya no es el valor por defecto
+    (q(el, '#subtitle-type') as HTMLSelectElement).value = 'none';
+    q(el, '#subtitle-type')!.dispatchEvent(new Event('change'));
+    expect('subtitle_type' in last()).toBe(false);
   });
 
   it('ofrece cuatro iconos en fichas, con el candado marcado por defecto', async () => {

@@ -3,7 +3,7 @@ import type { PropertyValues, TemplateResult } from 'lit';
 import type { ActionConfig, HomeAssistant, ValueChangedEvent } from '../../ha/types';
 import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
-import { localize } from '../../core';
+import { getInfoLabels, localize } from '../../core';
 import { LOCK_ICON_TYPES, LOCK_ICONS, resolveLockIconType } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
 import { LOCK_TRANSLATIONS } from './translations';
@@ -11,11 +11,13 @@ import type { LockTranslations } from './translations';
 import { FOOTER_ORDER, normalizeFooterItems } from './footer';
 import { STATUS_DOT_DEFAULTS } from './constants';
 import { isCssColor } from './lock-state';
-import type { LockFooterItem, NeonLockCardConfig } from './types';
+import type { LockFooterItem, LockSize, LockSubtitleType, NeonLockCardConfig } from './types';
+import { DEFAULT_LOCK_SIZE, LOCK_SIZES, resolveLockSize } from './lock-size';
 
 const ALLOWED_ACTIONS = ['more-info', 'toggle', 'navigate', 'url', 'call-service', 'assist', 'none'];
 
 /** Orden de las opciones del selector de subtítulo; 'none' es el valor por defecto (el estado ya va arriba a la derecha). */
+const SUBTITLE_TYPES: readonly LockSubtitleType[] = ['none', 'state', 'custom', 'last-changed', 'last-updated'];
 
 /** `#rgb` o `#rrggbb` → `#rrggbb` (lo único que acepta `<input type=color>`); otro formato → `undefined`. */
 function toHex6(color: string): string | undefined {
@@ -207,6 +209,9 @@ export class NeonLockCardEditor extends LitElement {
 
   private _renderMainSection(): TemplateResult {
     const config = this._config!;
+    const current: LockSubtitleType = config.subtitle_type || 'none';
+    const labels = getInfoLabels(this.hass);
+    const size = resolveLockSize(config);
     return html`
       <div class="editor-section">
         <div class="section-header">${this._t('section_main')}</div>
@@ -226,7 +231,51 @@ export class NeonLockCardEditor extends LitElement {
           .value=${config.name || ''}
           @input=${(ev: InputEvent) => this._configChanged('name', (ev.target as HTMLInputElement).value)}
         />
+        <label class="native-select-label" for="size">${this._t('size_label')}</label>
+        <select
+          id="size"
+          class="native-select"
+          .value=${size}
+          @change=${(ev: Event) => {
+            const value = (ev.target as HTMLSelectElement).value as LockSize;
+            if (!value || value === resolveLockSize(this._config)) return;
+            this._configChanged('size', value === DEFAULT_LOCK_SIZE ? undefined : value);
+          }}
+        >
+          ${LOCK_SIZES.map((opt) => html`<option value=${opt} ?selected=${opt === size}>${this._t(opt === 'medium' ? 'size_medium' : 'size_large')}</option>`)}
+        </select>
         ${this._renderIconPicker()}
+        ${size === 'medium'
+          ? nothing
+          : html`
+        <label class="native-select-label" for="subtitle-type">${this._t('subtitle_label')}</label>
+        <select
+          id="subtitle-type"
+          class="native-select"
+          .value=${current}
+          @change=${(ev: Event) => {
+            const value = (ev.target as HTMLSelectElement).value;
+            if (!value || value === (this._config?.subtitle_type || 'none')) return;
+            this._configChanged('subtitle_type', value === 'none' ? undefined : value);
+          }}
+        >
+          ${SUBTITLE_TYPES.map(
+            (opt) => html`<option value=${opt} ?selected=${opt === current}>${opt === 'custom' ? this._t('subtitle_type_custom') : labels[opt as keyof typeof labels]}</option>`
+          )}
+        </select>
+        ${current === 'custom'
+          ? html`
+              <input
+                id="subtitle"
+                type="text"
+                class="native-input"
+                placeholder=${this._t('subtitle_placeholder')}
+                .value=${config.subtitle || ''}
+                @input=${(ev: InputEvent) => this._configChanged('subtitle', (ev.target as HTMLInputElement).value)}
+              />
+            `
+          : nothing}
+          `}
       </div>
     `;
   }

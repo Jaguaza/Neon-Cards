@@ -39,6 +39,7 @@ const card = (el: Card) => el.shadowRoot!.querySelector('ha-card')!;
 const padlock = (el: Card) => el.shadowRoot!.querySelector('svg.lock-icon');
 const isOpen = (el: Card) => !!padlock(el)?.classList.contains('is-open');
 const errorIcon = (el: Card) => el.shadowRoot!.querySelector('ha-icon.neon-halo-icon')?.getAttribute('icon');
+const subtitle = (el: Card) => el.shadowRoot!.querySelector('.subtitle')?.textContent?.trim();
 const status = (el: Card) => el.shadowRoot!.querySelector('.status-text')?.textContent?.trim();
 const xIcon = (el: Card) => el.shadowRoot!.querySelector('ha-icon.neon-halo-icon');
 
@@ -251,11 +252,11 @@ describe('NeonLockCard', () => {
     expect(status(el)).toBe('Locked');
   });
 
-  it('ya no hay subtítulo: subtitle_type y subtitle de configuraciones antiguas se ignoran', async () => {
-    const legacy = await mount({ subtitle_type: 'custom', subtitle: 'Entrada' } as never);
-    expect(legacy.shadowRoot!.querySelector('.subtitle')).toBeNull();
-    expect(legacy.shadowRoot!.textContent).not.toContain('Entrada');
-    expect(status(legacy)).toBe('Cerrada');
+  it('subtitle_type: custom usa el texto libre y none lo oculta', async () => {
+    const custom = await mount({ subtitle_type: 'custom', subtitle: 'Entrada' });
+    expect(subtitle(custom)).toBe('Entrada');
+    const none = await mount({ subtitle_type: 'none' });
+    expect(none.shadowRoot!.querySelector('.subtitle')).toBeNull();
   });
 
   it('name de la config gana al friendly_name', async () => {
@@ -664,20 +665,23 @@ describe('NeonLockCard', () => {
     const dot = (el: Card) => el.shadowRoot!.querySelector('.status')!.getAttribute('data-state');
     const menu = (el: Card) => el.shadowRoot!.querySelector<HTMLButtonElement>('.menu');
 
-    it('icono, el nombre con el estado debajo (donde iba el subtítulo) y los tres puntos a la derecha', async () => {
-      const el = await mount({});
+    it('el nombre y el subtítulo van al lado del icono, y el estado con los tres puntos a la derecha', async () => {
+      const el = await mount({ subtitle_type: 'custom', subtitle: 'Cerradura inteligente' });
       const header = el.shadowRoot!.querySelector('.header')!;
-      expect(Array.from(header.children).map((c) => (c.getAttribute('class') ?? '').split(' ')[0])).toEqual(['lock-icon', 'text', 'menu']);
-      expect(Array.from(header.querySelector('.text')!.children).map((c) => (c.getAttribute('class') ?? '').split(' ')[0])).toEqual(['name', 'status']);
+      expect(Array.from(header.children).map((c) => (c.getAttribute('class') ?? '').split(' ')[0])).toEqual(['lock-icon', 'text', 'top-right']);
       expect(header.querySelector('.text .name')!.textContent).toBe('Puerta');
-      expect(status(el)).toBe('Cerrada');
-      expect(header.querySelector('.top-right')).toBeNull();
+      expect(header.querySelector('.text .subtitle')!.textContent).toBe('Cerradura inteligente');
+      expect(Array.from(header.querySelector('.top-right')!.children).map((c) => c.className)).toEqual(['status', 'menu']);
     });
 
-    it('la tarjeta no tiene subtítulo ni siquiera con otro estado', async () => {
-      const el = await mount({}, hassWith('unlocked'));
-      expect(el.shadowRoot!.querySelector('.subtitle')).toBeNull();
-      expect(status(el)).toBe('Desbloqueada');
+    it('por defecto no hay subtítulo (el estado ya va arriba a la derecha)', async () => {
+      const el = await mount({});
+      expect(subtitle(el)).toBeUndefined();
+      expect(status(el)).toBe('Cerrada');
+    });
+
+    it('subtitle_type: state sigue repitiendo el estado bajo el nombre', async () => {
+      expect(subtitle(await mount({ subtitle_type: 'state' }))).toBe('Cerrada');
     });
 
     it('el punto de estado: cerrada verde, desbloqueada/abriéndose ámbar, avería roja (por data-state)', async () => {
@@ -1022,10 +1026,10 @@ describe('rótulo de estado, sensor de puerta y «Abriendo puerta…»', () => {
     expect(status(el)).toBe('Desbloqueada');
   });
 
-  it('el estado bajo el nombre muestra el rótulo de la puerta: «Puerta abierta» y «Abriendo puerta…»', async () => {
-    const el = await mount({ door_entity: DOOR }, hassWithDoor('unlocked', 'on'));
-    expect(el.shadowRoot!.querySelector('.text .status-text')!.textContent!.trim()).toBe('Puerta abierta');
-    expect(status(await mount({}, hassWithDoor('open', undefined)))).toBe('Abriendo puerta…');
+  it('subtitle_type: state repite el rótulo mostrado', async () => {
+    const el = await mount({ door_entity: DOOR, subtitle_type: 'state' }, hassWithDoor('unlocked', 'on'));
+    expect(subtitle(el)).toBe('Puerta abierta');
+    expect(subtitle(await mount({ subtitle_type: 'state' }, hassWithDoor('open', undefined)))).toBe('Abriendo puerta…');
   });
 
   it('en inglés: «Door open» y «Opening door…»', async () => {
@@ -1107,13 +1111,14 @@ describe('rótulo de estado, sensor de puerta y «Abriendo puerta…»', () => {
   });
 
   describe('entidad no disponible', () => {
-    it('sin los tres puntos: «No disponible» va bajo el nombre y no queda ningún hueco reservado', async () => {
+    it('reserva el hueco de los tres puntos para que el estado quede donde en una tarjeta operativa', async () => {
       const broken = await mount({}, hassWith('unavailable'));
-      expect(broken.shadowRoot!.querySelector('.menu')).toBeNull();
-      expect(broken.shadowRoot!.querySelector('.menu-spacer')).toBeNull();
-      expect(broken.shadowRoot!.querySelector('.text .status')).not.toBeNull();
+      expect(broken.shadowRoot!.querySelector('.top-right .menu-spacer')).not.toBeNull();
+      expect(broken.shadowRoot!.querySelector('.top-right .menu')).toBeNull();
       expect(status(broken)).toBe('No disponible');
-      expect((await mount({})).shadowRoot!.querySelector('.header > .menu')).not.toBeNull();
+      const ok = await mount({});
+      expect(ok.shadowRoot!.querySelector('.top-right .menu')).not.toBeNull();
+      expect(ok.shadowRoot!.querySelector('.top-right .menu-spacer')).toBeNull();
     });
   });
 });

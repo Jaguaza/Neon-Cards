@@ -11,7 +11,6 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
-- Lock Card: en tarjetas estrechas (p. ej. en el iPhone) el pie informativo se partía en varias filas, con una raya separadora suelta, y el estado bajo el nombre se cortaba («Desbloque…»). Ahora el pie va siempre en una sola fila (con menos relleno e iconos más pequeños en tarjetas estrechas y sin iconos con tres datos) y los tres puntos pasan a la esquina para que el estado use todo el ancho.
 - Sensor Card: en contenedores muy estrechos el valor se partía por dentro del número («21. / 9») y la etiqueta por dentro de la palabra («Correct / o»), y la tarjeta pequeña crecía por encima de sus 2 filas. Ahora el valor y la etiqueta nunca se parten (si no cupieran, se abrevian con «…»), en el tamaño pequeño el valor y la unidad escalan con el ancho real de la tarjeta, y la tarjeta pequeña no pasa de su hueco.
 - Sensor Card: en el tamaño pequeño el valor se muestra siempre con un decimal (`xx.x`) y se quita la opción de decimales del editor en ese tamaño (`decimals` se ignora; en mediano y grande funciona como siempre).
 - Sensor Card: la tarjeta pequeña ya no se estira hasta rellenar sus 2 filas de la rejilla: mide lo que necesita su contenido (≈ 90 px sin subtítulo, ≈ 103 px con él, antes 120 px) y su relleno interno es menor.
@@ -38,6 +37,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
+- Lock Card: nueva opción `size`. La tarjeta **mediana** (`medium`) no lleva subtítulo (no hay opción para ponerlo) y el estado, con su punto de color, ocupa su sitio bajo el nombre, con los tres puntos en la esquina; su pie va siempre en una sola fila (en tarjetas estrechas, con menos relleno e iconos y sin iconos con tres datos). La tarjeta **grande** (`large`, el valor por defecto) es la de siempre y no cambia.
 - Lock Card: el color del punto de estado se puede elegir (`status_color_closed`,
   `status_color_open`, `status_color_alert`: cerrada, desbloqueada/abierta y
   atascada/no disponible; por defecto verde, ámbar y rojo). Selectores de
@@ -67,7 +67,6 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
-- Lock Card: el estado (con su punto de color) pasa a ir bajo el nombre, donde estaba el subtítulo, y se elimina la opción de subtítulo (`subtitle_type` y `subtitle`, también del editor). Las configuraciones antiguas con esas claves siguen funcionando: se ignoran. Arriba a la derecha solo quedan los tres puntos (con la entidad no disponible no se muestran y ya no se reserva su hueco).
 - Lock Card: `subtitle_type` pasa a valer `none` por defecto, porque el estado
   ya se muestra arriba a la derecha (antes era `state`; se puede volver con
   `subtitle_type: state`). La tarjeta ocupa por defecto media rejilla
@@ -323,9 +322,12 @@ and this project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Lock Card: new `size` option. The **medium** card (`medium`) has no subtitle (there is no option to set one) and the state, with its coloured dot, takes its place under the name, with the three dots in the corner; its footer always stays on a single row (in narrow cards, with less padding and icons, and no icons with three data points). The **large** card (`large`, the default) is the same as ever and does not change.
+
 ### Fixed
 
-- Lock Card: in narrow cards (e.g. on the iPhone) the information footer wrapped onto several rows, with a stray separator line, and the state under the name was cut off ("Desbloque…"). Now the footer always stays on a single row (with less padding and smaller icons in narrow cards, and no icons with three data points) and the three dots move to the corner so the state uses the full width.
 - Sensor Card: in very narrow containers the value was split inside the number ("21. / 9") and the label inside the word ("Correct / o"), and the small card grew past its 2 rows. Now the value and the label never split (if they don't fit, they are cut with "…"), in the small size the value and unit scale with the card's real width, and the small card stays within its slot.
 - Sensor Card: in the small size the value is always shown with one decimal (`xx.x`) and the decimals option is removed from the editor at that size (`decimals` is ignored; in medium and large it works as before).
 - Sensor Card: the small card no longer stretches to fill its 2 grid rows: it measures what its content needs (≈ 90 px without subtitle, ≈ 103 px with it, previously 120 px) and its inner padding is smaller.
@@ -333,10 +335,6 @@ and this project follows [Semantic Versioning](https://semver.org/).
 - Sensor Card: design tweaks after the fixed slot. Explicit line-heights on name, subtitle and label (HA inherited ~1.5, which fattened the header and squashed the graph); in narrow cards the medium size's icon and ⋮ menu shrink so the name fits on one line; and in small the icon goes on top with the name below at full width (it used to end up as "Te m…").
 - Sensor Card: the graphs were drawn outside the card. The content height depended on the width (in narrow cards the ⋮ menu and the graph wrapped onto new lines) and HA reserved a smaller height. Each size now takes a fixed slot in the grid (small 3×2, medium 6×2, large 12×2, columns × rows, not resizable) and the layout height no longer changes with width: the menu doesn't wrap, the name takes at most two lines, and the value and graph share one row (the graph shrinks instead of wrapping). Anything that doesn't fit is clipped inside the card.
 - Thermostat Card: each size now takes a fixed slot in the HA grid and can't be resized: small 5×4, medium 8×5 and large 12×5 (columns × rows). In the editor, the "Normal" size is now called "Medium" (the YAML value is still `normal`).
-
-### Changed
-
-- Lock Card: the state (with its coloured dot) now goes under the name, where the subtitle was, and the subtitle option is removed (`subtitle_type` and `subtitle`, also from the editor). Old configurations with those keys keep working: they are ignored. At the top right only the three dots remain (with the entity unavailable they are not shown and their space is no longer reserved).
 
 ## [1.2.0] - 2026-10-11
 

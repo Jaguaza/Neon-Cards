@@ -26,6 +26,12 @@ export interface LockTranslations {
   icon_door: string;
   icon_garage_roller: string;
   icon_garage_sliding: string;
+  size_label: string;
+  size_medium: string;
+  size_large: string;
+  subtitle_label: string;
+  subtitle_type_custom: string;
+  subtitle_placeholder: string;
   section_halo: string;
   palette_label: string;
   section_status: string;
