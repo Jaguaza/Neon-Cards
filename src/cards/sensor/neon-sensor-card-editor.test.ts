@@ -250,5 +250,11 @@ describe('NeonSensorCardEditor', () => {
     expect((q(el, '#show-subtitle') as HTMLInputElement).checked).toBe(false);
     expect(q(el, '#subtitle')).toBeNull();
   });
+
+  it('el campo de decimales no aparece en el tamaño pequeño (siempre xx.x), pero sí en los demás', async () => {
+    expect(q((await mount({ entity: 'sensor.temp', size: 'compact' })).el, '#decimals')).toBeNull();
+    expect(q((await mount({ entity: 'sensor.temp' })).el, '#decimals')).not.toBeNull();
+    expect(q((await mount({ entity: 'sensor.temp', size: 'large' })).el, '#decimals')).not.toBeNull();
+  });
 });
 

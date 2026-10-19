@@ -161,7 +161,12 @@ export class NeonSensorCardEditor extends LitElement {
           label=${this._t('icon_label')}
           @value-changed=${(ev: ValueChangedEvent) => this._configChanged('icon', ev.detail.value)}
         ></ha-icon-picker>
-        ${this._numberField('decimals', this._t('decimals_label'), 'decimals', config.decimals, 0, 4)}
+        ${
+          // El tamaño pequeño siempre muestra un decimal (xx.x): sin opción.
+          resolveSize(config) === 'compact'
+            ? nothing
+            : this._numberField('decimals', this._t('decimals_label'), 'decimals', config.decimals, 0, 4)
+        }
       </div>
     `;
   }

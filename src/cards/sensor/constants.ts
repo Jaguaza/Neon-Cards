@@ -47,3 +47,6 @@ export const SIZE_GRID: Record<SensorSize, { columns: number; rows: number }> = 
   normal: { columns: 6, rows: 2 },
   large: { columns: 12, rows: 2 },
 };
+
+/** Decimales fijos del tamaño pequeño: siempre `xx.x` (no se configura). */
+export const COMPACT_DECIMALS = 1;

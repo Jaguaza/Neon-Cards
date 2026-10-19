@@ -14,7 +14,7 @@ import {
   openMoreInfo,
 } from '../../core';
 import { NEON_HALO_STYLES, neonHaloVars } from '../../shared';
-import { DEFAULT_GRAPH_HOURS, ERROR_ICON, SIZE_GRID } from './constants';
+import { COMPACT_DECIMALS, DEFAULT_GRAPH_HOURS, ERROR_ICON, SIZE_GRID } from './constants';
 import { HistoryController } from './history-controller';
 import { buildStepPath, buildTracePath, TRACE_HEIGHT, TRACE_WIDTH } from './monitor-trace';
 import { resolveCardColors, resolveEdgeColor, resolveEffect } from './sensor-colors';
@@ -214,8 +214,9 @@ export class NeonSensorCard extends BaseNeonCard {
   /** Todo lo que la plantilla necesita, calculado una sola vez por pintado. */
   private _buildView(config: NeonSensorCardConfig): SensorView {
     const entityId = config.entity;
-    const display =
-      entityId && this.hass ? getSensorDisplay(entityId, this.hass, { icon: config.icon, decimals: config.decimals }) : null;
+    // El tamaño pequeño siempre muestra un decimal (xx.x); `decimals` se ignora.
+    const decimals = resolveSize(config) === 'compact' ? COMPACT_DECIMALS : config.decimals;
+    const display = entityId && this.hass ? getSensorDisplay(entityId, this.hass, { icon: config.icon, decimals }) : null;
     const stateObj = entityId ? this.hass?.states[entityId] : undefined;
     const status: SensorStatus = computeSensorStatus(
       { domain: this._domain, state: stateObj?.state ?? 'unavailable', available: !!display?.available },

@@ -11,6 +11,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- Sensor Card: en el tamaño pequeño el valor se muestra siempre con un decimal (`xx.x`) y se quita la opción de decimales del editor en ese tamaño (`decimals` se ignora; en mediano y grande funciona como siempre).
 - Sensor Card: la tarjeta pequeña ya no se estira hasta rellenar sus 2 filas de la rejilla: mide lo que necesita su contenido (≈ 90 px sin subtítulo, ≈ 103 px con él, antes 120 px) y su relleno interno es menor.
 - Sensor Card: más ajustes de diseño. El tamaño pequeño ya muestra el subtítulo (antes lo ocultaba aunque estuviera activado) y agrupa icono, nombre, subtítulo y valor centrados, sin hueco entre el nombre y el número. En el mediano y el grande los dígitos son más pequeños para dar más ancho al gráfico. El grande pasa a 12×2: cabecera arriba y, debajo, el valor y la etiqueta del umbral a la izquierda y el gráfico a la derecha.
 - Sensor Card: ajustes de diseño tras el hueco fijo. Interlineados explícitos en nombre, subtítulo y etiqueta (HA heredaba uno de ~1,5 que engordaba la cabecera y aplastaba el gráfico); en tarjetas estrechas el icono y el menú ⋮ de la mediana se reducen para que el nombre quepa en una línea; y en la pequeña el icono va arriba y el nombre debajo a todo el ancho (antes se quedaba en «Te m….»).
@@ -321,6 +322,7 @@ and this project follows [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Sensor Card: in the small size the value is always shown with one decimal (`xx.x`) and the decimals option is removed from the editor at that size (`decimals` is ignored; in medium and large it works as before).
 - Sensor Card: the small card no longer stretches to fill its 2 grid rows: it measures what its content needs (≈ 90 px without subtitle, ≈ 103 px with it, previously 120 px) and its inner padding is smaller.
 - Sensor Card: more design tweaks. The small size now shows the subtitle (it used to hide it even when enabled) and groups icon, name, subtitle and value centered, with no gap between the name and the number. In medium and large the digits are smaller to give the graph more width. Large becomes 12×2: header on top and, below, the value and threshold label on the left and the graph on the right.
 - Sensor Card: design tweaks after the fixed slot. Explicit line-heights on name, subtitle and label (HA inherited ~1.5, which fattened the header and squashed the graph); in narrow cards the medium size's icon and ⋮ menu shrink so the name fits on one line; and in small the icon goes on top with the name below at full width (it used to end up as "Te m…").

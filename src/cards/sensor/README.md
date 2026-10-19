@@ -35,7 +35,9 @@ se recorta dentro de la tarjeta, nunca se pinta fuera. La tarjeta pequeña no se
 estira hasta rellenar sus 2 filas: mide lo que necesita su contenido (≈ 90 px
 sin subtítulo, ≈ 103 px con él; una fila de la rejilla son 56 px y no cabe),
 y el resto del hueco queda libre. En el pequeño se
-oculta el menú ⋮ (tocar la tarjeta abre igualmente «más información») y no se pide el histórico. Los tamaños están en
+oculta el menú ⋮ (tocar la tarjeta abre igualmente «más información») y el valor
+siempre se muestra con **un decimal** (`xx.x`): `decimals` se ignora en ese
+tamaño y el editor no ofrece el campo y no se pide el histórico. Los tamaños están en
 `SIZE_GRID` (`constants.ts`).
 
 ```yaml
@@ -203,7 +205,9 @@ clipped inside the card, never drawn outside it. The small card doesn't stretch
 to fill its 2 rows: it measures what its content needs (≈ 90 px without
 subtitle, ≈ 103 px with it; one grid row is 56 px and doesn't fit), and the
 rest of the slot stays free. In small the ⋮ menu
-is hidden (tapping the card still opens "more info") and history is not requested. The sizes live in `SIZE_GRID`
+is hidden (tapping the card still opens "more info") and the value is always
+shown with **one decimal** (`xx.x`): `decimals` is ignored at that size and the
+editor does not offer the field and history is not requested. The sizes live in `SIZE_GRID`
 (`constants.ts`).
 
 ```yaml

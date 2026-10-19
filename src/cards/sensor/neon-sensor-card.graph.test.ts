@@ -411,3 +411,25 @@ describe('NeonSensorCard · subtítulo', () => {
     expect(subtitle(el)).toBe('Garaje');
   });
 });
+
+describe('NeonSensorCard · decimales', () => {
+  const value = (el: Card) => q(el, '.value')!.textContent!.trim();
+
+  it('el pequeño muestra siempre un decimal (xx.x), con o sin decimals configurado', async () => {
+    expect(value(await mount({ size: 'compact' }, '20.912'))).toBe('20.9');
+    expect(value(await mount({ size: 'compact', decimals: 3 }, '20.912'))).toBe('20.9');
+    expect(value(await mount({ size: 'compact', decimals: 0 }, '20.96'))).toBe('21.0');
+    expect(value(await mount({ size: 'compact' }, '21'))).toBe('21.0');
+  });
+
+  it('el mediano y el grande siguen respetando decimals', async () => {
+    for (const size of ['normal', 'large']) {
+      expect(value(await mount({ size, decimals: 2 }, '20.912'))).toBe('20.91');
+      expect(value(await mount({ size, decimals: 0 }, '20.912'))).toBe('21');
+    }
+  });
+
+  it('un estado no numérico se muestra tal cual también en el pequeño', async () => {
+    expect(value(await mount({ size: 'compact', decimals: 3 }, 'unavailable'))).not.toMatch(/\d\.\d/);
+  });
+});

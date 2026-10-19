@@ -42,6 +42,7 @@ export interface NeonSensorCardConfig extends NeonPaletteConfig {
   /** `false` oculta el subtítulo por completo (por defecto se muestra). */
   show_subtitle?: boolean;
   icon?: string;
+  /** Decimales del valor. En el tamaño pequeño se ignora: siempre 1 (xx.x). */
   decimals?: number;
   /** Tamaño de la tarjeta. Por defecto `normal`. */
   size?: SensorSize;
