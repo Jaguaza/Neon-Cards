@@ -31,7 +31,10 @@ redimensionar desde el dashboard. El contenido está pensado para que su
 alto no dependa del ancho de la tarjeta: el menú ⋮ no salta de línea, el
 nombre ocupa como mucho dos líneas (el subtítulo se abrevia con «…»), el
 valor y el gráfico van en la misma fila (el gráfico se encoge en vez de saltar de línea y ocupa todo el alto que queda). Lo que no cupiera
-se recorta dentro de la tarjeta, nunca se pinta fuera. La tarjeta pequeña no se
+se recorta dentro de la tarjeta, nunca se pinta fuera. El valor y la etiqueta del
+umbral van siempre en una línea y nunca se parten por dentro (si no caben, se
+abrevian con «…»); en el pequeño, valor y unidad escalan con el ancho real de la
+tarjeta. La tarjeta pequeña no se
 estira hasta rellenar sus 2 filas: mide lo que necesita su contenido (≈ 90 px
 sin subtítulo, ≈ 103 px con él; una fila de la rejilla son 56 px y no cabe),
 y el resto del hueco queda libre. En el pequeño se
@@ -201,7 +204,9 @@ the dashboard. The content is built so that its height does not depend on
 the card's width: the ⋮ menu never wraps onto its own line, the name takes
 at most two lines (the subtitle is cut with "…"), the value and the
 graph share one row (the graph shrinks instead of wrapping and takes all the remaining height). Anything that doesn't fit is
-clipped inside the card, never drawn outside it. The small card doesn't stretch
+clipped inside the card, never drawn outside it. The value and the threshold
+label always stay on one line and never split inside (if they don't fit, they
+are cut with "…"); in small, value and unit scale with the card's real width. The small card doesn't stretch
 to fill its 2 rows: it measures what its content needs (≈ 90 px without
 subtitle, ≈ 103 px with it; one grid row is 56 px and doesn't fit), and the
 rest of the slot stays free. In small the ⋮ menu

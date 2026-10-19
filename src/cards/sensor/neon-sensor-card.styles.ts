@@ -111,7 +111,11 @@ export const NEON_SENSOR_CARD_STYLES = css`
     font-size: clamp(1.6em, 11cqi, 2.2em);
     font-weight: 600;
     line-height: 1.1;
-    overflow-wrap: anywhere;
+    /* Nunca se parte dentro del número: si no cupiera, se abrevia. */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
     color: var(--primary-text-color);
   }
   .unit {
@@ -126,8 +130,14 @@ export const NEON_SENSOR_CARD_STYLES = css`
     align-items: center;
     gap: 8px;
     font-size: 0.95em;
-    overflow-wrap: anywhere;
     color: var(--neon-edge, var(--neon-c1));
+  }
+  /* Una sola línea (la palabra no se parte): si no cupiera, se abrevia. */
+  .status-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .dot {
     flex: none;
@@ -251,6 +261,7 @@ export const NEON_SENSOR_CARD_STYLES = css`
      cabe en ellas, así que nunca se sale. */
   .size-compact {
     height: auto;
+    max-height: 100%;
     padding: 8px 10px 7px;
     gap: 3px;
   }
@@ -284,12 +295,22 @@ export const NEON_SENSOR_CARD_STYLES = css`
   .size-compact .body {
     flex: none;
   }
+  /* Valor y unidad escalan juntos con el ancho real de la tarjeta (24cqi
+     deja sitio a «-12.5 °C»), así que caben aunque el contenedor sea muy
+     estrecho. */
+  .size-compact .reading {
+    font-size: clamp(0.75em, 24cqi, 1.5em);
+    gap: 0 0.3em;
+  }
   .size-compact .value {
-    font-size: clamp(1.25em, 16cqi, 1.5em);
+    font-size: 1em;
+  }
+  .size-compact .unit {
+    font-size: 0.7em;
   }
   .size-compact .status {
-    font-size: 0.8em;
-    gap: 6px;
+    font-size: clamp(0.6em, 13cqi, 0.8em);
+    gap: 4px;
   }
 
   /* Grande: ancho máximo, en 2 filas de la rejilla. Rejilla de dos

@@ -307,7 +307,7 @@ export class NeonSensorCard extends BaseNeonCard {
           })}
       >
         ${this._renderHeader(view)} ${this._renderBody(view)}
-        ${view.rated ? html`<div class="status"><span class="dot"></span>${this._statusLabel(view.rated)}</div>` : nothing}
+        ${view.rated ? html`<div class="status"><span class="dot"></span><span class="status-text">${this._statusLabel(view.rated)}</span></div>` : nothing}
       </ha-card>
     `;
   }

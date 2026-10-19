@@ -433,3 +433,13 @@ describe('NeonSensorCard · decimales', () => {
     expect(value(await mount({ size: 'compact', decimals: 3 }, 'unavailable'))).not.toMatch(/\d\.\d/);
   });
 });
+
+describe('NeonSensorCard · etiqueta de estado', () => {
+  it('el texto de la etiqueta va en su propio elemento (una línea, se abrevia en vez de partirse)', async () => {
+    const el = await mount({ size: 'compact', thresholds_enabled: true, threshold_low: 10, threshold_high: 30 }, '22.9');
+    const text = q(el, '.status .status-text');
+    expect(text).not.toBeNull();
+    expect(text!.textContent!.trim()).toBe('Correcto');
+    expect(q(el, '.status .dot')).not.toBeNull();
+  });
+});
