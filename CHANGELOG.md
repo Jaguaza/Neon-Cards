@@ -11,6 +11,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- Lock Card: en tarjetas estrechas (p. ej. en el iPhone) el pie informativo se partía en varias filas, con una raya separadora suelta, y el estado bajo el nombre se cortaba («Desbloque…»). Ahora el pie va siempre en una sola fila (con menos relleno e iconos más pequeños en tarjetas estrechas y sin iconos con tres datos) y los tres puntos pasan a la esquina para que el estado use todo el ancho.
 - Sensor Card: en contenedores muy estrechos el valor se partía por dentro del número («21. / 9») y la etiqueta por dentro de la palabra («Correct / o»), y la tarjeta pequeña crecía por encima de sus 2 filas. Ahora el valor y la etiqueta nunca se parten (si no cupieran, se abrevian con «…»), en el tamaño pequeño el valor y la unidad escalan con el ancho real de la tarjeta, y la tarjeta pequeña no pasa de su hueco.
 - Sensor Card: en el tamaño pequeño el valor se muestra siempre con un decimal (`xx.x`) y se quita la opción de decimales del editor en ese tamaño (`decimals` se ignora; en mediano y grande funciona como siempre).
 - Sensor Card: la tarjeta pequeña ya no se estira hasta rellenar sus 2 filas de la rejilla: mide lo que necesita su contenido (≈ 90 px sin subtítulo, ≈ 103 px con él, antes 120 px) y su relleno interno es menor.
@@ -324,6 +325,7 @@ and this project follows [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Lock Card: in narrow cards (e.g. on the iPhone) the information footer wrapped onto several rows, with a stray separator line, and the state under the name was cut off ("Desbloque…"). Now the footer always stays on a single row (with less padding and smaller icons in narrow cards, and no icons with three data points) and the three dots move to the corner so the state uses the full width.
 - Sensor Card: in very narrow containers the value was split inside the number ("21. / 9") and the label inside the word ("Correct / o"), and the small card grew past its 2 rows. Now the value and the label never split (if they don't fit, they are cut with "…"), in the small size the value and unit scale with the card's real width, and the small card stays within its slot.
 - Sensor Card: in the small size the value is always shown with one decimal (`xx.x`) and the decimals option is removed from the editor at that size (`decimals` is ignored; in medium and large it works as before).
 - Sensor Card: the small card no longer stretches to fill its 2 grid rows: it measures what its content needs (≈ 90 px without subtitle, ≈ 103 px with it, previously 120 px) and its inner padding is smaller.

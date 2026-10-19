@@ -14,6 +14,7 @@ export const NEON_LOCK_CARD_STYLES = css`
     height: 100%;
   }
   ha-card {
+    container-type: inline-size;
     box-sizing: border-box;
     padding: 14px 16px;
     height: auto;
@@ -36,6 +37,7 @@ export const NEON_LOCK_CARD_STYLES = css`
   /* Cabecera: icono, el nombre con el estado debajo (donde antes iba el
      subtítulo) y, a la derecha, los tres puntos. */
   .header {
+    position: relative;
     display: flex;
     align-items: flex-start;
     gap: 12px;
@@ -59,6 +61,9 @@ export const NEON_LOCK_CARD_STYLES = css`
     min-width: 0;
   }
   .name {
+    /* Deja libre la esquina de los tres puntos (van en posición absoluta):
+       el estado, una línea más abajo, usa todo el ancho. */
+    padding-right: 28px;
     font-size: 18px;
     line-height: 22px;
     font-weight: 500;
@@ -108,8 +113,9 @@ export const NEON_LOCK_CARD_STYLES = css`
     animation: lock-pulse 1.1s ease-in-out infinite;
   }
   .menu {
-    flex: 0 0 auto;
-    margin: -6px -8px 0 0;
+    position: absolute;
+    top: -6px;
+    right: -8px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -139,8 +145,7 @@ export const NEON_LOCK_CARD_STYLES = css`
     position: relative;
     display: flex;
     align-items: stretch;
-    flex-wrap: wrap;
-    row-gap: 8px;
+    flex-wrap: nowrap;
     padding-top: 12px;
   }
   .footer::before {
@@ -160,15 +165,15 @@ export const NEON_LOCK_CARD_STYLES = css`
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     min-width: 0;
-    padding: 0 12px;
+    padding: 0 8px;
   }
   .item + .item {
     border-left: 1px solid color-mix(in srgb, var(--primary-text-color) 20%, transparent);
   }
   .item ha-icon {
-    --mdc-icon-size: 22px;
+    --mdc-icon-size: 20px;
     flex: 0 0 auto;
     margin: 0;
     color: var(--primary-text-color);
@@ -183,6 +188,9 @@ export const NEON_LOCK_CARD_STYLES = css`
     font-size: 10px;
     line-height: 12px;
     color: var(--secondary-text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .item-value {
     font-size: 13px;
@@ -358,6 +366,31 @@ export const NEON_LOCK_CARD_STYLES = css`
     }
     .confirm {
       animation: none;
+    }
+  }
+
+  /* Tarjeta estrecha (p. ej. 6 columnas en un móvil): el pie sigue en una
+     sola fila, con menos relleno e iconos más pequeños; con tres datos se
+     quitan los iconos para que los textos quepan. */
+  @container (max-width: 200px) {
+    .item {
+      gap: 4px;
+      padding: 0 4px;
+    }
+    .item ha-icon {
+      --mdc-icon-size: 18px;
+    }
+  }
+  /* Con tres datos en el pie hacen falta ~275 px: por debajo, sin iconos. */
+  @container (max-width: 300px) {
+    .footer:has(> .item:nth-child(3)) .item ha-icon {
+      display: none;
+    }
+    .footer:has(> .item:nth-child(3)) .item {
+      padding: 0 3px;
+    }
+    .footer:has(> .item:nth-child(3)) .item-value {
+      font-size: 12px;
     }
   }
 `;

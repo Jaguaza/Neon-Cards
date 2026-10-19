@@ -25,7 +25,11 @@ estado (hasta 6 s) para las cerraduras lentas.
   entre sensor de puerta, batería y último acceso (ver
   [Pie informativo](#pie-informativo)). Los datos se reparten a partes
   iguales por todo el ancho de la tarjeta, cada uno centrado en su hueco y
-  separados por una línea.
+  separados por una línea. Van siempre en **una sola fila**: en tarjetas
+  estrechas (p. ej. 6 columnas en un móvil) se reducen el relleno y los
+  iconos y, con tres datos, se quitan los iconos para que los textos quepan.
+  Los tres puntos van en la esquina, así que el estado de debajo del nombre
+  usa todo el ancho.
 
 Misma base visual que la [Button Card](../button) (halo neón que se dibuja
 desde la esquina superior izquierda) y mismo framework (`src/core`,
@@ -252,7 +256,10 @@ slow locks.
   from door sensor, battery and last access (see
   [Information footer](#information-footer)). The data points share the full
   width of the card equally, each one centred in its slot and separated by a
-  line.
+  line. They always stay on a **single row**: in narrow cards (e.g. 6 columns
+  on a phone) the padding and icons shrink and, with three data points, the
+  icons are dropped so the texts fit. The three dots sit in the corner, so the
+  state under the name uses the full width.
 
 Same visual base as the [Button Card](../button) (neon halo drawn from the
 top-left corner) and the same framework (`src/core`, `src/shared`,
