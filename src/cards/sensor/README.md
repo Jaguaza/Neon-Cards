@@ -22,7 +22,7 @@ gráfico y uno sin gráfico.
 
 | `size` | Tamaño | Gráfico | Columnas × filas (fijas) |
 |---|---|---|---|
-| `large` | Grande: el ancho máximo | Sí | 12 × 3 |
+| `large` | Grande: el ancho máximo | Sí | 12 × 2 |
 | `normal` (por defecto) | Mediano | Sí | 6 × 2 |
 | `compact` | Pequeño: lo más pequeño posible | No | 3 × 2 |
 
@@ -32,8 +32,7 @@ alto no dependa del ancho de la tarjeta: el menú ⋮ no salta de línea, el
 nombre ocupa como mucho dos líneas (el subtítulo se abrevia con «…»), el
 valor y el gráfico van en la misma fila (el gráfico se encoge en vez de saltar de línea y ocupa todo el alto que queda). Lo que no cupiera
 se recorta dentro de la tarjeta, nunca se pinta fuera. En el pequeño se
-ocultan el menú ⋮ y el subtítulo «Sensor» (tocar la tarjeta abre igualmente
-«más información») y no se pide el histórico. Los tamaños están en
+oculta el menú ⋮ (tocar la tarjeta abre igualmente «más información») y no se pide el histórico. Los tamaños están en
 `SIZE_GRID` (`constants.ts`).
 
 ```yaml
@@ -188,7 +187,7 @@ a graph and one without.
 
 | `size` | Size | Graph | Columns × rows (fixed) |
 |---|---|---|---|
-| `large` | Large: full width | Yes | 12 × 3 |
+| `large` | Large: full width | Yes | 12 × 2 |
 | `normal` (default) | Medium | Yes | 6 × 2 |
 | `compact` | Small: as small as possible | No | 3 × 2 |
 
@@ -197,9 +196,8 @@ the dashboard. The content is built so that its height does not depend on
 the card's width: the ⋮ menu never wraps onto its own line, the name takes
 at most two lines (the subtitle is cut with "…"), the value and the
 graph share one row (the graph shrinks instead of wrapping and takes all the remaining height). Anything that doesn't fit is
-clipped inside the card, never drawn outside it. In small the ⋮ menu and
-the "Sensor" subtitle are hidden (tapping the card still opens "more
-info") and history is not requested. The sizes live in `SIZE_GRID`
+clipped inside the card, never drawn outside it. In small the ⋮ menu
+is hidden (tapping the card still opens "more info") and history is not requested. The sizes live in `SIZE_GRID`
 (`constants.ts`).
 
 ```yaml

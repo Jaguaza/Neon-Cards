@@ -39,10 +39,11 @@ export const DEFAULT_SIZE: SensorSize = 'normal';
  * - `compact` (3×2): el más pequeño, sin gráfico (nombre, valor, unidad y
  *   etiqueta).
  * - `normal` (6×2): cabecera, valor y gráfico en la misma fila.
- * - `large` (12×3): el ancho máximo, con el gráfico más alto.
+ * - `large` (12×2): el ancho máximo; valor y umbral a la izquierda y el
+ *   gráfico a la derecha.
  */
 export const SIZE_GRID: Record<SensorSize, { columns: number; rows: number }> = {
   compact: { columns: 3, rows: 2 },
   normal: { columns: 6, rows: 2 },
-  large: { columns: 12, rows: 3 },
+  large: { columns: 12, rows: 2 },
 };

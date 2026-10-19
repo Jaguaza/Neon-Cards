@@ -236,6 +236,13 @@ export const NEON_SENSOR_CARD_STYLES = css`
     padding: 10px 12px 8px;
     gap: 4px;
   }
+  /* Dígitos más pequeños para que el gráfico tenga más ancho. */
+  .size-normal .value {
+    font-size: clamp(1.2em, 8cqi, 1.5em);
+  }
+  .size-normal .unit {
+    font-size: 0.85em;
+  }
 
   /* Pequeño: el más compacto posible y sin gráfico (no se pinta). Se
      quitan el menú ⋮ y el subtítulo para ganar sitio; tocar la tarjeta
@@ -260,35 +267,65 @@ export const NEON_SENSOR_CARD_STYLES = css`
     font-size: 0.85em;
     line-height: 1.15;
   }
-  .size-compact .kind,
   .size-compact .menu {
     display: none;
   }
-  /* Sin gráfico: el valor queda abajo, pegado al pie de la tarjeta. */
+  .size-compact .kind {
+    font-size: 0.75em;
+  }
+  /* Sin gráfico: todo el contenido va junto (icono, nombre, subtítulo y
+     valor) y el grupo se centra en vertical, sin huecos entre bloques. */
+  .size-compact {
+    justify-content: center;
+  }
   .size-compact .body {
-    justify-content: flex-end;
+    flex: none;
   }
   .size-compact .value {
-    font-size: clamp(1.25em, 22cqi, 1.9em);
+    font-size: clamp(1.25em, 16cqi, 1.5em);
   }
   .size-compact .status {
     font-size: 0.8em;
     gap: 6px;
   }
 
-  /* Grande: ancho máximo (12 columnas), más aire y gráfico más alto. */
+  /* Grande: ancho máximo, en 2 filas de la rejilla. Rejilla de dos
+     columnas: cabecera arriba (a todo el ancho); debajo, el valor con la
+     etiqueta del umbral a la izquierda y el gráfico a la derecha, ocupando
+     el alto de ambas filas. (el contenedor .body se aplana con display: contents para
+     que valor y gráfico sean celdas de la rejilla.) */
   .size-large {
-    padding: 14px 20px 12px;
-    gap: 8px;
+    padding: 12px 18px 10px;
+    gap: 4px 16px;
+    display: grid;
+    grid-template-columns: minmax(0, max-content) minmax(80px, 1fr);
+    grid-template-rows: auto 1fr auto;
+    align-content: start;
+  }
+  .size-large .header {
+    grid-column: 1 / -1;
   }
   .size-large .icon {
-    --mdc-icon-size: 52px;
+    --mdc-icon-size: 42px;
   }
-  .size-large .value {
-    font-size: clamp(2.2em, 12cqi, 3em);
+  .size-large .body {
+    display: contents;
+  }
+  .size-large .reading {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .size-large .status {
+    grid-column: 1;
+    grid-row: 3;
   }
   .size-large .graph {
-    min-width: 80px;
+    grid-column: 2;
+    grid-row: 2 / span 2;
+    min-height: 0;
+  }
+  .size-large .value {
+    font-size: clamp(1.5em, 6cqi, 1.75em);
   }
   .size-large .trace {
     stroke-width: 3.5px;

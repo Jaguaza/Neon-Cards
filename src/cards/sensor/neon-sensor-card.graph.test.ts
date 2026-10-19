@@ -325,11 +325,11 @@ describe('NeonSensorCard · tamaños', () => {
     expect(q(el, 'ha-card')!.classList.contains('size-normal')).toBe(true);
   });
 
-  it('el grid de HA: hueco fijo — grande 12×3, mediano 6×2 (por defecto), pequeño 3×2', async () => {
+  it('el grid de HA: hueco fijo — grande 12×2, mediano 6×2 (por defecto), pequeño 3×2', async () => {
     const fixed = (columns: number, rows: number) => ({
       columns, rows, min_columns: columns, max_columns: columns, min_rows: rows, max_rows: rows,
     });
-    expect(grid(await mount({ size: 'large' }))).toEqual(fixed(12, 3));
+    expect(grid(await mount({ size: 'large' }))).toEqual(fixed(12, 2));
     expect(grid(await mount({ size: 'normal' }))).toEqual(fixed(6, 2));
     expect(grid(await mount({ size: 'compact' }))).toEqual(fixed(3, 2));
     expect(grid(await mount({}))).toEqual(fixed(6, 2));
