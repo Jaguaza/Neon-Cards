@@ -33,8 +33,8 @@ export const NEON_LOCK_CARD_STYLES = css`
     gap: 12px;
     height: auto;
   }
-  /* Cabecera: icono, nombre con subtítulo a su lado y, a la derecha, el
-     estado y los tres puntos. */
+  /* Cabecera: icono, el nombre con el estado debajo (donde antes iba el
+     subtítulo) y, a la derecha, los tres puntos. */
   .header {
     display: flex;
     align-items: flex-start;
@@ -67,31 +67,23 @@ export const NEON_LOCK_CARD_STYLES = css`
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .subtitle {
-    font-size: 11px;
-    line-height: 14px;
-    color: var(--secondary-text-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .top-right {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    flex: 0 0 auto;
-    margin: -6px -8px 0 0;
-  }
   .status {
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    min-width: 0;
     font-size: 12px;
     line-height: 16px;
     color: var(--primary-text-color);
     white-space: nowrap;
   }
+  .status-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .status-dot {
+    flex: none;
     width: 8px;
     height: 8px;
     border-radius: 50%;
@@ -115,15 +107,9 @@ export const NEON_LOCK_CARD_STYLES = css`
   .lock-moving .status-dot {
     animation: lock-pulse 1.1s ease-in-out infinite;
   }
-  /* Sin los tres puntos (entidad no disponible) se reserva su hueco: el
-     estado queda donde está en una tarjeta operativa y no se pega a la
-     esquina redondeada del borde. */
-  .menu-spacer {
-    flex: 0 0 auto;
-    width: 32px;
-    height: 32px;
-  }
   .menu {
+    flex: 0 0 auto;
+    margin: -6px -8px 0 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;

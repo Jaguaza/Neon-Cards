@@ -66,6 +66,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- Lock Card: el estado (con su punto de color) pasa a ir bajo el nombre, donde estaba el subtítulo, y se elimina la opción de subtítulo (`subtitle_type` y `subtitle`, también del editor). Las configuraciones antiguas con esas claves siguen funcionando: se ignoran. Arriba a la derecha solo quedan los tres puntos (con la entidad no disponible no se muestran y ya no se reserva su hueco).
 - Lock Card: `subtitle_type` pasa a valer `none` por defecto, porque el estado
   ya se muestra arriba a la derecha (antes era `state`; se puede volver con
   `subtitle_type: state`). La tarjeta ocupa por defecto media rejilla
@@ -330,6 +331,10 @@ and this project follows [Semantic Versioning](https://semver.org/).
 - Sensor Card: design tweaks after the fixed slot. Explicit line-heights on name, subtitle and label (HA inherited ~1.5, which fattened the header and squashed the graph); in narrow cards the medium size's icon and ⋮ menu shrink so the name fits on one line; and in small the icon goes on top with the name below at full width (it used to end up as "Te m…").
 - Sensor Card: the graphs were drawn outside the card. The content height depended on the width (in narrow cards the ⋮ menu and the graph wrapped onto new lines) and HA reserved a smaller height. Each size now takes a fixed slot in the grid (small 3×2, medium 6×2, large 12×2, columns × rows, not resizable) and the layout height no longer changes with width: the menu doesn't wrap, the name takes at most two lines, and the value and graph share one row (the graph shrinks instead of wrapping). Anything that doesn't fit is clipped inside the card.
 - Thermostat Card: each size now takes a fixed slot in the HA grid and can't be resized: small 5×4, medium 8×5 and large 12×5 (columns × rows). In the editor, the "Normal" size is now called "Medium" (the YAML value is still `normal`).
+
+### Changed
+
+- Lock Card: the state (with its coloured dot) now goes under the name, where the subtitle was, and the subtitle option is removed (`subtitle_type` and `subtitle`, also from the editor). Old configurations with those keys keep working: they are ignored. At the top right only the three dots remain (with the entity unavailable they are not shown and their space is no longer reserved).
 
 ## [1.2.0] - 2026-10-11
 

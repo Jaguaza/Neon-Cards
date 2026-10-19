@@ -8,7 +8,6 @@ import {
   cancelHold,
   handleClick,
   dispatchHassAction,
-  computeInfoDisplay,
   localize,
 } from '../../core';
 import type { GestureState } from '../../core';
@@ -147,20 +146,6 @@ export class NeonLockCard extends BaseNeonCard {
 
   private get _name(): string {
     return this._config?.name || (this._stateObj?.attributes.friendly_name as string | undefined) || '';
-  }
-
-  /** Subtítulo según `subtitle_type`: 'none' (por defecto: el estado ya
-      va arriba a la derecha) no muestra nada; 'state' repite el estado
-      TRADUCIDO; 'custom' el texto libre; el resto delega en
-      `computeInfoDisplay` de `src/core`, igual que Button y Entity. */
-  private _subtitle(state: ReturnType<typeof resolveLockState>): string | TemplateResult | typeof nothing {
-    const type = this._config?.subtitle_type || 'none';
-    if (type === 'custom') return this._config?.subtitle || nothing;
-    if (type === 'none') return nothing;
-    if (type === 'state') return state ? localize(this.hass, LOCK_TRANSLATIONS, `state_${state}`) : nothing;
-    const stateObj = this._stateObj;
-    if (!stateObj || !this.hass) return nothing;
-    return computeInfoDisplay(type, this._name, stateObj.state, stateObj, this.hass);
   }
 
   /** Acción configurada para cada gesto, con los valores por defecto de la tarjeta. */
@@ -364,7 +349,6 @@ export class NeonLockCard extends BaseNeonCard {
     // Lo que dice el rótulo: «Puerta abierta» solo con el sensor de puerta
     // activo y «Abriendo puerta…» al abrir (ver `displayState`).
     const shown = displayState(state, doorSensorOpen(this._config, this.hass), this._isPending() && this._pendingOpening);
-    const subtitle = this._subtitle(shown);
     const footer = resolveFooterItems(this._config, this.hass, this._stateObj);
     const hasDoubleTap = !!this._config.double_tap_action && this._config.double_tap_action.action !== 'none';
 
@@ -390,11 +374,9 @@ export class NeonLockCard extends BaseNeonCard {
               : this._iconDef.template(isLockOpenPose(state))}
             <div class="text">
               <span class="name">${this._name}</span>
-              ${subtitle !== nothing ? html`<span class="subtitle">${subtitle}</span>` : nothing}
+              ${state && shown ? this._renderStatus(shown) : nothing}
             </div>
-            ${state && shown
-              ? html`<div class="top-right">${this._renderStatus(shown)}${state !== 'error' ? this._renderMenu() : html`<span class="menu-spacer"></span>`}</div>`
-              : nothing}
+            ${state && shown && state !== 'error' ? this._renderMenu() : nothing}
           </div>
           ${footer.length ? html`<div class="footer">${footer.map((item) => this._renderFooterItem(item))}</div>` : nothing}
         </div>
