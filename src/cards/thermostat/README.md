@@ -70,41 +70,7 @@ mismo modo).
 
 La tarjeta **no** reacciona a cambios hechos fuera de ella (diálogo de
 la entidad, otra tarjeta, una automatización, un asistente de voz u
-otro usuario): solo envía órdenes cuando interactúas con ella. Si
-quieres evitar dos equipos en modos distintos también en esos casos,
-usa una automatización de Home Assistant, que además funciona con el
-panel cerrado. Cambia los dos `climate.salon_*` por tus entidades:
-
-```yaml
-alias: Salón — calor y frío no a la vez
-description: Si un equipo pasa a un modo activo distinto del que tiene el otro, apaga el otro.
-mode: queued
-triggers:
-  - trigger: state
-    entity_id:
-      - climate.salon_calor
-      - climate.salon_frio
-variables:
-  otro: >-
-    {{ 'climate.salon_frio' if trigger.entity_id == 'climate.salon_calor'
-       else 'climate.salon_calor' }}
-conditions:
-  - condition: template
-    value_template: >-
-      {% set nuevo = trigger.to_state.state %}
-      {% set del_otro = states(otro) %}
-      {{ trigger.from_state is not none
-         and trigger.from_state.state != nuevo
-         and nuevo not in ['off', 'unavailable', 'unknown']
-         and del_otro not in ['off', 'unavailable', 'unknown']
-         and del_otro != nuevo }}
-actions:
-  - action: climate.set_hvac_mode
-    target:
-      entity_id: "{{ otro }}"
-    data:
-      hvac_mode: "off"
-```
+otro usuario): solo envía órdenes cuando interactúas con ella.
 
 ## Paleta de colores
 
@@ -260,41 +226,7 @@ same time in the same mode).
 
 The card does **not** react to changes made outside it (the entity's
 dialog, another card, an automation, a voice assistant or another user):
-it only sends commands when you interact with it. If you also want to
-prevent two units in different modes in those cases, use a Home Assistant
-automation, which also works with the dashboard closed. Replace the two
-`climate.salon_*` with your entities:
-
-```yaml
-alias: Living room — heating and cooling not together
-description: If one unit switches to an active mode different from the other's, turn the other off.
-mode: queued
-triggers:
-  - trigger: state
-    entity_id:
-      - climate.salon_calor
-      - climate.salon_frio
-variables:
-  other: >-
-    {{ 'climate.salon_frio' if trigger.entity_id == 'climate.salon_calor'
-       else 'climate.salon_calor' }}
-conditions:
-  - condition: template
-    value_template: >-
-      {% set new = trigger.to_state.state %}
-      {% set other_state = states(other) %}
-      {{ trigger.from_state is not none
-         and trigger.from_state.state != new
-         and new not in ['off', 'unavailable', 'unknown']
-         and other_state not in ['off', 'unavailable', 'unknown']
-         and other_state != new }}
-actions:
-  - action: climate.set_hvac_mode
-    target:
-      entity_id: "{{ other }}"
-    data:
-      hvac_mode: "off"
-```
+it only sends commands when you interact with it.
 
 ## Color palette
 
