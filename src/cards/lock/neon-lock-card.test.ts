@@ -376,6 +376,18 @@ describe('NeonLockCard', () => {
       return actions;
     };
 
+    it('con la vista abierta la tarjeta lleva «confirming» (la vista ocupa el sitio del contenido y no se corta) y la pierde al cancelar', async () => {
+      const el = await mount({});
+      expect(card(el).classList.contains('confirming')).toBe(false);
+      await ask(el);
+      expect(card(el).classList.contains('confirming')).toBe(true);
+      btn(el, 'cancel').click();
+      await el.updateComplete;
+      vi.advanceTimersByTime?.(0);
+      expect(confirmView(el)).toBeNull();
+      expect(card(el).classList.contains('confirming')).toBe(false);
+    });
+
     it('pulsar una cerradura cerrada muestra «¿Abrir?» con el halo encendido y NO ejecuta la acción', async () => {
       const el = await mount({});
       const actions = listen(el);

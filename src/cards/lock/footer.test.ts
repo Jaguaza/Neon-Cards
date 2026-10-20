@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { STATUS_DOT_DEFAULTS } from './constants';
-import { LOCK_FOOTER_ITEM_TYPES, batteryIcon, formatAccessTime, normalizeFooterItems, resolveFooterItems } from './footer';
+import { LOCK_FOOTER_ITEM_TYPES, MAX_FOOTER_ITEMS_MEDIUM, batteryIcon, formatAccessTime, maxFooterItems, normalizeFooterItems, resolveFooterItems } from './footer';
 
 const NOW = new Date('2026-10-15T12:00:00');
 const iso = (d: string) => new Date(d).toISOString();
@@ -162,5 +162,41 @@ describe('resolveFooterItems · conjunto', () => {
   });
   it('sin footer_items no hay nada', () => {
     expect(resolveFooterItems({ entity: 'lock.p' }, hassOf({}), entity('locked'), NOW)).toEqual([]);
+  });
+});
+
+describe('tamaño y número de datos del pie', () => {
+  it('la mediana admite dos datos y la grande tres', () => {
+    expect(MAX_FOOTER_ITEMS_MEDIUM).toBe(2);
+    expect(maxFooterItems('medium')).toBe(2);
+    expect(maxFooterItems('large')).toBe(3);
+  });
+
+  it('normalizeFooterItems recorta al máximo pedido y respeta el orden', () => {
+    expect(normalizeFooterItems(['battery', 'last_user', 'door'])).toEqual(['battery', 'last_user', 'door']);
+    expect(normalizeFooterItems(['battery', 'last_user', 'door'], 2)).toEqual(['battery', 'last_user']);
+    expect(normalizeFooterItems(['door', 'battery', 'last_user'], 2)).toEqual(['door', 'battery']);
+  });
+
+  it('resolveFooterItems con máximo 2 solo devuelve dos', () => {
+    const hass = hassOf({ 'lock.p': entity('locked', { battery_level: 80, changed_by: 'Jorge' }) });
+    const cfg = { entity: 'lock.p', footer_items: ['battery', 'last_user', 'door'] } as never;
+    expect(resolveFooterItems(cfg, hass, hass.states['lock.p'], NOW, 2).map((i) => i.type)).toEqual(['battery', 'last_user']);
+    expect(resolveFooterItems(cfg, hass, hass.states['lock.p'], NOW).map((i) => i.type)).toEqual(['battery', 'last_user', 'door']);
+  });
+
+  it('el último acceso separa el nombre y la fecha, y «text» sigue siendo «nombre · fecha»', () => {
+    const hass = hassOf({ 'lock.p': entity('locked', { changed_by: 'Jorge' }, iso('2026-10-12T23:50:00')) });
+    const [item] = resolveFooterItems({ entity: 'lock.p', footer_items: ['last_user'] } as never, hass, hass.states['lock.p'], NOW);
+    expect(item.who).toBe('Jorge');
+    expect(item.when).toBe(item.text.replace('Jorge · ', ''));
+    expect(item.text.startsWith('Jorge · ')).toBe(true);
+  });
+
+  it('sin nombre no hay «who» ni «when»', () => {
+    const hass = hassOf({ 'lock.p': entity('locked', {}) });
+    const [item] = resolveFooterItems({ entity: 'lock.p', footer_items: ['last_user'] } as never, hass, hass.states['lock.p'], NOW);
+    expect(item.who).toBeUndefined();
+    expect(item.when).toBeUndefined();
   });
 });

@@ -433,16 +433,94 @@ export const NEON_LOCK_CARD_STYLES = css`
       --mdc-icon-size: 18px;
     }
   }
-  /* Con tres datos en el pie hacen falta ~275 px: por debajo, sin iconos. */
+  /* El último acceso lleva el nombre y la fecha en elementos propios (nombre,
+     separador, fecha). Ancho: una línea con su rótulo. Estrecho: dos líneas
+     (nombre y fecha), sin rótulo, para que no se corte con «…». */
+  .size-medium .item-value .who,
+  .size-medium .item-value .when {
+    white-space: nowrap;
+  }
   @container (max-width: 300px) {
-    .size-medium .footer:has(> .item:nth-child(3)) .item ha-icon {
+    .size-medium .item-label {
       display: none;
     }
-    .size-medium .footer:has(> .item:nth-child(3)) .item {
-      padding: 0 3px;
-    }
-    .size-medium .footer:has(> .item:nth-child(3)) .item-value {
+    .size-medium .item-value .who,
+    .size-medium .item-value .when {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
       font-size: 12px;
+      line-height: 15px;
+    }
+    .size-medium .item-value .sep {
+      display: none;
+    }
+  }
+  /* Tarjeta muy estrecha (~180 px): con el último acceso, sin iconos para que
+     quepan los textos. */
+  @container (max-width: 156px) {
+    .size-medium .footer:has(> [data-type='last_user']) .item ha-icon {
+      display: none;
+    }
+  }
+  /* Puerta + último acceso en una tarjeta muy estrecha: sin iconos para que
+     quepan los textos. */
+  @container (max-width: 240px) {
+    .size-medium .footer:has(> [data-type='door']):has(> [data-type='last_user']) .item ha-icon {
+      display: none;
+    }
+  }
+
+  /* ───────── Vista «¿Abrir?» / «¿Qué quieres hacer?» ─────────
+     Mientras está abierta, la vista ocupa el mismo sitio que el contenido
+     (en la misma celda de una rejilla) en vez de flotar encima: la tarjeta
+     mide lo mayor de las dos y, si los botones no caben, crece en lugar de
+     cortarlos con el max-height / overflow del ha-card. */
+  .confirming {
+    display: grid;
+    /* La columna mide el ancho de la tarjeta, no el del contenido (si no, el
+       contenido sin hueco la ensancharía y los botones se saldrían). */
+    grid-template-columns: minmax(0, 1fr);
+    max-height: none;
+    container-type: inline-size;
+  }
+  .confirming .content,
+  .confirming .confirm {
+    grid-area: 1 / 1;
+    min-width: 0;
+  }
+  .confirming .confirm {
+    position: relative;
+    inset: auto;
+    padding: 4px;
+  }
+  /* Tarjeta estrecha (p. ej. 6 columnas en un móvil): título de una línea y
+     botones compactos en una sola fila. */
+  @container (max-width: 260px) {
+    .confirming .confirm {
+      padding: 4px 0;
+      gap: 4px 8px;
+    }
+    .confirming .confirm-title {
+      font-size: 16px;
+      line-height: 20px;
+    }
+    .confirming .confirm-text {
+      flex-basis: 100%;
+    }
+    /* Si ni así caben en una fila (~180 px), bajan a la siguiente: la
+       tarjeta crece, no se corta. */
+    .confirming .confirm-actions {
+      flex: 1 1 100%;
+      gap: 4px;
+    }
+    .confirming .confirm--multi .confirm-btn {
+      padding: 0 6px;
+      font-size: 12px;
+    }
+    .confirming .confirm--multi .confirm-btn.cancel {
+      width: 26px;
+      padding: 0;
     }
   }
 `;

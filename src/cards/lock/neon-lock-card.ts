@@ -30,7 +30,7 @@ import type { LockCommand } from './lock-state';
 import { resolveLockSize } from './lock-size';
 import { NEON_LOCK_CARD_STYLES } from './neon-lock-card.styles';
 import { LOCK_TRANSLATIONS } from './translations';
-import { resolveFooterItems } from './footer';
+import { maxFooterItems, resolveFooterItems } from './footer';
 import type { FooterItemView } from './footer';
 import type { LockTranslations } from './translations';
 import type { LockVisualState, NeonLockCardConfig } from './types';
@@ -303,13 +303,19 @@ export class NeonLockCard extends BaseNeonCard {
     );
   }
 
-  private _renderFooterItem(item: FooterItemView): TemplateResult {
+  private _renderFooterItem(item: FooterItemView, medium = false): TemplateResult {
+    // Mediana: el último acceso lleva el nombre y la fecha en elementos
+    // propios para poder apilarlos en dos líneas en tarjetas estrechas.
+    const value =
+      medium && item.who !== undefined
+        ? html`<span class="who">${item.who}</span>${item.when ? html`<span class="sep"> · </span><span class="when">${item.when}</span>` : nothing}`
+        : item.text;
     return html`
       <div class="item item--${item.tone}" data-type=${item.type} style=${item.color ? `--item-color: ${item.color}` : nothing}>
         <ha-icon icon=${item.icon}></ha-icon>
         <div class="item-text">
           ${item.label ? html`<span class="item-label">${item.label}</span>` : nothing}
-          <span class="item-value">${item.text}</span>
+          <span class="item-value">${value}</span>
         </div>
       </div>
     `;
@@ -368,12 +374,13 @@ export class NeonLockCard extends BaseNeonCard {
     const medium = resolveLockSize(this._config) === 'medium';
     // La mediana no tiene subtítulo: el estado ocupa su sitio bajo el nombre.
     const subtitle = medium ? nothing : this._subtitle(shown);
-    const footer = resolveFooterItems(this._config, this.hass, this._stateObj);
+    // La mediana muestra como mucho dos datos en el pie (la grande, tres).
+    const footer = resolveFooterItems(this._config, this.hass, this._stateObj, undefined, maxFooterItems(medium ? 'medium' : 'large'));
     const hasDoubleTap = !!this._config.double_tap_action && this._config.double_tap_action.action !== 'none';
 
     return html`
       <ha-card
-        class="neon-ring-host size-${medium ? 'medium' : 'large'} ${isLockHaloOn(state) || this._isPending() || this._confirm ? 'neon-halo-active' : ''} ${isLockAlert(state) ? 'neon-halo-error' : ''} ${isLockMoving(state) ? 'lock-moving' : ''}"
+        class="neon-ring-host size-${medium ? 'medium' : 'large'} ${this._confirm && this._confirmShown ? 'confirming' : ''} ${isLockHaloOn(state) || this._isPending() || this._confirm ? 'neon-halo-active' : ''} ${isLockAlert(state) ? 'neon-halo-error' : ''} ${isLockMoving(state) ? 'lock-moving' : ''}"
         style=${neonHaloVars(colors)}
         @pointerdown=${(ev: PointerEvent) => handlePointerDown(this._gesture, ev, '.-none-', () => this._handleAction('hold'))}
         @pointerup=${() => cancelHold(this._gesture)}
@@ -409,7 +416,7 @@ export class NeonLockCard extends BaseNeonCard {
                     : nothing}
                 `}
           </div>
-          ${footer.length ? html`<div class="footer">${footer.map((item) => this._renderFooterItem(item))}</div>` : nothing}
+          ${footer.length ? html`<div class="footer">${footer.map((item) => this._renderFooterItem(item, medium))}</div>` : nothing}
         </div>
       ${this._confirm && this._confirmShown ? this._renderConfirm() : nothing}
       </ha-card>

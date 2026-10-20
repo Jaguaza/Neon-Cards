@@ -11,6 +11,9 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- Lock Card: el pie de la tarjeta mediana se cortaba en el iPhone y en el HP («8…», «Jorge · 19 oct…»), porque el último acceso con fecha es largo y el reparto proporcional recortaba también la batería. Ahora «80 %» no se recorta, el último acceso pasa a dos líneas (nombre y fecha) en tarjetas estrechas y con ~180 px se quitan los iconos.
+- Lock Card: la vista de confirmación («¿Abrir?», «¿Qué quieres hacer?») se cortaba por abajo en tarjetas estrechas: los botones saltaban a una segunda fila fuera de la tarjeta. Ahora la vista ocupa el sitio del contenido (la tarjeta crece si hace falta), el título va en una línea y los botones, compactos, en una sola fila.
+- Lock Card: la tarjeta mediana admite como mucho dos datos en el pie; el editor no deja activar un tercero (y avisa si ya venía de la grande) y la tarjeta solo pinta los dos primeros.
 - Sensor Card: en contenedores muy estrechos el valor se partía por dentro del número («21. / 9») y la etiqueta por dentro de la palabra («Correct / o»), y la tarjeta pequeña crecía por encima de sus 2 filas. Ahora el valor y la etiqueta nunca se parten (si no cupieran, se abrevian con «…»), en el tamaño pequeño el valor y la unidad escalan con el ancho real de la tarjeta, y la tarjeta pequeña no pasa de su hueco.
 - Sensor Card: en el tamaño pequeño el valor se muestra siempre con un decimal (`xx.x`) y se quita la opción de decimales del editor en ese tamaño (`decimals` se ignora; en mediano y grande funciona como siempre).
 - Sensor Card: la tarjeta pequeña ya no se estira hasta rellenar sus 2 filas de la rejilla: mide lo que necesita su contenido (≈ 90 px sin subtítulo, ≈ 103 px con él, antes 120 px) y su relleno interno es menor.
@@ -334,6 +337,9 @@ and this project follows [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Lock Card: the medium card's footer was cut off on the iPhone and the HP ("8…", "Jorge · 19 oct…"), because the last access with a date is long and the proportional split also clipped the battery. Now "80 %" is never clipped, the last access goes onto two lines (name and date) in narrow cards and at ~180 px the icons are dropped.
+- Lock Card: the confirmation view ("Open?", "What do you want to do?") was cut off at the bottom in narrow cards: the buttons wrapped onto a second row outside the card. Now the view takes the place of the content (the card grows if needed), the title fits on one line and the buttons are compact, on a single row.
+- Lock Card: the medium card allows at most two footer data points; the editor won't let you enable a third (and warns if it came from the large size) and the card only draws the first two.
 - Sensor Card: in very narrow containers the value was split inside the number ("21. / 9") and the label inside the word ("Correct / o"), and the small card grew past its 2 rows. Now the value and the label never split (if they don't fit, they are cut with "…"), in the small size the value and unit scale with the card's real width, and the small card stays within its slot.
 - Sensor Card: in the small size the value is always shown with one decimal (`xx.x`) and the decimals option is removed from the editor at that size (`decimals` is ignored; in medium and large it works as before).
 - Sensor Card: the small card no longer stretches to fill its 2 grid rows: it measures what its content needs (≈ 90 px without subtitle, ≈ 103 px with it, previously 120 px) and its inner padding is smaller.

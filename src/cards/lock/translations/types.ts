@@ -56,6 +56,9 @@ export interface LockTranslations {
   door_entity_label: string;
   battery_entity_label: string;
   last_user_entity_label: string;
+  footer_hint_medium: string;
+  footer_limit_medium: string;
+  footer_hidden_medium: string;
   footer_show: string;
   footer_battery_desc: string;
   footer_last_user_desc: string;

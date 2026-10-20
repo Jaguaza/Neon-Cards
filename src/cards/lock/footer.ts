@@ -3,10 +3,18 @@ import { localize } from '../../core';
 import { STATUS_DOT_DEFAULTS } from './constants';
 import { statusDotColor } from './lock-state';
 import { LOCK_TRANSLATIONS } from './translations';
-import type { LockFooterItem, NeonLockCardConfig } from './types';
+import type { LockFooterItem, LockSize, NeonLockCardConfig } from './types';
 
-/** Máximo de iconos informativos en el pie. */
+/** Máximo de iconos informativos en el pie (tarjeta grande). */
 export const MAX_FOOTER_ITEMS = 3;
+
+/** En la tarjeta mediana caben dos. */
+export const MAX_FOOTER_ITEMS_MEDIUM = 2;
+
+/** Máximo de datos del pie según el tamaño de la tarjeta. */
+export function maxFooterItems(size: LockSize): number {
+  return size === 'medium' ? MAX_FOOTER_ITEMS_MEDIUM : MAX_FOOTER_ITEMS;
+}
 
 /** Tipos válidos, en el orden en que los ofrece el editor. */
 export const LOCK_FOOTER_ITEM_TYPES: readonly LockFooterItem[] = ['door', 'battery', 'last_user'];
@@ -28,6 +36,13 @@ export interface FooterItemView {
   /** Texto pequeño encima del valor (solo «Último acceso»). */
   label?: string;
   text: string;
+  /**
+   * Solo «Último acceso»: el nombre y la fecha/hora por separado. `text` es
+   * «nombre · fecha». La mediana los apila en dos líneas cuando no caben en
+   * una; la grande pinta `text` tal cual.
+   */
+  who?: string;
+  when?: string;
   tone: FooterTone;
   /**
    * Color CSS del icono y del valor cuando el dato está ACTIVO y comparte color
@@ -58,15 +73,15 @@ const DOOR_ICONS: Record<string, readonly [string, string]> = {
 
 /**
  * Items configurados, ya sin repetidos ni tipos desconocidos y recortados
- * a `MAX_FOOTER_ITEMS`: lo que realmente se dibuja.
+ * a `max` (3 por defecto): lo que realmente se dibuja.
  */
-export function normalizeFooterItems(items: unknown): LockFooterItem[] {
+export function normalizeFooterItems(items: unknown, max: number = MAX_FOOTER_ITEMS): LockFooterItem[] {
   if (!Array.isArray(items)) return [];
   const out: LockFooterItem[] = [];
   for (const item of items) {
     if (LOCK_FOOTER_ITEM_TYPES.includes(item as LockFooterItem) && !out.includes(item as LockFooterItem)) out.push(item as LockFooterItem);
   }
-  return out.slice(0, MAX_FOOTER_ITEMS);
+  return out.slice(0, max);
 }
 
 /** Icono de batería de mdi más cercano al nivel (`mdi:battery-70`, `mdi:battery-alert`…). */
@@ -150,6 +165,7 @@ function lastUserItem(config: NeonLockCardConfig, hass: HomeAssistant | undefine
     icon: 'mdi:account',
     label: localize(hass, LOCK_TRANSLATIONS, 'last_access'),
     text: name ? (time ? `${name} · ${time}` : name) : NO_DATA,
+    ...(name ? { who: name, ...(time ? { when: time } : {}) } : {}),
     tone: name ? 'normal' : 'muted',
   };
 }
@@ -162,9 +178,10 @@ export function resolveFooterItems(
   config: NeonLockCardConfig,
   hass: HomeAssistant | undefined,
   lock: EntityLike | undefined,
-  now: Date = new Date()
+  now: Date = new Date(),
+  max: number = MAX_FOOTER_ITEMS
 ): FooterItemView[] {
-  return normalizeFooterItems(config.footer_items).map((type) => {
+  return normalizeFooterItems(config.footer_items, max).map((type) => {
     if (type === 'door') return doorItem(config, hass);
     if (type === 'battery') return batteryItem(config, hass, lock);
     return lastUserItem(config, hass, lock, now);

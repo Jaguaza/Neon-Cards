@@ -102,6 +102,39 @@ describe('tamaño de la Lock Card', () => {
     });
   });
 
+  describe('pie', () => {
+    const hassFull = () => ({
+      ...hass(),
+      states: {
+        'lock.puerta': { entity_id: 'lock.puerta', state: 'locked', last_changed: '2026-10-17T07:34:00Z', last_updated: '', attributes: { friendly_name: 'Puerta', battery_level: 80, changed_by: 'Jorge' } },
+        'binary_sensor.d': { entity_id: 'binary_sensor.d', state: 'off', last_changed: '', last_updated: '', attributes: { device_class: 'door' } },
+      },
+    });
+    const items = (el: Card) => Array.from(el.shadowRoot!.querySelectorAll('.footer .item')).map((i) => i.getAttribute('data-type'));
+
+    it('la mediana muestra como mucho dos datos aunque haya tres configurados; la grande, tres', async () => {
+      const cfg = { door_entity: 'binary_sensor.d', footer_items: ['battery', 'last_user', 'door'] };
+      expect(items(await mount({ ...cfg, size: 'medium' }, hassFull()))).toEqual(['battery', 'last_user']);
+      expect(items(await mount({ ...cfg, size: 'large' }, hassFull()))).toEqual(['battery', 'last_user', 'door']);
+    });
+
+    it('mediana: el último acceso lleva el nombre y la fecha en elementos propios (para apilarlos si no caben)', async () => {
+      const el = await mount({ size: 'medium', footer_items: ['last_user'] }, hassFull());
+      const value = q(el, '.item-value')!;
+      expect(value.querySelector('.who')!.textContent).toBe('Jorge');
+      expect(value.querySelector('.sep')).not.toBeNull();
+      expect(value.querySelector('.when')!.textContent!.length).toBeGreaterThan(0);
+      expect(value.textContent).toMatch(/^Jorge · /);
+    });
+
+    it('grande: el último acceso es un único texto, como siempre', async () => {
+      const el = await mount({ size: 'large', footer_items: ['last_user'] }, hassFull());
+      const value = q(el, '.item-value')!;
+      expect(value.querySelector('.who')).toBeNull();
+      expect(value.textContent).toMatch(/^Jorge · /);
+    });
+  });
+
   describe('editor', () => {
     it('ofrece Mediana y Grande; Grande (por defecto) no guarda la clave', async () => {
       const { el, last } = await mountEditor({ entity: 'lock.puerta' });
@@ -115,6 +148,52 @@ describe('tamaño de la Lock Card', () => {
       (q(el, '#size') as HTMLSelectElement).value = 'large';
       q(el, '#size')!.dispatchEvent(new Event('change'));
       expect('size' in last()).toBe(false);
+    });
+
+    describe('datos del pie', () => {
+      const sw = (el: Editor, type: string) => q(el, `[data-footer="${type}"] ha-switch`) as (HTMLElement & { disabled: boolean }) | null;
+
+      it('en la mediana, con dos datos elegidos el tercero no se puede activar', async () => {
+        const { el } = await mountEditor({ entity: 'lock.puerta', size: 'medium', footer_items: ['battery', 'last_user'] });
+        expect(sw(el, 'door')!.disabled).toBe(true);
+        expect(sw(el, 'battery')!.disabled).toBe(false);
+        expect(sw(el, 'last_user')!.disabled).toBe(false);
+        expect(q(el, '[data-footer="door"]')!.classList.contains('blocked')).toBe(true);
+      });
+
+      it('en la mediana con menos de dos datos se pueden activar; en la grande hasta tres', async () => {
+        const med = await mountEditor({ entity: 'lock.puerta', size: 'medium', footer_items: ['battery'] });
+        expect(sw(med.el, 'door')!.disabled).toBe(false);
+        const large = await mountEditor({ entity: 'lock.puerta', footer_items: ['battery', 'last_user'] });
+        expect(sw(large.el, 'door')!.disabled).toBe(false);
+      });
+
+      it('un tercer dato heredado de la grande se avisa como «no se muestra» y se puede apagar', async () => {
+        const { el, last } = await mountEditor({ entity: 'lock.puerta', size: 'medium', footer_items: ['battery', 'last_user', 'door'] });
+        expect(q(el, '[data-footer="door"] .data-warning')).not.toBeNull();
+        expect(q(el, '[data-footer="battery"] .data-warning')).toBeNull();
+        const door = sw(el, 'door')!;
+        expect(door.disabled).toBe(false);
+        (door as unknown as { checked: boolean }).checked = false;
+        door.dispatchEvent(new Event('change'));
+        expect(last().footer_items).toEqual(['battery', 'last_user']);
+      });
+
+      it('en la mediana no se puede forzar un tercer dato aunque llegue el evento', async () => {
+        const { el, last } = await mountEditor({ entity: 'lock.puerta', size: 'medium', footer_items: ['battery', 'last_user'] });
+        const door = sw(el, 'door')!;
+        (door as unknown as { checked: boolean }).checked = true;
+        door.dispatchEvent(new Event('change'));
+        expect(last().footer_items).toEqual(['battery', 'last_user']);
+      });
+
+      it('la ayuda dice «hasta dos» solo en la mediana', async () => {
+        const med = await mountEditor({ entity: 'lock.puerta', size: 'medium' });
+        const large = await mountEditor({ entity: 'lock.puerta' });
+        const hint = (e: Editor) => q(e, '[data-footer="battery"]')!.parentElement!.querySelector('.data-hint')!.textContent;
+        expect(hint(med.el)).toMatch(/dos/i);
+        expect(hint(large.el)).not.toMatch(/dos/i);
+      });
     });
 
     it('el subtítulo solo se ofrece en la grande', async () => {
