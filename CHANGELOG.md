@@ -67,6 +67,12 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- Thermostat Card: la tarjeta ya no apaga por su cuenta la segunda entidad
+  cuando el modo cambia desde fuera (diálogo de la entidad, otra tarjeta,
+  automatizaciones, voz…): solo envía órdenes de servicio cuando el usuario
+  interactúa con ella. La exclusión al elegir el modo en la propia tarjeta se
+  mantiene. Para evitar dos equipos en modos distintos en cualquier caso, el
+  README incluye una automatización de Home Assistant.
 - Lock Card: `subtitle_type` pasa a valer `none` por defecto, porque el estado
   ya se muestra arriba a la derecha (antes era `state`; se puede volver con
   `subtitle_type: state`). La tarjeta ocupa por defecto media rejilla
@@ -335,6 +341,15 @@ and this project follows [Semantic Versioning](https://semver.org/).
 - Sensor Card: design tweaks after the fixed slot. Explicit line-heights on name, subtitle and label (HA inherited ~1.5, which fattened the header and squashed the graph); in narrow cards the medium size's icon and ⋮ menu shrink so the name fits on one line; and in small the icon goes on top with the name below at full width (it used to end up as "Te m…").
 - Sensor Card: the graphs were drawn outside the card. The content height depended on the width (in narrow cards the ⋮ menu and the graph wrapped onto new lines) and HA reserved a smaller height. Each size now takes a fixed slot in the grid (small 3×2, medium 6×2, large 12×2, columns × rows, not resizable) and the layout height no longer changes with width: the menu doesn't wrap, the name takes at most two lines, and the value and graph share one row (the graph shrinks instead of wrapping). Anything that doesn't fit is clipped inside the card.
 - Thermostat Card: each size now takes a fixed slot in the HA grid and can't be resized: small 5×4, medium 8×5 and large 12×5 (columns × rows). In the editor, the "Normal" size is now called "Medium" (the YAML value is still `normal`).
+
+### Changed
+
+- Thermostat Card: the card no longer turns off the second entity on its own
+  when the mode changes from outside (the entity's dialog, another card,
+  automations, voice…): it only sends service calls when the user interacts
+  with it. The exclusion when picking the mode in the card itself is kept. To
+  prevent two units in different modes in every case, the README includes a
+  Home Assistant automation.
 
 ## [1.2.0] - 2026-10-11
 

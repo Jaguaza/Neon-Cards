@@ -47,28 +47,6 @@ export function combineClimates(
   return { entities, modeOwner };
 }
 
-/** Decide, ante un cambio de estado, si hay que apagar alguna entidad
-    por exclusión mutua de modos DISTINTOS activos a la vez: si una
-    entidad acaba de cambiar a un modo activo mientras otra ya lo
-    estaba en uno DISTINTO, esa otra se apaga — se conserva la que
-    acaba de cambiar. Si las dos acaban en el MISMO modo no se toca
-    nada, las dos a la vez está permitido. Lógica pura: devuelve los
-    `entity_id` a apagar; quien la use ejecuta el efecto
-    (`callService`). */
-export function findMutualExclusionTargets(
-  combined: CombinedClimate,
-  prevEntityModes: ReadonlyMap<string, HvacMode>
-): string[] {
-  if (combined.entities.length < 2) return [];
-  const justChanged = combined.entities.find((e) => {
-    const prev = prevEntityModes.get(e.entity);
-    return prev !== undefined && prev !== e.mode && e.mode !== 'off';
-  });
-  if (!justChanged) return [];
-  return combined.entities
-    .filter((other) => other.entity !== justChanged.entity && other.mode !== 'off' && other.mode !== justChanged.mode)
-    .map((other) => other.entity);
-}
 /** Construye el "estado mostrado" (mismo tipo `ClimateState` que usa
     todo el resto del render): si hay una entidad activa se usa esa; si
     las dos están en "off" se usa la última que estuvo activa (o la

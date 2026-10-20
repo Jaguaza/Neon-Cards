@@ -35,7 +35,7 @@ import { renderHeader, renderCompactHeader, renderHeaderActions } from './header
 import type { HeaderOptions } from './header';
 import { renderTargetPill } from './target-pill';
 import { renderSelectorPill } from './selector-pill';
-import { combineClimates, buildDisplayState, findMutualExclusionTargets } from './combined-climate';
+import { combineClimates, buildDisplayState } from './combined-climate';
 import type { CombinedClimate } from './combined-climate';
 
 /**
@@ -80,14 +80,6 @@ export class NeonThermostatCard extends BaseNeonCard {
   private _ringForcedOff = false;
   private _ringForceTimer?: number;
 
-  /** Último `hvac_mode` visto **por entidad** — para detectar, con 2
-      entidades configuradas, que una acaba de cambiar a un modo activo
-      distinto del de la otra (estando esta también activa). Dentro de
-      la tarjeta la exclusión ya la fuerza `_handleModeSelect` al
-      vuelo; esto cubre cambios hechos FUERA de la tarjeta (diálogo
-      nativo de la entidad, otra tarjeta, una automatización...). */
-  private _prevEntityModes = new Map<string, HvacMode>();
-
   /** Última entidad configurada que estuvo activa (mode !== 'off') —
       se usa como "climate a mostrar" cuando TODAS las configuradas
       están en off. Se actualiza en `updated()`. */
@@ -124,7 +116,6 @@ export class NeonThermostatCard extends BaseNeonCard {
       throw new Error('neon-thermostat-card: falta "entity" (debe ser una entidad climate).');
     }
     this._config = config;
-    this._prevEntityModes.clear();
   }
 
   /** Tamaño fijo en la rejilla de Home Assistant, en columnas × filas:
@@ -415,20 +406,15 @@ export class NeonThermostatCard extends BaseNeonCard {
       const active = combined.entities.find((e) => e.mode !== 'off');
       if (active) this._lastActiveEntity = active.entity;
 
-      // Exclusión mutua con 2 entidades para cambios hechos FUERA de la
-      // tarjeta: si una entidad configurada acaba de CAMBIAR de modo
-      // (a uno activo) mientras la otra YA estaba activa en un modo
-      // DISTINTO, se apaga esa otra — se conserva la que acaba de
-      // cambiar. Si las dos acaban en el MISMO modo se dejan tal cual,
-      // ambas activas a la vez; eso está permitido, solo se evitan
-      // modos diferentes simultáneos. Decisión en combined-climate.ts
-      // (pura); aquí solo se ejecuta el efecto.
-      if (this.hass) {
-        for (const entityId of findMutualExclusionTargets(combined, this._prevEntityModes)) {
-          this.hass.callService('climate', 'set_hvac_mode', { entity_id: entityId, hvac_mode: 'off' });
-        }
-      }
-      for (const e of combined.entities) this._prevEntityModes.set(e.entity, e.mode);
+      // La tarjeta NO reacciona a cambios de modo hechos fuera de ella
+      // (diálogo de la entidad, otra tarjeta, automatizaciones, voz...):
+      // solo envía órdenes a servicios cuando el usuario interactúa con
+      // ella — la exclusión al elegir el modo está en `_handleModeSelect`.
+      // Hacerlo aquí sería una automatización que solo corre con un panel
+      // abierto (en cada navegador a la vez) y que pisa decisiones
+      // deliberadas de otras automatizaciones. Para evitar dos equipos en
+      // modos distintos aunque el cambio venga de fuera, el README
+      // incluye una automatización de Home Assistant.
     }
 
     const climate = this._climate;

@@ -62,12 +62,49 @@ ambas entidades. Un modo que solo soporta una de las dos lo gestiona
 esa; uno que soportan las dos lo gestiona `entity` por defecto, con
 override por modo en `mode_owner` (`1` = `entity`, `2` = `entity_2`).
 
-**Exclusión mutua:** las dos entidades nunca quedan activas en modos
-**distintos** a la vez — si una cambia a un modo distinto del de la
-otra (desde la tarjeta, desde el diálogo nativo de la entidad, o desde
-una automatización), la tarjeta apaga automáticamente la que no acaba
-de cambiar. Si ambas acaban en el **mismo** modo, se dejan las dos
-activas sin tocar nada.
+**Exclusión mutua al elegir el modo:** cuando eliges un modo **en la
+tarjeta**, el equipo que lo gestiona pasa a ese modo y el otro se apaga
+si estaba activo en un modo **distinto**. Si ya estaba en el **mismo**
+modo, se deja como está (las dos pueden estar activas a la vez en el
+mismo modo).
+
+La tarjeta **no** reacciona a cambios hechos fuera de ella (diálogo de
+la entidad, otra tarjeta, una automatización, un asistente de voz u
+otro usuario): solo envía órdenes cuando interactúas con ella. Si
+quieres evitar dos equipos en modos distintos también en esos casos,
+usa una automatización de Home Assistant, que además funciona con el
+panel cerrado. Cambia los dos `climate.salon_*` por tus entidades:
+
+```yaml
+alias: Salón — calor y frío no a la vez
+description: Si un equipo pasa a un modo activo distinto del que tiene el otro, apaga el otro.
+mode: queued
+triggers:
+  - trigger: state
+    entity_id:
+      - climate.salon_calor
+      - climate.salon_frio
+variables:
+  otro: >-
+    {{ 'climate.salon_frio' if trigger.entity_id == 'climate.salon_calor'
+       else 'climate.salon_calor' }}
+conditions:
+  - condition: template
+    value_template: >-
+      {% set nuevo = trigger.to_state.state %}
+      {% set del_otro = states(otro) %}
+      {{ trigger.from_state is not none
+         and trigger.from_state.state != nuevo
+         and nuevo not in ['off', 'unavailable', 'unknown']
+         and del_otro not in ['off', 'unavailable', 'unknown']
+         and del_otro != nuevo }}
+actions:
+  - action: climate.set_hvac_mode
+    target:
+      entity_id: "{{ otro }}"
+    data:
+      hvac_mode: "off"
+```
 
 ## Paleta de colores
 
@@ -135,7 +172,7 @@ footer:
 | `dial-views.ts` | Cuerpo de cada vista (dial grande, aro normal, compacta) |
 | `header.ts` · `footer.ts` | Cabecera con accesos «más información» y pie de sensores |
 | `target-pill.ts` · `selector-pill.ts` | Píldora −/+ de consigna y píldora-selector (modo, preset, ventilador) |
-| `combined-climate.ts` | Estado mostrado y exclusión mutua con 1 o 2 entidades |
+| `combined-climate.ts` | Estado mostrado y reparto de modos con 1 o 2 entidades |
 | `dial-geometry.ts` | Geometría pura del arco (ángulos, puntos, trazo SVG) |
 | `*-styles.ts` | Estilos por zona (tarjeta, dial, aro, píldora de consigna, modo y pie) |
 | `neon-thermostat-card-editor.ts` | Editor visual |
@@ -215,12 +252,49 @@ modes. A mode only one of them supports is handled by that one; a mode
 both support defaults to `entity`, with a per-mode override in
 `mode_owner` (`1` = `entity`, `2` = `entity_2`).
 
-**Mutual exclusion:** the two entities are never left active in
-**different** modes at the same time — if one changes to a mode
-different from the other's (from the card, from the entity's native
-dialog, or from an automation), the card automatically turns off the
-one that didn't just change. If both end up in the **same** mode, both
-stay on untouched.
+**Mutual exclusion when choosing the mode:** when you pick a mode **in
+the card**, the unit that handles it switches to that mode and the other
+one is turned off if it was active in a **different** mode. If it was
+already in the **same** mode it is left as it is (both can be on at the
+same time in the same mode).
+
+The card does **not** react to changes made outside it (the entity's
+dialog, another card, an automation, a voice assistant or another user):
+it only sends commands when you interact with it. If you also want to
+prevent two units in different modes in those cases, use a Home Assistant
+automation, which also works with the dashboard closed. Replace the two
+`climate.salon_*` with your entities:
+
+```yaml
+alias: Living room — heating and cooling not together
+description: If one unit switches to an active mode different from the other's, turn the other off.
+mode: queued
+triggers:
+  - trigger: state
+    entity_id:
+      - climate.salon_calor
+      - climate.salon_frio
+variables:
+  other: >-
+    {{ 'climate.salon_frio' if trigger.entity_id == 'climate.salon_calor'
+       else 'climate.salon_calor' }}
+conditions:
+  - condition: template
+    value_template: >-
+      {% set new = trigger.to_state.state %}
+      {% set other_state = states(other) %}
+      {{ trigger.from_state is not none
+         and trigger.from_state.state != new
+         and new not in ['off', 'unavailable', 'unknown']
+         and other_state not in ['off', 'unavailable', 'unknown']
+         and other_state != new }}
+actions:
+  - action: climate.set_hvac_mode
+    target:
+      entity_id: "{{ other }}"
+    data:
+      hvac_mode: "off"
+```
 
 ## Color palette
 
@@ -289,7 +363,7 @@ footer:
 | `dial-views.ts` | Body of each view (large dial, normal ring, compact) |
 | `header.ts` · `footer.ts` | Header with "more info" buttons and the sensor footer |
 | `target-pill.ts` · `selector-pill.ts` | −/+ target pill and selector pill (mode, preset, fan) |
-| `combined-climate.ts` | Displayed state and mutual exclusion with 1 or 2 entities |
+| `combined-climate.ts` | Displayed state and mode ownership with 1 or 2 entities |
 | `dial-geometry.ts` | Pure arc geometry (angles, points, SVG path) |
 | `*-styles.ts` | Styles per area (card, dial, ring, target pill, mode and footer) |
 | `neon-thermostat-card-editor.ts` | Visual editor |

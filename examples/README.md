@@ -168,10 +168,10 @@ y `large` 12×5 (columnas × filas). Admite opcionalmente una
 segunda entidad `climate` (`entity_2`) para representar dos equipos
 separados (p. ej. calefacción + aire acondicionado) como uno solo — el
 selector de modo muestra la unión de los modos de ambas entidades, y
-las dos nunca quedan activas en modos distintos a la vez (la exclusión
-mutua aplica da igual de dónde venga el cambio: la tarjeta, el diálogo
-de la propia entidad, o una automatización), mientras que estar
-activas juntas en el *mismo* modo sí está permitido. Igual que Button,
+al elegir un modo en la tarjeta, la otra se apaga si estaba en un modo
+distinto (estar activas juntas en el *mismo* modo sí está permitido);
+los cambios hechos fuera de la tarjeta no los toca — para eso el README
+de la tarjeta incluye una automatización de Home Assistant. Igual que Button,
 admite un footer de sensores (dominios `sensor`/`binary_sensor`,
 máximo 3).
 
@@ -442,10 +442,11 @@ circular indicator, and `compact` shows no sensor footer. Each size takes a fixe
 (columns × rows). It optionally
 supports a second `climate` entity (`entity_2`) to represent two
 separate units (e.g. heating + AC) as one — the mode selector shows the
-union of both entities' modes, and the two are never left active in
-different modes at the same time (mutual exclusion applies no matter
-where the change comes from: the card, the entity's own dialog, or an
-automation), while being active in the *same* mode together is allowed.
+union of both entities' modes, and
+when you pick a mode in the card the other one is turned off if it was in
+a different mode (being active together in the *same* mode is allowed);
+changes made outside the card are left alone — the card's README includes
+a Home Assistant automation for that.
 Like Button, it supports a sensor footer (`sensor`/`binary_sensor`
 domains, max 3).
 

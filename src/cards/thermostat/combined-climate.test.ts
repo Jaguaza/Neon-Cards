@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildDisplayState, combineClimates, findMutualExclusionTargets } from './combined-climate';
+import { buildDisplayState, combineClimates } from './combined-climate';
 import type { CombinedClimate } from './combined-climate';
 import type { ClimateState, HvacMode } from '../../ha/climate';
 
@@ -114,34 +114,5 @@ describe('combineClimates', () => {
   it('con una sola entidad ignora mode_owner', () => {
     const c = combineClimates([calefaccion], { heat: 2 });
     expect(c.modeOwner.get('heat')).toBe(calefaccion);
-  });
-});
-
-describe('findMutualExclusionTargets', () => {
-  const prev = (a: HvacMode, b: HvacMode) =>
-    new Map<string, HvacMode>([
-      ['climate.a', a],
-      ['climate.b', b],
-    ]);
-
-  it('apaga la otra si una acaba de pasar a un modo activo distinto del suyo', () => {
-    const a = climate('climate.a', { mode: 'heat' });
-    const b = climate('climate.b', { mode: 'cool' });
-    expect(findMutualExclusionTargets(combined([a, b]), prev('off', 'cool'))).toEqual(['climate.b']);
-  });
-
-  it('no toca nada si las dos acaban en el mismo modo', () => {
-    const a = climate('climate.a', { mode: 'heat' });
-    const b = climate('climate.b', { mode: 'heat' });
-    expect(findMutualExclusionTargets(combined([a, b]), prev('off', 'heat'))).toEqual([]);
-  });
-
-  it('no hace nada con una sola entidad, sin cambios o si la que cambia pasa a off', () => {
-    const a = climate('climate.a', { mode: 'heat' });
-    expect(findMutualExclusionTargets(combined([a]), new Map([['climate.a', 'off']]))).toEqual([]);
-    const b = climate('climate.b', { mode: 'cool' });
-    expect(findMutualExclusionTargets(combined([a, b]), prev('heat', 'cool'))).toEqual([]);
-    const apagada = climate('climate.a', { mode: 'off' });
-    expect(findMutualExclusionTargets(combined([apagada, b]), prev('heat', 'cool'))).toEqual([]);
   });
 });
