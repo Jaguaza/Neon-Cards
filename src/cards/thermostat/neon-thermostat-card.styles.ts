@@ -80,12 +80,16 @@ export const NEON_THERMOSTAT_CARD_STYLES = css`
     gap: 6px;
   }
 
-  /* En compacta los accesos vuelven a fila y pierden el margen
-     automático que en el resto de vistas los empuja a la derecha —
-     aquí van pegados al icono de modo. */
+  /* En compacta la fila de iconos ocupa todo el ancho de la tarjeta (con el
+     flex-start de .header--compact no se estiraría) y los accesos a cada
+     entidad van en fila arriba a la derecha, como en el resto de vistas,
+     con el icono de modo a la izquierda. */
+  .header--compact .header-icons {
+    align-self: stretch;
+  }
   .header--compact .header-actions {
     flex-direction: row;
-    margin-left: 0;
+    margin-left: auto;
   }
 
   .header-actions {

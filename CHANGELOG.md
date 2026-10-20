@@ -11,6 +11,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- Thermostat Card: en la vista compacta los botones de «más información» de cada entidad iban pegados al icono de modo y quedaban muy a la izquierda. Ahora van arriba a la derecha, como en las otras vistas, con el icono de modo a la izquierda.
 - Lock Card: el pie de la tarjeta mediana se cortaba en el iPhone y en el HP («8…», «Jorge · 19 oct…»), porque el último acceso con fecha es largo y el reparto proporcional recortaba también la batería. Ahora «80 %» no se recorta, el último acceso pasa a dos líneas (nombre y fecha) en tarjetas estrechas y con ~180 px se quitan los iconos.
 - Lock Card: la vista de confirmación («¿Abrir?», «¿Qué quieres hacer?») se cortaba por abajo en tarjetas estrechas: los botones saltaban a una segunda fila fuera de la tarjeta. Ahora la vista ocupa el sitio del contenido (la tarjeta crece si hace falta), el título va en una línea y los botones, compactos, en una sola fila.
 - Lock Card: la tarjeta mediana admite como mucho dos datos en el pie; el editor no deja activar un tercero (y avisa si ya venía de la grande) y la tarjeta solo pinta los dos primeros.
@@ -336,6 +337,7 @@ and this project follows [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Thermostat Card: in the compact view the "more info" buttons for each entity were glued to the mode icon and sat too far left. Now they go at the top right, as in the other views, with the mode icon on the left.
 - Lock Card: the medium card's footer was cut off on the iPhone and the HP ("8…", "Jorge · 19 oct…"), because the last access with a date is long and the proportional split also clipped the battery. Now "80 %" is never clipped, the last access goes onto two lines (name and date) in narrow cards and at ~180 px the icons are dropped.
 - Lock Card: the confirmation view ("Open?", "What do you want to do?") was cut off at the bottom in narrow cards: the buttons wrapped onto a second row outside the card. Now the view takes the place of the content (the card grows if needed), the title fits on one line and the buttons are compact, on a single row.
 - Lock Card: the medium card allows at most two footer data points; the editor won't let you enable a third (and warns if it came from the large size) and the card only draws the first two.

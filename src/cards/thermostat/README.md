@@ -19,7 +19,9 @@ por defecto `'normal'`), cada uno con su propio layout — el dial
 semicircular completo solo se ve en `large`; `normal` usa un aro
 alrededor de la temperatura actual, y `compact` no dibuja ningún
 indicador (solo la temperatura y la píldora −/+) ni muestra footer de
-sensores.
+sensores. En todas las vistas los botones de «más información» de cada
+entidad van arriba a la derecha (en `compact`, en la misma fila que el icono
+de modo, que va a la izquierda).
 
 Cada tamaño ocupa un hueco **fijo** en la rejilla de Home Assistant
 (columnas × filas) y no se puede redimensionar desde el dashboard:
@@ -175,7 +177,9 @@ with the `size` key (`'large' | 'normal' | 'compact'`, defaulting to
 `'normal'`), each with its own layout — the full semicircular dial only
 appears in `large`; `normal` uses a ring around the current
 temperature, and `compact` draws no indicator at all (just the
-temperature and the −/+ pill) and shows no sensor footer.
+temperature and the −/+ pill) and shows no sensor footer. In every view the
+"more info" buttons for each entity sit at the top right (in `compact`, on the
+same row as the mode icon, which sits on the left).
 
 Each size takes a **fixed** slot in the Home Assistant grid
 (columns × rows) and cannot be resized from the dashboard:
