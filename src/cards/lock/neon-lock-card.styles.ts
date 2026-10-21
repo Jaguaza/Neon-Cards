@@ -466,13 +466,6 @@ export const NEON_LOCK_CARD_STYLES = css`
       display: none;
     }
   }
-  /* Puerta + último acceso en una tarjeta muy estrecha: sin iconos para que
-     quepan los textos. */
-  @container (max-width: 240px) {
-    .size-medium .footer:has(> [data-type='door']):has(> [data-type='last_user']) .item ha-icon {
-      display: none;
-    }
-  }
 
   /* ───────── Vista «¿Abrir?» / «¿Qué quieres hacer?» ─────────
      Mientras está abierta, la vista ocupa el mismo sitio que el contenido
@@ -529,18 +522,27 @@ export const NEON_LOCK_CARD_STYLES = css`
 
   /* ───────── Tamaño compacto (.size-compact) ─────────
      Solo icono, nombre y estado, en columna (icono arriba; debajo, el nombre
-     y el estado). Sin tres puntos ni pie. Al pulsar, la confirmación no
-     lleva texto: botones redondos con iconos de candado. */
+     y el estado), con los tres puntos en la esquina superior derecha. Sin
+     pie. Al pulsar, la confirmación no lleva texto: botones redondos con
+     iconos de candado. */
   .size-compact {
     padding: 12px;
   }
   .size-compact .header {
+    position: relative;
     flex-direction: column;
     align-items: flex-start;
     gap: 6px;
   }
   .size-compact .header > .text {
     align-self: stretch;
+  }
+  /* Los tres puntos, en posición absoluta como en la mediana: no ocupan sitio
+     en la columna y el nombre y el estado usan todo el ancho. */
+  .size-compact .menu {
+    position: absolute;
+    top: -6px;
+    right: -8px;
   }
   .size-compact .name {
     font-size: 15px;

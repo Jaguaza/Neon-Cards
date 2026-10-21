@@ -120,6 +120,15 @@ describe('tamaño de la Lock Card', () => {
       expect(items(await mount({ ...cfg, size: 'large' }, hassFull()))).toEqual(['battery', 'last_user', 'door']);
     });
 
+    it('la mediana no pinta el sensor de puerta en el pie, pero sigue mostrando «Puerta abierta» en el estado', async () => {
+      const h = hassFull();
+      (h.states['binary_sensor.d'] as { state: string }).state = 'on';
+      const unlocked = { ...h, states: { ...h.states, 'lock.puerta': { ...h.states['lock.puerta'], state: 'unlocked' } } };
+      const el = await mount({ size: 'medium', door_entity: 'binary_sensor.d', footer_items: ['door', 'battery', 'last_user'] }, unlocked);
+      expect(items(el)).toEqual(['battery', 'last_user']);
+      expect(q(el, '.text .status-text')!.textContent!.trim()).toBe('Puerta abierta');
+    });
+
     it('mediana: el último acceso lleva el nombre y la fecha en elementos propios (para apilarlos si no caben)', async () => {
       const el = await mount({ size: 'medium', footer_items: ['last_user'] }, hassFull());
       const value = q(el, '.item-value')!;
@@ -164,18 +173,36 @@ describe('tamaño de la Lock Card', () => {
       vi.useRealTimers();
     });
 
-    it('solo muestra icono, nombre y estado: sin tres puntos, sin pie y sin subtítulo (aunque estén en la config)', async () => {
+    it('solo muestra icono, nombre y estado más los tres puntos: sin pie y sin subtítulo (aunque estén en la config)', async () => {
       const el = await mount({ size: 'compact', footer_items: ['battery', 'last_user'], subtitle_type: 'custom', subtitle: 'Entrada' }, hassOpen());
       expect(q(el, 'ha-card')!.classList.contains('size-compact')).toBe(true);
       const header = q(el, '.header')!;
-      expect(Array.from(header.children).map(cls)).toEqual(['lock-icon', 'text']);
+      expect(Array.from(header.children).map(cls)).toEqual(['lock-icon', 'text', 'menu']);
       expect(Array.from(header.querySelector('.text')!.children).map(cls)).toEqual(['name', 'status']);
       expect(q(el, '.name')!.textContent).toBe('Puerta');
       expect(q(el, '.status-text')!.textContent!.trim()).toBe('Cerrada');
-      expect(q(el, '.menu')).toBeNull();
+      expect(q(el, '.menu')).not.toBeNull();
+      expect(q(el, '.top-right')).toBeNull();
       expect(q(el, '.footer')).toBeNull();
       expect(q(el, '.subtitle')).toBeNull();
       expect(el.shadowRoot!.textContent).not.toContain('Entrada');
+    });
+
+    it('los tres puntos abren «más información» de la entidad y NO disparan la acción de la tarjeta ni su confirmación', async () => {
+      const el = await mount({ size: 'compact' }, hassOpen('locked', 1));
+      const events: { action: string; config: { entity?: string; tap_action?: { action: string } } }[] = [];
+      el.addEventListener('hass-action', (ev) => events.push((ev as CustomEvent).detail));
+      const menu = q(el, '.menu') as HTMLButtonElement;
+      menu.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+      menu.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, composed: true }));
+      menu.click();
+      vi.advanceTimersByTime(CONFIRM_REVEAL_MS);
+      await el.updateComplete;
+      expect(events).toHaveLength(1);
+      expect(events[0].config.entity).toBe('lock.puerta');
+      expect(events[0].config.tap_action).toEqual({ action: 'more-info' });
+      expect(q(el, '.confirm')).toBeNull();
+      expect(SPY.calls).toHaveLength(0);
     });
 
     it('con la entidad no disponible: «No disponible» bajo el nombre', async () => {
@@ -273,38 +300,40 @@ describe('tamaño de la Lock Card', () => {
     describe('datos del pie', () => {
       const sw = (el: Editor, type: string) => q(el, `[data-footer="${type}"] ha-switch`) as (HTMLElement & { disabled: boolean }) | null;
 
-      it('en la mediana, con dos datos elegidos el tercero no se puede activar', async () => {
+      it('en la mediana solo hay interruptores de batería y último acceso, y ambos se pueden activar a la vez', async () => {
         const { el } = await mountEditor({ entity: 'lock.puerta', size: 'medium', footer_items: ['battery', 'last_user'] });
-        expect(sw(el, 'door')!.disabled).toBe(true);
-        expect(sw(el, 'battery')!.disabled).toBe(false);
-        expect(sw(el, 'last_user')!.disabled).toBe(false);
-        expect(q(el, '[data-footer="door"]')!.classList.contains('blocked')).toBe(true);
+        expect(sw(el, 'door')).toBeNull();
+        expect(sw(el, 'battery')!.disabled).toBeFalsy();
+        expect(sw(el, 'last_user')!.disabled).toBeFalsy();
+        expect(Array.from(el.shadowRoot!.querySelectorAll('[data-footer]')).map((c) => c.getAttribute('data-footer'))).toEqual(['battery', 'last_user']);
       });
 
-      it('en la mediana con menos de dos datos se pueden activar; en la grande hasta tres', async () => {
-        const med = await mountEditor({ entity: 'lock.puerta', size: 'medium', footer_items: ['battery'] });
-        expect(sw(med.el, 'door')!.disabled).toBe(false);
-        const large = await mountEditor({ entity: 'lock.puerta', footer_items: ['battery', 'last_user'] });
-        expect(sw(large.el, 'door')!.disabled).toBe(false);
+      it('en la mediana el sensor de puerta se puede elegir, con el aviso de que no se muestra en el pie', async () => {
+        const { el, last } = await mountEditor({ entity: 'lock.puerta', size: 'medium' });
+        const warning = Array.from(el.shadowRoot!.querySelectorAll('.data-warning')).map((w) => w.textContent);
+        expect(warning.some((t) => /no se muestra/i.test(t ?? '') && /puerta abierta/i.test(t ?? ''))).toBe(true);
+        const picker = q(el, 'ha-entity-picker[label="Sensor de puerta"]') as HTMLElement;
+        expect(picker).not.toBeNull();
+        picker.dispatchEvent(new CustomEvent('value-changed', { detail: { value: 'binary_sensor.puerta' } }));
+        expect(last().door_entity).toBe('binary_sensor.puerta');
       });
 
-      it('un tercer dato heredado de la grande se avisa como «no se muestra» y se puede apagar', async () => {
+      it('en la mediana, tocar un interruptor conserva la puerta de footer_items por si se vuelve a la grande', async () => {
         const { el, last } = await mountEditor({ entity: 'lock.puerta', size: 'medium', footer_items: ['battery', 'last_user', 'door'] });
-        expect(q(el, '[data-footer="door"] .data-warning')).not.toBeNull();
-        expect(q(el, '[data-footer="battery"] .data-warning')).toBeNull();
-        const door = sw(el, 'door')!;
-        expect(door.disabled).toBe(false);
-        (door as unknown as { checked: boolean }).checked = false;
-        door.dispatchEvent(new Event('change'));
-        expect(last().footer_items).toEqual(['battery', 'last_user']);
+        const battery = sw(el, 'battery')!;
+        (battery as unknown as { checked: boolean }).checked = false;
+        battery.dispatchEvent(new Event('change'));
+        expect(last().footer_items).toEqual(['last_user', 'door']);
       });
 
-      it('en la mediana no se puede forzar un tercer dato aunque llegue el evento', async () => {
-        const { el, last } = await mountEditor({ entity: 'lock.puerta', size: 'medium', footer_items: ['battery', 'last_user'] });
+      it('en la grande hay tres tarjetas y se activan los tres datos, sin aviso de puerta', async () => {
+        const { el, last } = await mountEditor({ entity: 'lock.puerta', footer_items: ['battery', 'last_user'] });
+        expect(sw(el, 'door')!.disabled).toBeFalsy();
         const door = sw(el, 'door')!;
         (door as unknown as { checked: boolean }).checked = true;
         door.dispatchEvent(new Event('change'));
-        expect(last().footer_items).toEqual(['battery', 'last_user']);
+        expect(last().footer_items).toEqual(['battery', 'last_user', 'door']);
+        expect(el.shadowRoot!.querySelectorAll('.data-warning').length).toBe(0);
       });
 
       it('la ayuda dice «hasta dos» solo en la mediana', async () => {
@@ -323,11 +352,9 @@ describe('tamaño de la Lock Card', () => {
       expect(q(el, 'ha-entity-picker')).not.toBeNull();
     });
 
-    it('en mediana y grande se ofrece el pie con sus tres datos', async () => {
-      for (const size of ['medium', 'large']) {
-        const { el } = await mountEditor({ entity: 'lock.puerta', size });
-        expect(el.shadowRoot!.querySelectorAll('[data-footer]').length).toBe(3);
-      }
+    it('la grande ofrece el pie con sus tres datos y la mediana con dos (el sensor de puerta va aparte)', async () => {
+      expect((await mountEditor({ entity: 'lock.puerta', size: 'large' })).el.shadowRoot!.querySelectorAll('[data-footer]').length).toBe(3);
+      expect((await mountEditor({ entity: 'lock.puerta', size: 'medium' })).el.shadowRoot!.querySelectorAll('[data-footer]').length).toBe(2);
     });
 
     it('el subtítulo solo se ofrece en la grande', async () => {

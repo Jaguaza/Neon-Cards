@@ -8,7 +8,7 @@ import { LOCK_ICON_TYPES, LOCK_ICONS, resolveLockIconType } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
 import { LOCK_TRANSLATIONS } from './translations';
 import type { LockTranslations } from './translations';
-import { FOOTER_ORDER, maxFooterItems, normalizeFooterItems } from './footer';
+import { FOOTER_ORDER, footerItemTypes, normalizeFooterItems } from './footer';
 import { STATUS_DOT_DEFAULTS } from './constants';
 import { isCssColor } from './lock-state';
 import type { LockFooterItem, LockSize, LockSubtitleType, NeonLockCardConfig } from './types';
@@ -126,9 +126,6 @@ export class NeonLockCardEditor extends LitElement {
       .data-card.on {
         border-color: var(--primary-color);
       }
-      .data-card.blocked {
-        opacity: 0.55;
-      }
       .data-head {
         display: flex;
         align-items: center;
@@ -205,7 +202,7 @@ export class NeonLockCardEditor extends LitElement {
     if (!this.hass || !this._config) return nothing;
     return html`
       <div class="editor-container">
-        ${this._renderMainSection()} ${resolveLockSize(this._config) === 'compact' ? this._renderCompactDoorSection() : this._renderFooterSection()} ${this._renderHaloSection()} ${this._renderStatusColorsSection()} ${this._renderActionsSection()}
+        ${this._renderMainSection()} ${resolveLockSize(this._config) === 'compact' ? this._renderStatusDoorSection('footer_hint_compact') : this._renderFooterSection()} ${this._renderHaloSection()} ${this._renderStatusColorsSection()} ${this._renderActionsSection()}
       </div>
     `;
   }
@@ -326,29 +323,35 @@ export class NeonLockCardEditor extends LitElement {
   /**
    * Pie de la tarjeta: una tarjeta por dato (batería, último acceso, puerta),
    * cada una con su interruptor «mostrar» y, dentro, su entidad. Siempre en
-   * el orden en que aparecen en la tarjeta (`FOOTER_ORDER`).
+   * el orden en que aparecen en la tarjeta (`FOOTER_ORDER`). La mediana solo
+   * muestra batería y último acceso: el sensor de puerta va aparte, con el
+   * aviso de que no se pinta en el pie (ver `_renderStatusDoorSection`).
    */
   private _renderFooterSection(): TemplateResult {
+    const size = resolveLockSize(this._config);
+    const types = footerItemTypes(size);
     return html`
       <div class="editor-section">
         <div class="section-header">${this._t('section_footer')}</div>
-        <span class="data-hint">${this._t(resolveLockSize(this._config) === 'medium' ? 'footer_hint_medium' : 'footer_hint')}</span>
-        ${FOOTER_ORDER.map((type) => this._renderFooterCard(type))}
+        <span class="data-hint">${this._t(size === 'medium' ? 'footer_hint_medium' : 'footer_hint')}</span>
+        ${FOOTER_ORDER.filter((type) => types.includes(type)).map((type) => this._renderFooterCard(type))}
       </div>
+      ${size === 'medium' ? this._renderStatusDoorSection('door_hint_medium', true) : nothing}
     `;
   }
 
   /**
-   * Tarjeta compacta: no tiene pie (solo icono, nombre y estado), pero el
-   * sensor de puerta sigue sirviendo para mostrar «Puerta abierta» en el
-   * estado, así que se conserva su selector.
+   * Tamaños sin el sensor de puerta en el pie (compacta, que no tiene pie, y
+   * mediana, donde solo caben dos datos): el sensor se puede elegir igualmente
+   * porque sirve para mostrar «Puerta abierta» en el estado de la tarjeta. Se
+   * avisa de que no se pinta; en la mediana el aviso va resaltado.
    */
-  private _renderCompactDoorSection(): TemplateResult {
+  private _renderStatusDoorSection(hintKey: 'footer_hint_compact' | 'door_hint_medium', warn = false): TemplateResult {
     const entity = (this._config?.door_entity as string | undefined) || '';
     return html`
       <div class="editor-section">
         <div class="section-header">${this._t('door_entity_label')}</div>
-        <span class="data-hint">${this._t('footer_hint_compact')}</span>
+        <span class=${warn ? 'data-warning' : 'data-hint'}>${this._t(hintKey)}</span>
         ${this._renderFooterEntity('door', FOOTER_ROWS.door, entity, false)}
       </div>
     `;
@@ -356,21 +359,14 @@ export class NeonLockCardEditor extends LitElement {
 
   private _renderFooterCard(type: LockFooterItem): TemplateResult {
     const row = FOOTER_ROWS[type];
-    // La tarjeta mediana muestra como mucho dos datos (la grande, tres): con
-    // dos elegidos no se pueden activar más, y uno que sobre (p. ej. al pasar
-    // de grande a mediana) se avisa de que no se muestra.
-    const limit = maxFooterItems(resolveLockSize(this._config));
-    const chosen = normalizeFooterItems(this._config?.footer_items);
-    const on = chosen.includes(type);
-    const hidden = on && !normalizeFooterItems(this._config?.footer_items, limit).includes(type);
-    const blocked = !on && chosen.length >= limit;
+    const on = normalizeFooterItems(this._config?.footer_items, resolveLockSize(this._config)).includes(type);
     const entity = (this._config?.[row.entityKey] as string | undefined) || '';
     const title = this._t(`footer_${type}`);
     // El sensor de puerta también alimenta el estado «Puerta abierta» aunque
     // el dato no se muestre, así que, si ya hay uno elegido, no se esconde.
     const expanded = on || (type === 'door' && entity !== '');
     return html`
-      <div class="data-card ${on ? 'on' : ''} ${blocked ? 'blocked' : ''}" data-footer=${type}>
+      <div class="data-card ${on ? 'on' : ''}" data-footer=${type}>
         <div class="data-head">
           <span class="data-icon"><ha-icon icon=${row.icon}></ha-icon></span>
           <div class="data-text">
@@ -380,12 +376,9 @@ export class NeonLockCardEditor extends LitElement {
           <ha-switch
             aria-label=${`${this._t('footer_show')}: ${title}`}
             .checked=${on}
-            .disabled=${blocked}
             @change=${(ev: Event) => this._setFooterItem(type, (ev.target as HTMLInputElement).checked)}
           ></ha-switch>
         </div>
-        ${hidden ? html`<span class="data-warning">${this._t('footer_hidden_medium')}</span>` : nothing}
-        ${blocked ? html`<span class="data-hint">${this._t('footer_limit_medium')}</span>` : nothing}
         ${expanded ? this._renderFooterEntity(type, row, entity, on) : nothing}
       </div>
     `;
@@ -406,13 +399,13 @@ export class NeonLockCardEditor extends LitElement {
     `;
   }
 
-  /** Activa o desactiva un dato del pie; `footer_items` se escribe siempre en `FOOTER_ORDER`. */
+  /**
+   * Activa o desactiva un dato del pie; `footer_items` se escribe siempre en
+   * `FOOTER_ORDER`. Un dato que el tamaño actual no pinta (la puerta en la
+   * mediana) se conserva en la config por si se vuelve a la grande.
+   */
   private _setFooterItem(type: LockFooterItem, on: boolean): void {
     const chosen = new Set(normalizeFooterItems(this._config?.footer_items));
-    if (on && !chosen.has(type) && chosen.size >= maxFooterItems(resolveLockSize(this._config))) {
-      this.requestUpdate(); // en la mediana no caben más de dos: el interruptor vuelve a apagarse
-      return;
-    }
     if (on) chosen.add(type);
     else chosen.delete(type);
     const next = FOOTER_ORDER.filter((item) => chosen.has(item));

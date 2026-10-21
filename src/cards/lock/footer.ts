@@ -20,6 +20,15 @@ export function maxFooterItems(size: LockSize): number {
 export const LOCK_FOOTER_ITEM_TYPES: readonly LockFooterItem[] = ['door', 'battery', 'last_user'];
 
 /**
+ * Datos que puede pintar el pie según el tamaño. La mediana no muestra el
+ * sensor de puerta (solo caben batería y último acceso); el sensor sigue
+ * sirviendo para el estado «Puerta abierta», como en la compacta.
+ */
+export function footerItemTypes(size: LockSize): readonly LockFooterItem[] {
+  return size === 'medium' ? LOCK_FOOTER_ITEM_TYPES.filter((type) => type !== 'door') : LOCK_FOOTER_ITEM_TYPES;
+}
+
+/**
  * Orden fijo en que el editor visual escribe `footer_items` y en que
  * aparecen sus tarjetas. En YAML se respeta el orden que se escriba; el
  * editor lo normaliza a este al tocar un interruptor.
@@ -72,16 +81,18 @@ const DOOR_ICONS: Record<string, readonly [string, string]> = {
 };
 
 /**
- * Items configurados, ya sin repetidos ni tipos desconocidos y recortados
- * a `max` (3 por defecto): lo que realmente se dibuja.
+ * Items configurados, ya sin repetidos, sin tipos desconocidos y sin los que
+ * el tamaño no puede pintar, y recortados al máximo del tamaño (`large` por
+ * defecto): lo que realmente se dibuja.
  */
-export function normalizeFooterItems(items: unknown, max: number = MAX_FOOTER_ITEMS): LockFooterItem[] {
+export function normalizeFooterItems(items: unknown, size: LockSize = 'large'): LockFooterItem[] {
   if (!Array.isArray(items)) return [];
+  const allowed = footerItemTypes(size);
   const out: LockFooterItem[] = [];
   for (const item of items) {
-    if (LOCK_FOOTER_ITEM_TYPES.includes(item as LockFooterItem) && !out.includes(item as LockFooterItem)) out.push(item as LockFooterItem);
+    if (allowed.includes(item as LockFooterItem) && !out.includes(item as LockFooterItem)) out.push(item as LockFooterItem);
   }
-  return out.slice(0, max);
+  return out.slice(0, maxFooterItems(size));
 }
 
 /** Icono de batería de mdi más cercano al nivel (`mdi:battery-70`, `mdi:battery-alert`…). */
@@ -179,9 +190,9 @@ export function resolveFooterItems(
   hass: HomeAssistant | undefined,
   lock: EntityLike | undefined,
   now: Date = new Date(),
-  max: number = MAX_FOOTER_ITEMS
+  size: LockSize = 'large'
 ): FooterItemView[] {
-  return normalizeFooterItems(config.footer_items, max).map((type) => {
+  return normalizeFooterItems(config.footer_items, size).map((type) => {
     if (type === 'door') return doorItem(config, hass);
     if (type === 'battery') return batteryItem(config, hass, lock);
     return lastUserItem(config, hass, lock, now);

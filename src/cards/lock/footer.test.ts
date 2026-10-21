@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { STATUS_DOT_DEFAULTS } from './constants';
-import { LOCK_FOOTER_ITEM_TYPES, MAX_FOOTER_ITEMS_MEDIUM, batteryIcon, formatAccessTime, maxFooterItems, normalizeFooterItems, resolveFooterItems } from './footer';
+import { LOCK_FOOTER_ITEM_TYPES, MAX_FOOTER_ITEMS_MEDIUM, batteryIcon, footerItemTypes, formatAccessTime, maxFooterItems, normalizeFooterItems, resolveFooterItems } from './footer';
 
 const NOW = new Date('2026-10-15T12:00:00');
 const iso = (d: string) => new Date(d).toISOString();
@@ -172,17 +172,24 @@ describe('tamaño y número de datos del pie', () => {
     expect(maxFooterItems('large')).toBe(3);
   });
 
-  it('normalizeFooterItems recorta al máximo pedido y respeta el orden', () => {
-    expect(normalizeFooterItems(['battery', 'last_user', 'door'])).toEqual(['battery', 'last_user', 'door']);
-    expect(normalizeFooterItems(['battery', 'last_user', 'door'], 2)).toEqual(['battery', 'last_user']);
-    expect(normalizeFooterItems(['door', 'battery', 'last_user'], 2)).toEqual(['door', 'battery']);
+  it('la mediana no pinta el sensor de puerta en el pie; la grande sí', () => {
+    expect(footerItemTypes('medium')).toEqual(['battery', 'last_user']);
+    expect(footerItemTypes('large')).toEqual(['door', 'battery', 'last_user']);
   });
 
-  it('resolveFooterItems con máximo 2 solo devuelve dos', () => {
+  it('normalizeFooterItems respeta el orden y, en la mediana, descarta la puerta ANTES de recortar', () => {
+    expect(normalizeFooterItems(['battery', 'last_user', 'door'])).toEqual(['battery', 'last_user', 'door']);
+    expect(normalizeFooterItems(['battery', 'last_user', 'door'], 'medium')).toEqual(['battery', 'last_user']);
+    // La puerta en primer lugar (YAML) no le quita el sitio al último acceso.
+    expect(normalizeFooterItems(['door', 'battery', 'last_user'], 'medium')).toEqual(['battery', 'last_user']);
+    expect(normalizeFooterItems(['door'], 'medium')).toEqual([]);
+  });
+
+  it('resolveFooterItems en la mediana devuelve batería y último acceso, sin la puerta', () => {
     const hass = hassOf({ 'lock.p': entity('locked', { battery_level: 80, changed_by: 'Jorge' }) });
-    const cfg = { entity: 'lock.p', footer_items: ['battery', 'last_user', 'door'] } as never;
-    expect(resolveFooterItems(cfg, hass, hass.states['lock.p'], NOW, 2).map((i) => i.type)).toEqual(['battery', 'last_user']);
-    expect(resolveFooterItems(cfg, hass, hass.states['lock.p'], NOW).map((i) => i.type)).toEqual(['battery', 'last_user', 'door']);
+    const cfg = { entity: 'lock.p', footer_items: ['door', 'battery', 'last_user'] } as never;
+    expect(resolveFooterItems(cfg, hass, hass.states['lock.p'], NOW, 'medium').map((i) => i.type)).toEqual(['battery', 'last_user']);
+    expect(resolveFooterItems(cfg, hass, hass.states['lock.p'], NOW).map((i) => i.type)).toEqual(['door', 'battery', 'last_user']);
   });
 
   it('el último acceso separa el nombre y la fecha, y «text» sigue siendo «nombre · fecha»', () => {

@@ -32,8 +32,8 @@ estado (hasta 6 s) para las cerraduras lentas.
 | `size` | Nombre en el editor | Diseño |
 |---|---|---|
 | `large` (por defecto) | Grande | La tarjeta de siempre: el nombre con el subtítulo a un lado del icono y, a la derecha, el estado y los tres puntos. |
-| `compact` | Compacta | **Solo icono, nombre y estado**: sin tres puntos, sin pie y sin subtítulo (`subtitle_type`, `subtitle`, `footer_items` y los datos del pie se ignoran; el sensor de puerta sigue sirviendo para mostrar «Puerta abierta»). El icono va arriba y debajo, el nombre y el estado. **Al pulsar no sale texto**: en lugar de «¿Abrir?», «Desbloquear», «Bloquear» o «Abrir», la orden se elige con **iconos de candado** (candado cerrado = bloquear, candado abierto = desbloquear, candado abierto de contorno = abrir) y una ✕ para cancelar; el texto sigue disponible como etiqueta accesible y al dejar el dedo o el ratón encima. |
-| `medium` | Mediana | **Sin subtítulo** (no hay opción para ponerlo): el estado, con su punto de color, ocupa el sitio del subtítulo bajo el nombre y los tres puntos quedan en la esquina. **Pie de hasta dos datos** (el editor no deja elegir más; si el YAML trae tres, solo se pintan los dos primeros). Va siempre en una sola fila; en tarjetas estrechas (p. ej. 6 columnas en un móvil) se reducen el relleno y los iconos y el último acceso se muestra en dos líneas (nombre y fecha) en lugar de cortarse con «…». |
+| `compact` | Compacta | **Solo icono, nombre y estado**, con los **tres puntos** en la esquina superior derecha para abrir «más información» de la entidad: sin pie y sin subtítulo (`subtitle_type`, `subtitle`, `footer_items` y los datos del pie se ignoran; el sensor de puerta sigue sirviendo para mostrar «Puerta abierta»). El icono va arriba y debajo, el nombre y el estado. **Al pulsar no sale texto**: en lugar de «¿Abrir?», «Desbloquear», «Bloquear» o «Abrir», la orden se elige con **iconos de candado** (candado cerrado = bloquear, candado abierto = desbloquear, candado abierto de contorno = abrir) y una ✕ para cancelar; el texto sigue disponible como etiqueta accesible y al dejar el dedo o el ratón encima. |
+| `medium` | Mediana | **Sin subtítulo** (no hay opción para ponerlo): el estado, con su punto de color, ocupa el sitio del subtítulo bajo el nombre y los tres puntos quedan en la esquina. **Pie de hasta dos datos: batería y último acceso** (el sensor de puerta no se pinta en el pie de la mediana: si `footer_items` trae `door`, se ignora; el sensor sigue sirviendo para mostrar «Puerta abierta» en el estado, y el editor lo avisa). Va siempre en una sola fila; en tarjetas estrechas (p. ej. 6 columnas en un móvil) se reducen el relleno y los iconos y el último acceso se muestra en dos líneas (nombre y fecha) en lugar de cortarse con «…». |
 
 **Columnas de inicio** (el grid de HA tiene 12 por sección; se pueden cambiar a mano desde la pestaña «Diseño»): grande **12**, mediana **6** y compacta **3** (mínimo 4, 4 y 3). El alto es automático. La tarjeta grande no cambia respecto a versiones anteriores. En la mediana y la
 compacta se ignoran `subtitle_type` y `subtitle`.
@@ -116,7 +116,7 @@ name: Puerta principal
 | `status_color_closed` | color CSS | `#39e07a` (verde) | Color del punto de estado con la cerradura cerrada (`locked`, `locking`). |
 | `status_color_open` | color CSS | `#ffb02e` (ámbar) | Color del punto con la cerradura desbloqueada o abierta (`unlocked`, `unlocking`, `open`, `opening`). |
 | `status_color_alert` | color CSS | `#ff5c5c` (rojo) | Color del punto con la cerradura atascada o no disponible (`jammed`, `error`). |
-| `footer_items` | lista de `door` \| `battery` \| `last_user` | — | Hasta tres datos en el pie (dos en el tamaño `medium`; ninguno en `compact`), en ese orden. Los repetidos y los desconocidos se ignoran. |
+| `footer_items` | lista de `door` \| `battery` \| `last_user` | — | Hasta tres datos en el pie (en `medium`, solo `battery` y `last_user`: `door` no se pinta; ninguno en `compact`), en ese orden. Los repetidos y los desconocidos se ignoran. |
 | `door_entity` | string | — | Sensor de puerta (`binary_sensor`) para `door`: `on` abierta, `off` cerrada. |
 | `battery_entity` | string | atributo `battery_level` | Sensor de batería (%) para `battery`. Si falta se usa el atributo `battery_level` (o `battery`) de la cerradura. |
 | `last_user_entity` | string | atributo `changed_by` | Entidad con el nombre de quien accedió, para `last_user`. Si falta se usa el atributo `changed_by` de la cerradura. |
@@ -177,8 +177,8 @@ desbloquear; cerrar sin preguntar). Una acción con servicio explícito
 
 ## Pie informativo
 
-`footer_items` pone hasta tres datos bajo una línea de neón (dos en el tamaño
-`medium`), separados entre sí. Un dato que no se puede obtener se muestra como «—» (en gris), no
+`footer_items` pone hasta tres datos bajo una línea de neón (en el tamaño
+`medium`, dos: batería y último acceso), separados entre sí. Un dato que no se puede obtener se muestra como «—» (en gris), no
 desaparece, para que se note una entidad mal configurada.
 
 | Dato | Muestra | De dónde sale |
@@ -212,6 +212,9 @@ vacío:
   avisa). El sensor también sirve para el texto «Puerta abierta» del estado
   (ver [Texto del estado](#texto-del-estado-abriendo-puerta-y-puerta-abierta)),
   así que si ya hay uno elegido se sigue viendo aunque el dato esté apagado.
+  En la tarjeta **mediana** el dato de puerta no se pinta en el pie (solo caben
+  dos): el editor lo avisa, pero deja elegir el sensor para el texto del estado,
+  igual que en la compacta.
 - Desactivar un dato no borra su entidad. Al tocar un interruptor, `footer_items`
   se escribe en el orden fijo (batería, último acceso, puerta); en YAML se respeta
   el orden que escribas.
@@ -279,8 +282,8 @@ slow locks.
 | `size` | Editor name | Layout |
 |---|---|---|
 | `large` (default) | Large | The card as it has always been: the name with the subtitle beside the icon and, on the right, the state and the three dots. |
-| `compact` | Compact | **Icon, name and state only**: no three dots, no footer and no subtitle (`subtitle_type`, `subtitle`, `footer_items` and the footer data are ignored; the door sensor still serves to show "Door open"). The icon sits on top, with the name and state below. **No text appears when tapped**: instead of "Open?", "Unlock", "Lock" or "Open", the command is chosen with **padlock icons** (closed padlock = lock, open padlock = unlock, outlined open padlock = open) and a ✕ to cancel; the text stays available as an accessible label and on hover. |
-| `medium` | Medium | **No subtitle** (there is no option to set one): the state, with its coloured dot, takes the subtitle's place under the name and the three dots sit in the corner. **Footer of up to two data points** (the editor does not allow more; if the YAML has three, only the first two are drawn). It always stays on a single row; in narrow cards (e.g. 6 columns on a phone) the padding and icons shrink and the last access is shown on two lines (name and date) instead of being cut with "…". |
+| `compact` | Compact | **Icon, name and state only**, with the **three dots** in the top-right corner to open the entity's "more info": no footer and no subtitle (`subtitle_type`, `subtitle`, `footer_items` and the footer data are ignored; the door sensor still serves to show "Door open"). The icon sits on top, with the name and state below. **No text appears when tapped**: instead of "Open?", "Unlock", "Lock" or "Open", the command is chosen with **padlock icons** (closed padlock = lock, open padlock = unlock, outlined open padlock = open) and a ✕ to cancel; the text stays available as an accessible label and on hover. |
+| `medium` | Medium | **No subtitle** (there is no option to set one): the state, with its coloured dot, takes the subtitle's place under the name and the three dots sit in the corner. **Footer of up to two data points: battery and last access** (the door sensor is not drawn in the medium footer: if `footer_items` has `door` it is ignored; the sensor still serves to show "Door open" in the status, and the editor warns about it). It always stays on a single row; in narrow cards (e.g. 6 columns on a phone) the padding and icons shrink and the last access is shown on two lines (name and date) instead of being cut with "…". |
 
 **Starting columns** (the HA grid has 12 per section; they can be changed by hand from the "Layout" tab): large **12**, medium **6** and compact **3** (minimum 4, 4 and 3). Height is automatic. The large card is unchanged from previous versions. In medium and compact,
 `subtitle_type` and `subtitle` are ignored.
@@ -363,7 +366,7 @@ name: Front door
 | `status_color_closed` | CSS colour | `#39e07a` (green) | Colour of the status dot when the lock is closed (`locked`, `locking`). |
 | `status_color_open` | CSS colour | `#ffb02e` (amber) | Colour of the dot when the lock is unlocked or open (`unlocked`, `unlocking`, `open`, `opening`). |
 | `status_color_alert` | CSS colour | `#ff5c5c` (red) | Colour of the dot when the lock is jammed or unavailable (`jammed`, `error`). |
-| `footer_items` | list of `door` \| `battery` \| `last_user` | — | Up to three data points in the footer (two in the `medium` size; none in `compact`), in that order. Duplicates and unknown values are ignored. |
+| `footer_items` | list of `door` \| `battery` \| `last_user` | — | Up to three data points in the footer (in `medium`, only `battery` and `last_user`: `door` is not drawn; none in `compact`), in that order. Duplicates and unknown values are ignored. |
 | `door_entity` | string | — | Door sensor (`binary_sensor`) for `door`: `on` open, `off` closed. |
 | `battery_entity` | string | `battery_level` attribute | Battery sensor (%) for `battery`. If missing, the lock's `battery_level` (or `battery`) attribute is used. |
 | `last_user_entity` | string | `changed_by` attribute | Entity holding the name of who accessed, for `last_user`. If missing, the lock's `changed_by` attribute is used. |
@@ -421,8 +424,8 @@ nor offers a choice.
 
 ## Information footer
 
-`footer_items` puts up to three data points under a neon line (two in the
-`medium` size), separated from each other. Data that cannot be obtained is shown as "—" (greyed out),
+`footer_items` puts up to three data points under a neon line (in the
+`medium` size, two: battery and last access), separated from each other. Data that cannot be obtained is shown as "—" (greyed out),
 it does not disappear, so a misconfigured entity is noticeable.
 
 | Item | Shows | Where it comes from |
@@ -443,7 +446,10 @@ for its entity with a hint of what happens if you leave it empty:
 - **Door**: needs a door sensor (if you turn it on without one, the editor
   warns you). The sensor is also used for the "Door open" status text (see
   [State text](#state-text-opening-door-and-door-open)), so if one is already
-  chosen it stays visible even when the data point is off.
+  chosen it stays visible even when the data point is off. In the **medium**
+  card the door data point is not drawn in the footer (only two fit): the editor
+  warns about it but still lets you choose the sensor for the state text, as in
+  the compact one.
 - Turning a data point off does not delete its entity. When a switch is
   touched, `footer_items` is written in the fixed order (battery, last access,
   door); in YAML the order you write is respected.

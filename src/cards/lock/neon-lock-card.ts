@@ -30,7 +30,7 @@ import type { LockCommand } from './lock-state';
 import { resolveLockSize } from './lock-size';
 import { NEON_LOCK_CARD_STYLES } from './neon-lock-card.styles';
 import { LOCK_TRANSLATIONS } from './translations';
-import { maxFooterItems, resolveFooterItems } from './footer';
+import { resolveFooterItems } from './footer';
 import type { FooterItemView } from './footer';
 import type { LockTranslations } from './translations';
 import type { LockVisualState, NeonLockCardConfig } from './types';
@@ -415,9 +415,9 @@ export class NeonLockCard extends BaseNeonCard {
     // bajo el nombre.
     const medium = size === 'medium';
     const subtitle = medium || compact ? nothing : this._subtitle(shown);
-    // La compacta no lleva pie, la mediana muestra como mucho dos datos y la
-    // grande tres.
-    const footer = compact ? [] : resolveFooterItems(this._config, this.hass, this._stateObj, undefined, maxFooterItems(medium ? 'medium' : 'large'));
+    // La compacta no lleva pie, la mediana muestra como mucho dos datos
+    // (batería y último acceso, sin el sensor de puerta) y la grande tres.
+    const footer = compact ? [] : resolveFooterItems(this._config, this.hass, this._stateObj, undefined, size);
     const hasDoubleTap = !!this._config.double_tap_action && this._config.double_tap_action.action !== 'none';
 
     return html`
@@ -440,14 +440,7 @@ export class NeonLockCard extends BaseNeonCard {
             ${isLockAlert(state)
               ? html`<ha-icon class="neon-halo-icon" icon=${ERROR_ICON}></ha-icon>`
               : this._iconDef.template(isLockOpenPose(state))}
-            ${compact
-              ? html`
-                  <div class="text">
-                    <span class="name">${this._name}</span>
-                    ${state && shown ? this._renderStatus(shown) : nothing}
-                  </div>
-                `
-              : medium
+            ${compact || medium
               ? html`
                   <div class="text">
                     <span class="name">${this._name}</span>
