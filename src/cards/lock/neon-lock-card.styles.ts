@@ -526,6 +526,7 @@ export const NEON_LOCK_CARD_STYLES = css`
      pie. Al pulsar, la confirmación no lleva texto: botones redondos con
      iconos de candado. */
   .size-compact {
+    container-type: inline-size;
     padding: 12px;
   }
   .size-compact .header {
@@ -575,5 +576,104 @@ export const NEON_LOCK_CARD_STYLES = css`
   }
   .size-compact .confirm-btn ha-icon {
     --mdc-icon-size: 20px;
+  }
+
+  /* ───────── Tarjetas muy estrechas ─────────
+     Un hueco de la rejilla puede medir poco (p. ej. en un portátil con la
+     pantalla escalada al 150 % una sección son ~290 px y 6 columnas ~140 px).
+     Las consultas son sobre el ancho de la propia tarjeta. */
+
+  /* Mediana estrecha: la cabecera se apila como en la compacta (icono arriba;
+     debajo, el nombre y el estado a todo el ancho), porque al lado del icono
+     al nombre solo le quedan unos píxeles. */
+  @container (max-width: 150px) {
+    .size-medium .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .size-medium .header > .text {
+      align-self: stretch;
+    }
+    .size-medium .name {
+      padding-right: 0;
+    }
+  }
+  /* Mediana muy estrecha: los datos del pie, uno debajo de otro con una línea
+     entre ellos (en una sola fila ya no caben ni sin iconos). */
+  @container (max-width: 120px) {
+    .size-medium .footer {
+      flex-direction: column;
+      align-items: stretch;
+      row-gap: 6px;
+    }
+    .size-medium .item {
+      flex: none;
+      padding: 0;
+      justify-content: center;
+    }
+    .size-medium .item-text {
+      text-align: center;
+    }
+    .size-medium .item + .item {
+      border-left: 0;
+      border-top: 1px solid color-mix(in srgb, var(--primary-text-color) 20%, transparent);
+      padding-top: 6px;
+    }
+  }
+  /* Compacta minúscula (~3 columnas en ese mismo portátil, ~65 px): menos
+     relleno, icono y tipografía más pequeños, nombre en dos líneas como
+     mucho y los tres puntos en la esquina sin pisar el icono. */
+  @container (max-width: 52px) {
+    .size-compact .content {
+      margin: -4px;
+    }
+    .size-compact .header {
+      gap: 4px;
+    }
+    .size-compact .header .lock-icon {
+      width: 30px;
+      height: 30px;
+    }
+    .size-compact .name {
+      font-size: 12px;
+      line-height: 14px;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+    }
+    .size-compact .status {
+      font-size: 10px;
+      gap: 3px;
+    }
+    .size-compact .status-dot {
+      width: 6px;
+      height: 6px;
+    }
+    .size-compact .menu {
+      width: 24px;
+      height: 24px;
+      top: -6px;
+      right: -6px;
+    }
+    .size-compact .menu ha-icon {
+      --mdc-icon-size: 18px;
+    }
+  }
+
+  /* Compacta de ~4 columnas en ese portátil (~90 px): botones de la
+     confirmación algo más pequeños para que quepan dos por fila (así la
+     tarjeta no crece tanto al pulsar). */
+  @container (max-width: 70px) {
+    .size-compact .confirm-actions {
+      gap: 4px;
+    }
+    .size-compact .confirm-btn {
+      width: 30px;
+      height: 30px;
+    }
   }
 `;
