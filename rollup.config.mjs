@@ -33,6 +33,10 @@ export default {
     }),
     typescript({
       tsconfig: false,
+      // Igual que tsconfig.json: los tests y su apoyo no entran en el bundle
+      // ni en la comprobación de tipos del build.
+      include: ['src/**/*.ts'],
+      exclude: ['src/**/*.test.ts', 'src/**/*.fixtures.ts'],
       compilerOptions: {
         target: 'ES2021',
         module: 'ESNext',
