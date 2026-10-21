@@ -1,4 +1,4 @@
-import { LitElement, css, html, nothing } from 'lit';
+import { LitElement, html, nothing } from 'lit';
 import type { PropertyValues, TemplateResult } from 'lit';
 import type { ActionConfig, HomeAssistant, ValueChangedEvent } from '../../ha/types';
 import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
@@ -6,6 +6,7 @@ import type { SharedTranslations } from '../../shared';
 import { getInfoLabels, localize } from '../../core';
 import { LOCK_ICON_TYPES, LOCK_ICONS, resolveLockIconType } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
+import { NEON_LOCK_EDITOR_STYLES } from './neon-lock-card-editor.styles';
 import { LOCK_TRANSLATIONS } from './translations';
 import type { LockTranslations } from './translations';
 import { FOOTER_ORDER, footerItemTypes, normalizeFooterItems } from './footer';
@@ -59,117 +60,7 @@ export class NeonLockCardEditor extends LitElement {
   static styles = [
     NEON_EDITOR_FORM_STYLES,
     NEON_LOCK_ICON_STYLES,
-    css`
-      .reset-colors {
-        align-self: flex-start;
-        margin-top: 4px;
-        padding: 4px 0;
-        border: 0;
-        background: transparent;
-        color: var(--primary-color);
-        font: inherit;
-        font-size: 13px;
-        cursor: pointer;
-        text-decoration: underline;
-      }
-      .icon-picker {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
-      }
-      .icon-tile {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-        padding: 10px 6px;
-        border: 1px solid var(--divider-color);
-        border-radius: 12px;
-        background: transparent;
-        color: var(--primary-text-color);
-        font: inherit;
-        font-size: 12px;
-        line-height: 15px;
-        text-align: center;
-        cursor: pointer;
-      }
-      .icon-tile:hover {
-        background: var(--secondary-background-color);
-      }
-      .icon-tile:focus-visible {
-        outline: 2px solid var(--primary-color);
-        outline-offset: 2px;
-      }
-      .icon-tile.selected {
-        border-color: var(--primary-color);
-        box-shadow: inset 0 0 0 1px var(--primary-color);
-      }
-      ha-formfield {
-        display: flex;
-      }
-      .icon-tile .lock-icon {
-        margin-bottom: 0;
-        color: var(--primary-text-color);
-      }
-      .icon-tile.selected .lock-icon {
-        color: var(--primary-color);
-      }
-      .data-card {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        padding: 12px 14px;
-        border: 1px solid var(--divider-color);
-        border-radius: 12px;
-        background: rgba(0, 0, 0, 0.12);
-      }
-      .data-card.on {
-        border-color: var(--primary-color);
-      }
-      .data-head {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      .data-icon {
-        flex: none;
-        display: grid;
-        place-items: center;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: var(--secondary-background-color);
-        color: var(--secondary-text-color);
-        --mdc-icon-size: 20px;
-      }
-      .data-card.on .data-icon {
-        background: color-mix(in srgb, var(--primary-color) 18%, transparent);
-        color: var(--primary-color);
-      }
-      .data-text {
-        flex: 1;
-        min-width: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-      }
-      .data-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--primary-text-color);
-      }
-      .data-desc,
-      .data-hint {
-        font-size: 12px;
-        line-height: 16px;
-        color: var(--secondary-text-color);
-      }
-      .data-warning {
-        font-size: 12px;
-        line-height: 16px;
-        color: var(--warning-color, #ffa600);
-      }
-    `,
+    NEON_LOCK_EDITOR_STYLES,
   ];
 
   setConfig(config: NeonLockCardConfig): void {
@@ -209,8 +100,6 @@ export class NeonLockCardEditor extends LitElement {
 
   private _renderMainSection(): TemplateResult {
     const config = this._config!;
-    const current: LockSubtitleType = config.subtitle_type || 'none';
-    const labels = getInfoLabels(this.hass);
     const size = resolveLockSize(config);
     return html`
       <div class="editor-section">
@@ -245,9 +134,17 @@ export class NeonLockCardEditor extends LitElement {
           ${LOCK_SIZES.map((opt) => html`<option value=${opt} ?selected=${opt === size}>${this._t(`size_${opt}`)}</option>`)}
         </select>
         ${this._renderIconPicker()}
-        ${size !== 'large'
-          ? nothing
-          : html`
+        ${size === 'large' ? this._renderSubtitleFields() : nothing}
+      </div>
+    `;
+  }
+
+  /** Subtítulo (solo en la tarjeta grande: la mediana y la compacta no lo llevan). */
+  private _renderSubtitleFields(): TemplateResult {
+    const config = this._config!;
+    const current: LockSubtitleType = config.subtitle_type || 'none';
+    const labels = getInfoLabels(this.hass);
+    return html`
         <label class="native-select-label" for="subtitle-type">${this._t('subtitle_label')}</label>
         <select
           id="subtitle-type"
@@ -275,8 +172,6 @@ export class NeonLockCardEditor extends LitElement {
               />
             `
           : nothing}
-          `}
-      </div>
     `;
   }
 

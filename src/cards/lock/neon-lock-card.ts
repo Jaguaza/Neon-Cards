@@ -20,7 +20,7 @@ import {
   neonRingSplitTemplate,
   RingSizeController,
 } from '../../shared';
-import { ACTION_PENDING_MS, COMMAND_ICONS, CONFIRM_REVEAL_MS, CONFIRM_TIMEOUT_MS, ERROR_ICON, LOCK_GRID, OPERATING_ACTIONS } from './constants';
+import { ACTION_PENDING_MS, CONFIRM_REVEAL_MS, CONFIRM_TIMEOUT_MS, ERROR_ICON, LOCK_GRID, OPERATING_ACTIONS } from './constants';
 import { LOCK_ICONS, resolveLockIconType } from './icons';
 import type { LockIconDef } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
@@ -29,9 +29,12 @@ import { displayState, doorSensorOpen, isLockAlert, isLockHaloOn, isLockMoving, 
 import type { LockCommand } from './lock-state';
 import { resolveLockSize } from './lock-size';
 import { NEON_LOCK_CARD_STYLES } from './neon-lock-card.styles';
+import { NEON_LOCK_SIZE_STYLES } from './neon-lock-card.size.styles';
 import { LOCK_TRANSLATIONS } from './translations';
 import { resolveFooterItems } from './footer';
-import type { FooterItemView } from './footer';
+import { renderFooterItem } from './footer-view';
+import { renderCompactConfirm, renderFullConfirm } from './confirm-view';
+import type { ConfirmViewContext } from './confirm-view';
 import type { LockTranslations } from './translations';
 import type { LockVisualState, NeonLockCardConfig } from './types';
 
@@ -86,7 +89,7 @@ export class NeonLockCard extends BaseNeonCard {
   /** SVG del icono pintado ahora; cuando cambia (primer render, otro icono, vuelta desde `error`) se coloca sin animar. */
   private _iconEl?: SVGElement;
 
-  static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_LOCK_ICON_STYLES, NEON_LOCK_CARD_STYLES];
+  static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_LOCK_ICON_STYLES, NEON_LOCK_CARD_STYLES, NEON_LOCK_SIZE_STYLES];
 
   static getConfigElement(): HTMLElement {
     return document.createElement('neon-lock-card-editor');
@@ -304,102 +307,56 @@ export class NeonLockCard extends BaseNeonCard {
     );
   }
 
-  private _renderFooterItem(item: FooterItemView, medium = false): TemplateResult {
-    // Mediana: el último acceso lleva el nombre y la fecha en elementos
-    // propios para poder apilarlos en dos líneas en tarjetas estrechas.
-    const value =
-      medium && item.who !== undefined
-        ? html`<span class="who">${item.who}</span>${item.when ? html`<span class="sep"> · </span><span class="when">${item.when}</span>` : nothing}`
-        : item.text;
-    return html`
-      <div class="item item--${item.tone}" data-type=${item.type} style=${item.color ? `--item-color: ${item.color}` : nothing}>
-        <ha-icon icon=${item.icon}></ha-icon>
-        <div class="item-text">
-          ${item.label ? html`<span class="item-label">${item.label}</span>` : nothing}
-          <span class="item-value">${value}</span>
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * La vista «¿Abrir?» cuelga encima del contenido y recoge sus propios
-   * gestos: sin cortar la propagación, el clic en un botón llegaría al
-   * `ha-card` y se interpretaría como otra pulsación (y otra confirmación).
-   */
   private _renderConfirm(compact = false): TemplateResult {
-    const stop = (ev: Event) => ev.stopPropagation();
-    const choices = this._confirm?.choices ?? [];
-    const multi = choices.length > 1;
-    const title = this._t(multi ? 'confirm_choose' : 'confirm_title');
-    // Compacta: sin texto visible; la orden se elige con iconos de candado
-    // (el texto queda como aria-label y tooltip).
-    if (compact) {
-      return html`
-        <div
-          class="confirm confirm--compact"
-          role="alertdialog"
-          aria-label=${title}
-          @pointerdown=${stop}
-          @pointerup=${stop}
-          @pointercancel=${stop}
-          @click=${stop}
-          @keydown=${(ev: KeyboardEvent) => {
-            if (ev.key === 'Escape') this._cancelConfirm();
-          }}
-        >
-          <div class="confirm-actions">
-            <button type="button" class="confirm-btn cancel" aria-label=${this._t('confirm_cancel')} title=${this._t('confirm_cancel')} @click=${() => this._cancelConfirm()}>
-              <ha-icon icon="mdi:close"></ha-icon>
-            </button>
-            ${multi
-              ? choices.map(
-                  (command) => html`
-                    <button type="button" class="confirm-btn accept" data-command=${command} aria-label=${this._t(`command_${command}`)} title=${this._t(`command_${command}`)} @click=${() => this._acceptConfirm(command)}>
-                      <ha-icon icon=${COMMAND_ICONS[command]}></ha-icon>
-                    </button>
-                  `
-                )
-              : html`
-                  <button type="button" class="confirm-btn accept" aria-label=${this._t('confirm_accept')} title=${this._t('confirm_accept')} @click=${() => this._acceptConfirm()}>
-                    <ha-icon icon=${COMMAND_ICONS.unlock}></ha-icon>
-                  </button>
-                `}
-          </div>
-        </div>
-      `;
-    }
-    return html`
-      <div
-        class="confirm ${multi ? 'confirm--multi' : ''}"
-        role="alertdialog"
-        aria-label=${title}
-        @pointerdown=${stop}
-        @pointerup=${stop}
-        @pointercancel=${stop}
-        @click=${stop}
-        @keydown=${(ev: KeyboardEvent) => {
-          if (ev.key === 'Escape') this._cancelConfirm();
-        }}
-      >
-        <div class="confirm-text">
-          <span class="confirm-title">${title}</span>
-          <span class="confirm-name">${this._name}</span>
-        </div>
-        <div class="confirm-actions">
-          <button type="button" class="confirm-btn cancel" aria-label=${this._t('confirm_cancel')} title=${this._t('confirm_cancel')} @click=${() => this._cancelConfirm()}>${multi ? html`<ha-icon icon="mdi:close"></ha-icon>` : this._t('confirm_cancel')}</button>
-          ${multi
-            ? choices.map(
-                (command) => html`<button type="button" class="confirm-btn accept" data-command=${command} @click=${() => this._acceptConfirm(command)}>${this._t(`command_${command}`)}</button>`
-              )
-            : html`<button type="button" class="confirm-btn accept" @click=${() => this._acceptConfirm()}>${this._t('confirm_accept')}</button>`}
-        </div>
-      </div>
-    `;
+    const context: ConfirmViewContext = {
+      choices: this._confirm?.choices ?? [],
+      name: this._name,
+      translate: (key) => this._t(key),
+      onCancel: () => this._cancelConfirm(),
+      onAccept: (command) => this._acceptConfirm(command),
+    };
+    return compact ? renderCompactConfirm(context) : renderFullConfirm(context);
   }
 
   private _t(key: keyof LockTranslations): string {
     return localize(this.hass, LOCK_TRANSLATIONS, key);
+  }
+
+  /**
+   * Cabecera: icono, nombre y estado. Ni la mediana ni la compacta tienen
+   * subtítulo: el estado ocupa su sitio bajo el nombre.
+   */
+  private _renderHeader(
+    state: ReturnType<typeof resolveLockState>,
+    shown: ReturnType<typeof displayState>,
+    size: ReturnType<typeof resolveLockSize>
+  ): TemplateResult {
+    const icon = isLockAlert(state) ? html`<ha-icon class="neon-halo-icon" icon=${ERROR_ICON}></ha-icon>` : this._iconDef.template(isLockOpenPose(state));
+    if (size !== 'large') {
+      return html`
+        <div class="header">
+          ${icon}
+          <div class="text">
+            <span class="name">${this._name}</span>
+            ${state && shown ? this._renderStatus(shown) : nothing}
+          </div>
+          ${state && shown && state !== 'error' ? this._renderMenu() : nothing}
+        </div>
+      `;
+    }
+    const subtitle = this._subtitle(shown);
+    return html`
+      <div class="header">
+        ${icon}
+        <div class="text">
+          <span class="name">${this._name}</span>
+          ${subtitle !== nothing ? html`<span class="subtitle">${subtitle}</span>` : nothing}
+        </div>
+        ${state && shown
+          ? html`<div class="top-right">${this._renderStatus(shown)}${state !== 'error' ? this._renderMenu() : html`<span class="menu-spacer"></span>`}</div>`
+          : nothing}
+      </div>
+    `;
   }
 
   protected render(): TemplateResult | typeof nothing {
@@ -411,10 +368,7 @@ export class NeonLockCard extends BaseNeonCard {
     const shown = displayState(state, doorSensorOpen(this._config, this.hass), this._isPending() && this._pendingOpening);
     const size = resolveLockSize(this._config);
     const compact = size === 'compact';
-    // Ni la mediana ni la compacta tienen subtítulo: el estado ocupa su sitio
-    // bajo el nombre.
     const medium = size === 'medium';
-    const subtitle = medium || compact ? nothing : this._subtitle(shown);
     // La compacta no lleva pie, la mediana muestra como mucho dos datos
     // (batería y último acceso, sin el sensor de puerta) y la grande tres.
     const footer = compact ? [] : resolveFooterItems(this._config, this.hass, this._stateObj, undefined, size);
@@ -436,29 +390,8 @@ export class NeonLockCard extends BaseNeonCard {
       >
         ${neonRingSplitTemplate(this._ringUid, this._ring.size.width, this._ring.size.height, this._ring.size.radius)}
         <div class="content ${this._confirm && this._confirmShown ? 'content--hidden' : ''}" aria-hidden=${this._confirm && this._confirmShown ? 'true' : 'false'}>
-          <div class="header">
-            ${isLockAlert(state)
-              ? html`<ha-icon class="neon-halo-icon" icon=${ERROR_ICON}></ha-icon>`
-              : this._iconDef.template(isLockOpenPose(state))}
-            ${compact || medium
-              ? html`
-                  <div class="text">
-                    <span class="name">${this._name}</span>
-                    ${state && shown ? this._renderStatus(shown) : nothing}
-                  </div>
-                  ${state && shown && state !== 'error' ? this._renderMenu() : nothing}
-                `
-              : html`
-                  <div class="text">
-                    <span class="name">${this._name}</span>
-                    ${subtitle !== nothing ? html`<span class="subtitle">${subtitle}</span>` : nothing}
-                  </div>
-                  ${state && shown
-                    ? html`<div class="top-right">${this._renderStatus(shown)}${state !== 'error' ? this._renderMenu() : html`<span class="menu-spacer"></span>`}</div>`
-                    : nothing}
-                `}
-          </div>
-          ${footer.length ? html`<div class="footer">${footer.map((item) => this._renderFooterItem(item, medium))}</div>` : nothing}
+          ${this._renderHeader(state, shown, size)}
+          ${footer.length ? html`<div class="footer">${footer.map((item) => renderFooterItem(item, medium))}</div>` : nothing}
         </div>
       ${this._confirm && this._confirmShown ? this._renderConfirm(compact) : nothing}
       </ha-card>
