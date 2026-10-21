@@ -205,7 +205,7 @@ export class NeonLockCardEditor extends LitElement {
     if (!this.hass || !this._config) return nothing;
     return html`
       <div class="editor-container">
-        ${this._renderMainSection()} ${this._renderFooterSection()} ${this._renderHaloSection()} ${this._renderStatusColorsSection()} ${this._renderActionsSection()}
+        ${this._renderMainSection()} ${resolveLockSize(this._config) === 'compact' ? this._renderCompactDoorSection() : this._renderFooterSection()} ${this._renderHaloSection()} ${this._renderStatusColorsSection()} ${this._renderActionsSection()}
       </div>
     `;
   }
@@ -245,10 +245,10 @@ export class NeonLockCardEditor extends LitElement {
             this._configChanged('size', value === DEFAULT_LOCK_SIZE ? undefined : value);
           }}
         >
-          ${LOCK_SIZES.map((opt) => html`<option value=${opt} ?selected=${opt === size}>${this._t(opt === 'medium' ? 'size_medium' : 'size_large')}</option>`)}
+          ${LOCK_SIZES.map((opt) => html`<option value=${opt} ?selected=${opt === size}>${this._t(`size_${opt}`)}</option>`)}
         </select>
         ${this._renderIconPicker()}
-        ${size === 'medium'
+        ${size !== 'large'
           ? nothing
           : html`
         <label class="native-select-label" for="subtitle-type">${this._t('subtitle_label')}</label>
@@ -334,6 +334,22 @@ export class NeonLockCardEditor extends LitElement {
         <div class="section-header">${this._t('section_footer')}</div>
         <span class="data-hint">${this._t(resolveLockSize(this._config) === 'medium' ? 'footer_hint_medium' : 'footer_hint')}</span>
         ${FOOTER_ORDER.map((type) => this._renderFooterCard(type))}
+      </div>
+    `;
+  }
+
+  /**
+   * Tarjeta compacta: no tiene pie (solo icono, nombre y estado), pero el
+   * sensor de puerta sigue sirviendo para mostrar «Puerta abierta» en el
+   * estado, así que se conserva su selector.
+   */
+  private _renderCompactDoorSection(): TemplateResult {
+    const entity = (this._config?.door_entity as string | undefined) || '';
+    return html`
+      <div class="editor-section">
+        <div class="section-header">${this._t('door_entity_label')}</div>
+        <span class="data-hint">${this._t('footer_hint_compact')}</span>
+        ${this._renderFooterEntity('door', FOOTER_ROWS.door, entity, false)}
       </div>
     `;
   }

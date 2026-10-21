@@ -394,15 +394,18 @@ export const NEON_LOCK_CARD_STYLES = css`
     top: -6px;
     right: -8px;
   }
-  .size-medium .status {
+  .size-medium .status,
+  .size-compact .status {
     min-width: 0;
   }
-  .size-medium .status-text {
+  .size-medium .status-text,
+  .size-compact .status-text {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .size-medium .status-dot {
+  .size-medium .status-dot,
+  .size-compact .status-dot {
     flex: none;
   }
   /* El pie va siempre en una sola fila (sin saltos ni rayas sueltas). */
@@ -522,5 +525,53 @@ export const NEON_LOCK_CARD_STYLES = css`
       width: 26px;
       padding: 0;
     }
+  }
+
+  /* ───────── Tamaño compacto (.size-compact) ─────────
+     Solo icono, nombre y estado, en columna (icono arriba; debajo, el nombre
+     y el estado). Sin tres puntos ni pie. Al pulsar, la confirmación no
+     lleva texto: botones redondos con iconos de candado. */
+  .size-compact {
+    padding: 12px;
+  }
+  .size-compact .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .size-compact .header > .text {
+    align-self: stretch;
+  }
+  .size-compact .name {
+    font-size: 15px;
+    line-height: 18px;
+  }
+  /* Las órdenes primero y, en último lugar, la ✕: en tarjetas estrechas
+     caben dos botones por fila y la ✕ baja sola a una segunda fila centrada
+     (así la tarjeta no crece). */
+  .size-compact.confirming .confirm {
+    justify-content: center;
+    padding: 0;
+  }
+  .size-compact .confirm-actions {
+    flex: 0 1 auto;
+    justify-content: center;
+    gap: 6px;
+  }
+  .size-compact .confirm-btn {
+    min-width: 0;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  .size-compact .confirm-btn.cancel {
+    order: 1;
+  }
+  .size-compact .confirm-btn ha-icon {
+    --mdc-icon-size: 20px;
   }
 `;

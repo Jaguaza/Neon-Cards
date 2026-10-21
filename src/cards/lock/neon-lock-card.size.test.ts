@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { CONFIRM_REVEAL_MS } from './constants';
 import { resolveLockSize } from './lock-size';
 
 (globalThis as { __DEV__?: boolean }).__DEV__ = false;
@@ -48,6 +49,7 @@ describe('tamaño de la Lock Card', () => {
   it('por defecto es la grande (la tarjeta de siempre) y un valor desconocido también', () => {
     expect(resolveLockSize({})).toBe('large');
     expect(resolveLockSize({ size: 'medium' })).toBe('medium');
+    expect(resolveLockSize({ size: 'compact' })).toBe('compact');
     expect(resolveLockSize({ size: 'xl' as never })).toBe('large');
   });
 
@@ -135,11 +137,128 @@ describe('tamaño de la Lock Card', () => {
     });
   });
 
+  describe('compacta', () => {
+    const SPY: { calls: unknown[][] } = { calls: [] };
+    const hassOpen = (state = 'locked', features = 1) => ({
+      locale: { language: 'es' },
+      states: {
+        'lock.puerta': { entity_id: 'lock.puerta', state, last_changed: '', last_updated: '', attributes: { friendly_name: 'Puerta', supported_features: features, battery_level: 80, changed_by: 'Jorge' } },
+      },
+      callService: async (...args: unknown[]) => {
+        SPY.calls.push(args);
+      },
+    });
+    const ask = async (el: Card) => {
+      (q(el, 'ha-card') as HTMLElement).click();
+      vi.advanceTimersByTime(CONFIRM_REVEAL_MS);
+      await el.updateComplete;
+    };
+    const buttons = (el: Card) => Array.from(el.shadowRoot!.querySelectorAll<HTMLButtonElement>('.confirm .confirm-btn'));
+    const iconOf = (b: Element) => b.querySelector('ha-icon')!.getAttribute('icon');
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+      SPY.calls = [];
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('solo muestra icono, nombre y estado: sin tres puntos, sin pie y sin subtítulo (aunque estén en la config)', async () => {
+      const el = await mount({ size: 'compact', footer_items: ['battery', 'last_user'], subtitle_type: 'custom', subtitle: 'Entrada' }, hassOpen());
+      expect(q(el, 'ha-card')!.classList.contains('size-compact')).toBe(true);
+      const header = q(el, '.header')!;
+      expect(Array.from(header.children).map(cls)).toEqual(['lock-icon', 'text']);
+      expect(Array.from(header.querySelector('.text')!.children).map(cls)).toEqual(['name', 'status']);
+      expect(q(el, '.name')!.textContent).toBe('Puerta');
+      expect(q(el, '.status-text')!.textContent!.trim()).toBe('Cerrada');
+      expect(q(el, '.menu')).toBeNull();
+      expect(q(el, '.footer')).toBeNull();
+      expect(q(el, '.subtitle')).toBeNull();
+      expect(el.shadowRoot!.textContent).not.toContain('Entrada');
+    });
+
+    it('con la entidad no disponible: «No disponible» bajo el nombre', async () => {
+      const el = await mount({ size: 'compact' }, hassOpen('unavailable'));
+      expect(q(el, '.status-text')!.textContent!.trim()).toBe('No disponible');
+      expect(q(el, '.menu')).toBeNull();
+    });
+
+    it('es más estrecha: 4 columnas por defecto (mínimo 3); mediana y grande no cambian', async () => {
+      const grid = async (size?: string) => (await mount(size ? { size } : {}, hassOpen())) as unknown as { getGridOptions(): unknown };
+      expect((await grid('compact')).getGridOptions()).toEqual({ rows: 'auto', columns: 4, min_columns: 3 });
+      expect((await grid('medium')).getGridOptions()).toEqual({ rows: 'auto', columns: 6, min_columns: 4 });
+      expect((await grid()).getGridOptions()).toEqual({ rows: 'auto', columns: 6, min_columns: 4 });
+    });
+
+    it('al pulsar una cerradura cerrada con función de abrir: iconos de candado y ningún texto', async () => {
+      const el = await mount({ size: 'compact' }, hassOpen('locked', 1));
+      await ask(el);
+      const all = buttons(el);
+      expect(all.map((b) => b.textContent!.trim())).toEqual(['', '', '']);
+      expect(all.map(iconOf)).toEqual(['mdi:close', 'mdi:lock-open-variant', 'mdi:lock-open-outline']);
+      expect(q(el, '.confirm-title')).toBeNull();
+      expect(q(el, '.confirm-text')).toBeNull();
+      expect(q(el, '.confirm-name')).toBeNull();
+      // el texto sigue disponible para lectores de pantalla y como tooltip
+      expect(all[1].getAttribute('aria-label')).toBe('Desbloquear');
+      expect(all[2].getAttribute('aria-label')).toBe('Abrir');
+      expect(all[1].getAttribute('title')).toBe('Desbloquear');
+    });
+
+    it('desbloqueada: candado cerrado para bloquear y el de abrir', async () => {
+      const el = await mount({ size: 'compact' }, hassOpen('unlocked', 1));
+      await ask(el);
+      expect(buttons(el).map(iconOf)).toEqual(['mdi:close', 'mdi:lock', 'mdi:lock-open-outline']);
+      expect(buttons(el)[1].getAttribute('aria-label')).toBe('Bloquear');
+    });
+
+    it('sin función de abrir: una sola pregunta, con el candado abierto como botón y sin texto', async () => {
+      const el = await mount({ size: 'compact' }, hassOpen('locked', 0));
+      await ask(el);
+      const all = buttons(el);
+      expect(all.map((b) => b.textContent!.trim())).toEqual(['', '']);
+      expect(all.map(iconOf)).toEqual(['mdi:close', 'mdi:lock-open-variant']);
+    });
+
+    it('pulsar un icono lanza la orden (lock.unlock / lock.open) y cerrar la vista', async () => {
+      const el = await mount({ size: 'compact' }, hassOpen('locked', 1));
+      await ask(el);
+      (q(el, '.confirm [data-command="unlock"]') as HTMLElement).click();
+      await el.updateComplete;
+      expect(SPY.calls.at(-1)).toEqual(['lock', 'unlock', { entity_id: 'lock.puerta' }]);
+      expect(q(el, '.confirm')).toBeNull();
+
+      const el2 = await mount({ size: 'compact' }, hassOpen('locked', 1));
+      await ask(el2);
+      (q(el2, '.confirm [data-command="open"]') as HTMLElement).click();
+      expect(SPY.calls.at(-1)).toEqual(['lock', 'open', { entity_id: 'lock.puerta' }]);
+    });
+
+    it('la ✕ cancela sin lanzar ninguna orden', async () => {
+      const el = await mount({ size: 'compact' }, hassOpen('locked', 1));
+      await ask(el);
+      (q(el, '.confirm .cancel') as HTMLElement).click();
+      await el.updateComplete;
+      expect(q(el, '.confirm')).toBeNull();
+      expect(SPY.calls).toEqual([]);
+    });
+
+    it('mediana y grande siguen preguntando con texto', async () => {
+      for (const size of ['medium', 'large']) {
+        const el = await mount({ size }, hassOpen('locked', 1));
+        await ask(el);
+        expect(q(el, '.confirm-title')).not.toBeNull();
+        expect(buttons(el).some((b) => b.textContent!.trim() === 'Desbloquear')).toBe(true);
+      }
+    });
+  });
+
   describe('editor', () => {
-    it('ofrece Mediana y Grande; Grande (por defecto) no guarda la clave', async () => {
+    it('ofrece Compacta, Mediana y Grande; Grande (por defecto) no guarda la clave', async () => {
       const { el, last } = await mountEditor({ entity: 'lock.puerta' });
       const select = q(el, '#size') as HTMLSelectElement;
-      expect(Array.from(select.options).map((o) => o.value)).toEqual(['medium', 'large']);
+      expect(Array.from(select.options).map((o) => o.value)).toEqual(['compact', 'medium', 'large']);
       expect(select.value).toBe('large');
       select.value = 'medium';
       select.dispatchEvent(new Event('change'));
@@ -196,9 +315,24 @@ describe('tamaño de la Lock Card', () => {
       });
     });
 
+    it('en la compacta no hay subtítulo ni pie, pero se conserva el sensor de puerta', async () => {
+      const { el } = await mountEditor({ entity: 'lock.puerta', size: 'compact' });
+      expect(q(el, '#subtitle-type')).toBeNull();
+      expect(el.shadowRoot!.querySelectorAll('[data-footer]').length).toBe(0);
+      expect(q(el, 'ha-entity-picker')).not.toBeNull();
+    });
+
+    it('en mediana y grande se ofrece el pie con sus tres datos', async () => {
+      for (const size of ['medium', 'large']) {
+        const { el } = await mountEditor({ entity: 'lock.puerta', size });
+        expect(el.shadowRoot!.querySelectorAll('[data-footer]').length).toBe(3);
+      }
+    });
+
     it('el subtítulo solo se ofrece en la grande', async () => {
       expect(q((await mountEditor({ entity: 'lock.puerta' })).el, '#subtitle-type')).not.toBeNull();
       expect(q((await mountEditor({ entity: 'lock.puerta', size: 'medium' })).el, '#subtitle-type')).toBeNull();
+      expect(q((await mountEditor({ entity: 'lock.puerta', size: 'compact' })).el, '#subtitle-type')).toBeNull();
     });
   });
 });

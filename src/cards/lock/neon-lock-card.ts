@@ -20,7 +20,7 @@ import {
   neonRingSplitTemplate,
   RingSizeController,
 } from '../../shared';
-import { ACTION_PENDING_MS, CONFIRM_REVEAL_MS, CONFIRM_TIMEOUT_MS, ERROR_ICON, OPERATING_ACTIONS } from './constants';
+import { ACTION_PENDING_MS, COMMAND_ICONS, CONFIRM_REVEAL_MS, CONFIRM_TIMEOUT_MS, ERROR_ICON, OPERATING_ACTIONS } from './constants';
 import { LOCK_ICONS, resolveLockIconType } from './icons';
 import type { LockIconDef } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
@@ -139,7 +139,8 @@ export class NeonLockCard extends BaseNeonCard {
 
   /** Cabecera (icono, nombre, estado) y pie con hasta tres iconos: pide media rejilla. */
   getGridOptions(): { rows: 'auto'; columns: number; min_columns: number } {
-    return { rows: 'auto', columns: 6, min_columns: 4 };
+    // La compacta es más estrecha (solo icono, nombre y estado).
+    return resolveLockSize(this._config) === 'compact' ? { rows: 'auto', columns: 4, min_columns: 3 } : { rows: 'auto', columns: 6, min_columns: 4 };
   }
 
   private get _stateObj() {
@@ -326,11 +327,48 @@ export class NeonLockCard extends BaseNeonCard {
    * gestos: sin cortar la propagación, el clic en un botón llegaría al
    * `ha-card` y se interpretaría como otra pulsación (y otra confirmación).
    */
-  private _renderConfirm(): TemplateResult {
+  private _renderConfirm(compact = false): TemplateResult {
     const stop = (ev: Event) => ev.stopPropagation();
     const choices = this._confirm?.choices ?? [];
     const multi = choices.length > 1;
     const title = this._t(multi ? 'confirm_choose' : 'confirm_title');
+    // Compacta: sin texto visible; la orden se elige con iconos de candado
+    // (el texto queda como aria-label y tooltip).
+    if (compact) {
+      return html`
+        <div
+          class="confirm confirm--compact"
+          role="alertdialog"
+          aria-label=${title}
+          @pointerdown=${stop}
+          @pointerup=${stop}
+          @pointercancel=${stop}
+          @click=${stop}
+          @keydown=${(ev: KeyboardEvent) => {
+            if (ev.key === 'Escape') this._cancelConfirm();
+          }}
+        >
+          <div class="confirm-actions">
+            <button type="button" class="confirm-btn cancel" aria-label=${this._t('confirm_cancel')} title=${this._t('confirm_cancel')} @click=${() => this._cancelConfirm()}>
+              <ha-icon icon="mdi:close"></ha-icon>
+            </button>
+            ${multi
+              ? choices.map(
+                  (command) => html`
+                    <button type="button" class="confirm-btn accept" data-command=${command} aria-label=${this._t(`command_${command}`)} title=${this._t(`command_${command}`)} @click=${() => this._acceptConfirm(command)}>
+                      <ha-icon icon=${COMMAND_ICONS[command]}></ha-icon>
+                    </button>
+                  `
+                )
+              : html`
+                  <button type="button" class="confirm-btn accept" aria-label=${this._t('confirm_accept')} title=${this._t('confirm_accept')} @click=${() => this._acceptConfirm()}>
+                    <ha-icon icon=${COMMAND_ICONS.unlock}></ha-icon>
+                  </button>
+                `}
+          </div>
+        </div>
+      `;
+    }
     return html`
       <div
         class="confirm ${multi ? 'confirm--multi' : ''}"
@@ -371,16 +409,20 @@ export class NeonLockCard extends BaseNeonCard {
     // Lo que dice el rótulo: «Puerta abierta» solo con el sensor de puerta
     // activo y «Abriendo puerta…» al abrir (ver `displayState`).
     const shown = displayState(state, doorSensorOpen(this._config, this.hass), this._isPending() && this._pendingOpening);
-    const medium = resolveLockSize(this._config) === 'medium';
-    // La mediana no tiene subtítulo: el estado ocupa su sitio bajo el nombre.
-    const subtitle = medium ? nothing : this._subtitle(shown);
-    // La mediana muestra como mucho dos datos en el pie (la grande, tres).
-    const footer = resolveFooterItems(this._config, this.hass, this._stateObj, undefined, maxFooterItems(medium ? 'medium' : 'large'));
+    const size = resolveLockSize(this._config);
+    const compact = size === 'compact';
+    // Ni la mediana ni la compacta tienen subtítulo: el estado ocupa su sitio
+    // bajo el nombre.
+    const medium = size === 'medium';
+    const subtitle = medium || compact ? nothing : this._subtitle(shown);
+    // La compacta no lleva pie, la mediana muestra como mucho dos datos y la
+    // grande tres.
+    const footer = compact ? [] : resolveFooterItems(this._config, this.hass, this._stateObj, undefined, maxFooterItems(medium ? 'medium' : 'large'));
     const hasDoubleTap = !!this._config.double_tap_action && this._config.double_tap_action.action !== 'none';
 
     return html`
       <ha-card
-        class="neon-ring-host size-${medium ? 'medium' : 'large'} ${this._confirm && this._confirmShown ? 'confirming' : ''} ${isLockHaloOn(state) || this._isPending() || this._confirm ? 'neon-halo-active' : ''} ${isLockAlert(state) ? 'neon-halo-error' : ''} ${isLockMoving(state) ? 'lock-moving' : ''}"
+        class="neon-ring-host size-${size} ${this._confirm && this._confirmShown ? 'confirming' : ''} ${isLockHaloOn(state) || this._isPending() || this._confirm ? 'neon-halo-active' : ''} ${isLockAlert(state) ? 'neon-halo-error' : ''} ${isLockMoving(state) ? 'lock-moving' : ''}"
         style=${neonHaloVars(colors)}
         @pointerdown=${(ev: PointerEvent) => handlePointerDown(this._gesture, ev, '.-none-', () => this._handleAction('hold'))}
         @pointerup=${() => cancelHold(this._gesture)}
@@ -398,7 +440,14 @@ export class NeonLockCard extends BaseNeonCard {
             ${isLockAlert(state)
               ? html`<ha-icon class="neon-halo-icon" icon=${ERROR_ICON}></ha-icon>`
               : this._iconDef.template(isLockOpenPose(state))}
-            ${medium
+            ${compact
+              ? html`
+                  <div class="text">
+                    <span class="name">${this._name}</span>
+                    ${state && shown ? this._renderStatus(shown) : nothing}
+                  </div>
+                `
+              : medium
               ? html`
                   <div class="text">
                     <span class="name">${this._name}</span>
@@ -418,7 +467,7 @@ export class NeonLockCard extends BaseNeonCard {
           </div>
           ${footer.length ? html`<div class="footer">${footer.map((item) => this._renderFooterItem(item, medium))}</div>` : nothing}
         </div>
-      ${this._confirm && this._confirmShown ? this._renderConfirm() : nothing}
+      ${this._confirm && this._confirmShown ? this._renderConfirm(compact) : nothing}
       </ha-card>
     `;
   }

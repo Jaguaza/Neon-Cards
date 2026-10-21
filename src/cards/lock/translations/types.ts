@@ -27,6 +27,7 @@ export interface LockTranslations {
   icon_garage_roller: string;
   icon_garage_sliding: string;
   size_label: string;
+  size_compact: string;
   size_medium: string;
   size_large: string;
   subtitle_label: string;
@@ -56,6 +57,7 @@ export interface LockTranslations {
   door_entity_label: string;
   battery_entity_label: string;
   last_user_entity_label: string;
+  footer_hint_compact: string;
   footer_hint_medium: string;
   footer_limit_medium: string;
   footer_hidden_medium: string;

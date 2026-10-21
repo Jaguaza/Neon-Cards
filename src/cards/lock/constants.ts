@@ -63,3 +63,14 @@ export const CONFIRM_REVEAL_MS = 120;
  * inicial y un test comprueba que coinciden.
  */
 export const STATUS_DOT_DEFAULTS = { closed: '#39e07a', open: '#ffb02e', alert: '#ff5c5c' } as const;
+
+/**
+ * Iconos de candado de cada orden en la confirmación de la tarjeta compacta
+ * (que no lleva texto): cerrar, desbloquear (candado abierto con el arco
+ * girado) y abrir (candado abierto de contorno).
+ */
+export const COMMAND_ICONS = {
+  lock: 'mdi:lock',
+  unlock: 'mdi:lock-open-variant',
+  open: 'mdi:lock-open-outline',
+} as const;

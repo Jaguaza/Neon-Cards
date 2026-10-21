@@ -21,9 +21,11 @@ export type LockVisualState =
 
 /**
  * Tamaño: `large` (por defecto) es la tarjeta de siempre; `medium` es la
- * mediana, sin subtítulo y con el estado bajo el nombre.
+ * mediana, sin subtítulo y con el estado bajo el nombre; `compact` es la
+ * compacta: solo icono, nombre y estado (sin tres puntos ni pie) y, al
+ * pulsar, la orden se elige con iconos de candado en vez de con texto.
  */
-export type LockSize = 'medium' | 'large';
+export type LockSize = 'compact' | 'medium' | 'large';
 
 /**
  * Qué mostrar bajo el nombre: 'state' (por defecto, estado traducido de
@@ -50,7 +52,7 @@ export interface NeonLockCardConfig {
   name?: string;
   /** Icono animado; por defecto `padlock`. */
   lock_icon?: LockIconType;
-  /** Tamaño de la tarjeta (ver `LockSize`). La mediana no tiene subtítulo. */
+  /** Tamaño de la tarjeta (ver `LockSize`). Ni la mediana ni la compacta tienen subtítulo. */
   size?: LockSize;
   subtitle_type?: LockSubtitleType;
   /** Texto libre cuando subtitle_type es 'custom'. */

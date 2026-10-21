@@ -4,11 +4,12 @@ import type { LockSize, NeonLockCardConfig } from './types';
  * Tamaño de la tarjeta. `large` es el diseño de siempre (nombre con
  * subtítulo, estado y tres puntos a la derecha) y es el predeterminado, para
  * que las tarjetas ya creadas no cambien. `medium` es la tarjeta mediana: sin
- * subtítulo, con el estado bajo el nombre.
+ * subtítulo, con el estado bajo el nombre. `compact` es la compacta: solo icono,
+ * nombre y estado.
  */
 export const DEFAULT_LOCK_SIZE: LockSize = 'large';
 
-export const LOCK_SIZES: readonly LockSize[] = ['medium', 'large'];
+export const LOCK_SIZES: readonly LockSize[] = ['compact', 'medium', 'large'];
 
 /** Un valor desconocido en la config cuenta como el predeterminado. */
 export function resolveLockSize(config: Pick<NeonLockCardConfig, 'size'> | undefined): LockSize {
