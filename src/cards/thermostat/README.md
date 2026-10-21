@@ -78,8 +78,8 @@ Si quieres que la exclusión también valga para cambios hechos fuera de la
 tarjeta, **necesitas una automatización de Home Assistant**: funciona con el
 panel cerrado y se aplica una sola vez, no desde cada navegador abierto. Es
 opcional (la tarjeta funciona igual sin ella) y solo tiene sentido con
-`entity_2`. Cambia `climate.calefaccion` y `climate.aire_acondicionado` por las
-mismas entidades que `entity` y `entity_2` de la tarjeta (en dos sitios: el
+`entity_2`. Sustituye `climate.entity_1` y `climate.entity_2` por las
+mismas entidades de la tarjeta: `entity_1` es `entity` y `entity_2` es `entity_2` (en dos sitios: el
 disparador y `otro`):
 
 ```yaml
@@ -89,12 +89,12 @@ mode: queued
 triggers:
   - trigger: state
     entity_id:
-      - climate.calefaccion
-      - climate.aire_acondicionado
+      - climate.entity_1
+      - climate.entity_2
 variables:
   otro: >-
-    {{ 'climate.aire_acondicionado' if trigger.entity_id == 'climate.calefaccion'
-       else 'climate.calefaccion' }}
+    {{ 'climate.entity_2' if trigger.entity_id == 'climate.entity_1'
+       else 'climate.entity_1' }}
   # Modos que NUNCA activan la exclusión (ni en el equipo que cambia ni en el otro)
   libres:
     - "off"

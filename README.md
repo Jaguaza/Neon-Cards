@@ -226,7 +226,7 @@ footer:
 
 ### **Exclusión también para cambios hechos fuera de la tarjeta (opcional)**
 
-La tarjeta solo apaga la otra entidad cuando eliges el modo **en ella**; no actúa por su cuenta cuando el cambio viene de fuera (otra tarjeta, el diálogo de la entidad, un asistente de voz u otras automatizaciones). Si quieres esa garantía también en esos casos, **necesitas una automatización de Home Assistant** (funciona con el panel cerrado). Es opcional y solo tiene sentido con `entity_2`. Cambia las dos entidades por las de `entity` y `entity_2` de la tarjeta:
+La tarjeta solo apaga la otra entidad cuando eliges el modo **en ella**; no actúa por su cuenta cuando el cambio viene de fuera (otra tarjeta, el diálogo de la entidad, un asistente de voz u otras automatizaciones). Si quieres esa garantía también en esos casos, **necesitas una automatización de Home Assistant** (funciona con el panel cerrado). Es opcional y solo tiene sentido con `entity_2`. Sustituye `climate.entity_1` y `climate.entity_2` por las entidades de la tarjeta (`entity_1` es `entity`; `entity_2` es `entity_2`):
 
 ```yaml
 alias: Salón — calefacción y aire no a la vez
@@ -235,12 +235,12 @@ mode: queued
 triggers:
   - trigger: state
     entity_id:
-      - climate.calefaccion
-      - climate.aire_acondicionado
+      - climate.entity_1
+      - climate.entity_2
 variables:
   otro: >-
-    {{ 'climate.aire_acondicionado' if trigger.entity_id == 'climate.calefaccion'
-       else 'climate.calefaccion' }}
+    {{ 'climate.entity_2' if trigger.entity_id == 'climate.entity_1'
+       else 'climate.entity_1' }}
   # Modos que NUNCA activan la exclusión (ni en el equipo que cambia ni en el otro)
   libres:
     - "off"
