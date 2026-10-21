@@ -43,6 +43,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
+- Lock Card: nueva tarjeta `custom:neon-lock-card` para entidades `lock`. Icono animado a elegir (`lock_icon`: candado, puerta, garaje enrollable o garaje corredera) que se abre y se cierra de verdad según el estado, halo neón que sigue al estado, confirmación al abrir, pie con hasta tres datos, tres tamaños (`size`) y editor visual. Ver [`src/cards/lock/README.md`](./src/cards/lock/README.md).
 - Lock Card: nuevo tamaño `compact` (Compacta). Solo muestra icono, nombre y estado (con los tres puntos para abrir «más información»), sin pie y sin subtítulo, con el icono arriba y el nombre y el estado debajo (4 columnas por defecto, mínimo 3). Al pulsar no sale texto: la orden (bloquear, desbloquear, abrir) se elige con iconos de candado y una ✕ para cancelar, con el texto como etiqueta accesible. Las tarjetas grande y mediana no cambian.
 - Lock Card: nueva opción `size`. La tarjeta **mediana** (`medium`) no lleva subtítulo (no hay opción para ponerlo) y el estado, con su punto de color, ocupa su sitio bajo el nombre, con los tres puntos en la esquina; su pie va siempre en una sola fila (en tarjetas estrechas, con menos relleno e iconos y sin iconos con tres datos). La tarjeta **grande** (`large`, el valor por defecto) es la de siempre y no cambia.
 - Lock Card: el color del punto de estado se puede elegir (`status_color_closed`,
@@ -339,8 +340,34 @@ and this project follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Lock Card: new `custom:neon-lock-card` card for `lock` entities. Animated icon of your choice (`lock_icon`: padlock, door, roller garage or sliding garage) that really opens and closes according to the state, a neon halo that follows the state, confirmation before opening, a footer with up to three data points, three sizes (`size`) and a visual editor. See [`src/cards/lock/README.md`](./src/cards/lock/README.md).
 - Lock Card: new `compact` size (Compact). It only shows icon, name and state (with the three dots to open "more info"), no footer and no subtitle, with the icon on top and the name and state below (4 columns by default, minimum 3). No text appears when tapped: the command (lock, unlock, open) is chosen with padlock icons and a ✕ to cancel, with the text as an accessible label. The large and medium cards do not change.
 - Lock Card: new `size` option. The **medium** card (`medium`) has no subtitle (there is no option to set one) and the state, with its coloured dot, takes its place under the name, with the three dots in the corner; its footer always stays on a single row (in narrow cards, with less padding and icons, and no icons with three data points). The **large** card (`large`, the default) is the same as ever and does not change.
+- Lock Card: the status dot colour can be chosen (`status_color_closed`,
+  `status_color_open`, `status_color_alert`: locked, unlocked/open and
+  jammed/unavailable; green, amber and red by default). Colour pickers in the
+  visual editor with "Reset colours". Any CSS colour in YAML; an invalid value
+  is ignored.
+- Lock Card: the footer door data point, when the sensor is active (door
+  open), takes the colour of the "unlocked or open" state
+  (`status_color_open`, amber by default) on the icon and the text; closed
+  keeps the normal colour.
+- Lock Card: new design. On top, the icon with the name and subtitle beside it
+  and, on the right, the state (green/amber/red dot and text) and the three
+  "more info" dots. Below, a neon line and up to three data points
+  (`footer_items`): door sensor (`door_entity`), battery (`battery_entity` or
+  the `battery_level` attribute) and last access (`last_user_entity` or the
+  `changed_by` attribute). Visual editor with three slots and their entity
+  pickers.
+- Lock Card: if the lock also supports opening (`supported_features`), tapping
+  with the default `toggle` lets you choose between **Unlock/Open** (locked) or
+  **Lock/Open** (unlocked); the option calls `lock.unlock`, `lock.open` or
+  `lock.lock`. Without open support nothing changes.
+- Lock Card: confirmation before opening (`confirm_open`, on by default). When
+  tapping to open the lock, an "Open?" view appears in the card itself, with
+  the halo lit and neon buttons (Open / Cancel; Esc cancels, focus starts on
+  Cancel). It cancels itself after 8 s or if the lock changes state. Locking
+  never asks. Switch in the visual editor; `confirm_open: false` disables it.
 
 ### Fixed
 
@@ -356,7 +383,20 @@ and this project follows [Semantic Versioning](https://semver.org/).
 - Sensor Card: more design tweaks. The small size now shows the subtitle (it used to hide it even when enabled) and groups icon, name, subtitle and value centered, with no gap between the name and the number. In medium and large the digits are smaller to give the graph more width. Large becomes 12×2: header on top and, below, the value and threshold label on the left and the graph on the right.
 - Sensor Card: design tweaks after the fixed slot. Explicit line-heights on name, subtitle and label (HA inherited ~1.5, which fattened the header and squashed the graph); in narrow cards the medium size's icon and ⋮ menu shrink so the name fits on one line; and in small the icon goes on top with the name below at full width (it used to end up as "Te m…").
 - Sensor Card: the graphs were drawn outside the card. The content height depended on the width (in narrow cards the ⋮ menu and the graph wrapped onto new lines) and HA reserved a smaller height. Each size now takes a fixed slot in the grid (small 3×2, medium 6×2, large 12×2, columns × rows, not resizable) and the layout height no longer changes with width: the menu doesn't wrap, the name takes at most two lines, and the value and graph share one row (the graph shrinks instead of wrapping). Anything that doesn't fit is clipped inside the card.
+- Button Card: in narrow cards the sensor footer values were cut off with "…"
+  ("21...."). Now the padding goes only between sensors, a slot no longer
+  shrinks below its content and, if number and unit don't fit together, the
+  unit is hidden first and only then is the number clipped. The vertical
+  separator still doesn't touch the content.
 - Thermostat Card: each size now takes a fixed slot in the HA grid and can't be resized: small 5×4, medium 8×5 and large 12×5 (columns × rows). In the editor, the "Normal" size is now called "Medium" (the YAML value is still `normal`).
+- Lock Card: on iOS (HA app / WebKit) the halo already appeared drawn when the
+  confirmation view opened, without the ring animation. Now the halo lights up
+  first and the view appears 120 ms later, and the view's `backdrop-filter` is
+  removed, as it causes problems with transitions in WebKit.
+- Lock Card: the confirmation view no longer relies on a background or a blur
+  to cover the card's content (with translucent glass themes, and on iOS, the
+  text underneath showed through). While the view is open, the original
+  content is hidden, without changing the card's size.
 
 ### Changed
 
@@ -367,6 +407,27 @@ and this project follows [Semantic Versioning](https://semver.org/).
   with it. The exclusion when picking the mode in the card itself is kept. To have it
   also for changes made outside the card, the documentation (main README and
   the card's) includes an example Home Assistant automation.
+- Lock Card: `subtitle_type` now defaults to `none`, because the state is
+  already shown at the top right (it used to be `state`; you can go back with
+  `subtitle_type: state`). By default the card takes half a grid
+  (`columns: 6`) and is taller.
+- Lock Card: in Spanish, `unlocked` is shown as "Desbloqueada" (previously
+  "Abierta", which was confused with the door being open) and `unlocking` as
+  "Desbloqueando…". "Puerta abierta" is left only for `open`.
+- Lock Card: the `jammed` state shows the error X (`mdi:close`) with the red
+  halo, like a missing or unavailable entity and like the other cards; the
+  subtitle still says "Jammed".
+- Lock Card: the halo now follows the lock's state instead of a timed flash:
+  it lights up when it opens, stays lit while it is open (also while closing)
+  and goes off on reaching `locked`. All cards for the same entity show it at
+  once and the "bounce" with slow locks disappears. When tapping an action
+  that operates the lock (`toggle`, `call-service`) the halo lights up right
+  away and waits for the state change (up to 6 s).
+- Lock Card: the `door` icon is now `mdi:door-closed` and animates to
+  `mdi:door-open` (the leaf swings on the left jamb).
+- Lock Card: the garage icons (`garage_roller` and `garage_sliding`) move to
+  the silhouette of `mdi:garage-variant` (solid roof and jambs, three slats),
+  keeping the rolling and sliding animation.
 
 ## [1.2.0] - 2026-10-11
 
