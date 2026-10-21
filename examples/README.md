@@ -272,6 +272,75 @@ tamaño ocupa un hueco fijo de la rejilla (columnas × filas): `compact` 3×2,
 
 ---
 
+## Neón Lock Card (`custom:neon-lock-card`)
+
+### YAML mínimo
+
+```yaml
+type: custom:neon-lock-card
+entity: lock.puerta_principal
+```
+
+### YAML avanzado
+
+```yaml
+type: custom:neon-lock-card
+entity: lock.puerta_principal
+name: Puerta principal
+lock_icon: door
+size: large
+subtitle_type: state
+neon_palette: emerald
+status_color_open: "#ffb02e"
+footer_items:
+  - door
+  - battery
+  - last_user
+door_entity: binary_sensor.puerta_principal_abierta
+battery_entity: sensor.puerta_principal_bateria
+last_user_entity: sensor.puerta_principal_ultimo_acceso
+confirm_open: true
+tap_action:
+  action: toggle
+hold_action:
+  action: more-info
+```
+
+Garaje con puerta enrollable, en tamaño compacto y sin confirmación:
+
+```yaml
+type: custom:neon-lock-card
+entity: lock.garaje
+name: Garaje
+lock_icon: garage_roller
+size: compact
+confirm_open: false
+```
+
+### Explicación
+
+Neón Lock Card controla una entidad `lock` con un icono animado que se abre
+y se cierra de verdad según el estado de la cerradura. El icono se elige con
+`lock_icon` (candado, puerta, garaje enrollable o garaje corredera). El halo
+neón sigue al estado: se enciende cuando la cerradura se abre, permanece
+encendido mientras está abierta y se apaga al llegar a cerrada; si se atasca o
+la entidad falla, se ve la X de error con el halo en rojo. A la derecha del
+nombre van el estado (punto verde, ámbar o rojo, que se pueden cambiar con
+`status_color_*`) y los tres puntos de «más información». El tamaño se elige
+con `size`: `large` (grande, con subtítulo y pie), `medium` (mediana, sin
+subtítulo, con el estado bajo el nombre) o `compact` (compacta, solo icono,
+nombre y estado). Los huecos de inicio de la rejilla son 12, 6 y 3 columnas,
+con alto automático. El pie admite hasta tres datos (`footer_items`): sensor
+de puerta (`door_entity`), batería y último acceso; la mediana solo muestra
+batería y último acceso, y la compacta no lleva pie. Con el sensor de puerta
+configurado, el estado pasa a decir «Puerta abierta» solo cuando el sensor
+está activo. Por defecto, al pulsar para abrir aparece una vista «¿Abrir?» en
+la propia tarjeta (`confirm_open: false` la desactiva); cerrar nunca pregunta.
+Si la cerradura soporta además abrir, al pulsar se elige entre desbloquear o
+abrir. En la compacta la orden se elige con iconos de candado, sin texto.
+
+---
+
 <a id="examples-english"></a>
 
 # examples/ (English)
@@ -541,3 +610,72 @@ thresholds there is no label and the perimeter looks normal. Size is chosen with
 (small, no graph). Each size takes a fixed grid slot (columns × rows):
 `compact` 3×2, `normal` 6×2 and `large` 12×2. Small always shows one
 decimal (`xx.x`). It has no sensor footer.
+
+---
+
+## Neón Lock Card (`custom:neon-lock-card`)
+
+### Minimal YAML
+
+```yaml
+type: custom:neon-lock-card
+entity: lock.front_door
+```
+
+### Advanced YAML
+
+```yaml
+type: custom:neon-lock-card
+entity: lock.front_door
+name: Front door
+lock_icon: door
+size: large
+subtitle_type: state
+neon_palette: emerald
+status_color_open: "#ffb02e"
+footer_items:
+  - door
+  - battery
+  - last_user
+door_entity: binary_sensor.front_door_open
+battery_entity: sensor.front_door_battery
+last_user_entity: sensor.front_door_last_access
+confirm_open: true
+tap_action:
+  action: toggle
+hold_action:
+  action: more-info
+```
+
+Roller garage door, in the compact size and without confirmation:
+
+```yaml
+type: custom:neon-lock-card
+entity: lock.garage
+name: Garage
+lock_icon: garage_roller
+size: compact
+confirm_open: false
+```
+
+### Explanation
+
+Neón Lock Card controls a `lock` entity with an animated icon that really
+opens and closes according to the lock's state. The icon is chosen with
+`lock_icon` (padlock, door, roller garage or sliding garage). The neon halo
+follows the state: it lights up when the lock opens, stays lit while it is
+open and goes off on reaching closed; if it jams or the entity fails, the
+error X is shown with a red halo. To the right of the name go the state (a
+green, amber or red dot, which can be changed with `status_color_*`) and the
+three "more info" dots. Size is chosen with `size`: `large` (large, with
+subtitle and footer), `medium` (medium, no subtitle, with the state under the
+name) or `compact` (compact, only icon, name and state). The starting grid
+slots are 12, 6 and 3 columns, with automatic height. The footer accepts up
+to three data points (`footer_items`): door sensor (`door_entity`), battery
+and last access; the medium card only shows battery and last access, and the
+compact card has no footer. With the door sensor configured, the state says
+"Door open" only while the sensor is active. By default, tapping to open
+shows an "Open?" view inside the card (`confirm_open: false` disables it);
+locking never asks. If the lock also supports opening, tapping lets you
+choose between unlocking or opening. In the compact card the command is
+chosen with padlock icons, without text.
