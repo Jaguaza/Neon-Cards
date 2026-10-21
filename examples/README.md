@@ -170,7 +170,8 @@ separados (p. ej. calefacción + aire acondicionado) como uno solo — el
 selector de modo muestra la unión de los modos de ambas entidades, y
 al elegir un modo en la tarjeta, la otra se apaga si estaba en un modo
 distinto (estar activas juntas en el *mismo* modo sí está permitido);
-los cambios hechos fuera de la tarjeta no los toca. Igual que Button,
+los cambios hechos fuera de la tarjeta no los toca (para esos casos, el
+README del termostato incluye una automatización de ejemplo). Igual que Button,
 admite un footer de sensores (dominios `sensor`/`binary_sensor`,
 máximo 3).
 
@@ -444,7 +445,8 @@ separate units (e.g. heating + AC) as one — the mode selector shows the
 union of both entities' modes, and
 when you pick a mode in the card the other one is turned off if it was in
 a different mode (being active together in the *same* mode is allowed);
-changes made outside the card are left alone.
+changes made outside the card are left alone (for those cases, the
+thermostat README includes an example automation).
 Like Button, it supports a sensor footer (`sensor`/`binary_sensor`
 domains, max 3).
 

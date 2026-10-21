@@ -74,6 +74,58 @@ La tarjeta **no** reacciona a cambios hechos fuera de ella (diálogo de
 la entidad, otra tarjeta, una automatización, un asistente de voz u
 otro usuario): solo envía órdenes cuando interactúas con ella.
 
+Si quieres que la exclusión también valga para cambios hechos fuera de la
+tarjeta, **necesitas una automatización de Home Assistant**: funciona con el
+panel cerrado y se aplica una sola vez, no desde cada navegador abierto. Es
+opcional (la tarjeta funciona igual sin ella) y solo tiene sentido con
+`entity_2`. Cambia `climate.calefaccion` y `climate.aire_acondicionado` por las
+mismas entidades que `entity` y `entity_2` de la tarjeta (en dos sitios: el
+disparador y `otro`):
+
+```yaml
+alias: Salón — calefacción y aire no a la vez
+description: Si un equipo pasa a un modo activo distinto del que tiene el otro, apaga el otro.
+mode: queued
+triggers:
+  - trigger: state
+    entity_id:
+      - climate.calefaccion
+      - climate.aire_acondicionado
+variables:
+  otro: >-
+    {{ 'climate.aire_acondicionado' if trigger.entity_id == 'climate.calefaccion'
+       else 'climate.calefaccion' }}
+  # Modos que NUNCA activan la exclusión (ni en el equipo que cambia ni en el otro)
+  libres:
+    - "off"
+    - fan_only
+    - unavailable
+    - unknown
+conditions:
+  - condition: template
+    value_template: >-
+      {% set nuevo = trigger.to_state.state %}
+      {% set del_otro = states(otro) %}
+      {{ trigger.from_state is not none
+         and trigger.from_state.state != nuevo
+         and nuevo not in libres
+         and del_otro not in libres
+         and del_otro != nuevo }}
+actions:
+  - action: climate.set_hvac_mode
+    target:
+      entity_id: "{{ otro }}"
+    data:
+      hvac_mode: "off"
+```
+
+- `libres` son los modos que nunca activan la exclusión, ni en el equipo que
+  cambia ni en el otro. Por defecto el ventilador (`fan_only`) queda libre: un
+  aire en solo ventilador no apaga la calefacción, ni al revés. Quita
+  `fan_only` de la lista si prefieres que también excluya.
+- Solo se dispara cuando cambia el **modo** (no la temperatura ni otro
+  atributo) y nunca si el otro equipo ya está apagado o en el mismo modo.
+
 ## Paleta de colores
 
 `color` pinta el dial/aro según el modo HVAC — no confundir con
@@ -231,6 +283,58 @@ same time in the same mode).
 The card does **not** react to changes made outside it (the entity's
 dialog, another card, an automation, a voice assistant or another user):
 it only sends commands when you interact with it.
+
+If you want the exclusion to also hold for changes made outside the card,
+**you need a Home Assistant automation**: it works with the dashboard closed
+and runs once, not from every open browser. It is optional (the card works the
+same without it) and only makes sense with `entity_2`. Replace
+`climate.heating` and `climate.air_conditioning` with the same entities as the
+card's `entity` and `entity_2` (in two places: the trigger and `other`):
+
+```yaml
+alias: Living room — heating and air conditioning not together
+description: If one unit switches to an active mode different from the other's, turn the other off.
+mode: queued
+triggers:
+  - trigger: state
+    entity_id:
+      - climate.heating
+      - climate.air_conditioning
+variables:
+  other: >-
+    {{ 'climate.air_conditioning' if trigger.entity_id == 'climate.heating'
+       else 'climate.heating' }}
+  # Modes that NEVER trigger the exclusion (neither on the unit that changes nor on the other)
+  free_modes:
+    - "off"
+    - fan_only
+    - unavailable
+    - unknown
+conditions:
+  - condition: template
+    value_template: >-
+      {% set new_mode = trigger.to_state.state %}
+      {% set other_mode = states(other) %}
+      {{ trigger.from_state is not none
+         and trigger.from_state.state != new_mode
+         and new_mode not in free_modes
+         and other_mode not in free_modes
+         and other_mode != new_mode }}
+actions:
+  - action: climate.set_hvac_mode
+    target:
+      entity_id: "{{ other }}"
+    data:
+      hvac_mode: "off"
+```
+
+- `free_modes` are the modes that never trigger the exclusion, neither on the
+  unit that changes nor on the other. By default the fan (`fan_only`) is free:
+  an air conditioner in fan-only mode does not turn the heating off, nor the
+  other way round. Remove `fan_only` from the list if you prefer it to
+  exclude as well.
+- It only fires when the **mode** changes (not the temperature or any other
+  attribute) and never if the other unit is already off or in the same mode.
 
 ## Color palette
 

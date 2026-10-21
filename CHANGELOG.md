@@ -75,7 +75,9 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   cuando el modo cambia desde fuera (diálogo de la entidad, otra tarjeta,
   automatizaciones, voz…): solo envía órdenes de servicio cuando el usuario
   interactúa con ella. La exclusión al elegir el modo en la propia tarjeta se
-  mantiene.
+  mantiene. Para tenerla también con cambios hechos fuera de la tarjeta, la
+  documentación (README principal y de la tarjeta) incluye una automatización
+  de Home Assistant de ejemplo.
 - Lock Card: `subtitle_type` pasa a valer `none` por defecto, porque el estado
   ya se muestra arriba a la derecha (antes era `state`; se puede volver con
   `subtitle_type: state`). La tarjeta ocupa por defecto media rejilla
@@ -354,7 +356,9 @@ and this project follows [Semantic Versioning](https://semver.org/).
 - Thermostat Card: the card no longer turns off the second entity on its own
   when the mode changes from outside (the entity's dialog, another card,
   automations, voice…): it only sends service calls when the user interacts
-  with it. The exclusion when picking the mode in the card itself is kept.
+  with it. The exclusion when picking the mode in the card itself is kept. To have it
+  also for changes made outside the card, the documentation (main README and
+  the card's) includes an example Home Assistant automation.
 
 ## [1.2.0] - 2026-10-11
 

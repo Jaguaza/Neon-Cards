@@ -187,7 +187,7 @@ Con `entity_2` la tarjeta junta dos equipos separados:
 
 - El selector de modo muestra la **unión** de los modos de las dos entidades.
 - Cada modo lo gestiona la primera entidad que lo soporta. Si los soportan las dos, `mode_owner` decide cuál.
-- **Nunca trabajan a la vez en modos distintos:** al activar un modo en una, la otra se apaga sola.
+- **Exclusión al elegir el modo:** al elegir un modo **en la tarjeta**, la otra entidad se apaga si estaba activa en un modo distinto. Los cambios hechos fuera de la tarjeta (diálogo, voz, otras automatizaciones) no se tocan: para esos casos hay una automatización de ejemplo al final de esta sección.
 - Arriba a la derecha hay un botón por entidad que abre su diálogo de más información.
 
 
@@ -223,6 +223,49 @@ footer:
   - entity: sensor.salon_humidity
 ```
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/Termostato%20Gif.gif" width="450"></p>
+
+### **Exclusión también para cambios hechos fuera de la tarjeta (opcional)**
+
+La tarjeta solo apaga la otra entidad cuando eliges el modo **en ella**; no actúa por su cuenta cuando el cambio viene de fuera (otra tarjeta, el diálogo de la entidad, un asistente de voz u otras automatizaciones). Si quieres esa garantía también en esos casos, **necesitas una automatización de Home Assistant** (funciona con el panel cerrado). Es opcional y solo tiene sentido con `entity_2`. Cambia las dos entidades por las de `entity` y `entity_2` de la tarjeta:
+
+```yaml
+alias: Salón — calefacción y aire no a la vez
+description: Si un equipo pasa a un modo activo distinto del que tiene el otro, apaga el otro.
+mode: queued
+triggers:
+  - trigger: state
+    entity_id:
+      - climate.calefaccion
+      - climate.aire_acondicionado
+variables:
+  otro: >-
+    {{ 'climate.aire_acondicionado' if trigger.entity_id == 'climate.calefaccion'
+       else 'climate.calefaccion' }}
+  # Modos que NUNCA activan la exclusión (ni en el equipo que cambia ni en el otro)
+  libres:
+    - "off"
+    - fan_only
+    - unavailable
+    - unknown
+conditions:
+  - condition: template
+    value_template: >-
+      {% set nuevo = trigger.to_state.state %}
+      {% set del_otro = states(otro) %}
+      {{ trigger.from_state is not none
+         and trigger.from_state.state != nuevo
+         and nuevo not in libres
+         and del_otro not in libres
+         and del_otro != nuevo }}
+actions:
+  - action: climate.set_hvac_mode
+    target:
+      entity_id: "{{ otro }}"
+    data:
+      hvac_mode: "off"
+```
+
+El ventilador (`fan_only`) queda libre por defecto: un aire en solo ventilador no apaga la calefacción, ni al revés. Más detalles en la [documentación de la tarjeta](./src/cards/thermostat/README.md).
 
 ---
 
@@ -530,7 +573,7 @@ With `entity_2` the card brings two separate devices together:
 
 - The mode selector shows the **union** of both entities' modes.
 - Each mode is handled by the first entity that supports it. If both do, `mode_owner` decides which one.
-- **They never run at the same time in different modes:** turning on a mode in one switches the other off on its own.
+- **Exclusion when choosing the mode:** when you pick a mode **in the card**, the other entity is turned off if it was active in a different mode. Changes made outside the card (dialog, voice, other automations) are left alone: for those cases there is an example automation at the end of this section.
 - At the top right there is a button per entity that opens its more-info dialog.
 
 
@@ -566,6 +609,49 @@ footer:
   - entity: sensor.living_room_humidity
 ```
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/Termostato%20Gif.gif" width="450"></p>
+
+### **Exclusion also for changes made outside the card (optional)**
+
+The card only turns the other entity off when you pick the mode **in it**; it does not act on its own when the change comes from outside (another card, the entity's dialog, a voice assistant or other automations). If you want that guarantee in those cases too, **you need a Home Assistant automation** (it works with the dashboard closed). It is optional and only makes sense with `entity_2`. Replace the two entities with the card's `entity` and `entity_2`:
+
+```yaml
+alias: Living room — heating and air conditioning not together
+description: If one unit switches to an active mode different from the other's, turn the other off.
+mode: queued
+triggers:
+  - trigger: state
+    entity_id:
+      - climate.heating
+      - climate.air_conditioning
+variables:
+  other: >-
+    {{ 'climate.air_conditioning' if trigger.entity_id == 'climate.heating'
+       else 'climate.heating' }}
+  # Modes that NEVER trigger the exclusion (neither on the unit that changes nor on the other)
+  free_modes:
+    - "off"
+    - fan_only
+    - unavailable
+    - unknown
+conditions:
+  - condition: template
+    value_template: >-
+      {% set new_mode = trigger.to_state.state %}
+      {% set other_mode = states(other) %}
+      {{ trigger.from_state is not none
+         and trigger.from_state.state != new_mode
+         and new_mode not in free_modes
+         and other_mode not in free_modes
+         and other_mode != new_mode }}
+actions:
+  - action: climate.set_hvac_mode
+    target:
+      entity_id: "{{ other }}"
+    data:
+      hvac_mode: "off"
+```
+
+The fan (`fan_only`) is free by default: an air conditioner in fan-only mode does not turn the heating off, nor the other way round. More details in the [card documentation](./src/cards/thermostat/README.md).
 
 ---
 
