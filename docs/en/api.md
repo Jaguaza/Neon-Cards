@@ -31,6 +31,7 @@ See also the [Spanish version](../es/api.md).
 - [Neón Button Card — YAML configuration](#neón-button-card--yaml-configuration)
 - [Neón Thermostat Card — YAML configuration](#neón-thermostat-card--yaml-configuration)
 - [Neón Sensor Card — YAML configuration](#neón-sensor-card--yaml-configuration)
+- [Neón Lock Card — YAML configuration](#neón-lock-card--yaml-configuration)
 
 ---
 
@@ -1002,5 +1003,77 @@ threshold_names:
   ok: "Confort"
   high: "Calor"
 tap_action:
+  action: more-info
+```
+
+## Neón Lock Card — YAML configuration
+
+All keys of `NeonLockCardConfig` (`src/cards/lock/types.ts`). It only accepts
+entities from the `lock` domain; without `entity`, or with another domain, the
+card is shown as "Unavailable" (and warns in the console in development).
+Full specification in [`src/cards/lock/README.md`](../../src/cards/lock/README.md)
+and examples in [`examples/`](../../examples/README.md).
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `entity` | `string` | — (required) | `lock.*` entity. |
+| `name` | `string` | entity `friendly_name` | Displayed name. |
+| `lock_icon` | `'padlock' \| 'door' \| 'garage_roller' \| 'garage_sliding'` | `'padlock'` | Animated icon that opens and closes according to the state. An invalid value uses the padlock. |
+| `size` | `'large' \| 'medium' \| 'compact'` | `'large'` | Size: `large` = large; `medium` = medium, no subtitle and with the state under the name; `compact` = compact, only icon, name and state, no footer. See `getGridOptions()`. |
+| `subtitle_type` | `'none' \| 'state' \| 'custom' \| 'last-changed' \| 'last-updated'` | `'none'` | What is shown under the name. Only in the `large` size. |
+| `subtitle` | `string` | — | Free text with `subtitle_type: custom`. Only in `large`. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Halo palette. |
+| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | per palette | Colours with `neon_palette: custom`. |
+| `status_color_closed` | `string` (CSS colour) | `#39e07a` | Status dot colour when the lock is closed (`locked`, `locking`). |
+| `status_color_open` | `string` (CSS colour) | `#ffb02e` | Colour when the lock is unlocked or open (`unlocked`, `unlocking`, `open`, `opening`). The footer door data point also takes it when the sensor is active. |
+| `status_color_alert` | `string` (CSS colour) | `#ff5c5c` | Colour when the lock is jammed or unavailable (`jammed`, `error`). An invalid colour is ignored and the default is used. |
+| `footer_items` | `Array<'door' \| 'battery' \| 'last_user'>` | — | Up to three data points in the footer, in that order. Repeated and unknown values are ignored. In `medium` only `battery` and `last_user` are drawn; `compact` has no footer. |
+| `door_entity` | `string` | — | Door `binary_sensor`: `on` open, `off` closed. Used for the `door` data point and for the "Door open" state text. |
+| `battery_entity` | `string` | `battery_level` (or `battery`) attribute | Battery sensor (%) for the `battery` data point. |
+| `last_user_entity` | `string` | `changed_by` attribute | Entity with the name of whoever last accessed the lock, for the `last_user` data point. |
+| `confirm_open` | `boolean` | `true` | Asks for confirmation ("Open?") in a neon view inside the card before running an action that opens the lock. Locking never asks. `false` disables it. |
+| `tap_action` | `ActionConfig` | `{ action: toggle }` | Tap action. |
+| `hold_action` | `ActionConfig` | `{ action: more-info }` | Hold action. |
+| `double_tap_action` | `ActionConfig` | `{ action: none }` | Double-tap action. |
+
+If the lock also supports opening (`supported_features`), tapping with
+`toggle` lets you choose between **Unlock/Open** or **Lock/Open**, and the
+option calls `lock.unlock`, `lock.open` or `lock.lock`.
+
+### `getGridOptions()` — size driven by `size`
+
+The height is automatic (`rows: 'auto'`); `size` sets the starting columns and
+the minimum it can be reduced to by hand (`LOCK_GRID` in
+`src/cards/lock/constants.ts`). A card with `grid_options` saved in the YAML
+keeps its width. `getCardSize()` returns `3`.
+
+| `size` | Size | `columns` | `min_columns` |
+|---|---|---|---|
+| `'compact'` | Compact | `3` | `3` |
+| `'medium'` | Medium | `6` | `4` |
+| `'large'` (default) | Large | `12` | `4` |
+
+### Full example
+
+```yaml
+type: custom:neon-lock-card
+entity: lock.front_door
+name: Front door
+lock_icon: door
+size: large
+subtitle_type: state
+neon_palette: emerald
+status_color_open: "#ffb02e"
+footer_items:
+  - door
+  - battery
+  - last_user
+door_entity: binary_sensor.front_door_open
+battery_entity: sensor.front_door_battery
+last_user_entity: sensor.front_door_last_access
+confirm_open: true
+tap_action:
+  action: toggle
+hold_action:
   action: more-info
 ```

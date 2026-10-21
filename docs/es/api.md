@@ -31,6 +31,7 @@ Ver también la versión en [inglés](../en/api.md).
 - [Neón Button Card — Configuración YAML](#neón-button-card--configuración-yaml)
 - [Neón Thermostat Card — Configuración YAML](#neón-thermostat-card--configuración-yaml)
 - [Neón Sensor Card — Configuración YAML](#neón-sensor-card--configuración-yaml)
+- [Neón Lock Card — Configuración YAML](#neón-lock-card--configuración-yaml)
 
 ---
 
@@ -1005,5 +1006,77 @@ threshold_names:
   ok: "Confort"
   high: "Calor"
 tap_action:
+  action: more-info
+```
+
+## Neón Lock Card — Configuración YAML
+
+Todas las claves de `NeonLockCardConfig` (`src/cards/lock/types.ts`). Solo
+admite entidades del dominio `lock`; sin `entity` o con otro dominio la
+tarjeta se muestra como «No disponible» (y en desarrollo avisa por consola).
+Especificación completa en [`src/cards/lock/README.md`](../../src/cards/lock/README.md)
+y ejemplos en [`examples/`](../../examples/README.md).
+
+| Clave | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `entity` | `string` | — (requerida) | Entidad `lock.*`. |
+| `name` | `string` | `friendly_name` de la entidad | Nombre mostrado. |
+| `lock_icon` | `'padlock' \| 'door' \| 'garage_roller' \| 'garage_sliding'` | `'padlock'` | Icono animado que se abre y se cierra según el estado. Un valor no válido usa el candado. |
+| `size` | `'large' \| 'medium' \| 'compact'` | `'large'` | Tamaño: `large` = grande; `medium` = mediana, sin subtítulo y con el estado bajo el nombre; `compact` = compacta, solo icono, nombre y estado, sin pie. Ver `getGridOptions()`. |
+| `subtitle_type` | `'none' \| 'state' \| 'custom' \| 'last-changed' \| 'last-updated'` | `'none'` | Qué se muestra bajo el nombre. Solo en el tamaño `large`. |
+| `subtitle` | `string` | — | Texto libre con `subtitle_type: custom`. Solo en `large`. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta del halo. |
+| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | según paleta | Colores con `neon_palette: custom`. |
+| `status_color_closed` | `string` (color CSS) | `#39e07a` | Color del punto de estado con la cerradura cerrada (`locked`, `locking`). |
+| `status_color_open` | `string` (color CSS) | `#ffb02e` | Color con la cerradura desbloqueada o abierta (`unlocked`, `unlocking`, `open`, `opening`). También lo toma el dato de puerta del pie cuando el sensor está activo. |
+| `status_color_alert` | `string` (color CSS) | `#ff5c5c` | Color con la cerradura atascada o no disponible (`jammed`, `error`). Un color inválido se ignora y se usa el de por defecto. |
+| `footer_items` | `Array<'door' \| 'battery' \| 'last_user'>` | — | Hasta tres datos en el pie, en ese orden. Los repetidos y los desconocidos se ignoran. En `medium` solo se pintan `battery` y `last_user`; en `compact` no hay pie. |
+| `door_entity` | `string` | — | `binary_sensor` de puerta: `on` abierta, `off` cerrada. Sirve para el dato `door` y para el texto «Puerta abierta» del estado. |
+| `battery_entity` | `string` | atributo `battery_level` (o `battery`) | Sensor de batería (%) para el dato `battery`. |
+| `last_user_entity` | `string` | atributo `changed_by` | Entidad con el nombre de quien accedió por última vez, para el dato `last_user`. |
+| `confirm_open` | `boolean` | `true` | Pide confirmación («¿Abrir?») en una vista neón dentro de la tarjeta antes de ejecutar una acción que abre la cerradura. Cerrar nunca pregunta. `false` la desactiva. |
+| `tap_action` | `ActionConfig` | `{ action: toggle }` | Acción al pulsar. |
+| `hold_action` | `ActionConfig` | `{ action: more-info }` | Acción al mantener. |
+| `double_tap_action` | `ActionConfig` | `{ action: none }` | Acción al doble toque. |
+
+Si la cerradura soporta además abrir (`supported_features`), al pulsar con
+`toggle` se elige entre **Desbloquear/Abrir** o **Bloquear/Abrir**, y la
+opción llama a `lock.unlock`, `lock.open` o `lock.lock`.
+
+### `getGridOptions()` — tamaño según `size`
+
+El alto es automático (`rows: 'auto'`); `size` fija las columnas de inicio y
+el mínimo al que se puede reducir a mano (`LOCK_GRID` en
+`src/cards/lock/constants.ts`). Una tarjeta con `grid_options` guardado en el
+YAML conserva su ancho. `getCardSize()` devuelve `3`.
+
+| `size` | Tamaño | `columns` | `min_columns` |
+|---|---|---|---|
+| `'compact'` | Compacta | `3` | `3` |
+| `'medium'` | Mediana | `6` | `4` |
+| `'large'` (por defecto) | Grande | `12` | `4` |
+
+### Ejemplo completo
+
+```yaml
+type: custom:neon-lock-card
+entity: lock.puerta_principal
+name: Puerta principal
+lock_icon: door
+size: large
+subtitle_type: state
+neon_palette: emerald
+status_color_open: "#ffb02e"
+footer_items:
+  - door
+  - battery
+  - last_user
+door_entity: binary_sensor.puerta_principal_abierta
+battery_entity: sensor.puerta_principal_bateria
+last_user_entity: sensor.puerta_principal_ultimo_acceso
+confirm_open: true
+tap_action:
+  action: toggle
+hold_action:
   action: more-info
 ```
