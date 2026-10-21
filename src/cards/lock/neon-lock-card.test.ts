@@ -728,7 +728,7 @@ describe('NeonLockCard', () => {
 
     it('la cabecera ocupa media rejilla', async () => {
       const el = await mount({});
-      expect(el.getGridOptions()).toEqual({ rows: 'auto', columns: 6, min_columns: 4 });
+      expect(el.getGridOptions()).toEqual({ rows: 'auto', columns: 12, min_columns: 4 });
     });
   });
 

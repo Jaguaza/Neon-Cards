@@ -1,5 +1,5 @@
 import { NEON_CARDS_VERSION } from '../../version';
-import type { LockVisualState } from './types';
+import type { LockSize, LockVisualState } from './types';
 
 export const CARD_AUTHOR = 'Jaguaza';
 export const CARD_VERSION = NEON_CARDS_VERSION;
@@ -74,3 +74,13 @@ export const COMMAND_ICONS = {
   unlock: 'mdi:lock-open-variant',
   open: 'mdi:lock-open-outline',
 } as const;
+
+/**
+ * Columnas del grid de HA (12 por sección) con las que empieza cada tamaño y
+ * mínimo al que se puede reducir a mano. El alto es automático.
+ */
+export const LOCK_GRID: Record<LockSize, { columns: number; min_columns: number }> = {
+  compact: { columns: 3, min_columns: 3 },
+  medium: { columns: 6, min_columns: 4 },
+  large: { columns: 12, min_columns: 4 },
+};

@@ -32,10 +32,10 @@ estado (hasta 6 s) para las cerraduras lentas.
 | `size` | Nombre en el editor | Diseño |
 |---|---|---|
 | `large` (por defecto) | Grande | La tarjeta de siempre: el nombre con el subtítulo a un lado del icono y, a la derecha, el estado y los tres puntos. |
-| `compact` | Compacta | **Solo icono, nombre y estado**: sin tres puntos, sin pie y sin subtítulo (`subtitle_type`, `subtitle`, `footer_items` y los datos del pie se ignoran; el sensor de puerta sigue sirviendo para mostrar «Puerta abierta»). El icono va arriba y debajo, el nombre y el estado. **Al pulsar no sale texto**: en lugar de «¿Abrir?», «Desbloquear», «Bloquear» o «Abrir», la orden se elige con **iconos de candado** (candado cerrado = bloquear, candado abierto = desbloquear, candado abierto de contorno = abrir) y una ✕ para cancelar; el texto sigue disponible como etiqueta accesible y al dejar el dedo o el ratón encima. Por defecto 4 columnas (mínimo 3). |
+| `compact` | Compacta | **Solo icono, nombre y estado**: sin tres puntos, sin pie y sin subtítulo (`subtitle_type`, `subtitle`, `footer_items` y los datos del pie se ignoran; el sensor de puerta sigue sirviendo para mostrar «Puerta abierta»). El icono va arriba y debajo, el nombre y el estado. **Al pulsar no sale texto**: en lugar de «¿Abrir?», «Desbloquear», «Bloquear» o «Abrir», la orden se elige con **iconos de candado** (candado cerrado = bloquear, candado abierto = desbloquear, candado abierto de contorno = abrir) y una ✕ para cancelar; el texto sigue disponible como etiqueta accesible y al dejar el dedo o el ratón encima. |
 | `medium` | Mediana | **Sin subtítulo** (no hay opción para ponerlo): el estado, con su punto de color, ocupa el sitio del subtítulo bajo el nombre y los tres puntos quedan en la esquina. **Pie de hasta dos datos** (el editor no deja elegir más; si el YAML trae tres, solo se pintan los dos primeros). Va siempre en una sola fila; en tarjetas estrechas (p. ej. 6 columnas en un móvil) se reducen el relleno y los iconos y el último acceso se muestra en dos líneas (nombre y fecha) en lugar de cortarse con «…». |
 
-La tarjeta grande no cambia respecto a versiones anteriores. En la mediana y la
+**Columnas de inicio** (el grid de HA tiene 12 por sección; se pueden cambiar a mano desde la pestaña «Diseño»): grande **12**, mediana **6** y compacta **3** (mínimo 4, 4 y 3). El alto es automático. La tarjeta grande no cambia respecto a versiones anteriores. En la mediana y la
 compacta se ignoran `subtitle_type` y `subtitle`.
 
 Misma base visual que la [Button Card](../button) (halo neón que se dibuja
@@ -279,10 +279,10 @@ slow locks.
 | `size` | Editor name | Layout |
 |---|---|---|
 | `large` (default) | Large | The card as it has always been: the name with the subtitle beside the icon and, on the right, the state and the three dots. |
-| `compact` | Compact | **Icon, name and state only**: no three dots, no footer and no subtitle (`subtitle_type`, `subtitle`, `footer_items` and the footer data are ignored; the door sensor still serves to show "Door open"). The icon sits on top, with the name and state below. **No text appears when tapped**: instead of "Open?", "Unlock", "Lock" or "Open", the command is chosen with **padlock icons** (closed padlock = lock, open padlock = unlock, outlined open padlock = open) and a ✕ to cancel; the text stays available as an accessible label and on hover. 4 columns by default (minimum 3). |
+| `compact` | Compact | **Icon, name and state only**: no three dots, no footer and no subtitle (`subtitle_type`, `subtitle`, `footer_items` and the footer data are ignored; the door sensor still serves to show "Door open"). The icon sits on top, with the name and state below. **No text appears when tapped**: instead of "Open?", "Unlock", "Lock" or "Open", the command is chosen with **padlock icons** (closed padlock = lock, open padlock = unlock, outlined open padlock = open) and a ✕ to cancel; the text stays available as an accessible label and on hover. |
 | `medium` | Medium | **No subtitle** (there is no option to set one): the state, with its coloured dot, takes the subtitle's place under the name and the three dots sit in the corner. **Footer of up to two data points** (the editor does not allow more; if the YAML has three, only the first two are drawn). It always stays on a single row; in narrow cards (e.g. 6 columns on a phone) the padding and icons shrink and the last access is shown on two lines (name and date) instead of being cut with "…". |
 
-The large card is unchanged from previous versions. In medium and compact,
+**Starting columns** (the HA grid has 12 per section; they can be changed by hand from the "Layout" tab): large **12**, medium **6** and compact **3** (minimum 4, 4 and 3). Height is automatic. The large card is unchanged from previous versions. In medium and compact,
 `subtitle_type` and `subtitle` are ignored.
 
 Same visual base as the [Button Card](../button) (neon halo drawn from the

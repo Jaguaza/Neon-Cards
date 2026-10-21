@@ -20,7 +20,7 @@ import {
   neonRingSplitTemplate,
   RingSizeController,
 } from '../../shared';
-import { ACTION_PENDING_MS, COMMAND_ICONS, CONFIRM_REVEAL_MS, CONFIRM_TIMEOUT_MS, ERROR_ICON, OPERATING_ACTIONS } from './constants';
+import { ACTION_PENDING_MS, COMMAND_ICONS, CONFIRM_REVEAL_MS, CONFIRM_TIMEOUT_MS, ERROR_ICON, LOCK_GRID, OPERATING_ACTIONS } from './constants';
 import { LOCK_ICONS, resolveLockIconType } from './icons';
 import type { LockIconDef } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
@@ -137,10 +137,10 @@ export class NeonLockCard extends BaseNeonCard {
     return 3;
   }
 
-  /** Cabecera (icono, nombre, estado) y pie con hasta tres iconos: pide media rejilla. */
+  /** Columnas de inicio: grande 12, mediana 6 y compacta 3; alto automático. */
   getGridOptions(): { rows: 'auto'; columns: number; min_columns: number } {
-    // La compacta es más estrecha (solo icono, nombre y estado).
-    return resolveLockSize(this._config) === 'compact' ? { rows: 'auto', columns: 4, min_columns: 3 } : { rows: 'auto', columns: 6, min_columns: 4 };
+    // Columnas de inicio según el tamaño (ver `LOCK_GRID`).
+    return { rows: 'auto', ...LOCK_GRID[resolveLockSize(this._config)] };
   }
 
   private get _stateObj() {

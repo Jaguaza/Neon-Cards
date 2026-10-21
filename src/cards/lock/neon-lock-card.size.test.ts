@@ -184,11 +184,12 @@ describe('tamaño de la Lock Card', () => {
       expect(q(el, '.menu')).toBeNull();
     });
 
-    it('es más estrecha: 4 columnas por defecto (mínimo 3); mediana y grande no cambian', async () => {
+    it('columnas de inicio: compacta 3, mediana 6 y grande 12 (por defecto es la grande)', async () => {
       const grid = async (size?: string) => (await mount(size ? { size } : {}, hassOpen())) as unknown as { getGridOptions(): unknown };
-      expect((await grid('compact')).getGridOptions()).toEqual({ rows: 'auto', columns: 4, min_columns: 3 });
+      expect((await grid('compact')).getGridOptions()).toEqual({ rows: 'auto', columns: 3, min_columns: 3 });
       expect((await grid('medium')).getGridOptions()).toEqual({ rows: 'auto', columns: 6, min_columns: 4 });
-      expect((await grid()).getGridOptions()).toEqual({ rows: 'auto', columns: 6, min_columns: 4 });
+      expect((await grid('large')).getGridOptions()).toEqual({ rows: 'auto', columns: 12, min_columns: 4 });
+      expect((await grid()).getGridOptions()).toEqual({ rows: 'auto', columns: 12, min_columns: 4 });
     });
 
     it('al pulsar una cerradura cerrada con función de abrir: iconos de candado y ningún texto', async () => {

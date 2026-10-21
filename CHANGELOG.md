@@ -72,6 +72,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- Lock Card: columnas de inicio según el tamaño: grande 12, mediana 6 y compacta 3 (antes 6, 6 y 4). Se pueden cambiar a mano desde la pestaña «Diseño» de HA; el mínimo es 4, 4 y 3. Una tarjeta con `grid_options` guardado en el YAML conserva su ancho.
 - Thermostat Card: la tarjeta ya no apaga por su cuenta la segunda entidad
   cuando el modo cambia desde fuera (diálogo de la entidad, otra tarjeta,
   automatizaciones, voz…): solo envía órdenes de servicio cuando el usuario
@@ -355,6 +356,7 @@ and this project follows [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Lock Card: starting columns by size: large 12, medium 6 and compact 3 (previously 6, 6 and 4). They can be changed by hand from HA's "Layout" tab; the minimum is 4, 4 and 3. A card with `grid_options` saved in the YAML keeps its width.
 - Thermostat Card: the card no longer turns off the second entity on its own
   when the mode changes from outside (the entity's dialog, another card,
   automations, voice…): it only sends service calls when the user interacts
