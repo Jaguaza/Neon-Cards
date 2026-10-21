@@ -215,8 +215,8 @@ entity: climate.salon
 
 ```yaml
 type: custom:neon-thermostat-card
-entity: climate.calefaccion
-entity_2: climate.aire_acondicionado
+entity: climate.entity_1
+entity_2: climate.entity_2
 name: Salón
 size: large
 footer:
@@ -601,8 +601,8 @@ entity: climate.living_room
 
 ```yaml
 type: custom:neon-thermostat-card
-entity: climate.heating
-entity_2: climate.air_conditioning
+entity: climate.entity_1
+entity_2: climate.entity_2
 name: Living room
 size: large
 footer:
@@ -612,7 +612,7 @@ footer:
 
 ### **Exclusion also for changes made outside the card (optional)**
 
-The card only turns the other entity off when you pick the mode **in it**; it does not act on its own when the change comes from outside (another card, the entity's dialog, a voice assistant or other automations). If you want that guarantee in those cases too, **you need a Home Assistant automation** (it works with the dashboard closed). It is optional and only makes sense with `entity_2`. Replace the two entities with the card's `entity` and `entity_2`:
+The card only turns the other entity off when you pick the mode **in it**; it does not act on its own when the change comes from outside (another card, the entity's dialog, a voice assistant or other automations). If you want that guarantee in those cases too, **you need a Home Assistant automation** (it works with the dashboard closed). It is optional and only makes sense with `entity_2`. Replace `climate.entity_1` and `climate.entity_2` with the card's entities (`entity_1` is `entity`; `entity_2` is `entity_2`):
 
 ```yaml
 alias: Living room — heating and air conditioning not together
@@ -621,12 +621,12 @@ mode: queued
 triggers:
   - trigger: state
     entity_id:
-      - climate.heating
-      - climate.air_conditioning
+      - climate.entity_1
+      - climate.entity_2
 variables:
   other: >-
-    {{ 'climate.air_conditioning' if trigger.entity_id == 'climate.heating'
-       else 'climate.heating' }}
+    {{ 'climate.entity_2' if trigger.entity_id == 'climate.entity_1'
+       else 'climate.entity_1' }}
   # Modes that NEVER trigger the exclusion (neither on the unit that changes nor on the other)
   free_modes:
     - "off"

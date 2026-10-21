@@ -288,8 +288,9 @@ If you want the exclusion to also hold for changes made outside the card,
 **you need a Home Assistant automation**: it works with the dashboard closed
 and runs once, not from every open browser. It is optional (the card works the
 same without it) and only makes sense with `entity_2`. Replace
-`climate.heating` and `climate.air_conditioning` with the same entities as the
-card's `entity` and `entity_2` (in two places: the trigger and `other`):
+`climate.entity_1` and `climate.entity_2` with the same entities as the
+card's `entity` and `entity_2`: `entity_1` is `entity` and `entity_2` is `entity_2`
+(in two places: the trigger and `other`):
 
 ```yaml
 alias: Living room — heating and air conditioning not together
@@ -298,12 +299,12 @@ mode: queued
 triggers:
   - trigger: state
     entity_id:
-      - climate.heating
-      - climate.air_conditioning
+      - climate.entity_1
+      - climate.entity_2
 variables:
   other: >-
-    {{ 'climate.air_conditioning' if trigger.entity_id == 'climate.heating'
-       else 'climate.heating' }}
+    {{ 'climate.entity_2' if trigger.entity_id == 'climate.entity_1'
+       else 'climate.entity_1' }}
   # Modes that NEVER trigger the exclusion (neither on the unit that changes nor on the other)
   free_modes:
     - "off"
