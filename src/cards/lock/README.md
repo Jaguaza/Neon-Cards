@@ -253,6 +253,8 @@ punto de estado. Con la puerta cerrada no lleva color.
 
 # src/cards/lock (English)
 
+🇬🇧 English (this section) · 🇪🇸 [Español arriba](#srccardslock)
+
 `custom:neon-lock-card` — card for Home Assistant `lock` entities (door
 locks, latches, garage locks). Shows the state with a dedicated icon and
 the neon halo of the Neón Cards family. The halo follows the lock state: it
@@ -434,6 +436,17 @@ it does not disappear, so a misconfigured entity is noticeable.
 | `battery` | Battery icon by level and "85 %". At 20 % or less, in red. | `battery_entity` or, if missing, the lock's `battery_level` (or `battery`) attribute. |
 | `last_user` | "Last access" and "Jorge · 08:42" (if not today, "Oct 12, 9:05 PM"). | The name: `last_user_entity` (its state) or the lock's `changed_by` attribute. The time: `last_updated` of `last_user_entity` or `last_changed` of the lock. |
 
+```yaml
+type: custom:neon-lock-card
+entity: lock.front_door
+name: Front Door
+subtitle_type: custom
+subtitle: Smart lock
+lock_icon: padlock
+footer_items: [battery, door, last_user]
+door_entity: binary_sensor.front_door
+```
+
 ### How it is set up in the visual editor
 
 The **Card footer** section has one card per data point —**Battery**, **Last
@@ -470,6 +483,12 @@ dot** section has a colour picker for each one and a **Reset colours** link
 that clears all three. In YAML any CSS colour works (`#39e07a`, `rgb(...)`,
 `hsl(...)`, a name or `var(--my-colour)`); a value that is not a valid colour
 is ignored and the default is used.
+
+```yaml
+status_color_closed: '#39e07a'
+status_color_open: orange
+status_color_alert: var(--error-color)
+```
 
 The browser's colour picker only understands `#rrggbb`: if you use another
 format in YAML, the editor shows the default colour in its picker, but the

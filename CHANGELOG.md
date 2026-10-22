@@ -44,7 +44,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 ### Added
 
 - Lock Card: nueva tarjeta `custom:neon-lock-card` para entidades `lock`. Icono animado a elegir (`lock_icon`: candado, puerta, garaje enrollable o garaje corredera) que se abre y se cierra de verdad según el estado, halo neón que sigue al estado, confirmación al abrir, pie con hasta tres datos, tres tamaños (`size`) y editor visual. Ver [`src/cards/lock/README.md`](./src/cards/lock/README.md).
-- Lock Card: nuevo tamaño `compact` (Compacta). Solo muestra icono, nombre y estado (con los tres puntos para abrir «más información»), sin pie y sin subtítulo, con el icono arriba y el nombre y el estado debajo (4 columnas por defecto, mínimo 3). Al pulsar no sale texto: la orden (bloquear, desbloquear, abrir) se elige con iconos de candado y una ✕ para cancelar, con el texto como etiqueta accesible. Las tarjetas grande y mediana no cambian.
+- Lock Card: nuevo tamaño `compact` (Compacta). Solo muestra icono, nombre y estado (con los tres puntos para abrir «más información»), sin pie y sin subtítulo, con el icono arriba y el nombre y el estado debajo (3 columnas por defecto, mínimo 3). Al pulsar no sale texto: la orden (bloquear, desbloquear, abrir) se elige con iconos de candado y una ✕ para cancelar, con el texto como etiqueta accesible. Las tarjetas grande y mediana no cambian.
 - Lock Card: nueva opción `size`. La tarjeta **mediana** (`medium`) no lleva subtítulo (no hay opción para ponerlo) y el estado, con su punto de color, ocupa su sitio bajo el nombre, con los tres puntos en la esquina; su pie va siempre en una sola fila (en tarjetas estrechas, con menos relleno e iconos y sin iconos con tres datos). La tarjeta **grande** (`large`, el valor por defecto) es la de siempre y no cambia.
 - Lock Card: el color del punto de estado se puede elegir (`status_color_closed`,
   `status_color_open`, `status_color_alert`: cerrada, desbloqueada/abierta y
@@ -106,7 +106,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
   pasan a la silueta de `mdi:garage-variant` (tejado y jambas macizos, tres
   lamas), manteniendo la animación de enrollar y de deslizar.
 
-## [1.2.0] - 2026-10-11
+## [1.2.0] - 2026-10-12
 
 ### Added
 
@@ -341,7 +341,7 @@ and this project follows [Semantic Versioning](https://semver.org/).
 ### Added
 
 - Lock Card: new `custom:neon-lock-card` card for `lock` entities. Animated icon of your choice (`lock_icon`: padlock, door, roller garage or sliding garage) that really opens and closes according to the state, a neon halo that follows the state, confirmation before opening, a footer with up to three data points, three sizes (`size`) and a visual editor. See [`src/cards/lock/README.md`](./src/cards/lock/README.md).
-- Lock Card: new `compact` size (Compact). It only shows icon, name and state (with the three dots to open "more info"), no footer and no subtitle, with the icon on top and the name and state below (4 columns by default, minimum 3). No text appears when tapped: the command (lock, unlock, open) is chosen with padlock icons and a ✕ to cancel, with the text as an accessible label. The large and medium cards do not change.
+- Lock Card: new `compact` size (Compact). It only shows icon, name and state (with the three dots to open "more info"), no footer and no subtitle, with the icon on top and the name and state below (3 columns by default, minimum 3). No text appears when tapped: the command (lock, unlock, open) is chosen with padlock icons and a ✕ to cancel, with the text as an accessible label. The large and medium cards do not change.
 - Lock Card: new `size` option. The **medium** card (`medium`) has no subtitle (there is no option to set one) and the state, with its coloured dot, takes its place under the name, with the three dots in the corner; its footer always stays on a single row (in narrow cards, with less padding and icons, and no icons with three data points). The **large** card (`large`, the default) is the same as ever and does not change.
 - Lock Card: the status dot colour can be chosen (`status_color_closed`,
   `status_color_open`, `status_color_alert`: locked, unlocked/open and
@@ -429,7 +429,7 @@ and this project follows [Semantic Versioning](https://semver.org/).
   the silhouette of `mdi:garage-variant` (solid roof and jambs, three slats),
   keeping the rolling and sliding animation.
 
-## [1.2.0] - 2026-10-11
+## [1.2.0] - 2026-10-12
 
 ### Added
 
