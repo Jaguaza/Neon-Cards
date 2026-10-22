@@ -17,7 +17,8 @@
  * script de benchmark (acuerdo nº4: reutilizable, no se copia).
  *
  * Uso: node scripts/perf-check.mjs [card] [numCards] [numUpdates]
- *   card: 'entity' | 'button' | 'thermostat' | 'all' (por defecto 'all')
+ *   card: 'entity' | 'button' | 'thermostat' | 'sensor' | 'lock' | 'all'
+ *   (por defecto 'all')
  */
 
 import { JSDOM } from 'jsdom';
@@ -62,6 +63,15 @@ globalThis.CSSStyleSheet = dom.window.CSSStyleSheet;
 Object.defineProperty(globalThis, 'navigator', {
   value: dom.window.navigator,
   configurable: true,
+});
+
+/** Estado simulado de una entidad de HA (los perfiles que lo necesitan). */
+const stateOf = (id, state, attributes = {}) => ({
+  entity_id: id,
+  state,
+  last_changed: new Date().toISOString(),
+  last_updated: new Date().toISOString(),
+  attributes,
 });
 
 /**
@@ -220,6 +230,44 @@ const CARD_PROFILES = {
       return { states, callService: async () => {}, callWS };
     },
   },
+  lock: {
+    elementName: 'neon-lock-card',
+    entry: 'src/cards/lock/neon-lock-card.ts',
+    exportName: 'NeonLockCard',
+    entityDomain: 'lock',
+    // Tamaño grande con los tres datos del pie y el sensor de puerta: es el
+    // render más completo de la tarjeta.
+    makeConfig: (entityId) => {
+      const base = entityId.split('.')[1];
+      return {
+        entity: entityId,
+        name: 'Puerta principal',
+        lock_icon: 'door',
+        size: 'large',
+        subtitle_type: 'state',
+        footer_items: ['door', 'battery', 'last_user'],
+        door_entity: `binary_sensor.${base}_puerta`,
+        battery_entity: `sensor.${base}_bateria`,
+        last_user_entity: `sensor.${base}_acceso`,
+      };
+    },
+    makeHass: (entityIds, tick) => {
+      // La cerradura cambia de estado cada 25 ticks, no en cada uno: una
+      // cerradura real no conmuta miles de veces, y un cambio por tick deja
+      // pendientes la animación del icono y el halo y falsea la medida de
+      // memoria (mismo criterio que el termostato).
+      const open = Math.floor(tick / 25) % 2 === 1;
+      const states = {};
+      for (const id of entityIds) {
+        const base = id.split('.')[1];
+        states[id] = stateOf(id, open ? 'unlocked' : 'locked', { friendly_name: `Cerradura de prueba ${id}` });
+        states[`binary_sensor.${base}_puerta`] = stateOf(`binary_sensor.${base}_puerta`, open ? 'on' : 'off', { device_class: 'door' });
+        states[`sensor.${base}_bateria`] = stateOf(`sensor.${base}_bateria`, String(90 - (tick % 10)), { unit_of_measurement: '%', device_class: 'battery' });
+        states[`sensor.${base}_acceso`] = stateOf(`sensor.${base}_acceso`, open ? 'Esther' : 'Jorge');
+      }
+      return { states, callService: async () => {} };
+    },
+  },
 };
 
 async function loadCardClass(profile) {
@@ -229,6 +277,9 @@ async function loadCardClass(profile) {
       nodeResolve(),
       typescript({
         tsconfig: false,
+        // Igual que rollup.config.mjs: los tests no entran en la compilación.
+        include: ['src/**/*.ts'],
+        exclude: ['src/**/*.test.ts', 'src/**/*.fixtures.ts'],
         compilerOptions: {
           target: 'ES2021',
           module: 'ESNext',
