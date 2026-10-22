@@ -400,6 +400,19 @@ tap_action:
     text: ¿Encender la luz?
 ```
 
+### `EDITOR_ACTIONS`
+
+```ts
+const EDITOR_ACTIONS: readonly ActionType[];
+// ['more-info', 'toggle', 'navigate', 'url', 'call-service', 'assist', 'none']
+```
+
+Las acciones que ofrece el selector de acciones (`ui-action`) en el editor
+visual. Todos los editores la usan (`.actions=${EDITOR_ACTIONS}`) para no
+repetir la lista en cada tarjeta. Solo afecta a lo que ofrece el editor:
+`perform-action` no está en la lista, pero las tarjetas lo aceptan si viene
+del YAML.
+
 ### `ValueChangedEvent`
 
 ```ts

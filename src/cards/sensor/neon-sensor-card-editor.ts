@@ -1,5 +1,6 @@
 import { LitElement, html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
+import { EDITOR_ACTIONS } from '../../ha/types';
 import type { ActionConfig, HomeAssistant, ValueChangedEvent } from '../../ha/types';
 import { localize } from '../../core';
 import {
@@ -18,7 +19,6 @@ import { resolveEffect } from './sensor-colors';
 import { hasGraph, resolveSize } from './sensor-size';
 import type { NeonEffect, NeonSensorCardConfig, ThresholdLevel, ThresholdNames, SensorSize } from './types';
 
-const ALLOWED_ACTIONS = ['more-info', 'toggle', 'navigate', 'url', 'call-service', 'assist', 'none'];
 const PALETTES = ['emerald', 'cyberpunk', 'electric', 'sunset', 'toxic'];
 const SIZES: Array<[SensorSize, keyof SensorTranslations]> = [
   ['large', 'size_large'],
@@ -320,7 +320,7 @@ export class NeonSensorCardEditor extends LitElement {
         <hui-action-editor
           .hass=${this.hass}
           .config=${this._actionFor(key, fallback)}
-          .actions=${ALLOWED_ACTIONS}
+          .actions=${EDITOR_ACTIONS}
           .configValue=${key}
           @value-changed=${(ev: ValueChangedEvent) => this._configChanged(key, ev.detail.value)}
         ></hui-action-editor>

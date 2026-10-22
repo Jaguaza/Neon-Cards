@@ -1,5 +1,6 @@
 import { LitElement, html, css, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
+import { EDITOR_ACTIONS } from '../../ha/types';
 import type { HomeAssistant } from '../../ha/types';
 import { INFO_OPTIONS, getInfoLabels, localize } from '../../core';
 import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
@@ -9,7 +10,6 @@ import type { ActionConfig, NeonCardEntityConfig } from './types';
 import { ENTITY_TRANSLATIONS } from './translations';
 import type { EntityTranslations } from './translations';
 
-const ALLOWED_ACTIONS = ['more-info', 'toggle', 'navigate', 'url', 'call-service', 'assist', 'none'];
 
 export class NeonCardEntityEditor extends LitElement {
   static properties = {
@@ -237,7 +237,7 @@ export class NeonCardEntityEditor extends LitElement {
         <hui-action-editor
           .hass=${this.hass}
           .config=${this._actionFor(key, defaultAction)}
-          .actions=${ALLOWED_ACTIONS}
+          .actions=${EDITOR_ACTIONS}
           .configValue=${key}
           @value-changed=${(ev: ValueChangedEvent) => this._configChanged(key, ev.detail.value)}
         ></hui-action-editor>

@@ -398,6 +398,19 @@ tap_action:
     text: Turn the light on?
 ```
 
+### `EDITOR_ACTIONS`
+
+```ts
+const EDITOR_ACTIONS: readonly ActionType[];
+// ['more-info', 'toggle', 'navigate', 'url', 'call-service', 'assist', 'none']
+```
+
+The actions offered by the action selector (`ui-action`) in the visual
+editor. Every editor uses it (`.actions=${EDITOR_ACTIONS}`) so the list is
+not repeated in each card. It only affects what the editor offers:
+`perform-action` is not in the list, but the cards accept it when it comes
+from YAML.
+
 ### `ValueChangedEvent`
 
 ```ts

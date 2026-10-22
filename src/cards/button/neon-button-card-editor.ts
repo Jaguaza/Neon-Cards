@@ -1,5 +1,6 @@
 import { LitElement, html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
+import { EDITOR_ACTIONS } from '../../ha/types';
 import type { HomeAssistant } from '../../ha/types';
 import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
@@ -12,7 +13,6 @@ import { NEON_BUTTON_CARD_EDITOR_STYLES } from './neon-button-card-editor.styles
 import { BUTTON_TRANSLATIONS } from './translations';
 import type { ButtonTranslations } from './translations';
 
-const ALLOWED_ACTIONS = ['more-info', 'toggle', 'navigate', 'url', 'call-service', 'assist', 'none'];
 
 export class NeonButtonCardEditor extends LitElement {
   static properties = {
@@ -343,7 +343,7 @@ export class NeonButtonCardEditor extends LitElement {
           <hui-action-editor
             .hass=${this.hass}
             .config=${this._actionFor('tap_action', 'more-info')}
-            .actions=${ALLOWED_ACTIONS}
+            .actions=${EDITOR_ACTIONS}
             .configValue=${'tap_action'}
             @value-changed=${(ev: ValueChangedEvent) => this._configChanged('tap_action', ev.detail.value)}
           ></hui-action-editor>
@@ -353,7 +353,7 @@ export class NeonButtonCardEditor extends LitElement {
           <hui-action-editor
             .hass=${this.hass}
             .config=${this._actionFor('hold_action', 'none')}
-            .actions=${ALLOWED_ACTIONS}
+            .actions=${EDITOR_ACTIONS}
             .configValue=${'hold_action'}
             @value-changed=${(ev: ValueChangedEvent) => this._configChanged('hold_action', ev.detail.value)}
           ></hui-action-editor>
@@ -363,7 +363,7 @@ export class NeonButtonCardEditor extends LitElement {
           <hui-action-editor
             .hass=${this.hass}
             .config=${this._actionFor('double_tap_action', 'none')}
-            .actions=${ALLOWED_ACTIONS}
+            .actions=${EDITOR_ACTIONS}
             .configValue=${'double_tap_action'}
             @value-changed=${(ev: ValueChangedEvent) => this._configChanged('double_tap_action', ev.detail.value)}
           ></hui-action-editor>

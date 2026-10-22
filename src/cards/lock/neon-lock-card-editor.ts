@@ -1,5 +1,6 @@
 import { LitElement, html, nothing } from 'lit';
 import type { PropertyValues, TemplateResult } from 'lit';
+import { EDITOR_ACTIONS } from '../../ha/types';
 import type { ActionConfig, HomeAssistant, ValueChangedEvent } from '../../ha/types';
 import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
@@ -15,7 +16,6 @@ import { isCssColor } from './lock-state';
 import type { LockFooterItem, LockSize, LockSubtitleType, NeonLockCardConfig } from './types';
 import { DEFAULT_LOCK_SIZE, LOCK_SIZES, resolveLockSize } from './lock-size';
 
-const ALLOWED_ACTIONS = ['more-info', 'toggle', 'navigate', 'url', 'call-service', 'assist', 'none'];
 
 /** Orden de las opciones del selector de subtítulo; 'none' es el valor por defecto (el estado ya va arriba a la derecha). */
 const SUBTITLE_TYPES: readonly LockSubtitleType[] = ['none', 'state', 'custom', 'last-changed', 'last-updated'];
@@ -431,7 +431,7 @@ export class NeonLockCardEditor extends LitElement {
         <hui-action-editor
           .hass=${this.hass}
           .config=${this._actionFor(configKey, defaultAction)}
-          .actions=${ALLOWED_ACTIONS}
+          .actions=${EDITOR_ACTIONS}
           .configValue=${configKey}
           @value-changed=${(ev: ValueChangedEvent) => this._configChanged(configKey, ev.detail.value)}
         ></hui-action-editor>

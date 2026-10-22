@@ -57,6 +57,15 @@ export interface ActionConfig {
 }
 
 /**
+ * Acciones que ofrece el selector de acciones (`ui-action`) en los editores
+ * de las tarjetas. Una sola lista para todos (antes cada editor tenía su
+ * copia, contra el acuerdo nº4). Sigue siendo la misma lista que antes:
+ * `perform-action` no se ofrece porque no se ha comprobado cómo reacciona el
+ * selector de HA; las tarjetas sí aceptan esa acción si viene del YAML.
+ */
+export const EDITOR_ACTIONS: readonly ActionType[] = ['more-info', 'toggle', 'navigate', 'url', 'call-service', 'assist', 'none'];
+
+/**
  * Evento `value-changed` que emiten los pickers/selectores de HA
  * (ha-entity-picker, ha-selector, etc.) — común a cualquier editor de
  * tarjeta. Antes duplicado literal en `cards/button/types.ts` y
