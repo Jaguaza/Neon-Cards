@@ -21,6 +21,12 @@ jobs:
 
       - run: npm ci
 
+      # Mismas comprobaciones que ci.yml: si fallan, no se publica la release
+      # (acuerdo nº21). El build ya incluye la comprobación de tipos (tsc -b).
+      - run: npm run lint
+
+      - run: npm test
+
       - run: npm run build
 
       - name: Crear GitHub Release
