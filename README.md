@@ -475,9 +475,9 @@ Ver el texto legal completo en [`LICENSE`](./LICENSE) (inglés, vinculante) o su
 **Grupo de Domótica:** https://t.me/DomoticaParaTodos
 
 ---
-
-## ❤️ Apoya el proyecto
 <a name="apoyo_es"></a>
+## ❤️ Apoya el proyecto
+
 <p align="center">
   Si este proyecto te resulta útil y deseas apoyar su desarrollo:
   <br><br>
@@ -923,9 +923,9 @@ See the full legal text in [`LICENSE`](./LICENSE) (English, binding) or its [inf
 **Home Automation Group:** https://t.me/DomoticaParaTodos
 
 ---
-
-## ❤️ Support the project
 <a name="apoyo_en"></a>
+## ❤️ Support the project
+
 <p align="center">
   If you find this project useful and would like to support its development:
   <br><br>
