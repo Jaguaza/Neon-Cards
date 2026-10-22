@@ -25,6 +25,10 @@ Una tarjeta:
 - [`sensor`](./sensor) — `custom:neon-sensor-card`, tarjeta de solo
   lectura para un `sensor` o `binary_sensor`, con gráfico del histórico y
   umbrales de estado opcionales. Ver [ejemplo](../../examples/README.md).
+- [`lock`](./lock) — `custom:neon-lock-card`, tarjeta para entidades
+  `lock` con icono animado (candado, puerta o garaje), halo neón que sigue
+  al estado, confirmación antes de abrir y pie informativo opcional. Tres
+  tamaños. Ver [ejemplo](../../examples/README.md).
 
 ---
 
@@ -57,3 +61,7 @@ A card:
 - [`sensor`](./sensor) — `custom:neon-sensor-card`, a read-only card for
   a `sensor` or `binary_sensor`, with a history graph and optional state
   thresholds. See the [example](../../examples/README.md).
+- [`lock`](./lock) — `custom:neon-lock-card`, a card for `lock` entities
+  with an animated icon (padlock, door or garage), a neon halo that follows
+  the state, a confirmation before opening and an optional informative
+  footer. Three sizes. See the [example](../../examples/README.md).

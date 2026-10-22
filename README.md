@@ -40,11 +40,12 @@ Collection of custom cards for Home Assistant with a modern neon‑inspired aest
 - 🚾**BUTTON.**  [Ir a Button](#button-card)
 - 🌡 **TERMOSTATO.**  [Ir a Termostato](#termostato-card)
 - 📈 **SENSOR.**  [Ir a Sensor](#sensor-card)
+- 🔐 **CERRADURA.**  [Ir a Cerradura](#cerradura-card)
 
 ### 🔌 Características comunes
 
 - **Se adaptan a tu tema:** toman el radio de las esquinas y los colores del tema activo.
-- **Editor visual** en las cuatro tarjetas, sin necesidad de escribir YAML.
+- **Editor visual** en las cinco tarjetas, sin necesidad de escribir YAML.
 - **Interfaz de configuración en español e inglés**, según el idioma de tu Home Assistant.
 - **Paletas neón** (Cyber Emerald, Cyberpunk Pink, Electric Blue, Sunset Amber, Toxic Purple o colores propios).
 - **Tamaño automático** en el grid de Home Assistant: no hace falta indicar `grid_options`.
@@ -337,11 +338,72 @@ threshold_names:
 ```
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/Sensor.gif" width="450"></p>
 
+---
+
+<a name="cerradura-card"></a>
+### **🔐 Neón Lock Card**
+
+Tarjeta para entidades `lock` de Home Assistant (cerraduras, pestillos, cerraduras de garaje) con un **icono animado** que se abre y se cierra de verdad, un halo neón que sigue al estado de la cerradura y **confirmación antes de abrir**. Cualquier entidad que no sea del dominio `lock` se muestra como «No disponible».
+
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/cerradura/cerradura.png" width="450"></p>
+
+### **Cuatro iconos animados**
+
+Se elige con `lock_icon` (o desde el editor visual, que enseña el dibujo de cada uno): `padlock` *(predeterminado)*, `door`, `garage_roller` (garaje con puerta enrollable) y `garage_sliding` (garaje con puerta corredera). Son dibujos propios que se animan al abrir y al cerrar; con `prefers-reduced-motion` cambian de pose sin animación.
+
+### **Tres tamaños**
+
+| Tamaño (`size`) | Qué muestra | Columnas de inicio (alto automático) |
+|---|---|---|
+| `large` *(predeterminado)* | Icono, nombre con subtítulo opcional, estado y tres puntos arriba; debajo, hasta tres datos de pie | 12 |
+| `medium` | Sin subtítulo: el estado va bajo el nombre; pie de hasta dos datos (batería y último acceso) | 6 |
+| `compact` | Solo icono, nombre y estado (con los tres puntos); sin pie y sin subtítulo. Al pulsar, la orden se elige con iconos de candado, sin texto | 3 |
+
+Las columnas se pueden cambiar a mano desde la pestaña «Diseño» del editor; la tarjeta se adapta al ancho que le dan.
+
+### **Estado y halo**
+
+El estado se muestra con un punto de color: verde cerrada, ámbar desbloqueada o abierta y rojo atascada o no disponible (`status_color_closed`, `status_color_open` y `status_color_alert` los cambian). El halo se enciende cuando se abre, sigue encendido mientras esté abierta y se apaga al llegar a cerrada; al pulsar una acción que opera la cerradura se enciende ya, sin esperar a que cambie el estado.
+
+Con un **sensor de puerta** (`door_entity`) el texto distingue «Abriendo puerta…» (el pestillo ya está liberado) de «Puerta abierta» (el sensor está activo). Sin sensor, «Puerta abierta» no sale nunca.
+
+### **Confirmación al abrir**
+
+Por seguridad, al pulsar para **abrir** la tarjeta pregunta «¿Abrir?» dentro de sí misma, con el halo encendido, y no actúa hasta que confirmas: se cancela sola a los 8 s y **cerrar nunca pide confirmación**. Si la cerradura soporta además abrir (`lock.open`), te deja elegir entre **Desbloquear** y **Abrir** (o **Bloquear** y **Abrir**). Se desactiva con `confirm_open: false`.
+
+### **Pie informativo**
+
+`footer_items` pone hasta tres datos bajo una línea de neón, en el orden que escribas: `door` (sensor de puerta, con `door_entity`), `battery` (con `battery_entity`; si falta usa el atributo `battery_level` de la cerradura) y `last_user` (con `last_user_entity`; si falta usa el atributo `changed_by`). En el tamaño `medium` solo caben `battery` y `last_user` (el sensor de puerta no se pinta en el pie, pero sigue sirviendo para «Puerta abierta»); en `compact` no hay pie. Un dato que no se puede obtener se muestra como «—».
+
+### **Acciones**
+
+`tap_action` es `toggle` por defecto, `hold_action` abre «más información» y `double_tap_action` no hace nada. Si tu cerradura pide código, usa `more-info` o una acción `call-service` con el código. Más detalles en la [documentación de la tarjeta](./src/cards/lock/README.md).
+
+### **Configuración mínima**
+
+```yaml
+type: custom:neon-lock-card
+entity: lock.puerta_principal
+```
+
+### **Con pie de datos**
+
+```yaml
+type: custom:neon-lock-card
+entity: lock.puerta_principal
+name: Puerta Principal
+lock_icon: padlock
+neon_palette: electric
+footer_items: [battery, last_user, door]
+door_entity: binary_sensor.puerta_principal
+```
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/Cerradura.gif" width="450"></p>
+
 ## 🚀 Próximamente
 
 Neon Cards se está diseñando como una colección completa de tarjetas para Home Assistant, se irán añadiendo más tarjetas.
 
-- **Próxima Tarjeta: 🔐 CERRADURA.**
+- **Próxima Tarjeta: 🚨 ALARMA.**
 
 ---
 
@@ -430,11 +492,12 @@ Ver el texto legal completo en [`LICENSE`](./LICENSE) (inglés, vinculante) o su
 - 🚾**BUTTON.**  [Go to Button](#button-card-gb)
 - 🌡 **THERMOSTAT.**  [Go to Thermostat](#thermostat-card-gb)
 - 📈 **SENSOR.**  [Go to Sensor](#sensor-card-gb)
+- 🔐 **LOCK.**  [Go to Lock](#lock-card-gb)
 
 ### 🔌 Common features
 
 - **They adapt to your theme:** they take the corner radius and colors of the active theme.
-- **Visual editor** in all four cards, no YAML needed.
+- **Visual editor** in all five cards, no YAML needed.
 - **Configuration UI in Spanish and English**, following your Home Assistant language.
 - **Neon palettes** (Cyber Emerald, Cyberpunk Pink, Electric Blue, Sunset Amber, Toxic Purple or your own colors).
 - **Automatic size** in Home Assistant's grid: no need to set `grid_options`.
@@ -723,11 +786,72 @@ threshold_names:
 ```
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/Sensor.gif" width="450"></p>
 
+---
+
+<a name="lock-card-gb"></a>
+### **🔐 Neon Lock Card**
+
+Card for Home Assistant `lock` entities (door locks, latches, garage locks) with an **animated icon** that really opens and closes, a neon halo that follows the lock's state and a **confirmation before opening**. Any entity that is not in the `lock` domain is shown as "Unavailable".
+
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/cerradura/cerradura.png" width="450"></p>
+
+### **Four animated icons**
+
+Chosen with `lock_icon` (or from the visual editor, which shows each drawing): `padlock` *(default)*, `door`, `garage_roller` (garage with a roller door) and `garage_sliding` (garage with a sliding door). They are custom drawings animated on open and close; with `prefers-reduced-motion` they switch pose without animation.
+
+### **Three sizes**
+
+| Size (`size`) | What it shows | Starting columns (automatic height) |
+|---|---|---|
+| `large` *(default)* | Icon, name with an optional subtitle, state and three dots on top; up to three footer data points below | 12 |
+| `medium` | No subtitle: the state sits under the name; footer of up to two data points (battery and last access) | 6 |
+| `compact` | Icon, name and state only (with the three dots); no footer and no subtitle. On tap, the command is chosen with padlock icons, with no text | 3 |
+
+The columns can be changed by hand from the editor's "Layout" tab; the card adapts to the width it is given.
+
+### **State and halo**
+
+The state is shown with a colored dot: green for locked, amber for unlocked or open and red for jammed or unavailable (`status_color_closed`, `status_color_open` and `status_color_alert` change them). The halo turns on when it opens, stays on while it is open and turns off when it reaches locked; when you tap an action that operates the lock it turns on right away, without waiting for the state to change.
+
+With a **door sensor** (`door_entity`) the text tells "Opening door…" (the latch is already released) from "Door open" (the sensor is active). Without a sensor, "Door open" never appears.
+
+### **Confirmation before opening**
+
+For safety, when you tap to **open** the card asks "Open?" inside itself, with the halo on, and does nothing until you confirm: it cancels itself after 8 s and **closing never asks for confirmation**. If the lock also supports opening (`lock.open`), it lets you choose between **Unlock** and **Open** (or **Lock** and **Open**). It is turned off with `confirm_open: false`.
+
+### **Informative footer**
+
+`footer_items` puts up to three data points under a neon line, in the order you write them: `door` (door sensor, with `door_entity`), `battery` (with `battery_entity`; if missing it uses the lock's `battery_level` attribute) and `last_user` (with `last_user_entity`; if missing it uses the `changed_by` attribute). In the `medium` size only `battery` and `last_user` fit (the door sensor is not drawn in the footer, but still serves the "Door open" text); `compact` has no footer. A data point that cannot be obtained is shown as "—".
+
+### **Actions**
+
+`tap_action` is `toggle` by default, `hold_action` opens "more info" and `double_tap_action` does nothing. If your lock asks for a code, use `more-info` or a `call-service` action with the code. More details in the [card documentation](./src/cards/lock/README.md).
+
+### **Minimal configuration**
+
+```yaml
+type: custom:neon-lock-card
+entity: lock.front_door
+```
+
+### **With footer data**
+
+```yaml
+type: custom:neon-lock-card
+entity: lock.front_door
+name: Front Door
+lock_icon: padlock
+neon_palette: electric
+footer_items: [battery, last_user, door]
+door_entity: binary_sensor.front_door
+```
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/Cerradura.gif" width="450"></p>
+
 ## 🚀 Coming Soon
 
 Neon Cards is being designed as a complete collection of cards for Home Assistant. More cards will be added over time.
 
-- **NEXT CARD: 🔐 LOCK.**
+- **NEXT CARD: 🚨 ALARM.**
 
 ---
 

@@ -317,6 +317,14 @@ size: compact
 confirm_open: false
 ```
 
+### Capturas
+
+![Neón Lock Card, los tres tamaños, los cuatro iconos y el estado no disponible](../assets/screenshots/cerradura/cerradura.png)
+
+### GIF
+
+![Neón Lock Card en acción](../assets/gifs/Cerradura.gif)
+
 ### Explicación
 
 Neón Lock Card controla una entidad `lock` con un icono animado que se abre
@@ -657,6 +665,14 @@ lock_icon: garage_roller
 size: compact
 confirm_open: false
 ```
+
+### Screenshots
+
+![Neón Lock Card, the three sizes, the four icons and the unavailable state](../assets/screenshots/cerradura/cerradura.png)
+
+### GIF
+
+![Neón Lock Card in action](../assets/gifs/Cerradura.gif)
 
 ### Explanation
 
