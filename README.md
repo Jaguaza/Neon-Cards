@@ -25,6 +25,11 @@ Collection of custom cards for Home Assistant with a modern neon‑inspired aest
 
 ---
 
+## ❤️ Support the project
+Si te está gustando este Repositorio pásate [por Aquí](#apoyo_es)  - If you’re enjoying this repository, do pop [over here](#apoyo_en) 
+
+---
+
 ## 📘 Selección de idioma / Language selection
 
 👉 [Ir leeme en Español](#readme-es)  👉 [Go to readme in English](#readme-en)
@@ -472,7 +477,7 @@ Ver el texto legal completo en [`LICENSE`](./LICENSE) (inglés, vinculante) o su
 ---
 
 ## ❤️ Apoya el proyecto
-
+<a name="apoyo_es"></a>
 <p align="center">
   Si este proyecto te resulta útil y deseas apoyar su desarrollo:
   <br><br>
@@ -920,7 +925,7 @@ See the full legal text in [`LICENSE`](./LICENSE) (English, binding) or its [inf
 ---
 
 ## ❤️ Support the project
-
+<a name="apoyo_en"></a>
 <p align="center">
   If you find this project useful and would like to support its development:
   <br><br>
