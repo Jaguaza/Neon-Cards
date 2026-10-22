@@ -345,6 +345,72 @@ interface HomeAssistant {
   - `message: { type: string; [key: string]: unknown }` — p. ej. `{ type: 'history/history_during_period', ... }`.
   - **Devuelve:** `Promise<T>`.
 
+### `ActionType`
+
+```ts
+type ActionType = 'more-info' | 'toggle' | 'navigate' | 'url' | 'call-service' | 'assist' | 'none';
+```
+
+Las acciones estándar de Home Assistant que admiten `tap_action`,
+`hold_action` y `double_tap_action` de cualquier tarjeta. La tarjeta no las
+ejecuta: las despacha con `dispatchHassAction` (ver `src/core`) y es HA quien
+las resuelve.
+
+| Valor | Qué hace HA | Claves extra habituales |
+|---|---|---|
+| `'more-info'` | Abre el diálogo «más información» de la entidad. | — |
+| `'toggle'` | Alterna la entidad (en una cerradura, cierra o abre). | — |
+| `'navigate'` | Navega a otra vista del panel. | `navigation_path` |
+| `'url'` | Abre una dirección web. | `url_path` |
+| `'call-service'` | Llama a un servicio. | `service` (o `perform_action`), `data`, `target` |
+| `'assist'` | Abre el diálogo de Assist. | — |
+| `'none'` | No hace nada. | — |
+
+### `ActionConfig`
+
+```ts
+interface ActionConfig {
+  action: ActionType | string;
+  [key: string]: unknown;
+}
+```
+
+Configuración de una acción, común a cualquier tarjeta con acciones
+configurables (vive en `src/ha` porque ninguna tarjeta puede importar código
+de otra). `action` es un `ActionType`, pero se admite cualquier `string` para
+no bloquear acciones nuevas de HA (p. ej. `perform-action`, el nombre
+actual de `call-service` en las versiones recientes de HA, que no está en
+`ActionType`); el resto de claves (las de la tabla anterior, `confirmation`,
+etc.) se pasan tal cual a HA.
+
+```yaml
+tap_action:
+  action: call-service
+  service: light.turn_on
+  data:
+    entity_id: light.salon
+  confirmation:
+    text: ¿Encender la luz?
+```
+
+### `ValueChangedEvent`
+
+```ts
+type ValueChangedEvent = CustomEvent<{ value: string }>;
+```
+
+El evento `value-changed` que emiten los pickers y selectores de HA
+(`ha-entity-picker`, `ha-icon-picker`, `ha-selector`, etc.). Es común a
+cualquier editor de tarjeta: se escucha con `@value-changed` y el valor
+elegido llega en `ev.detail.value`. El tipo declara `value: string`, que es
+lo que entregan los pickers de entidad e icono; los editores actuales lo usan
+también con los selectores que entregan otro tipo (p. ej. el de acción entrega
+un objeto).
+
+```ts
+@value-changed=${(ev: ValueChangedEvent) => this._configChanged('entity', ev.detail.value)}
+```
+
 ---
 
 ### Sensores (`sensors.ts`)

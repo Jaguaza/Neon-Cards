@@ -343,6 +343,72 @@ interface HomeAssistant {
   - `message: { type: string; [key: string]: unknown }` — e.g. `{ type: 'history/history_during_period', ... }`.
   - **Returns:** `Promise<T>`.
 
+### `ActionType`
+
+```ts
+type ActionType = 'more-info' | 'toggle' | 'navigate' | 'url' | 'call-service' | 'assist' | 'none';
+```
+
+The standard Home Assistant actions accepted by any card's `tap_action`,
+`hold_action` and `double_tap_action`. The card does not run them: it
+dispatches them with `dispatchHassAction` (see `src/core`) and HA resolves
+them.
+
+| Value | What HA does | Usual extra keys |
+|---|---|---|
+| `'more-info'` | Opens the entity's "more info" dialog. | — |
+| `'toggle'` | Toggles the entity (on a lock, locks or opens it). | — |
+| `'navigate'` | Navigates to another dashboard view. | `navigation_path` |
+| `'url'` | Opens a web address. | `url_path` |
+| `'call-service'` | Calls a service. | `service` (or `perform_action`), `data`, `target` |
+| `'assist'` | Opens the Assist dialog. | — |
+| `'none'` | Does nothing. | — |
+
+### `ActionConfig`
+
+```ts
+interface ActionConfig {
+  action: ActionType | string;
+  [key: string]: unknown;
+}
+```
+
+Configuration of one action, shared by any card with configurable actions
+(it lives in `src/ha` because no card may import code from another).
+`action` is an `ActionType`, but any `string` is accepted so that new HA
+actions are not blocked (e.g. `perform-action`, the current name of
+`call-service` in recent HA versions, which is not in `ActionType`); the
+remaining keys (those in the table above, `confirmation`, etc.) are passed to
+HA as they are.
+
+```yaml
+tap_action:
+  action: call-service
+  service: light.turn_on
+  data:
+    entity_id: light.living_room
+  confirmation:
+    text: Turn the light on?
+```
+
+### `ValueChangedEvent`
+
+```ts
+type ValueChangedEvent = CustomEvent<{ value: string }>;
+```
+
+The `value-changed` event emitted by HA's pickers and selectors
+(`ha-entity-picker`, `ha-icon-picker`, `ha-selector`, etc.). It is shared by
+any card editor: you listen with `@value-changed` and the chosen value
+arrives in `ev.detail.value`. The type declares `value: string`, which is
+what the entity and icon pickers deliver; current editors also use it with
+selectors that deliver another type (e.g. the action selector delivers an
+object).
+
+```ts
+@value-changed=${(ev: ValueChangedEvent) => this._configChanged('entity', ev.detail.value)}
+```
+
 ---
 
 ### Sensors (`sensors.ts`)
