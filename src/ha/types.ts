@@ -39,7 +39,17 @@ export interface HomeAssistant {
  * en vez de en una tarjeta concreta porque ninguna tarjeta puede importar
  * código de otra (ver `src/cards/README.md`).
  */
-export type ActionType = 'more-info' | 'toggle' | 'navigate' | 'url' | 'call-service' | 'assist' | 'none';
+export type ActionType =
+  | 'more-info'
+  | 'toggle'
+  | 'navigate'
+  | 'url'
+  | 'call-service'
+  // Nombre actual de `call-service` en HA reciente (2024.8+); `call-service`
+  // sigue valiendo en las versiones anteriores.
+  | 'perform-action'
+  | 'assist'
+  | 'none';
 
 export interface ActionConfig {
   action: ActionType | string;

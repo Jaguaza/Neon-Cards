@@ -346,7 +346,15 @@ interface HomeAssistant {
 ### `ActionType`
 
 ```ts
-type ActionType = 'more-info' | 'toggle' | 'navigate' | 'url' | 'call-service' | 'assist' | 'none';
+type ActionType =
+  | 'more-info'
+  | 'toggle'
+  | 'navigate'
+  | 'url'
+  | 'call-service'
+  | 'perform-action'
+  | 'assist'
+  | 'none';
 ```
 
 The standard Home Assistant actions accepted by any card's `tap_action`,
@@ -360,7 +368,8 @@ them.
 | `'toggle'` | Toggles the entity (on a lock, locks or opens it). | — |
 | `'navigate'` | Navigates to another dashboard view. | `navigation_path` |
 | `'url'` | Opens a web address. | `url_path` |
-| `'call-service'` | Calls a service. | `service` (or `perform_action`), `data`, `target` |
+| `'call-service'` | Calls a service (old name, in HA before 2024.8). | `service`, `data`, `target` |
+| `'perform-action'` | Runs an HA action, what used to be calling a service (current name). | `perform_action`, `data`, `target` |
 | `'assist'` | Opens the Assist dialog. | — |
 | `'none'` | Does nothing. | — |
 
@@ -376,10 +385,8 @@ interface ActionConfig {
 Configuration of one action, shared by any card with configurable actions
 (it lives in `src/ha` because no card may import code from another).
 `action` is an `ActionType`, but any `string` is accepted so that new HA
-actions are not blocked (e.g. `perform-action`, the current name of
-`call-service` in recent HA versions, which is not in `ActionType`); the
-remaining keys (those in the table above, `confirmation`, etc.) are passed to
-HA as they are.
+actions are not blocked; the remaining keys (those in the table above,
+`confirmation`, etc.) are passed to HA as they are.
 
 ```yaml
 tap_action:
