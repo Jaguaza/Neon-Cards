@@ -17,6 +17,6 @@ win.customCards = win.customCards || [];
 win.customCards.push({
   type: 'neon-lock-card',
   name: 'Neón Lock Card',
-  description: 'Cerradura con icono por estado, aro neón encendido al cerrar y alerta roja si se atasca.',
+  description: 'Cerradura con icono animado, halo neón que sigue al estado, confirmación al abrir y pie informativo.',
   preview: true,
 });
