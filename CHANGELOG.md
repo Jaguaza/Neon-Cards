@@ -9,6 +9,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-22
+
 ### Fixed
 
 - Lock Card: en pantallas donde un hueco de la rejilla mide muy poco (p. ej. un portátil de 13,3" escalado al 150 %, donde 6 columnas son ~140 px y 3 columnas ~65 px) la mediana mostraba el nombre cortado («G. C…»), «80…» y la fecha del último acceso con «…», y la compacta de 3 columnas no cabía. Ahora la mediana apila la cabecera (icono arriba; debajo, nombre y estado) y pone los datos del pie en columna cuando ni así caben, y la compacta tiene un modo minúsculo (menos relleno, icono y texto más pequeños, nombre en dos líneas) que cabe en ~65 px; sus botones de confirmación también se reducen. A anchos normales ninguna de las tres cambia.
@@ -337,6 +339,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [1.3.0] - 2026-10-22
 
 ### Added
 
