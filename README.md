@@ -10,7 +10,7 @@ Collection of custom cards for Home Assistant with a modern neon‑inspired aest
 
 <p align="center">
   <a href="https://youtu.be/0MzlXAx52JY">
-    <img src="https://img.youtube.com/vi/0MzlXAx52JY/hqdefault.jpg" width="350">
+    <img src="https://img.youtube.com/vi/0MzlXAx52JY/hqdefault.jpg" width="720">
   </a>
 </p>
 
@@ -20,7 +20,7 @@ Collection of custom cards for Home Assistant with a modern neon‑inspired aest
 
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/Neon%20Completa.jpg" width="450" style="margin-right:20px;">
+  <img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/Neon%20Completa.jpg" width="1024" style="margin-right:20px;">
 </p>
 
 ---
