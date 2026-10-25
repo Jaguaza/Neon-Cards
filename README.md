@@ -429,16 +429,17 @@ No se garantiza compatibilidad con versiones anteriores.
 
 ## 🛠 Instalación mediante HACS
 
+Neón Cards ya está disponible en HACS: no hace falta añadir ningún repositorio personalizado.
+
+**Opción rápida:** pulsa el botón para abrir Neón Cards directamente en tu Home Assistant.
+
+[![Abre tu instancia de Home Assistant y muestra el repositorio dentro de HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Jaguaza&repository=Neon-Cards&category=plugin)
+
+**Opción manual:**
+
 1. Abre **HACS**.
-2. Pulsa el menú **⋮** (arriba a la derecha) → **Repositorios personalizados**.
-3. Añade el repositorio:
-
-   **https://github.com/Jaguaza/Neon-Cards**
-
-   Categoría: **Dashboard**
-
-4. Busca **Neon Cards**.
-5. Instálalo desde HACS.
+2. Busca **Neon Cards**.
+3. Instálalo desde HACS.
 
 > HACS añadirá automáticamente el recurso de Lovelace.  
 > No es necesario configurar manualmente **Configuración → Recursos**.
@@ -877,16 +878,17 @@ Compatibility with earlier versions is not guaranteed.
 
 ## 🛠 Installation via HACS
 
+Neón Cards is now available in HACS: there is no need to add a custom repository.
+
+**Quick option:** click the button to open Neón Cards directly in your Home Assistant.
+
+[![Open your Home Assistant instance and show the repository inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Jaguaza&repository=Neon-Cards&category=plugin)
+
+**Manual option:**
+
 1. Open **HACS**.
-2. Click the **⋮** menu (top right) → **Custom repositories**.
-3. Add the repository:
-
-   **https://github.com/Jaguaza/Neon-Cards**
-
-   Category: **Dashboard**
-
-4. Search for **Neon Cards**.
-5. Install it from HACS.
+2. Search for **Neon Cards**.
+3. Install it from HACS.
 
 > HACS will automatically add the Lovelace resource.  
 > No manual configuration under **Settings → Resources** is required.
