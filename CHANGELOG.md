@@ -9,6 +9,10 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Changed
+
+- README: Neón Cards ya está en HACS, así que la instalación deja de pedir añadir un repositorio personalizado. Ahora se instala con un botón de «My Home Assistant» que abre el repositorio en HACS, o buscando «Neon Cards» en HACS.
+
 ## [1.3.0] - 2026-10-22
 
 ### Fixed
@@ -339,6 +343,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+### Changed
+
+- README: Neón Cards is now in HACS, so installation no longer asks you to add a custom repository. It is now installed with a "My Home Assistant" button that opens the repository in HACS, or by searching for "Neon Cards" in HACS.
 
 ## [1.3.0] - 2026-10-22
 
