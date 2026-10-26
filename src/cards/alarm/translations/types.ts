@@ -1,0 +1,84 @@
+/**
+ * Claves de traducción de la Alarm Card: textos visibles en tiempo de
+ * ejecución y cadenas del editor visual. Todo `translations/<locale>.ts`
+ * debe implementar exactamente estas claves.
+ */
+export interface AlarmTranslations {
+  state_disarmed: string;
+  state_armed_home: string;
+  state_armed_away: string;
+  state_armed_night: string;
+  state_armed_vacation: string;
+  state_armed_custom_bypass: string;
+  state_pending: string;
+  state_arming: string;
+  state_disarming: string;
+  state_triggered: string;
+  state_unavailable: string;
+  state_error: string;
+  more_info: string;
+  mode_title: string;
+  command_disarm: string;
+  command_armed_home: string;
+  command_armed_away: string;
+  command_armed_night: string;
+  command_armed_vacation: string;
+  command_armed_custom_bypass: string;
+  confirm_title_arm: string;
+  confirm_title_disarm: string;
+  confirm_accept: string;
+  confirm_cancel: string;
+  code_title: string;
+  code_error: string;
+  code_accept: string;
+  code_delete: string;
+  code_placeholder: string;
+  sensors_title: string;
+  sensors_active: string;
+  sensors_idle: string;
+  sensors_empty: string;
+  sensors_close: string;
+  sensor_on: string;
+  sensor_off: string;
+  sensor_lock_open: string;
+  sensor_lock_closed: string;
+  sensor_type_motion: string;
+  sensor_type_occupancy: string;
+  sensor_type_presence: string;
+  sensor_type_door: string;
+  sensor_type_garage_door: string;
+  sensor_type_window: string;
+  sensor_type_opening: string;
+  sensor_type_vibration: string;
+  sensor_type_tamper: string;
+  sensor_type_smoke: string;
+  sensor_type_gas: string;
+  sensor_type_carbon_monoxide: string;
+  sensor_type_moisture: string;
+  sensor_type_heat: string;
+  sensor_type_sound: string;
+  sensor_type_safety: string;
+  sensor_type_problem: string;
+  sensor_type_lock: string;
+  section_main: string;
+  entity_label: string;
+  name_label: string;
+  size_label: string;
+  size_compact: string;
+  size_medium: string;
+  size_large: string;
+  subtitle_label: string;
+  subtitle_type_custom: string;
+  subtitle_placeholder: string;
+  section_halo: string;
+  palette_label: string;
+  section_behavior: string;
+  confirmation_label: string;
+  confirmation_hint: string;
+  section_sensors: string;
+  sensors_hint: string;
+  sensors_hint_medium: string;
+  sensors_hint_compact: string;
+  sensor_slot_label: string;
+  sensor_slot_none: string;
+}
