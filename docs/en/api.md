@@ -32,6 +32,7 @@ See also the [Spanish version](../es/api.md).
 - [Neón Thermostat Card — YAML configuration](#neón-thermostat-card--yaml-configuration)
 - [Neón Sensor Card — YAML configuration](#neón-sensor-card--yaml-configuration)
 - [Neón Lock Card — YAML configuration](#neón-lock-card--yaml-configuration)
+- [Neón Alarm Card — YAML configuration](#neón-alarm-card--yaml-configuration)
 
 ---
 
@@ -1158,6 +1159,73 @@ door_entity: binary_sensor.front_door_open
 battery_entity: sensor.front_door_battery
 last_user_entity: sensor.front_door_last_access
 confirm_open: true
+tap_action:
+  action: toggle
+hold_action:
+  action: more-info
+```
+
+---
+
+## Neón Alarm Card — YAML configuration
+
+All the keys of `NeonAlarmCardConfig` (`src/cards/alarm/types.ts`). It only
+accepts entities of the `alarm_control_panel` domain; without `entity` or with
+another domain the card is shown as "Unavailable" (and warns in the console in
+development). Full specification in
+[`src/cards/alarm/README.md`](../../src/cards/alarm/README.md) and examples in
+[`examples/`](../../examples/README.md). It uses no new `src/ha` types.
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `entity` | `string` | — (required) | `alarm_control_panel.*` entity. |
+| `name` | `string` | entity `friendly_name` | Displayed name. |
+| `size` | `'large' \| 'medium' \| 'compact'` | `'large'` | Size: `large` = large; `medium` = medium, no subtitle and with the state under the name; `compact` = compact, only shield, name and state, no footer. See `getGridOptions()`. |
+| `subtitle_type` | `'none' \| 'state' \| 'custom' \| 'last-changed' \| 'last-updated'` | `'none'` | What is shown under the name. `large` size only. |
+| `subtitle` | `string` | — | Free text with `subtitle_type: custom`. `large` only. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Halo palette. |
+| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | per palette | Colors with `neon_palette: custom`. |
+| `footer_sensors` | `string[]` | — | Up to three sensor types for the footer, in that order (two in `medium`, none in `compact`). Each type is a `binary_sensor` `device_class` (`motion`, `door`, `window`, `vibration`…) or `lock` for locks. The card shows all sensors of that type and how many are active; tapping the item opens the list. Repeated and empty values are ignored. |
+| `confirmation` | `boolean` | `false` | Asks for confirmation ("Arm?" / "Disarm?") before arming or disarming. Picking a mode in the selection does not ask again. |
+| `tap_action` | `ActionConfig` | `{ action: toggle }` | Action on tap. `toggle` arms (with mode selection) or disarms. |
+| `hold_action` | `ActionConfig` | `{ action: more-info }` | Action on hold. |
+| `double_tap_action` | `ActionConfig` | `{ action: none }` | Action on double tap. |
+
+With `toggle`, a disarmed alarm offers the modes it supports
+(`supported_features`) and one that is armed, transitioning or triggered is
+disarmed. If the entity has `code_format` the card asks for the code with a
+numeric keypad (`number`) or a password field (`text`); arming only asks for
+it if `code_arm_required` is not `false`. The services are
+`alarm_control_panel.alarm_disarm`, `alarm_arm_home`, `alarm_arm_away`,
+`alarm_arm_night`, `alarm_arm_vacation` and `alarm_arm_custom_bypass`.
+
+### `getGridOptions()` — size according to `size`
+
+Height is automatic (`rows: 'auto'`); `size` sets the starting columns and the
+minimum it can be shrunk to by hand (`ALARM_GRID` in
+`src/cards/alarm/constants.ts`). A card with `grid_options` saved in the YAML
+keeps its width. `getCardSize()` returns `3`.
+
+| `size` | Size | `columns` | `min_columns` |
+|---|---|---|---|
+| `'compact'` | Compact | `3` | `3` |
+| `'medium'` | Medium | `6` | `4` |
+| `'large'` (default) | Large | `12` | `4` |
+
+### Full example
+
+```yaml
+type: custom:neon-alarm-card
+entity: alarm_control_panel.home
+name: Home alarm
+size: large
+subtitle_type: state
+neon_palette: emerald
+footer_sensors:
+  - motion
+  - door
+  - lock
+confirmation: true
 tap_action:
   action: toggle
 hold_action:

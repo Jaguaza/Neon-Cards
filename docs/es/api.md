@@ -32,6 +32,7 @@ Ver también la versión en [inglés](../en/api.md).
 - [Neón Thermostat Card — Configuración YAML](#neón-thermostat-card--configuración-yaml)
 - [Neón Sensor Card — Configuración YAML](#neón-sensor-card--configuración-yaml)
 - [Neón Lock Card — Configuración YAML](#neón-lock-card--configuración-yaml)
+- [Neón Alarm Card — Configuración YAML](#neón-alarm-card--configuración-yaml)
 
 ---
 
@@ -1161,6 +1162,73 @@ door_entity: binary_sensor.puerta_principal_abierta
 battery_entity: sensor.puerta_principal_bateria
 last_user_entity: sensor.puerta_principal_ultimo_acceso
 confirm_open: true
+tap_action:
+  action: toggle
+hold_action:
+  action: more-info
+```
+
+---
+
+## Neón Alarm Card — Configuración YAML
+
+Todas las claves de `NeonAlarmCardConfig` (`src/cards/alarm/types.ts`). Solo
+admite entidades del dominio `alarm_control_panel`; sin `entity` o con otro
+dominio la tarjeta se muestra como «No disponible» (y en desarrollo avisa por
+consola). Especificación completa en
+[`src/cards/alarm/README.md`](../../src/cards/alarm/README.md) y ejemplos en
+[`examples/`](../../examples/README.md). No usa tipos nuevos de `src/ha`.
+
+| Clave | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `entity` | `string` | — (requerida) | Entidad `alarm_control_panel.*`. |
+| `name` | `string` | `friendly_name` de la entidad | Nombre mostrado. |
+| `size` | `'large' \| 'medium' \| 'compact'` | `'large'` | Tamaño: `large` = grande; `medium` = mediana, sin subtítulo y con el estado bajo el nombre; `compact` = compacta, solo escudo, nombre y estado, sin pie. Ver `getGridOptions()`. |
+| `subtitle_type` | `'none' \| 'state' \| 'custom' \| 'last-changed' \| 'last-updated'` | `'none'` | Qué se muestra bajo el nombre. Solo en el tamaño `large`. |
+| `subtitle` | `string` | — | Texto libre con `subtitle_type: custom`. Solo en `large`. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta del halo. |
+| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | según paleta | Colores con `neon_palette: custom`. |
+| `footer_sensors` | `string[]` | — | Hasta tres tipos de sensor para el pie, en ese orden (dos en `medium`, ninguno en `compact`). Cada tipo es una `device_class` de `binary_sensor` (`motion`, `door`, `window`, `vibration`…) o `lock` para las cerraduras. La tarjeta muestra todos los sensores de ese tipo y cuántos están activos; al pulsar el dato se abre la lista. Los repetidos y los vacíos se ignoran. |
+| `confirmation` | `boolean` | `false` | Pide confirmación («¿Armar?» / «¿Desarmar?») antes de armar o desarmar. Elegir un modo en la selección no vuelve a preguntar. |
+| `tap_action` | `ActionConfig` | `{ action: toggle }` | Acción al pulsar. `toggle` arma (con selección de modo) o desarma. |
+| `hold_action` | `ActionConfig` | `{ action: more-info }` | Acción al mantener. |
+| `double_tap_action` | `ActionConfig` | `{ action: none }` | Acción al doble toque. |
+
+Con `toggle`, una alarma desarmada ofrece los modos que soporta
+(`supported_features`) y una armada, en transición o disparada se desarma. Si
+la entidad tiene `code_format` la tarjeta pide el código con un teclado
+numérico (`number`) o un campo de contraseña (`text`); armar solo lo pide si
+`code_arm_required` no es `false`. Los servicios son
+`alarm_control_panel.alarm_disarm`, `alarm_arm_home`, `alarm_arm_away`,
+`alarm_arm_night`, `alarm_arm_vacation` y `alarm_arm_custom_bypass`.
+
+### `getGridOptions()` — tamaño según `size`
+
+El alto es automático (`rows: 'auto'`); `size` fija las columnas de inicio y
+el mínimo al que se puede reducir a mano (`ALARM_GRID` en
+`src/cards/alarm/constants.ts`). Una tarjeta con `grid_options` guardado en el
+YAML conserva su ancho. `getCardSize()` devuelve `3`.
+
+| `size` | Tamaño | `columns` | `min_columns` |
+|---|---|---|---|
+| `'compact'` | Compacta | `3` | `3` |
+| `'medium'` | Mediana | `6` | `4` |
+| `'large'` (por defecto) | Grande | `12` | `4` |
+
+### Ejemplo completo
+
+```yaml
+type: custom:neon-alarm-card
+entity: alarm_control_panel.casa
+name: Alarma de casa
+size: large
+subtitle_type: state
+neon_palette: emerald
+footer_sensors:
+  - motion
+  - door
+  - lock
+confirmation: true
 tap_action:
   action: toggle
 hold_action:
