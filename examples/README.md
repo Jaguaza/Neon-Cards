@@ -349,6 +349,89 @@ abrir. En la compacta la orden se elige con iconos de candado, sin texto.
 
 ---
 
+## Neón Alarm Card (`custom:neon-alarm-card`)
+
+### YAML mínimo
+
+```yaml
+type: custom:neon-alarm-card
+entity: alarm_control_panel.casa
+```
+
+### YAML avanzado
+
+Alarma de casa con subtítulo, tres tipos de sensor en el pie y confirmación:
+
+```yaml
+type: custom:neon-alarm-card
+entity: alarm_control_panel.casa
+name: Alarma de casa
+size: large
+subtitle_type: state
+neon_palette: emerald
+footer_sensors:
+  - motion
+  - door
+  - lock
+confirmation: true
+tap_action:
+  action: toggle
+hold_action:
+  action: more-info
+```
+
+Versión mediana con dos tipos de sensor en el pie:
+
+```yaml
+type: custom:neon-alarm-card
+entity: alarm_control_panel.casa
+size: medium
+footer_sensors:
+  - window
+  - vibration
+```
+
+Versión compacta, solo escudo, nombre y estado:
+
+```yaml
+type: custom:neon-alarm-card
+entity: alarm_control_panel.casa
+name: Alarma
+size: compact
+```
+
+### Capturas
+
+> Pendiente de añadir: captura real de la tarjeta (tamaños y estados).
+
+### GIF
+
+> Pendiente de añadir: GIF real de la tarjeta en acción.
+
+### Explicación
+
+Neón Alarm Card controla una entidad `alarm_control_panel` con un escudo
+animado que cambia con el estado: cada modo armado (casa, fuera, noche,
+vacaciones, personalizado), cada transición (pendiente, armando, desarmando),
+la alarma disparada y la entidad no disponible tienen su dibujo y su color en
+el punto de estado. El halo neón se enciende mientras la alarma vigila y se
+apaga al desarmarla; disparada o no disponible se ve el halo rojo. Al pulsar
+una alarma desarmada aparece la selección de modo, con solo los modos que
+soporta la entidad (si soporta uno, arma directamente); al pulsar una armada,
+en transición o disparada, se desarma. Si la entidad exige código
+(`code_format`), la propia tarjeta muestra un teclado numérico (o un campo de
+texto) y avisa si el código es incorrecto; armar solo lo pide si
+`code_arm_required` no es `false`. Con `confirmation: true` pregunta antes de
+armar o desarmar. El pie (`footer_sensors`) admite hasta tres tipos de sensor
+de seguridad (cualquier `device_class` de `binary_sensor`, como `motion`,
+`door` o `window`, o `lock` para las cerraduras): muestra cuántos de todos los
+de ese tipo están activos y, al pulsar el dato, los lista. El tamaño se elige
+con `size`: `large` (grande, hasta tres tipos de sensor), `medium` (mediana,
+sin subtítulo y hasta dos) o `compact` (compacta, sin pie). Los huecos de
+inicio de la rejilla son 12, 6 y 3 columnas, con alto automático.
+
+---
+
 <a id="examples-english"></a>
 
 # examples/ (English)
@@ -695,3 +778,86 @@ shows an "Open?" view inside the card (`confirm_open: false` disables it);
 locking never asks. If the lock also supports opening, tapping lets you
 choose between unlocking or opening. In the compact card the command is
 chosen with padlock icons, without text.
+
+---
+
+## Neón Alarm Card (`custom:neon-alarm-card`)
+
+### Minimal YAML
+
+```yaml
+type: custom:neon-alarm-card
+entity: alarm_control_panel.home
+```
+
+### Advanced YAML
+
+Home alarm with a subtitle, three sensor types in the footer and confirmation:
+
+```yaml
+type: custom:neon-alarm-card
+entity: alarm_control_panel.home
+name: Home alarm
+size: large
+subtitle_type: state
+neon_palette: emerald
+footer_sensors:
+  - motion
+  - door
+  - lock
+confirmation: true
+tap_action:
+  action: toggle
+hold_action:
+  action: more-info
+```
+
+Medium version with two sensor types in the footer:
+
+```yaml
+type: custom:neon-alarm-card
+entity: alarm_control_panel.home
+size: medium
+footer_sensors:
+  - window
+  - vibration
+```
+
+Compact version, only shield, name and state:
+
+```yaml
+type: custom:neon-alarm-card
+entity: alarm_control_panel.home
+name: Alarm
+size: compact
+```
+
+### Screenshots
+
+> To be added: real screenshot of the card (sizes and states).
+
+### GIF
+
+> To be added: real GIF of the card in action.
+
+### Explanation
+
+Neón Alarm Card controls an `alarm_control_panel` entity with an animated
+shield that changes with the state: each armed mode (home, away, night,
+vacation, custom), each transition (pending, arming, disarming), the
+triggered alarm and the unavailable entity have their own drawing and their
+own color on the state dot. The neon halo lights up while the alarm is
+watching and goes off when it is disarmed; triggered or unavailable shows the
+red halo. Tapping a disarmed alarm shows the mode selection, with only the
+modes the entity supports (if it supports one, it arms straight away);
+tapping an armed, transitioning or triggered one disarms it. If the entity
+requires a code (`code_format`), the card itself shows a numeric keypad (or a
+text field) and warns if the code is wrong; arming only asks for it if
+`code_arm_required` is not `false`. With `confirmation: true` it asks before
+arming or disarming. The footer (`footer_sensors`) accepts up to three
+security sensor types (any `binary_sensor` `device_class`, such as `motion`,
+`door` or `window`, or `lock` for locks): it shows how many of all the
+sensors of that type are active and lists them when you tap the item. Size is
+chosen with `size`: `large` (large, up to three sensor types), `medium`
+(medium, no subtitle and up to two) or `compact` (compact, no footer). The
+starting grid slots are 12, 6 and 3 columns, with automatic height.
