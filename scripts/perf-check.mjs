@@ -17,7 +17,7 @@
  * script de benchmark (acuerdo nº4: reutilizable, no se copia).
  *
  * Uso: node scripts/perf-check.mjs [card] [numCards] [numUpdates]
- *   card: 'entity' | 'button' | 'thermostat' | 'sensor' | 'lock' | 'all'
+ *   card: 'entity' | 'button' | 'thermostat' | 'sensor' | 'lock' | 'alarm' | 'all'
  *   (por defecto 'all')
  */
 
@@ -228,6 +228,35 @@ const CARD_PROFILES = {
         return { [msg.entity_ids[0]]: Array.from({ length: 30 }, (_, i) => ({ s: String(15 + (i % 9)), lu: now - (30 - i) * 600 })) };
       };
       return { states, callService: async () => {}, callWS };
+    },
+  },
+  alarm: {
+    elementName: 'neon-alarm-card',
+    entry: 'src/cards/alarm/neon-alarm-card.ts',
+    exportName: 'NeonAlarmCard',
+    entityDomain: 'alarm_control_panel',
+    // Tamaño grande con los tres tipos de sensor del pie: es el render más
+    // completo de la tarjeta (recorre todos los estados de hass por tipo).
+    makeConfig: (entityId) => ({
+      entity: entityId,
+      name: 'Alarma de prueba',
+      size: 'large',
+      subtitle_type: 'state',
+      footer_sensors: ['motion', 'door', 'lock'],
+    }),
+    makeHass: (entityIds, tick) => {
+      // La alarma cambia de estado cada 25 ticks, no en cada uno: una alarma
+      // real no conmuta miles de veces (mismo criterio que la cerradura).
+      const armed = Math.floor(tick / 25) % 2 === 1;
+      const states = {};
+      for (const id of entityIds) {
+        const base = id.split('.')[1];
+        states[id] = stateOf(id, armed ? 'armed_away' : 'disarmed', { friendly_name: `Alarma de prueba ${id}`, supported_features: 63, code_format: 'number' });
+        states[`binary_sensor.${base}_mov`] = stateOf(`binary_sensor.${base}_mov`, armed ? 'on' : 'off', { device_class: 'motion', friendly_name: `Movimiento ${base}` });
+        states[`binary_sensor.${base}_puerta`] = stateOf(`binary_sensor.${base}_puerta`, armed ? 'off' : 'on', { device_class: 'door', friendly_name: `Puerta ${base}` });
+        states[`lock.${base}`] = stateOf(`lock.${base}`, armed ? 'locked' : 'unlocked', { friendly_name: `Cerradura ${base}` });
+      }
+      return { states, callService: async () => {} };
     },
   },
   lock: {
