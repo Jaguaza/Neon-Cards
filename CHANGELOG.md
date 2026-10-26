@@ -9,6 +9,10 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Neón Alarm Card** (`custom:neon-alarm-card`, `src/cards/alarm/`): quinta tarjeta del paquete, para entidades `alarm_control_panel`. Escudo animado con un dibujo y un color por cada estado (desarmada, los cinco modos armados, pendiente, armando, desarmando, disparada y no disponible), halo neón mientras la alarma vigila y halo rojo de alerta. Al pulsar, selección del modo de armado con solo los modos que soporta la entidad (`supported_features`) o desarme; teclado numérico (o campo de texto) en la propia tarjeta cuando la entidad exige código (`code_format`, `code_arm_required`), con aviso de código incorrecto; confirmación opcional (`confirmation`). Pie con hasta tres tipos de sensor de seguridad (`footer_sensors`: cualquier `device_class` de `binary_sensor` o `lock`) con el recuento de activos y la lista al pulsar. Tres tamaños (grande, mediana y compacta), editor visual, traducciones ES y EN y perfil en `npm run perf`.
+
 ### Changed
 
 - README: Neón Cards ya está en HACS, así que la instalación deja de pedir añadir un repositorio personalizado. Ahora se instala con un botón de «My Home Assistant» que abre el repositorio en HACS, o buscando «Neon Cards» en HACS.
@@ -343,6 +347,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+### Added
+
+- **Neón Alarm Card** (`custom:neon-alarm-card`, `src/cards/alarm/`): fifth card of the package, for `alarm_control_panel` entities. Animated shield with a drawing and a color for each state (disarmed, the five armed modes, pending, arming, disarming, triggered and unavailable), neon halo while the alarm is watching and a red alert halo. On tap, arming-mode selection with only the modes the entity supports (`supported_features`) or disarm; a numeric keypad (or text field) inside the card when the entity requires a code (`code_format`, `code_arm_required`), with a wrong-code notice; optional confirmation (`confirmation`). Footer with up to three security sensor types (`footer_sensors`: any `binary_sensor` `device_class` or `lock`) with the active count and the list on tap. Three sizes (large, medium and compact), visual editor, ES and EN translations and a profile in `npm run perf`.
 
 ### Changed
 
