@@ -222,6 +222,10 @@ export const NEON_ALARM_CARD_STYLES = css`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  /* En reposo se lee «En reposo», no «0 En reposo»: el número solo se enseña donde el texto no cabe. */
+  .item-value.is-idle .count {
+    display: none;
+  }
   .item--warn ha-icon,
   .item--warn .item-value {
     color: #ffb02e;

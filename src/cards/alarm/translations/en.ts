@@ -32,6 +32,7 @@ export const en: AlarmTranslations = {
   code_placeholder: 'Code',
   sensors_title: 'Sensors',
   sensors_active: 'active',
+  sensors_active_one: 'active',
   sensors_idle: 'Idle',
   sensors_empty: 'No sensors of this type',
   sensors_close: 'Close',

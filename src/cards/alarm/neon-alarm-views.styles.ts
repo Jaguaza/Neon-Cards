@@ -103,8 +103,17 @@ export const NEON_ALARM_VIEWS_STYLES = css`
     box-shadow: none;
   }
   .view-btn.icon-only {
+    flex: none;
     width: 30px;
     padding: 0;
+  }
+  /* Compacta: sin sitio para el título del teclado o la lista; el aviso de
+     código incorrecto sí se queda. */
+  .size-compact .keypad-head .view-title:not(.is-error) {
+    display: none;
+  }
+  .size-compact .keypad-head {
+    justify-content: flex-end;
   }
   .view-btn ha-icon {
     --mdc-icon-size: 18px;

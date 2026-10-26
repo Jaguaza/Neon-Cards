@@ -35,6 +35,7 @@ export interface AlarmTranslations {
   code_placeholder: string;
   sensors_title: string;
   sensors_active: string;
+  sensors_active_one: string;
   sensors_idle: string;
   sensors_empty: string;
   sensors_close: string;

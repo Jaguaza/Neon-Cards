@@ -19,7 +19,9 @@ const hass = () =>
   });
 
 const items = (el: Card) => Array.from(el.shadowRoot!.querySelectorAll<HTMLButtonElement>('.footer .item'));
-const text = (item: Element) => item.querySelector('.item-value')!.textContent;
+const text = (item: Element) => item.querySelector('.item-value')!.textContent!.trim();
+const word = (item: Element) => item.querySelector('.word')?.textContent?.trim();
+const count = (item: Element) => item.querySelector('.count')!.textContent;
 
 describe('pie con sensores', () => {
   it('sin footer_sensors no hay pie', async () => {
@@ -35,9 +37,10 @@ describe('pie con sensores', () => {
   it('cuenta los sensores activos de cada tipo: ámbar con alguno activo, en reposo si ninguno', async () => {
     const el = await mount({ footer_sensors: ['motion', 'door'] }, hass());
     const [motion, door] = items(el);
-    expect(text(motion)).toBe('1 activos');
+    expect(text(motion)).toBe('1 activo');
     expect(motion.classList.contains('item--warn')).toBe(true);
-    expect(text(door)).toBe('En reposo');
+    expect([count(door), word(door)]).toEqual(['0', 'En reposo']);
+    expect(door.querySelector('.item-value')!.classList.contains('is-idle')).toBe(true);
     expect(door.classList.contains('item--warn')).toBe(false);
   });
 
@@ -45,6 +48,7 @@ describe('pie con sensores', () => {
     const el = await mount({ footer_sensors: ['vibration', 'inventado'] }, hass());
     const [vibration, other] = items(el);
     expect(text(vibration)).toBe('—');
+    expect(word(vibration)).toBeUndefined();
     expect(vibration.classList.contains('item--muted')).toBe(true);
     expect(other.querySelector('.item-label')!.textContent).toBe('inventado');
   });
@@ -56,6 +60,17 @@ describe('pie con sensores', () => {
     el.hass = next;
     await el.updateComplete;
     expect(text(items(el)[0])).toBe('2 activos');
+  });
+
+  it('con un solo sensor activo el texto va en singular; con varios, en plural', async () => {
+    const el = await mount({ footer_sensors: ['motion', 'door'] }, hass());
+    expect(word(items(el)[0])).toBe('activo');
+    const next = hass();
+    (next.states['binary_sensor.puerta'] as { state: string }).state = 'on';
+    (next.states['binary_sensor.mov_cocina'] as { state: string }).state = 'on';
+    el.hass = next;
+    await el.updateComplete;
+    expect(items(el).map((i) => word(i))).toEqual(['activos', 'activo']);
   });
 });
 

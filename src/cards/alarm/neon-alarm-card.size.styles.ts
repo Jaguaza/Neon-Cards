@@ -59,6 +59,17 @@ export const NEON_ALARM_SIZE_STYLES = css`
       display: none;
     }
   }
+  /* Mediana estrecha: de cada dato solo el número (el texto, «activos» o
+     «En reposo», no cabe junto al icono). En reposo el número se enseña aunque
+     en ancho lo oculte el texto. */
+  @container (max-width: 230px) {
+    .size-medium .item-value .word {
+      display: none;
+    }
+    .size-medium .item-value.is-idle .count {
+      display: inline;
+    }
+  }
   /* Compacta: solo icono, nombre y estado. El menú de tres puntos tampoco va. */
   .size-compact {
     padding: 12px 14px;

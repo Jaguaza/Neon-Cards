@@ -4,11 +4,12 @@ import type { ActionConfig, HomeAssistant } from '../../ha/types';
 import { BaseNeonCard, createGestureState, handlePointerDown, cancelHold, handleClick, dispatchHassAction, computeInfoDisplay, localize } from '../../core';
 import type { GestureState } from '../../core';
 import { resolveGradientColors, NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, neonHaloVars, neonRingSplitTemplate, RingSizeController } from '../../shared';
-import { ACTION_PENDING_MS, ALARM_GRID, COMMAND_SERVICES } from './constants';
+import { ACTION_PENDING_MS, ALARM_GRID, COMMAND_SERVICES, TRIGGERED_HALO } from './constants';
 import { AlarmFlow } from './alarm-flow';
 import { commandChoices, commandNeedsCode, codeFormat, isAlarmAlert, isAlarmHaloOn, isAlarmMoving, isToggleAction, resolveAlarmState } from './alarm-state';
 import { resolveAlarmSize } from './alarm-size';
 import { footerSensorView, normalizeFooterTypes } from './alarm-sensors';
+import type { FooterSensorView } from './alarm-sensors';
 import { renderFooterSensor } from './footer-view';
 import { renderConfirmView, renderModesView } from './flow-views';
 import type { ViewContext } from './flow-views';
@@ -238,10 +239,16 @@ export class NeonAlarmCard extends BaseNeonCard {
     if (!types.length) return nothing;
     const items = types.map((type) => {
       const sensor = footerSensorView(this.hass, type);
-      const activeText = sensor.activeCount > 0 ? `${sensor.activeCount} ${this._t('sensors_active')}` : sensor.total === 0 ? '—' : this._t('sensors_idle');
-      return renderFooterSensor(sensor, { label: this._sensorTypeLabel(type), activeText, onOpen: (t) => this._flow.open({ kind: 'sensors', type: t }) });
+      return renderFooterSensor(sensor, { label: this._sensorTypeLabel(type), ...this._sensorCount(sensor), onOpen: (t) => this._flow.open({ kind: 'sensors', type: t }) });
     });
     return html`<div class="footer">${items}</div>`;
+  }
+
+  /** Recuento y texto de un dato del pie: «2 activos», «1 activo», «0 En reposo» o «—» sin sensores. */
+  private _sensorCount(sensor: FooterSensorView): { count: string; word: string } {
+    if (sensor.total === 0) return { count: '—', word: '' };
+    if (sensor.activeCount === 0) return { count: '0', word: this._t('sensors_idle') };
+    return { count: String(sensor.activeCount), word: this._t(sensor.activeCount === 1 ? 'sensors_active_one' : 'sensors_active') };
   }
 
   private _viewContext(compact: boolean): ViewContext {
@@ -283,7 +290,7 @@ export class NeonAlarmCard extends BaseNeonCard {
     return html`
       <ha-card
         class="neon-ring-host size-${size} ${viewing ? 'viewing' : ''} ${this._haloClasses(state)}"
-        style=${neonHaloVars(colors)}
+        style=${neonHaloVars(state === 'triggered' ? TRIGGERED_HALO : colors)}
         @pointerdown=${(ev: PointerEvent) => handlePointerDown(this._gesture, ev, '.-none-', () => this._handleAction('hold'))}
         @pointerup=${() => cancelHold(this._gesture)}
         @pointercancel=${() => cancelHold(this._gesture)}

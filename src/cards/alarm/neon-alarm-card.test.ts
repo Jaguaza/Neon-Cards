@@ -78,6 +78,13 @@ describe('NeonAlarmCard · estados', () => {
     expect(status(el)).toBe('No disponible');
   });
 
+  it('disparada: el aro y el halo se vuelven rojos aunque la paleta sea otra; en el resto manda la paleta', async () => {
+    const triggered = await mount({ neon_palette: 'electric' }, hassWith('triggered'));
+    expect(card(triggered).getAttribute('style')).toContain('--neon-c1: #ff3b3b');
+    const armed = await mount({ neon_palette: 'electric' }, hassWith('armed_home'));
+    expect(card(armed).getAttribute('style')).not.toContain('#ff3b3b');
+  });
+
   it('un estado desconocido (unknown) se muestra como no disponible', async () => {
     const el = await mount({}, hassWith('unknown'));
     expect(status(el)).toBe('No disponible');

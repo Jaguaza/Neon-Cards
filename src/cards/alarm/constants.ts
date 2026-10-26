@@ -1,4 +1,5 @@
 import { NEON_CARDS_VERSION } from '../../version';
+import type { GradientColors } from '../../shared';
 import type { AlarmArmMode, AlarmSize, AlarmVisualState } from './types';
 
 export const CARD_AUTHOR = 'Jaguaza';
@@ -53,6 +54,9 @@ export const COMMAND_ICONS = {
   armed_vacation: 'mdi:shield-airplane',
   armed_custom_bypass: 'mdi:shield-half-full',
 } as const;
+
+/** Con la alarma disparada el aro y el halo se vuelven rojos, sea cual sea la paleta elegida. */
+export const TRIGGERED_HALO: GradientColors = { c1: '#ff3b3b', c2: '#ff5c5c', c3: '#ff2d6b' };
 
 /** Icono `mdi` del estado `error` (sin entidad válida). */
 export const ERROR_ICON = 'mdi:close';
