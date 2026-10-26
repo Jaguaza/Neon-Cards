@@ -29,6 +29,10 @@ Una tarjeta:
   `lock` con icono animado (candado, puerta o garaje), halo neón que sigue
   al estado, confirmación antes de abrir y pie informativo opcional. Tres
   tamaños. Ver [ejemplo](../../examples/README.md).
+- [`alarm`](./alarm) — `custom:neon-alarm-card`, tarjeta para entidades
+  `alarm_control_panel` con escudo animado, halo neón según el estado,
+  selección de modo, teclado de código y pie con sensores de seguridad. Tres
+  tamaños. Ver [ejemplo](../../examples/README.md).
 
 ---
 
@@ -65,3 +69,7 @@ A card:
   with an animated icon (padlock, door or garage), a neon halo that follows
   the state, a confirmation before opening and an optional informative
   footer. Three sizes. See the [example](../../examples/README.md).
+- [`alarm`](./alarm) — `custom:neon-alarm-card`, a card for
+  `alarm_control_panel` entities with an animated shield, a neon halo that
+  follows the state, mode selection, a code keypad and a footer with
+  security sensors. Three sizes. See the [example](../../examples/README.md).
