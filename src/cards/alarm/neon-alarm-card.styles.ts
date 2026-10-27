@@ -151,14 +151,14 @@ export const NEON_ALARM_CARD_STYLES = css`
     margin: 0;
     color: inherit;
   }
-  /* Pie: línea de neón y hasta tres tipos de sensor. */
+  /* Pie: línea de neón y los tipos de sensor apilados, uno debajo de otro,
+     cada uno a todo el ancho de la tarjeta. */
   .footer {
     position: relative;
     display: flex;
+    flex-direction: column;
     align-items: stretch;
-    flex-wrap: wrap;
-    row-gap: 8px;
-    padding-top: 12px;
+    padding-top: 6px;
   }
   .footer::before {
     content: '';
@@ -169,16 +169,14 @@ export const NEON_ALARM_CARD_STYLES = css`
     height: 1px;
     background: linear-gradient(90deg, color-mix(in srgb, var(--neon-c1) 85%, transparent), color-mix(in srgb, var(--neon-c2) 55%, transparent) 60%, transparent);
   }
-  /* Cada dato es un botón sin aspecto de botón: reparte a partes iguales el
-     ancho sobrante y centra su contenido. */
+  /* Cada dato es un botón sin aspecto de botón: icono a la izquierda, el tipo
+     de sensor en medio y el recuento a la derecha. */
   .item {
-    flex: 1 1 auto;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
+    gap: 10px;
     min-width: 0;
-    padding: 0 12px;
+    padding: 7px 2px;
     border: 0;
     background: transparent;
     font: inherit;
@@ -191,7 +189,7 @@ export const NEON_ALARM_CARD_STYLES = css`
     border-radius: 8px;
   }
   .item + .item {
-    border-left: 1px solid color-mix(in srgb, var(--primary-text-color) 20%, transparent);
+    border-top: 1px solid color-mix(in srgb, var(--primary-text-color) 14%, transparent);
   }
   .item ha-icon {
     --mdc-icon-size: 22px;
@@ -201,28 +199,29 @@ export const NEON_ALARM_CARD_STYLES = css`
     filter: drop-shadow(0 0 4px color-mix(in srgb, var(--neon-c1) 55%, transparent));
   }
   .item-text {
+    flex: 1 1 auto;
     display: flex;
-    flex-direction: column;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
     min-width: 0;
   }
   .item-label {
-    font-size: 10px;
-    line-height: 12px;
+    font-size: 13px;
+    line-height: 16px;
     color: var(--secondary-text-color);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   .item-value {
+    flex: none;
     font-size: 13px;
     line-height: 16px;
     font-weight: 500;
     color: var(--primary-text-color);
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
-  /* En reposo se lee «En reposo», no «0 En reposo»: el número solo se enseña donde el texto no cabe. */
   .item-value.is-idle .count {
     display: none;
   }

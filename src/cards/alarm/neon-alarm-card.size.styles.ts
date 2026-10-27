@@ -36,33 +36,23 @@ export const NEON_ALARM_SIZE_STYLES = css`
   .size-compact .status-dot {
     flex: none;
   }
-  .size-medium .footer {
-    flex-wrap: nowrap;
-    row-gap: 0;
-  }
   .size-medium .item {
-    gap: 6px;
-    padding: 0 8px;
+    gap: 8px;
   }
   .size-medium .item ha-icon {
     --mdc-icon-size: 20px;
   }
-  @container (max-width: 200px) {
-    .size-medium .item {
-      gap: 4px;
-      padding: 0 4px;
-    }
-    .size-medium .item ha-icon {
-      --mdc-icon-size: 18px;
-    }
+  /* Mediana muy estrecha: el nombre del tipo cede sitio al recuento, y de este
+     solo el número si ni así cabe. */
+  @container (max-width: 150px) {
     .size-medium .item-label {
       display: none;
     }
+    .size-medium .item-text {
+      justify-content: flex-start;
+    }
   }
-  /* Mediana estrecha: de cada dato solo el número (el texto, «activos» o
-     «En reposo», no cabe junto al icono). En reposo el número se enseña aunque
-     en ancho lo oculte el texto. */
-  @container (max-width: 230px) {
+  @container (max-width: 120px) {
     .size-medium .item-value .word {
       display: none;
     }
