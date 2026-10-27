@@ -15,7 +15,8 @@ halo se enciende ya y espera el cambio de estado (hasta 6 s).
   derecha, el **estado** con un punto de color y los **tres puntos**, que
   abren «más información» sin disparar la acción de la tarjeta.
 - **Abajo (opcional):** una línea de neón y hasta **tres tipos de sensor**
-  (ver [Pie de sensores](#pie-de-sensores)).
+  (ver [Pie de sensores](#pie-de-sensores)), apilados uno debajo de otro y
+  cada uno a todo el ancho de la tarjeta.
 
 ### Estados
 
@@ -142,7 +143,8 @@ turns on right away and waits for the state to change (up to 6 s).
   right, the **state** with a colored dot and the **three dots**, which open
   "more info" without triggering the card's action.
 - **Bottom (optional):** a neon line and up to **three sensor types** (see
-  [Sensor footer](#sensor-footer)).
+  [Sensor footer](#sensor-footer)), stacked one below the other, each one
+  using the full width of the card.
 
 ### States
 
