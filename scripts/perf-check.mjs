@@ -235,14 +235,14 @@ const CARD_PROFILES = {
     entry: 'src/cards/alarm/neon-alarm-card.ts',
     exportName: 'NeonAlarmCard',
     entityDomain: 'alarm_control_panel',
-    // Tamaño grande con los tres tipos de sensor del pie: es el render más
+    // Tamaño grande con los cuatro tipos de sensor del pie: es el render más
     // completo de la tarjeta (recorre todos los estados de hass por tipo).
     makeConfig: (entityId) => ({
       entity: entityId,
       name: 'Alarma de prueba',
       size: 'large',
       subtitle_type: 'state',
-      footer_sensors: ['motion', 'door', 'lock'],
+      footer_sensors: ['motion', 'door', 'vibration', 'lock'],
     }),
     makeHass: (entityIds, tick) => {
       // La alarma cambia de estado cada 25 ticks, no en cada uno: una alarma
