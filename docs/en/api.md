@@ -1185,7 +1185,9 @@ development). Full specification in
 | `subtitle` | `string` | — | Free text with `subtitle_type: custom`. `large` only. |
 | `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Halo palette. |
 | `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | per palette | Colors with `neon_palette: custom`. |
-| `footer_sensors` | `string[]` | — | Up to three sensor types for the footer, in that order (two in `medium`, none in `compact`). Each type is a `binary_sensor` `device_class` (`motion`, `door`, `window`, `vibration`…) or `lock` for locks. The card shows all sensors of that type and how many are active; tapping the item opens the list. Repeated and empty values are ignored. |
+| `footer_sensors` | `string[]` | — | Up to four sensor types for the footer, in that order (two in `medium`, none in `compact`). Each type is a `binary_sensor` `device_class` (`motion`, `door`, `window`, `vibration`…) or `lock` for locks. The card shows all sensors of that type (except those in `footer_excluded`) and how many are active; types are stacked one below the other, each at full width; tapping the item opens the list. Repeated and empty values are ignored. |
+| `footer_only_active` | `boolean` | `false` | With `true` the footer only shows what is active: types with no active sensor disappear (and the whole footer if none is left) and the list only shows the active sensors. |
+| `footer_excluded` | `string[]` | — | Entities (`binary_sensor.*` or `lock.*`) the card neither counts nor lists. The editor ticks them with checks under each sensor type. |
 | `confirmation` | `boolean` | `false` | Asks for confirmation ("Arm?" / "Disarm?") before arming or disarming. Picking a mode in the selection does not ask again. |
 | `tap_action` | `ActionConfig` | `{ action: toggle }` | Action on tap. `toggle` arms (with mode selection) or disarms. |
 | `hold_action` | `ActionConfig` | `{ action: more-info }` | Action on hold. |
@@ -1224,7 +1226,11 @@ neon_palette: emerald
 footer_sensors:
   - motion
   - door
+  - vibration
   - lock
+footer_only_active: true
+footer_excluded:
+  - binary_sensor.storage_room_motion
 confirmation: true
 tap_action:
   action: toggle

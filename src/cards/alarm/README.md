@@ -14,7 +14,7 @@ halo se enciende ya y espera el cambio de estado (hasta 6 s).
 - **Arriba:** el escudo y, a su lado, el nombre con el subtítulo. A la
   derecha, el **estado** con un punto de color y los **tres puntos**, que
   abren «más información» sin disparar la acción de la tarjeta.
-- **Abajo (opcional):** una línea de neón y hasta **tres tipos de sensor**
+- **Abajo (opcional):** una línea de neón y hasta **cuatro tipos de sensor**
   (ver [Pie de sensores](#pie-de-sensores)), apilados uno debajo de otro y
   cada uno a todo el ancho de la tarjeta.
 
@@ -45,7 +45,7 @@ animaciones de entrada.
 
 | `size` | Contenido | Columnas de inicio |
 |---|---|---|
-| `large` (por defecto) | Escudo, nombre, subtítulo, estado, tres puntos y pie de hasta tres tipos de sensor | 12 |
+| `large` (por defecto) | Escudo, nombre, subtítulo, estado, tres puntos y pie de hasta cuatro tipos de sensor | 12 |
 | `medium` | Sin subtítulo, con el estado bajo el nombre; pie de hasta dos tipos de sensor | 6 |
 | `compact` | Solo escudo, nombre y estado; sin pie ni tres puntos. Los botones de las vistas son solo iconos | 3 |
 
@@ -92,7 +92,7 @@ cambia de estado mientras están abiertas.
 
 ## Pie de sensores
 
-`footer_sensors` es una lista de hasta tres tipos (dos en `medium`, ninguno en
+`footer_sensors` es una lista de hasta cuatro tipos (dos en `medium`, ninguno en
 `compact`). Cada tipo es una `device_class` de `binary_sensor` (`motion`,
 `door`, `window`, `vibration`…) o `lock` para las cerraduras. La tarjeta
 encuentra **todos** los sensores de Home Assistant de ese tipo (sin filtros por
@@ -107,6 +107,21 @@ El editor ofrece los tipos de seguridad habituales (`motion`, `occupancy`,
 `presence`, `door`, `garage_door`, `window`, `opening`, `vibration`, `tamper`,
 `smoke`, `gas`, `carbon_monoxide`, `moisture`, `heat`, `sound`, `safety`,
 `problem` y `lock`), pero por YAML se acepta cualquier `device_class`.
+
+### Solo activos y sensores ocultos
+
+- **`footer_only_active: true`** — el pie solo enseña lo que está activo: los
+  tipos sin ningún sensor activo desaparecen y, si no queda ninguno, el pie
+  entero (también su línea de neón). La lista al pulsar solo enseña los
+  sensores activos. Desactivado por defecto.
+- **`footer_excluded`** — lista de entidades (`binary_sensor.*` o `lock.*`)
+  que la tarjeta no cuenta ni lista, aunque sean del tipo elegido. En el
+  editor, al elegir un tipo en un hueco sale desplegable «Sensores de este
+  tipo» con todos los que hay en Home Assistant, cada uno con un check: los
+  marcados **no** se muestran.
+
+La lista que se abre al pulsar un dato se coloca arriba, justo bajo el título,
+y hace scroll por dentro si hay muchos sensores.
 
 ## Estructura de la carpeta
 
@@ -142,7 +157,7 @@ turns on right away and waits for the state to change (up to 6 s).
 - **Top:** the shield and, next to it, the name with the subtitle. On the
   right, the **state** with a colored dot and the **three dots**, which open
   "more info" without triggering the card's action.
-- **Bottom (optional):** a neon line and up to **three sensor types** (see
+- **Bottom (optional):** a neon line and up to **four sensor types** (see
   [Sensor footer](#sensor-footer)), stacked one below the other, each one
   using the full width of the card.
 
@@ -173,7 +188,7 @@ pulses or entry animations.
 
 | `size` | Content | Starting columns |
 |---|---|---|
-| `large` (default) | Shield, name, subtitle, state, three dots and a footer of up to three sensor types | 12 |
+| `large` (default) | Shield, name, subtitle, state, three dots and a footer of up to four sensor types | 12 |
 | `medium` | No subtitle, state under the name; footer of up to two sensor types | 6 |
 | `compact` | Only shield, name and state; no footer or three dots. View buttons are icon-only | 3 |
 
@@ -220,7 +235,7 @@ changes state while they are open.
 
 ## Sensor footer
 
-`footer_sensors` is a list of up to three types (two in `medium`, none in
+`footer_sensors` is a list of up to four types (two in `medium`, none in
 `compact`). Each type is a `binary_sensor` `device_class` (`motion`, `door`,
 `window`, `vibration`…) or `lock` for locks. The card finds **all** Home
 Assistant sensors of that type (no area filter or exclusions) and shows how
@@ -234,6 +249,21 @@ The editor offers the usual security types (`motion`, `occupancy`, `presence`,
 `door`, `garage_door`, `window`, `opening`, `vibration`, `tamper`, `smoke`,
 `gas`, `carbon_monoxide`, `moisture`, `heat`, `sound`, `safety`, `problem` and
 `lock`), but any `device_class` is accepted from YAML.
+
+### Only active and hidden sensors
+
+- **`footer_only_active: true`** — the footer only shows what is active: types
+  with no active sensor disappear and, if none is left, the whole footer
+  (including its neon line). The list opened by tapping only shows the active
+  sensors. Off by default.
+- **`footer_excluded`** — list of entities (`binary_sensor.*` or `lock.*`) the
+  card neither counts nor lists, even if they are of the chosen type. In the
+  editor, choosing a type in a slot reveals a collapsible "Sensors of this
+  type" with all those in Home Assistant, each with a check: the ticked ones
+  are **not** shown.
+
+The list opened by tapping an item sits at the top, right under the title, and
+scrolls inside if there are many sensors.
 
 ## Folder layout
 

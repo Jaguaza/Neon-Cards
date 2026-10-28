@@ -1188,7 +1188,9 @@ consola). Especificación completa en
 | `subtitle` | `string` | — | Texto libre con `subtitle_type: custom`. Solo en `large`. |
 | `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta del halo. |
 | `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | según paleta | Colores con `neon_palette: custom`. |
-| `footer_sensors` | `string[]` | — | Hasta tres tipos de sensor para el pie, en ese orden (dos en `medium`, ninguno en `compact`). Cada tipo es una `device_class` de `binary_sensor` (`motion`, `door`, `window`, `vibration`…) o `lock` para las cerraduras. La tarjeta muestra todos los sensores de ese tipo y cuántos están activos; al pulsar el dato se abre la lista. Los repetidos y los vacíos se ignoran. |
+| `footer_sensors` | `string[]` | — | Hasta cuatro tipos de sensor para el pie, en ese orden (dos en `medium`, ninguno en `compact`). Cada tipo es una `device_class` de `binary_sensor` (`motion`, `door`, `window`, `vibration`…) o `lock` para las cerraduras. La tarjeta muestra todos los sensores de ese tipo (menos los de `footer_excluded`) y cuántos están activos; los tipos se apilan uno debajo de otro, cada uno a todo el ancho; al pulsar el dato se abre la lista. Los repetidos y los vacíos se ignoran. |
+| `footer_only_active` | `boolean` | `false` | Con `true` el pie solo enseña lo activo: los tipos sin ningún sensor activo desaparecen (y el pie entero si no queda ninguno) y la lista solo enseña los sensores activos. |
+| `footer_excluded` | `string[]` | — | Entidades (`binary_sensor.*` o `lock.*`) que la tarjeta no cuenta ni lista. El editor las marca con checks bajo cada tipo de sensor. |
 | `confirmation` | `boolean` | `false` | Pide confirmación («¿Armar?» / «¿Desarmar?») antes de armar o desarmar. Elegir un modo en la selección no vuelve a preguntar. |
 | `tap_action` | `ActionConfig` | `{ action: toggle }` | Acción al pulsar. `toggle` arma (con selección de modo) o desarma. |
 | `hold_action` | `ActionConfig` | `{ action: more-info }` | Acción al mantener. |
@@ -1227,7 +1229,11 @@ neon_palette: emerald
 footer_sensors:
   - motion
   - door
+  - vibration
   - lock
+footer_only_active: true
+footer_excluded:
+  - binary_sensor.movimiento_trastero
 confirmation: true
 tap_action:
   action: toggle
