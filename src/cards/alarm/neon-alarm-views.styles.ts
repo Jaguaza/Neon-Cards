@@ -125,6 +125,7 @@ export const NEON_ALARM_VIEWS_STYLES = css`
   .view--sensors {
     flex-direction: column;
     align-items: stretch;
+    justify-content: flex-start;
     flex-wrap: nowrap;
     gap: 8px;
   }
