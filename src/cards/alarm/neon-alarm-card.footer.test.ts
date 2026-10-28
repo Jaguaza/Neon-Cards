@@ -115,3 +115,73 @@ describe('lista al pulsar el dato', () => {
     expect(el.shadowRoot!.querySelector('.sensor-empty')!.textContent).toBe('No hay sensores de este tipo');
   });
 });
+
+describe('solo sensores activos (footer_only_active)', () => {
+  it('desactivado por defecto: se ven todos los tipos aunque estén en reposo', async () => {
+    const el = await mount({ footer_sensors: ['motion', 'door'] }, hass());
+    expect(items(el).length).toBe(2);
+  });
+
+  it('activado: desaparecen los tipos sin ningún sensor activo', async () => {
+    const el = await mount({ footer_sensors: ['motion', 'door', 'lock'], footer_only_active: true }, hass());
+    expect(items(el).map((i) => i.dataset.type)).toEqual(['motion', 'lock']);
+  });
+
+  it('activado y sin nada activo: no hay pie, ni la línea de neón', async () => {
+    const quiet = hassWith('armed_home', { extraStates: { 'binary_sensor.m': { state: 'off', attributes: { device_class: 'motion' } } } });
+    const el = await mount({ footer_sensors: ['motion'], footer_only_active: true }, quiet);
+    expect(el.shadowRoot!.querySelector('.footer')).toBeNull();
+  });
+
+  it('un tipo vuelve al pie en cuanto uno de sus sensores se activa', async () => {
+    const el = await mount({ footer_sensors: ['door'], footer_only_active: true }, hass());
+    expect(items(el).length).toBe(0);
+    const next = hass();
+    (next.states['binary_sensor.puerta'] as { state: string }).state = 'on';
+    el.hass = next;
+    await el.updateComplete;
+    expect(items(el).map((i) => i.dataset.type)).toEqual(['door']);
+  });
+
+  it('la lista al pulsar enseña solo los activos', async () => {
+    const el = await mount({ footer_sensors: ['motion'], footer_only_active: true }, hass());
+    items(el)[0].click();
+    await new Promise((r) => setTimeout(r, VIEW_REVEAL_MS + 20));
+    await el.updateComplete;
+    const names = Array.from(el.shadowRoot!.querySelectorAll('.sensor-row .sensor-name')).map((n) => n.textContent);
+    expect(names).toEqual(['Movimiento salón']);
+  });
+
+  it('si mientras está la lista abierta se desactiva el último sensor, avisa de que no hay ninguno activo', async () => {
+    const el = await mount({ footer_sensors: ['motion'], footer_only_active: true }, hass());
+    items(el)[0].click();
+    await new Promise((r) => setTimeout(r, VIEW_REVEAL_MS + 20));
+    const next = hass();
+    (next.states['binary_sensor.mov_salon'] as { state: string }).state = 'off';
+    el.hass = next;
+    await el.updateComplete;
+    expect(el.shadowRoot!.querySelector('.sensor-empty')!.textContent).toBe('Ningún sensor activo');
+  });
+});
+
+describe('sensores excluidos (footer_excluded)', () => {
+  it('no se cuentan ni se listan', async () => {
+    const el = await mount({ footer_sensors: ['motion'], footer_excluded: ['binary_sensor.mov_salon'] }, hass());
+    expect(text(items(el)[0])).toBe('0 En reposo');
+    items(el)[0].click();
+    await new Promise((r) => setTimeout(r, VIEW_REVEAL_MS + 20));
+    await el.updateComplete;
+    const names = Array.from(el.shadowRoot!.querySelectorAll('.sensor-row .sensor-name')).map((n) => n.textContent);
+    expect(names).toEqual(['Movimiento cocina']);
+  });
+
+  it('excluir todos los de un tipo lo deja sin sensores («—»)', async () => {
+    const el = await mount({ footer_sensors: ['door'], footer_excluded: ['binary_sensor.puerta'] }, hass());
+    expect(text(items(el)[0])).toBe('—');
+  });
+
+  it('las cuatro filas caben en la tarjeta grande', async () => {
+    const el = await mount({ footer_sensors: ['motion', 'door', 'vibration', 'lock'] }, hass());
+    expect(items(el).length).toBe(4);
+  });
+});

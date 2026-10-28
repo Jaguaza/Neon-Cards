@@ -84,7 +84,7 @@ export const ALARM_GRID: Record<AlarmSize, { columns: number; min_columns: numbe
 };
 
 /** Máximo de tipos de sensor en el pie según el tamaño (la compacta no tiene pie). */
-export const FOOTER_MAX: Record<AlarmSize, number> = { compact: 0, medium: 2, large: 3 };
+export const FOOTER_MAX: Record<AlarmSize, number> = { compact: 0, medium: 2, large: 4 };
 
 /** Tipo especial del pie: las cerraduras (dominio `lock`) en vez de una `device_class`. */
 export const LOCK_SENSOR_TYPE = 'lock';

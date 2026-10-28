@@ -43,18 +43,60 @@ function entryOf(stateObj: HassEntityState, type: string): SensorEntry {
   return { entityId: stateObj.entity_id, name, active: isActive(stateObj, type) };
 }
 
-/** Todos los sensores de HA de este tipo con un estado válido, los activos primero y luego por nombre. */
-export function sensorsOfType(hass: HomeAssistant | undefined, type: string): SensorEntry[] {
-  if (!hass) return [];
-  return Object.values(hass.states)
-    .filter((stateObj) => matchesType(stateObj, type) && !INVALID_STATES.includes(stateObj.state))
-    .map((stateObj) => entryOf(stateObj, type))
-    .sort((a, b) => Number(b.active) - Number(a.active) || a.name.localeCompare(b.name));
+/** Opciones del pie: entidades que no se cuentan y si solo se enseña lo activo. */
+export interface FooterOptions {
+  excluded?: readonly string[];
+  onlyActive?: boolean;
 }
 
-export function footerSensorView(hass: HomeAssistant | undefined, type: string): FooterSensorView {
-  const entries = sensorsOfType(hass, type);
-  const activeCount = entries.filter((entry) => entry.active).length;
+/** Entidades excluidas válidas: solo textos, sin repetidos ni vacíos. */
+export function normalizeExcluded(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value.filter((item): item is string => typeof item === 'string' && item.trim() !== '').map((item) => item.trim()))];
+}
+
+function byActiveThenName(a: SensorEntry, b: SensorEntry): number {
+  return Number(b.active) - Number(a.active) || a.name.localeCompare(b.name);
+}
+
+/**
+ * Los sensores de HA de este tipo con un estado válido, sin los excluidos,
+ * los activos primero y luego por nombre.
+ */
+export function sensorsOfType(hass: HomeAssistant | undefined, type: string, excluded: readonly string[] = []): SensorEntry[] {
+  if (!hass) return [];
+  return Object.values(hass.states)
+    .filter((stateObj) => matchesType(stateObj, type) && !INVALID_STATES.includes(stateObj.state) && !excluded.includes(stateObj.entity_id))
+    .map((stateObj) => entryOf(stateObj, type))
+    .sort(byActiveThenName);
+}
+
+/**
+ * Todos los sensores de HA de este tipo, también los caídos o desconocidos,
+ * por nombre: es lo que lista el editor para marcar los que se ocultan.
+ */
+export function allSensorsOfType(hass: HomeAssistant | undefined, type: string): SensorEntry[] {
+  if (!hass) return [];
+  return Object.values(hass.states)
+    .filter((stateObj) => matchesType(stateObj, type))
+    .map((stateObj) => entryOf(stateObj, type))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * Un dato del pie. `total` y `activeCount` cuentan todos los sensores del tipo
+ * (menos los excluidos); con `onlyActive` la lista `entries` lleva solo los activos.
+ */
+export function footerSensorView(hass: HomeAssistant | undefined, type: string, options: FooterOptions = {}): FooterSensorView {
+  const all = sensorsOfType(hass, type, options.excluded);
+  const activeCount = all.filter((entry) => entry.active).length;
   const icons = SENSOR_ICONS[type] ?? DEFAULT_SENSOR_ICONS;
-  return { type, icon: activeCount > 0 ? icons[0] : icons[1], total: entries.length, activeCount, entries };
+  const entries = options.onlyActive ? all.filter((entry) => entry.active) : all;
+  return { type, icon: activeCount > 0 ? icons[0] : icons[1], total: all.length, activeCount, entries };
+}
+
+/** Los datos del pie en el orden configurado; con `onlyActive` desaparecen los tipos sin ningún sensor activo. */
+export function visibleFooterViews(hass: HomeAssistant | undefined, types: readonly string[], options: FooterOptions = {}): FooterSensorView[] {
+  const views = types.map((type) => footerSensorView(hass, type, options));
+  return options.onlyActive ? views.filter((view) => view.activeCount > 0) : views;
 }

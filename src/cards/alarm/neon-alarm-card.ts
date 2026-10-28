@@ -8,8 +8,8 @@ import { ACTION_PENDING_MS, ALARM_GRID, COMMAND_SERVICES, TRIGGERED_HALO } from 
 import { AlarmFlow } from './alarm-flow';
 import { commandChoices, commandNeedsCode, codeFormat, isAlarmAlert, isAlarmHaloOn, isAlarmMoving, isToggleAction, resolveAlarmState } from './alarm-state';
 import { resolveAlarmSize } from './alarm-size';
-import { footerSensorView, normalizeFooterTypes } from './alarm-sensors';
-import type { FooterSensorView } from './alarm-sensors';
+import { footerSensorView, normalizeExcluded, normalizeFooterTypes, visibleFooterViews } from './alarm-sensors';
+import type { FooterOptions, FooterSensorView } from './alarm-sensors';
 import { renderFooterSensor } from './footer-view';
 import { renderConfirmView, renderModesView } from './flow-views';
 import type { ViewContext } from './flow-views';
@@ -234,13 +234,17 @@ export class NeonAlarmCard extends BaseNeonCard {
     `;
   }
 
+  /** Entidades que no se cuentan y si solo se enseña lo activo, según la config. */
+  private _footerOptions(): FooterOptions {
+    return { excluded: normalizeExcluded(this._config?.footer_excluded), onlyActive: this._config?.footer_only_active === true };
+  }
+
+  /** Pie: un dato por tipo de sensor. Con «solo activos» los tipos en reposo no salen y, si no queda ninguno, tampoco el pie. */
   private _renderFooter(size: ReturnType<typeof resolveAlarmSize>): TemplateResult | typeof nothing {
     const types = normalizeFooterTypes(this._config?.footer_sensors, size);
-    if (!types.length) return nothing;
-    const items = types.map((type) => {
-      const sensor = footerSensorView(this.hass, type);
-      return renderFooterSensor(sensor, { label: this._sensorTypeLabel(type), ...this._sensorCount(sensor), onOpen: (t) => this._flow.open({ kind: 'sensors', type: t }) });
-    });
+    const views = visibleFooterViews(this.hass, types, this._footerOptions());
+    if (!views.length) return nothing;
+    const items = views.map((sensor) => renderFooterSensor(sensor, { label: this._sensorTypeLabel(sensor.type), ...this._sensorCount(sensor), onOpen: (t) => this._flow.open({ kind: 'sensors', type: t }) }));
     return html`<div class="footer">${items}</div>`;
   }
 
@@ -262,7 +266,10 @@ export class NeonAlarmCard extends BaseNeonCard {
     const ctx = this._viewContext(compact);
     if (view.kind === 'modes') return renderModesView(ctx, view.choices, (command) => this._begin(command, false));
     if (view.kind === 'confirm') return renderConfirmView(ctx, view.command, () => this._afterConfirm(view.command));
-    if (view.kind === 'sensors') return renderSensorsView(ctx, footerSensorView(this.hass, view.type), this._sensorTypeLabel(view.type));
+    if (view.kind === 'sensors') {
+      const options = this._footerOptions();
+      return renderSensorsView(ctx, footerSensorView(this.hass, view.type, options), this._sensorTypeLabel(view.type), options.onlyActive);
+    }
     return renderKeypadView({
       ...ctx,
       code: this._flow.code,

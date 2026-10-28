@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { footerSensorView, normalizeFooterTypes, sensorsOfType } from './alarm-sensors';
+import { allSensorsOfType, footerSensorView, normalizeExcluded, normalizeFooterTypes, sensorsOfType, visibleFooterViews } from './alarm-sensors';
 import { hassWith } from './neon-alarm-card.fixtures';
 import type { HomeAssistant } from '../../ha/types';
 
@@ -18,7 +18,7 @@ const hass = hassWith('disarmed', {
 
 describe('normalizeFooterTypes', () => {
   it('quita repetidos, vacíos y no textos, y recorta al máximo del tamaño', () => {
-    expect(normalizeFooterTypes(['motion', 'motion', ' ', 3, 'door', 'window', 'lock'], 'large')).toEqual(['motion', 'door', 'window']);
+    expect(normalizeFooterTypes(['motion', 'motion', ' ', 3, 'door', 'window', 'lock', 'smoke'], 'large')).toEqual(['motion', 'door', 'window', 'lock']);
     expect(normalizeFooterTypes(['motion', 'door', 'window'], 'medium')).toEqual(['motion', 'door']);
     expect(normalizeFooterTypes(['motion'], 'compact')).toEqual([]);
   });
@@ -68,5 +68,47 @@ describe('footerSensorView', () => {
 
   it('un tipo sin iconos propios usa los genéricos', () => {
     expect(footerSensorView(hass, 'inventado').icon).toBe('mdi:check-circle-outline');
+  });
+});
+
+describe('sensores excluidos', () => {
+  it('normalizeExcluded deja solo textos únicos y no vacíos', () => {
+    expect(normalizeExcluded(['binary_sensor.a', 'binary_sensor.a', ' ', 3, ' lock.b '])).toEqual(['binary_sensor.a', 'lock.b']);
+    expect(normalizeExcluded('x')).toEqual([]);
+    expect(normalizeExcluded(undefined)).toEqual([]);
+  });
+
+  it('sensorsOfType no devuelve los excluidos', () => {
+    const ids = sensorsOfType(hass, 'motion', ['binary_sensor.mov_salon']).map((e) => e.entityId);
+    expect(ids).toEqual(['binary_sensor.mov_cocina']);
+  });
+
+  it('el recuento y el total no cuentan los excluidos', () => {
+    const view = footerSensorView(hass, 'motion', { excluded: ['binary_sensor.mov_salon'] });
+    expect([view.total, view.activeCount, view.icon]).toEqual([1, 0, 'mdi:motion-sensor-off']);
+  });
+
+  it('allSensorsOfType lista todos los del tipo, también los caídos, por nombre y sin mirar exclusiones', () => {
+    // El caído no tiene friendly_name: se ordena por su entity_id.
+    expect(allSensorsOfType(hass, 'motion').map((e) => e.entityId)).toEqual(['binary_sensor.mov_roto', 'binary_sensor.mov_cocina', 'binary_sensor.mov_salon']);
+    expect(allSensorsOfType(undefined, 'motion')).toEqual([]);
+  });
+});
+
+describe('solo sensores activos', () => {
+  it('footerSensorView con onlyActive deja en la lista solo los activos, pero el total sigue siendo el de todos', () => {
+    const view = footerSensorView(hass, 'motion', { onlyActive: true });
+    expect(view.entries.map((e) => e.entityId)).toEqual(['binary_sensor.mov_salon']);
+    expect([view.total, view.activeCount]).toEqual([2, 1]);
+  });
+
+  it('visibleFooterViews quita los tipos sin ningún sensor activo solo con onlyActive', () => {
+    const types = ['motion', 'door', 'lock', 'vibration'];
+    expect(visibleFooterViews(hass, types).map((v) => v.type)).toEqual(types);
+    expect(visibleFooterViews(hass, types, { onlyActive: true }).map((v) => v.type)).toEqual(['motion', 'door', 'lock']);
+  });
+
+  it('un tipo cuyos sensores activos están todos excluidos desaparece con onlyActive', () => {
+    expect(visibleFooterViews(hass, ['door'], { onlyActive: true, excluded: ['binary_sensor.puerta'] })).toEqual([]);
   });
 });

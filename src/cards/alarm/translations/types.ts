@@ -38,6 +38,7 @@ export interface AlarmTranslations {
   sensors_active_one: string;
   sensors_idle: string;
   sensors_empty: string;
+  sensors_none_active: string;
   sensors_close: string;
   sensor_on: string;
   sensor_off: string;
@@ -82,4 +83,9 @@ export interface AlarmTranslations {
   sensors_hint_compact: string;
   sensor_slot_label: string;
   sensor_slot_none: string;
+  only_active_label: string;
+  only_active_hint: string;
+  excluded_summary: string;
+  excluded_hint: string;
+  excluded_none: string;
 }

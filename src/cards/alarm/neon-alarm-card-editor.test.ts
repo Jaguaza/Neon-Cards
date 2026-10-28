@@ -5,6 +5,14 @@ import { describe, expect, it } from 'vitest';
 
 type Editor = HTMLElement & { setConfig(c: unknown): void; hass: unknown; updateComplete: Promise<boolean> };
 
+const STATES = {
+  'binary_sensor.mov_salon': { entity_id: 'binary_sensor.mov_salon', state: 'on', attributes: { device_class: 'motion', friendly_name: 'Movimiento salón' } },
+  'binary_sensor.mov_cocina': { entity_id: 'binary_sensor.mov_cocina', state: 'off', attributes: { device_class: 'motion', friendly_name: 'Movimiento cocina' } },
+  'binary_sensor.mov_roto': { entity_id: 'binary_sensor.mov_roto', state: 'unavailable', attributes: { device_class: 'motion', friendly_name: 'Movimiento roto' } },
+  'binary_sensor.puerta': { entity_id: 'binary_sensor.puerta', state: 'off', attributes: { device_class: 'door', friendly_name: 'Puerta' } },
+  'sensor.temperatura': { entity_id: 'sensor.temperatura', state: '21', attributes: { friendly_name: 'Temperatura' } },
+};
+
 async function mount(config: Record<string, unknown>): Promise<{ el: Editor; last: () => Record<string, unknown> }> {
   await import('./index');
   const el = document.createElement('neon-alarm-card-editor') as Editor;
@@ -12,7 +20,7 @@ async function mount(config: Record<string, unknown>): Promise<{ el: Editor; las
   el.addEventListener('config-changed', (ev) => {
     latest = (ev as CustomEvent).detail.config;
   });
-  el.hass = { locale: { language: 'es' }, states: {} };
+  el.hass = { locale: { language: 'es' }, states: STATES };
   el.setConfig(config);
   document.body.appendChild(el);
   await el.updateComplete;
@@ -68,9 +76,9 @@ describe('NeonAlarmCardEditor', () => {
     expect('confirmation' in last()).toBe(false);
   });
 
-  it('los tipos de sensor: tres huecos en la grande, dos en la mediana y ninguno en la compacta', async () => {
+  it('los tipos de sensor: cuatro huecos en la grande, dos en la mediana y ninguno en la compacta', async () => {
     const count = async (size: string) => (await mount({ size })).el.shadowRoot!.querySelectorAll('.sensor-slot').length;
-    expect([await count('large'), await count('medium'), await count('compact')]).toEqual([3, 2, 0]);
+    expect([await count('large'), await count('medium'), await count('compact')]).toEqual([4, 2, 0]);
   });
 
   it('cada hueco ofrece los tipos de seguridad y las cerraduras, y escribe footer_sensors en orden', async () => {
@@ -120,5 +128,60 @@ describe('NeonAlarmCardEditor', () => {
       ['hold_action', 'more-info'],
       ['double_tap_action', 'none'],
     ]);
+  });
+
+  it('el check «solo sensores activos» está desactivado por defecto; al marcarlo se guarda y al desmarcarlo se quita', async () => {
+    const { el, last } = await mount({ footer_sensors: ['motion'] });
+    const check = q(el, 'ha-checkbox:not([data-entity])') as unknown as { checked: boolean; dispatchEvent(e: Event): boolean };
+    expect(check.checked).toBe(false);
+    check.checked = true;
+    check.dispatchEvent(new Event('change'));
+    expect(last().footer_only_active).toBe(true);
+    check.checked = false;
+    check.dispatchEvent(new Event('change'));
+    expect('footer_only_active' in last()).toBe(false);
+  });
+
+  it('la compacta, que no tiene pie, no ofrece «solo sensores activos» ni la lista de sensores', async () => {
+    const { el } = await mount({ size: 'compact', footer_sensors: ['motion'] });
+    expect(q(el, 'ha-checkbox')).toBeNull();
+    expect(q(el, '.sensor-checks')).toBeNull();
+  });
+
+  it('al elegir un tipo sale la lista de los sensores de ese tipo que hay en HA, con todos los del tipo y solo ellos', async () => {
+    const { el } = await mount({ footer_sensors: ['motion'] });
+    const checks = Array.from(el.shadowRoot!.querySelectorAll('ha-checkbox[data-entity]')) as unknown as Array<{ dataset: { entity: string } }>;
+    expect(checks.map((c) => c.dataset.entity)).toEqual(['binary_sensor.mov_cocina', 'binary_sensor.mov_roto', 'binary_sensor.mov_salon']);
+    expect(el.shadowRoot!.querySelector('.sensor-checks summary')!.textContent).toBe('Sensores de este tipo (3)');
+  });
+
+  it('un hueco sin tipo no muestra lista; un tipo sin sensores en HA avisa', async () => {
+    const empty = await mount({ footer_sensors: [] });
+    expect(q(empty.el, '.sensor-checks')).toBeNull();
+    const none = await mount({ footer_sensors: ['vibration'] });
+    expect(q(none.el, '.sensor-checks')!.textContent).toContain('No hay sensores de este tipo en Home Assistant.');
+  });
+
+  it('marcar un sensor lo añade a footer_excluded y desmarcarlo lo quita; sin ninguno se quita la clave', async () => {
+    const { el, last } = await mount({ footer_sensors: ['motion'] });
+    const check = (id: string) => q(el, `ha-checkbox[data-entity="${id}"]`) as unknown as { checked: boolean; dispatchEvent(e: Event): boolean };
+    const toggle = (id: string, value: boolean) => {
+      check(id).checked = value;
+      check(id).dispatchEvent(new Event('change'));
+    };
+    toggle('binary_sensor.mov_salon', true);
+    expect(last().footer_excluded).toEqual(['binary_sensor.mov_salon']);
+    toggle('binary_sensor.mov_cocina', true);
+    expect(last().footer_excluded).toEqual(['binary_sensor.mov_salon', 'binary_sensor.mov_cocina']);
+    toggle('binary_sensor.mov_salon', false);
+    expect(last().footer_excluded).toEqual(['binary_sensor.mov_cocina']);
+    toggle('binary_sensor.mov_cocina', false);
+    expect('footer_excluded' in last()).toBe(false);
+  });
+
+  it('los sensores ya excluidos por YAML salen marcados', async () => {
+    const { el } = await mount({ footer_sensors: ['motion'], footer_excluded: ['binary_sensor.mov_roto'] });
+    const checked = Array.from(el.shadowRoot!.querySelectorAll('ha-checkbox[data-entity]')) as unknown as Array<{ checked: boolean; dataset: { entity: string } }>;
+    expect(checked.filter((c) => c.checked).map((c) => c.dataset.entity)).toEqual(['binary_sensor.mov_roto']);
   });
 });

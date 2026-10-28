@@ -54,9 +54,21 @@ export interface NeonAlarmCardConfig {
    * Hasta tres tipos de sensor para el pie, en este orden. Cada uno es una
    * `device_class` de `binary_sensor` (`motion`, `door`, `window`,
    * `vibration`…) o `lock` para las cerraduras; la tarjeta cuenta todos los
-   * sensores de ese tipo que hay abiertos y, al pulsar el dato, los lista.
+   * sensores de ese tipo que hay abiertos (menos los de `footer_excluded`) y,
+   * al pulsar el dato, los lista. Hasta cuatro en la grande, dos en la mediana.
    */
   footer_sensors?: string[];
+  /**
+   * Con `true` el pie y la lista solo muestran lo que está activo: los tipos
+   * de sensor sin ningún sensor activo desaparecen del pie y la lista
+   * enseña solo los sensores activos. Desactivado por defecto.
+   */
+  footer_only_active?: boolean;
+  /**
+   * Entidades (`binary_sensor.*` o `lock.*`) que la tarjeta no cuenta ni
+   * lista, aunque sean del tipo elegido. El editor las marca con checks.
+   */
+  footer_excluded?: string[];
   /** Pide confirmación antes de armar o desarmar. Desactivado por defecto. */
   confirmation?: boolean;
   tap_action?: ActionConfig;

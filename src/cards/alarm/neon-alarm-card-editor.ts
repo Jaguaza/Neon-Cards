@@ -7,7 +7,7 @@ import type { SharedTranslations } from '../../shared';
 import { getInfoLabels, localize } from '../../core';
 import { FOOTER_MAX, SECURITY_SENSOR_TYPES } from './constants';
 import { DEFAULT_ALARM_SIZE, ALARM_SIZES, resolveAlarmSize } from './alarm-size';
-import { normalizeFooterTypes } from './alarm-sensors';
+import { allSensorsOfType, normalizeExcluded, normalizeFooterTypes } from './alarm-sensors';
 import { NEON_ALARM_EDITOR_STYLES } from './neon-alarm-card-editor.styles';
 import { ALARM_TRANSLATIONS } from './translations';
 import type { AlarmTranslations } from './translations';
@@ -145,7 +145,18 @@ export class NeonAlarmCardEditor extends LitElement {
         <div class="section-header">${this._t('section_sensors')}</div>
         <span class="data-hint">${this._t(hint)}</span>
         ${slots}
+        ${size === 'compact' ? nothing : this._renderOnlyActive()}
       </div>
+    `;
+  }
+
+  /** Check «mostrar solo los sensores activos» (desactivado por defecto). */
+  private _renderOnlyActive(): TemplateResult {
+    return html`
+      <ha-formfield label=${this._t('only_active_label')}>
+        <ha-checkbox .checked=${this._config?.footer_only_active === true} @change=${(ev: Event) => this._configChanged('footer_only_active', (ev.target as HTMLInputElement).checked ? true : undefined)}></ha-checkbox>
+      </ha-formfield>
+      <span class="data-hint">${this._t('only_active_hint')}</span>
     `;
   }
 
@@ -160,8 +171,38 @@ export class NeonAlarmCardEditor extends LitElement {
           ${known ? nothing : html`<option value=${current} selected>${current}</option>`}
           ${SECURITY_SENSOR_TYPES.map((type) => html`<option value=${type} ?selected=${type === current}>${this._t(`sensor_type_${type}` as keyof AlarmTranslations)}</option>`)}
         </select>
+        ${current === '' ? nothing : this._renderSensorChecks(current)}
       </div>
     `;
+  }
+
+  /**
+   * Los sensores de Home Assistant de este tipo, cada uno con un check: los
+   * marcados NO los muestra la tarjeta. Plegado para no alargar el editor.
+   */
+  private _renderSensorChecks(type: string): TemplateResult {
+    const sensors = allSensorsOfType(this.hass, type);
+    const excluded = normalizeExcluded(this._config?.footer_excluded);
+    const rows = sensors.map(
+      (sensor) => html`
+        <ha-formfield label=${sensor.name}>
+          <ha-checkbox data-entity=${sensor.entityId} .checked=${excluded.includes(sensor.entityId)} @change=${(ev: Event) => this._setExcluded(sensor.entityId, (ev.target as HTMLInputElement).checked)}></ha-checkbox>
+        </ha-formfield>
+      `
+    );
+    return html`
+      <details class="sensor-checks">
+        <summary>${`${this._t('excluded_summary')} (${sensors.length})`}</summary>
+        ${sensors.length ? html`<span class="data-hint">${this._t('excluded_hint')}</span><div class="sensor-checks-list">${rows}</div>` : html`<span class="data-hint">${this._t('excluded_none')}</span>`}
+      </details>
+    `;
+  }
+
+  /** Añade o quita una entidad de `footer_excluded`; sin ninguna se quita la clave. */
+  private _setExcluded(entityId: string, excluded: boolean): void {
+    const current = normalizeExcluded(this._config?.footer_excluded).filter((id) => id !== entityId);
+    const next = excluded ? [...current, entityId] : current;
+    this._configChanged('footer_excluded', next.length ? next : undefined);
   }
 
   /** Escribe el tipo de un hueco; los huecos vacíos se compactan y, sin ninguno, se quita la clave. */

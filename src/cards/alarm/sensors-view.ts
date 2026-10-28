@@ -25,11 +25,11 @@ function entryRow(ctx: ViewContext, type: string, entry: SensorEntry): TemplateR
  * hace scroll por dentro, así la tarjeta no crece sin límite en una casa con
  * muchos sensores.
  */
-export function renderSensorsView(ctx: ViewContext, sensor: FooterSensorView, typeLabel: string): TemplateResult {
+export function renderSensorsView(ctx: ViewContext, sensor: FooterSensorView, typeLabel: string, onlyActive = false): TemplateResult {
   const title = `${ctx.translate('sensors_title')} · ${typeLabel}`;
   const rows = sensor.entries.length
     ? html`<ul class="sensor-list">${sensor.entries.map((entry) => entryRow(ctx, sensor.type, entry))}</ul>`
-    : html`<p class="sensor-empty">${ctx.translate('sensors_empty')}</p>`;
+    : html`<p class="sensor-empty">${ctx.translate(onlyActive ? 'sensors_none_active' : 'sensors_empty')}</p>`;
   return viewDialog(
     'view view--sensors',
     title,
