@@ -116,9 +116,11 @@ El editor ofrece los tipos de seguridad habituales (`motion`, `occupancy`,
   sensores activos. Desactivado por defecto.
 - **`footer_excluded`** — lista de entidades (`binary_sensor.*` o `lock.*`)
   que la tarjeta no cuenta ni lista, aunque sean del tipo elegido. En el
-  editor, al elegir un tipo en un hueco sale desplegable «Sensores de este
-  tipo» con todos los que hay en Home Assistant, cada uno con un check: los
-  marcados **no** se muestran.
+  editor, al elegir un tipo en un hueco sale un desplegable «Ocultar sensores
+  concretos» con todos los que hay en Home Assistant, cada uno con un check:
+  los marcados **no** se muestran (y se etiquetan «oculto»). El título dice
+  cuántos están ocultos y los botones «Marcar todos» y «Desmarcar todos»
+  cambian de golpe todos los del tipo.
 
 La lista que se abre al pulsar un dato se coloca arriba, justo bajo el título,
 y hace scroll por dentro si hay muchos sensores.
@@ -258,9 +260,11 @@ The editor offers the usual security types (`motion`, `occupancy`, `presence`,
   sensors. Off by default.
 - **`footer_excluded`** — list of entities (`binary_sensor.*` or `lock.*`) the
   card neither counts nor lists, even if they are of the chosen type. In the
-  editor, choosing a type in a slot reveals a collapsible "Sensors of this
-  type" with all those in Home Assistant, each with a check: the ticked ones
-  are **not** shown.
+  editor, choosing a type in a slot reveals a collapsible "Hide specific
+  sensors" with all those in Home Assistant, each with a check: the ticked
+  ones are **not** shown (and are labeled "hidden"). The title says how many
+  are hidden and the "Tick all" and "Untick all" buttons change all the
+  sensors of the type at once.
 
 The list opened by tapping an item sits at the top, right under the title, and
 scrolls inside if there are many sensors.
