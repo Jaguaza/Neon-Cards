@@ -13,14 +13,14 @@ const STATES = {
   'sensor.temperatura': { entity_id: 'sensor.temperatura', state: '21', attributes: { friendly_name: 'Temperatura' } },
 };
 
-async function mount(config: Record<string, unknown>): Promise<{ el: Editor; last: () => Record<string, unknown> }> {
+async function mount(config: Record<string, unknown>, language = 'es'): Promise<{ el: Editor; last: () => Record<string, unknown> }> {
   await import('./index');
   const el = document.createElement('neon-alarm-card-editor') as Editor;
   let latest: Record<string, unknown> = config;
   el.addEventListener('config-changed', (ev) => {
     latest = (ev as CustomEvent).detail.config;
   });
-  el.hass = { locale: { language: 'es' }, states: STATES };
+  el.hass = { locale: { language }, states: STATES };
   el.setConfig(config);
   document.body.appendChild(el);
   await el.updateComplete;
@@ -152,7 +152,7 @@ describe('NeonAlarmCardEditor', () => {
     const { el } = await mount({ footer_sensors: ['motion'] });
     const checks = Array.from(el.shadowRoot!.querySelectorAll('ha-checkbox[data-entity]')) as unknown as Array<{ dataset: { entity: string } }>;
     expect(checks.map((c) => c.dataset.entity)).toEqual(['binary_sensor.mov_cocina', 'binary_sensor.mov_roto', 'binary_sensor.mov_salon']);
-    expect(el.shadowRoot!.querySelector('.sensor-checks summary')!.textContent).toBe('Sensores de este tipo (3)');
+    expect(el.shadowRoot!.querySelector('.sensor-checks summary')!.textContent).toBe('Ocultar sensores concretos · 0 de 3 ocultos');
   });
 
   it('un hueco sin tipo no muestra lista; un tipo sin sensores en HA avisa', async () => {
@@ -183,5 +183,60 @@ describe('NeonAlarmCardEditor', () => {
     const { el } = await mount({ footer_sensors: ['motion'], footer_excluded: ['binary_sensor.mov_roto'] });
     const checked = Array.from(el.shadowRoot!.querySelectorAll('ha-checkbox[data-entity]')) as unknown as Array<{ checked: boolean; dataset: { entity: string } }>;
     expect(checked.filter((c) => c.checked).map((c) => c.dataset.entity)).toEqual(['binary_sensor.mov_roto']);
+  });
+
+  it('los textos explican qué hace cada opción: la lista de sensores avisa de que marcar OCULTA', async () => {
+    const { el } = await mount({ footer_sensors: ['motion'] });
+    const text = el.shadowRoot!.textContent!;
+    expect(text).toContain('Marca un sensor para OCULTARLO');
+    expect(text).toContain('Los que dejes sin marcar se siguen viendo');
+    expect(text).toContain('Elige qué tipos de sensor enseña el pie');
+    const labels = Array.from(el.shadowRoot!.querySelectorAll('ha-formfield')).map((f) => f.getAttribute('label'));
+    expect(labels).toContain('Mostrar solo los sensores activos');
+    expect(labels).toContain('Pedir confirmación antes de armar o desarmar');
+    expect(text).toContain('esconde los que están en reposo');
+    expect(text).toContain('Tipo de sensor 1');
+    expect(text).toContain('Si lo dejas vacío, la tarjeta usa el nombre de la propia alarma');
+  });
+
+  it('los mismos textos explicativos existen en inglés', async () => {
+    const { el } = await mount({ footer_sensors: ['motion'] }, 'en');
+    const text = el.shadowRoot!.textContent!;
+    expect(text).toContain('Hide specific sensors');
+    expect(text).toContain('Tick a sensor to HIDE it');
+    expect(text).toContain('Tick all');
+    expect(text).toContain('Untick all');
+    expect(text).toContain('0 of 3 hidden');
+  });
+
+  it('un sensor marcado se etiqueta como oculto y el título cuenta cuántos hay ocultos', async () => {
+    const { el } = await mount({ footer_sensors: ['motion'], footer_excluded: ['binary_sensor.mov_salon'] });
+    const labels = Array.from(el.shadowRoot!.querySelectorAll('.sensor-checks-list ha-formfield')).map((f) => f.getAttribute('label'));
+    expect(labels).toEqual(['Movimiento cocina', 'Movimiento roto', 'Movimiento salón (oculto)']);
+    expect(el.shadowRoot!.querySelector('.sensor-checks summary')!.textContent).toBe('Ocultar sensores concretos · 1 de 3 ocultos');
+  });
+
+  const bulk = (el: Editor, name: 'mark' | 'clear') => q(el, `.bulk-btn[data-bulk="${name}"]`) as HTMLButtonElement;
+
+  it('«Marcar todos» oculta de golpe todos los sensores del tipo sin tocar los de otros tipos', async () => {
+    const { el, last } = await mount({ footer_sensors: ['motion', 'door'], footer_excluded: ['binary_sensor.puerta'] });
+    const motion = (el.shadowRoot!.querySelectorAll('.bulk-btn[data-bulk="mark"]')[0]) as HTMLButtonElement;
+    motion.click();
+    expect(last().footer_excluded).toEqual(['binary_sensor.puerta', 'binary_sensor.mov_cocina', 'binary_sensor.mov_roto', 'binary_sensor.mov_salon']);
+  });
+
+  it('«Desmarcar todos» vuelve a mostrar todos los del tipo; sin ninguno oculto se quita la clave', async () => {
+    const { el, last } = await mount({ footer_sensors: ['motion'], footer_excluded: ['binary_sensor.mov_salon', 'binary_sensor.mov_cocina'] });
+    bulk(el, 'clear').click();
+    expect('footer_excluded' in last()).toBe(false);
+  });
+
+  it('los botones se desactivan cuando no tienen nada que hacer', async () => {
+    const none = await mount({ footer_sensors: ['motion'] });
+    expect(bulk(none.el, 'clear').disabled).toBe(true);
+    expect(bulk(none.el, 'mark').disabled).toBe(false);
+    const all = await mount({ footer_sensors: ['motion'], footer_excluded: ['binary_sensor.mov_salon', 'binary_sensor.mov_cocina', 'binary_sensor.mov_roto'] });
+    expect(bulk(all.el, 'mark').disabled).toBe(true);
+    expect(bulk(all.el, 'clear').disabled).toBe(false);
   });
 });

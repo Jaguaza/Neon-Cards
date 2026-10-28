@@ -8,6 +8,7 @@ import { getInfoLabels, localize } from '../../core';
 import { FOOTER_MAX, SECURITY_SENSOR_TYPES } from './constants';
 import { DEFAULT_ALARM_SIZE, ALARM_SIZES, resolveAlarmSize } from './alarm-size';
 import { allSensorsOfType, normalizeExcluded, normalizeFooterTypes } from './alarm-sensors';
+import type { SensorEntry } from './alarm-sensors';
 import { NEON_ALARM_EDITOR_STYLES } from './neon-alarm-card-editor.styles';
 import { ALARM_TRANSLATIONS } from './translations';
 import type { AlarmTranslations } from './translations';
@@ -78,8 +79,10 @@ export class NeonAlarmCardEditor extends LitElement {
           allow-custom-entity
           @value-changed=${(ev: ValueChangedEvent) => this._configChanged('entity', ev.detail.value)}
         ></ha-entity-picker>
+        <span class="data-hint">${this._t('entity_hint')}</span>
         <label class="native-select-label" for="name">${this._t('name_label')}</label>
         <input id="name" type="text" class="native-input" .value=${config.name || ''} @input=${(ev: InputEvent) => this._configChanged('name', (ev.target as HTMLInputElement).value)} />
+        <span class="data-hint">${this._t('name_hint')}</span>
         <label class="native-select-label" for="size">${this._t('size_label')}</label>
         <select
           id="size"
@@ -178,24 +181,48 @@ export class NeonAlarmCardEditor extends LitElement {
 
   /**
    * Los sensores de Home Assistant de este tipo, cada uno con un check: los
-   * marcados NO los muestra la tarjeta. Plegado para no alargar el editor.
+   * marcados NO los muestra la tarjeta. Plegado para no alargar el editor; el
+   * título dice cuántos están ocultos y hay botones para marcar o desmarcar
+   * todos de golpe.
    */
   private _renderSensorChecks(type: string): TemplateResult {
     const sensors = allSensorsOfType(this.hass, type);
     const excluded = normalizeExcluded(this._config?.footer_excluded);
-    const rows = sensors.map(
-      (sensor) => html`
-        <ha-formfield label=${sensor.name}>
-          <ha-checkbox data-entity=${sensor.entityId} .checked=${excluded.includes(sensor.entityId)} @change=${(ev: Event) => this._setExcluded(sensor.entityId, (ev.target as HTMLInputElement).checked)}></ha-checkbox>
-        </ha-formfield>
-      `
-    );
+    const hidden = sensors.filter((sensor) => excluded.includes(sensor.entityId)).length;
     return html`
       <details class="sensor-checks">
-        <summary>${`${this._t('excluded_summary')} (${sensors.length})`}</summary>
-        ${sensors.length ? html`<span class="data-hint">${this._t('excluded_hint')}</span><div class="sensor-checks-list">${rows}</div>` : html`<span class="data-hint">${this._t('excluded_none')}</span>`}
+        <summary>${`${this._t('excluded_summary')} · ${this._t('excluded_count').replace('{hidden}', String(hidden)).replace('{total}', String(sensors.length))}`}</summary>
+        ${sensors.length ? this._renderSensorList(type, sensors, excluded, hidden) : html`<span class="data-hint">${this._t('excluded_none')}</span>`}
       </details>
     `;
+  }
+
+  private _renderSensorList(type: string, sensors: SensorEntry[], excluded: string[], hidden: number): TemplateResult {
+    const suffix = this._t('sensor_hidden_suffix');
+    const rows = sensors.map((sensor) => {
+      const isHidden = excluded.includes(sensor.entityId);
+      return html`
+        <ha-formfield label=${isHidden ? `${sensor.name} (${suffix})` : sensor.name}>
+          <ha-checkbox data-entity=${sensor.entityId} .checked=${isHidden} @change=${(ev: Event) => this._setExcluded(sensor.entityId, (ev.target as HTMLInputElement).checked)}></ha-checkbox>
+        </ha-formfield>
+      `;
+    });
+    return html`
+      <span class="data-hint">${this._t('excluded_hint')}</span>
+      <div class="bulk-actions">
+        <button type="button" class="bulk-btn" data-bulk="mark" ?disabled=${hidden === sensors.length} @click=${() => this._setAllExcluded(sensors, true)}>${this._t('excluded_mark_all')}</button>
+        <button type="button" class="bulk-btn" data-bulk="clear" ?disabled=${hidden === 0} @click=${() => this._setAllExcluded(sensors, false)}>${this._t('excluded_clear_all')}</button>
+      </div>
+      <div class="sensor-checks-list" data-type=${type}>${rows}</div>
+    `;
+  }
+
+  /** Marca o desmarca de una vez todos los sensores de la lista (los de otros tipos no se tocan). */
+  private _setAllExcluded(sensors: SensorEntry[], excluded: boolean): void {
+    const ids = sensors.map((sensor) => sensor.entityId);
+    const current = normalizeExcluded(this._config?.footer_excluded);
+    const next = excluded ? [...new Set([...current, ...ids])] : current.filter((id) => !ids.includes(id));
+    this._configChanged('footer_excluded', next.length ? next : undefined);
   }
 
   /** Añade o quita una entidad de `footer_excluded`; sin ninguna se quita la clave. */

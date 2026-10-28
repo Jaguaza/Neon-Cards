@@ -88,4 +88,10 @@ export interface AlarmTranslations {
   excluded_summary: string;
   excluded_hint: string;
   excluded_none: string;
+  excluded_count: string;
+  excluded_mark_all: string;
+  excluded_clear_all: string;
+  sensor_hidden_suffix: string;
+  entity_hint: string;
+  name_hint: string;
 }

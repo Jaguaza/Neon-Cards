@@ -22,6 +22,30 @@ export const NEON_ALARM_EDITOR_STYLES = css`
     padding: 4px 0;
     color: var(--secondary-text-color);
   }
+  .bulk-actions {
+    display: flex;
+    gap: 8px;
+    margin: 4px 0;
+  }
+  .bulk-btn {
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--divider-color);
+    background: transparent;
+    color: var(--primary-color);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .bulk-btn:hover:not(:disabled),
+  .bulk-btn:focus-visible {
+    background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+    outline: none;
+  }
+  .bulk-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
   .sensor-checks-list {
     display: flex;
     flex-direction: column;
