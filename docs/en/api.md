@@ -24,6 +24,7 @@ See also the [Spanish version](../es/api.md).
   - [Palette (`neon-palette.ts`)](#palette-neon-palettets)
   - [Icon halo (`glow.ts`)](#icon-halo-glowts)
   - [Split ring (`glow.ts`)](#split-ring-glowts)
+  - [Validated CSS colors (`css-color.ts`)](#validated-css-colors-css-colorts)
   - [Ring size (`ring-size.ts`)](#ring-size-ring-sizets)
   - [Editor: shared shell (`editor-form.styles.ts`)](#editor-shared-shell-editor-formstylests)
   - [Shared translations (`translations/`)](#shared-translations-translations)
@@ -761,6 +762,34 @@ attribute doesn't support `%` or `calc()`).
 styles`, puts the `neon-ring-host` class on the container, and
 `neon-halo-active` when the state is active (shared class with
 `NEON_HALO_STYLES`).
+
+---
+
+### Validated CSS colors (`css-color.ts`)
+
+A card's config comes from YAML and colors end up in a `style` attribute:
+before writing them you must check they are colors and nothing else. Used by
+the Lock Card and the Alarm Card.
+
+#### `isCssColor(value)`
+
+- **Description:** is `value` a color that can be written as-is in a style?
+  It passes the whitelist (hex, `rgb()`/`hsl()`, a color name or `var(--x)`,
+  without `;`, braces or quotes, so it cannot sneak in other properties)
+  and, where the browser can check it, `CSS.supports('color', …)`.
+- **Parameters:** `value: unknown`.
+- **Returns:** `value is string` — `true` if it is a valid color (surrounding
+  spaces are accepted; callers must `trim()` it).
+- **Example:** `isCssColor('#39e07a')` → `true`; `isCssColor('red; x:y')` → `false`.
+
+#### `toHex6(color)`
+
+- **Description:** turns `#rgb` or `#rrggbb` into lowercase `#rrggbb`, the only
+  format the editor's `<input type="color">` accepts.
+- **Parameters:** `color: string`.
+- **Returns:** `string | undefined` — `undefined` if it is not 3- or 6-digit
+  hex (for example `rgb(…)` or a name).
+- **Example:** `toHex6('#abc')` → `'#aabbcc'`.
 
 ---
 

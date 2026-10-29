@@ -24,6 +24,7 @@ Ver también la versión en [inglés](../en/api.md).
   - [Paleta (`neon-palette.ts`)](#paleta-neon-palettets)
   - [Halo de icono (`glow.ts`)](#halo-de-icono-glowts)
   - [Aro partido (`glow.ts`)](#aro-partido-glowts)
+  - [Colores CSS validados (`css-color.ts`)](#colores-css-validados-css-colorts)
   - [Tamaño del aro (`ring-size.ts`)](#tamaño-del-aro-ring-sizets)
   - [Editor: carcasa común (`editor-form.styles.ts`)](#editor-carcasa-común-editor-formstylests)
   - [Traducciones compartidas (`translations/`)](#traducciones-compartidas-translations)
@@ -763,6 +764,34 @@ coordenadas en unidades reales (el atributo `d` no admite `%` ni
 `static styles`, pone la clase `neon-ring-host` en el contenedor y
 `neon-halo-active` cuando el estado es activo (comparte la clase con
 `NEON_HALO_STYLES`).
+
+---
+
+### Colores CSS validados (`css-color.ts`)
+
+La config de una tarjeta viene de YAML y los colores acaban en un atributo
+`style`: antes de escribirlos hay que comprobar que son colores y no otra
+cosa. Lo usan la Lock Card y la Alarm Card.
+
+#### `isCssColor(value)`
+
+- **Descripción:** ¿es `value` un color que se puede escribir tal cual en un
+  estilo? Pasa la lista blanca (hex, `rgb()`/`hsl()`, un nombre de color o
+  `var(--x)`, sin `;`, llaves ni comillas, así que no puede colar otras
+  propiedades) y, donde el navegador lo sabe comprobar, `CSS.supports('color', …)`.
+- **Parámetros:** `value: unknown`.
+- **Devuelve:** `value is string` — `true` si es un color válido (se acepta
+  con espacios alrededor; quien lo use debe recortarlo con `trim()`).
+- **Ejemplo:** `isCssColor('#39e07a')` → `true`; `isCssColor('red; x:y')` → `false`.
+
+#### `toHex6(color)`
+
+- **Descripción:** pasa `#rgb` o `#rrggbb` a `#rrggbb` en minúsculas, que es lo
+  único que acepta `<input type="color">` del editor.
+- **Parámetros:** `color: string`.
+- **Devuelve:** `string | undefined` — `undefined` si no es hexadecimal de 3 o 6
+  cifras (por ejemplo `rgb(…)` o un nombre).
+- **Ejemplo:** `toHex6('#abc')` → `'#aabbcc'`.
 
 ---
 
