@@ -69,8 +69,6 @@ export interface NeonAlarmCardConfig {
    * lista, aunque sean del tipo elegido. El editor las marca con checks.
    */
   footer_excluded?: string[];
-  /** Pide confirmación antes de armar o desarmar. Desactivado por defecto. */
-  confirmation?: boolean;
   /**
    * Color del punto de estado de cada situación (hex, `rgb()`/`hsl()`, nombre
    * o `var(--x)`): desarmada, cada modo armado, transición (pendiente,

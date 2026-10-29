@@ -60,7 +60,7 @@ export class NeonAlarmCardEditor extends LitElement {
     if (!this.hass || !this._config) return nothing;
     return html`
       <div class="editor-container">
-        ${this._renderMainSection()} ${this._renderBehaviorSection()} ${this._renderSensorsSection()} ${this._renderColorsSection()} ${this._renderHaloSection()} ${this._renderActionsSection()}
+        ${this._renderMainSection()} ${this._renderSensorsSection()} ${this._renderColorsSection()} ${this._renderHaloSection()} ${this._renderActionsSection()}
       </div>
     `;
   }
@@ -123,18 +123,6 @@ export class NeonAlarmCardEditor extends LitElement {
       ${current === 'custom'
         ? html`<input id="subtitle" type="text" class="native-input" placeholder=${this._t('subtitle_placeholder')} .value=${config.subtitle || ''} @input=${(ev: InputEvent) => this._configChanged('subtitle', (ev.target as HTMLInputElement).value)} />`
         : nothing}
-    `;
-  }
-
-  private _renderBehaviorSection(): TemplateResult {
-    return html`
-      <div class="editor-section">
-        <div class="section-header">${this._t('section_behavior')}</div>
-        <ha-formfield label=${this._t('confirmation_label')}>
-          <ha-switch .checked=${this._config?.confirmation === true} @change=${(ev: Event) => this._configChanged('confirmation', (ev.target as HTMLInputElement).checked ? true : undefined)}></ha-switch>
-        </ha-formfield>
-        <span class="data-hint">${this._t('confirmation_hint')}</span>
-      </div>
     `;
   }
 

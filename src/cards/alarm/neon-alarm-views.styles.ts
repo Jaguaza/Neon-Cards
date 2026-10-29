@@ -2,7 +2,7 @@ import { css } from 'lit';
 
 /**
  * Estilos de las vistas que ocupan el sitio del contenido (modos,
- * confirmación, teclado y lista de sensores). Mientras hay una abierta, la
+ * teclado y lista de sensores). Mientras hay una abierta, la
  * vista y el contenido comparten la misma celda de una rejilla: la tarjeta
  * mide lo mayor de las dos y crece en vez de cortar los botones.
  */

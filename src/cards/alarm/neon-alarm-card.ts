@@ -11,7 +11,7 @@ import { resolveAlarmSize } from './alarm-size';
 import { footerSensorView, normalizeExcluded, normalizeFooterTypes, visibleFooterViews } from './alarm-sensors';
 import type { FooterOptions, FooterSensorView } from './alarm-sensors';
 import { renderFooterSensor } from './footer-view';
-import { renderConfirmView, renderModesView } from './flow-views';
+import { renderModesView } from './flow-views';
 import type { ViewContext } from './flow-views';
 import { renderKeypadView } from './keypad-view';
 import { renderSensorsView } from './sensors-view';
@@ -52,7 +52,6 @@ export class NeonAlarmCard extends BaseNeonCard {
   private _pendingUntil = 0;
   private _pendingTimer?: ReturnType<typeof setTimeout>;
   private _lastSeen?: { entity: string | undefined; state: AlarmVisualState };
-  private _focusedView?: string;
 
   static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_SHIELD_ICON_STYLES, NEON_ALARM_CARD_STYLES, NEON_ALARM_SIZE_STYLES, NEON_ALARM_VIEWS_STYLES];
 
@@ -155,16 +154,11 @@ export class NeonAlarmCard extends BaseNeonCard {
     const state = resolveAlarmState(this._config, this.hass);
     const choices = commandChoices(state, this._stateObj?.attributes);
     if (choices.length > 1) this._flow.open({ kind: 'modes', choices });
-    else if (choices.length === 1) this._begin(choices[0], true);
+    else if (choices.length === 1) this._proceed(choices[0]);
   }
 
-  /** Confirmación (si está activada y la orden no salió de elegir un modo) y, después, código. */
-  private _begin(command: AlarmCommand, askConfirm: boolean): void {
-    if (askConfirm && this._config?.confirmation) this._flow.open({ kind: 'confirm', command });
-    else this._afterConfirm(command);
-  }
-
-  private _afterConfirm(command: AlarmCommand): void {
+  /** Pide el código si la orden lo necesita y, si no, la lanza directamente. */
+  private _proceed(command: AlarmCommand): void {
     const attributes = this._stateObj?.attributes;
     const format = codeFormat(attributes);
     if (format && commandNeedsCode(command, attributes)) this._flow.open({ kind: 'keypad', command, format });
@@ -266,13 +260,12 @@ export class NeonAlarmCard extends BaseNeonCard {
     return { name: this._name, compact, translate: (key) => this._t(key), onCancel: () => this._flow.close() };
   }
 
-  /** La vista abierta (modos, confirmación, teclado o lista de sensores). */
+  /** La vista abierta (modos, teclado o lista de sensores). */
   private _renderView(compact: boolean): TemplateResult | typeof nothing {
     const view = this._flow.view;
     if (!view || !this._flow.shown) return nothing;
     const ctx = this._viewContext(compact);
-    if (view.kind === 'modes') return renderModesView(ctx, view.choices, (command) => this._begin(command, false));
-    if (view.kind === 'confirm') return renderConfirmView(ctx, view.command, () => this._afterConfirm(view.command));
+    if (view.kind === 'modes') return renderModesView(ctx, view.choices, (command) => this._proceed(command));
     if (view.kind === 'sensors') {
       const options = this._footerOptions();
       return renderSensorsView(ctx, footerSensorView(this.hass, view.type, options), this._sensorTypeLabel(view.type), options.onlyActive);
@@ -344,14 +337,6 @@ export class NeonAlarmCard extends BaseNeonCard {
   private _schedulePendingEnd(ms: number): void {
     clearTimeout(this._pendingTimer);
     this._pendingTimer = setTimeout(() => this.requestUpdate(), ms);
-  }
-
-  /** Al abrirse una vista de confirmación el foco va a «Cancelar»: Intro o Espacio no arman ni desarman por accidente. */
-  protected updated(changed: PropertyValues): void {
-    super.updated(changed);
-    const kind = this._flow.shown ? this._flow.view?.kind : undefined;
-    if (kind === 'confirm' && this._focusedView !== 'confirm') this.renderRoot.querySelector<HTMLElement>('.view .cancel')?.focus();
-    this._focusedView = kind;
   }
 
   connectedCallback(): void {

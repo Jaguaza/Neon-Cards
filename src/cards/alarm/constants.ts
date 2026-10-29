@@ -45,7 +45,7 @@ export const COMMAND_SERVICES = {
   armed_custom_bypass: 'alarm_arm_custom_bypass',
 } as const;
 
-/** Iconos `mdi` de cada orden (los botones de la selección de modo y la confirmación compacta). */
+/** Iconos `mdi` de cada orden (los botones de la selección de modo en la tarjeta compacta). */
 export const COMMAND_ICONS = {
   disarm: 'mdi:shield-off',
   armed_home: 'mdi:shield-home',
@@ -110,7 +110,7 @@ export const ERROR_ICON = 'mdi:close';
  */
 export const ACTION_PENDING_MS = 6000;
 
-/** Tiempo (ms) sin actividad tras el que una vista (modo, teclado, confirmación, lista) se cierra sola. */
+/** Tiempo (ms) sin actividad tras el que una vista (modo, teclado, lista) se cierra sola. */
 export const VIEW_TIMEOUT_MS = 30000;
 
 /**

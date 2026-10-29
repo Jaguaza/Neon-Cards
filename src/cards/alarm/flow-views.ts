@@ -49,7 +49,7 @@ export function viewButton(role: string, label: string, icon: string, compact: b
 
 /** Botón redondo de ✕ (cancelar) que lleva todas las vistas. */
 export function cancelButton(ctx: ViewContext): TemplateResult {
-  const label = ctx.translate('confirm_cancel');
+  const label = ctx.translate('view_cancel');
   return html`<button type="button" class="view-btn cancel icon-only" aria-label=${label} title=${label} @click=${ctx.onCancel}><ha-icon icon="mdi:close"></ha-icon></button>`;
 }
 
@@ -64,21 +64,6 @@ export function renderModesView(ctx: ViewContext, choices: AlarmCommand[], onPic
     html`
       ${ctx.compact ? nothing : html`<div class="view-text"><span class="view-title">${title}</span><span class="view-name">${ctx.name}</span></div>`}
       <div class="view-actions">${cancelButton(ctx)}${buttons}</div>
-    `
-  );
-}
-
-/** Confirmación de armar o desarmar. */
-export function renderConfirmView(ctx: ViewContext, command: AlarmCommand, onAccept: () => void): TemplateResult {
-  const title = ctx.translate(command === 'disarm' ? 'confirm_title_disarm' : 'confirm_title_arm');
-  const accept = viewButton('accept', ctx.translate('confirm_accept'), COMMAND_ICONS[command], ctx.compact, onAccept, command);
-  return viewDialog(
-    'view view--confirm',
-    title,
-    ctx.onCancel,
-    html`
-      ${ctx.compact ? nothing : html`<div class="view-text"><span class="view-title">${title}</span><span class="view-name">${ctx.name}</span></div>`}
-      <div class="view-actions">${cancelButton(ctx)}${accept}</div>
     `
   );
 }

@@ -24,10 +24,7 @@ export interface AlarmTranslations {
   command_armed_night: string;
   command_armed_vacation: string;
   command_armed_custom_bypass: string;
-  confirm_title_arm: string;
-  confirm_title_disarm: string;
-  confirm_accept: string;
-  confirm_cancel: string;
+  view_cancel: string;
   code_title: string;
   code_error: string;
   code_accept: string;
@@ -74,9 +71,6 @@ export interface AlarmTranslations {
   subtitle_placeholder: string;
   section_halo: string;
   palette_label: string;
-  section_behavior: string;
-  confirmation_label: string;
-  confirmation_hint: string;
   section_sensors: string;
   sensors_hint: string;
   sensors_hint_medium: string;

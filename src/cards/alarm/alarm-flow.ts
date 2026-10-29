@@ -4,12 +4,11 @@ import type { AlarmCommand } from './types';
 /** Vista que cuelga sobre el contenido de la tarjeta mientras se pide algo al usuario. */
 export type AlarmView =
   | { kind: 'modes'; choices: AlarmCommand[] }
-  | { kind: 'confirm'; command: AlarmCommand }
   | { kind: 'keypad'; command: AlarmCommand; format: 'number' | 'text' }
   | { kind: 'sensors'; type: string };
 
 /**
- * Estado de la vista abierta (modos, confirmación, teclado o lista de
+ * Estado de la vista abierta (modos, teclado o lista de
  * sensores): cuál es, el código escrito, y los temporizadores que la
  * muestran con un pequeño retardo (para que el halo arranque limpio) y la
  * cierran sola si nadie la toca. No sabe nada de Home Assistant: la tarjeta

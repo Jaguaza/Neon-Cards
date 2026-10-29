@@ -64,18 +64,6 @@ describe('NeonAlarmCardEditor', () => {
     expect(q(medium.el, '#subtitle-type')).toBeNull();
   });
 
-  it('la confirmación está desactivada por defecto; al activarla se guarda y al desactivarla se quita', async () => {
-    const { el, last } = await mount({ entity: 'alarm_control_panel.casa' });
-    const toggle = q(el, 'ha-switch') as unknown as { checked: boolean; dispatchEvent(e: Event): boolean };
-    expect(toggle.checked).toBe(false);
-    toggle.checked = true;
-    toggle.dispatchEvent(new Event('change'));
-    expect(last().confirmation).toBe(true);
-    toggle.checked = false;
-    toggle.dispatchEvent(new Event('change'));
-    expect('confirmation' in last()).toBe(false);
-  });
-
   it('los tipos de sensor: cuatro huecos en la grande, dos en la mediana y ninguno en la compacta', async () => {
     const count = async (size: string) => (await mount({ size })).el.shadowRoot!.querySelectorAll('.sensor-slot').length;
     expect([await count('large'), await count('medium'), await count('compact')]).toEqual([4, 2, 0]);
@@ -193,7 +181,6 @@ describe('NeonAlarmCardEditor', () => {
     expect(text).toContain('Elige qué tipos de sensor enseña el pie');
     const labels = Array.from(el.shadowRoot!.querySelectorAll('ha-formfield')).map((f) => f.getAttribute('label'));
     expect(labels).toContain('Mostrar solo los sensores activos');
-    expect(labels).toContain('Pedir confirmación antes de armar o desarmar');
     expect(text).toContain('esconde los que están en reposo');
     expect(text).toContain('Tipo de sensor 1');
     expect(text).toContain('Si lo dejas vacío, la tarjeta usa el nombre de la propia alarma');

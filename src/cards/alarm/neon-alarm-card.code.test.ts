@@ -92,16 +92,6 @@ describe('teclado numérico', () => {
     expect(title(disarm)).toBe('Introduce el código');
   });
 
-  it('con confirmation, el teclado sale después de aceptar la confirmación', async () => {
-    const el = await mount({ confirmation: true }, hassWith('armed_home', { attributes: numeric }));
-    await tap(el);
-    expect(title(el)).toBe('¿Desarmar?');
-    el.shadowRoot!.querySelector<HTMLButtonElement>('.view .accept')!.click();
-    vi.advanceTimersByTime(VIEW_REVEAL_MS);
-    await el.updateComplete;
-    expect(title(el)).toBe('Introduce el código');
-  });
-
   it('un código rechazado por HA lo avisa, vacía lo escrito y deja la vista abierta para reintentar', async () => {
     const calls: unknown[][] = [];
     const el = await mount({}, hassWith('armed_home', { calls, attributes: numeric, reject: new Error('Invalid alarm code provided') }));

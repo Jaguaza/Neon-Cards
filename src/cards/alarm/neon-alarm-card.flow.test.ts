@@ -141,48 +141,32 @@ describe('desarmar', () => {
   });
 });
 
-describe('confirmación (opción confirmation)', () => {
-  it('desactivada por defecto: desarmar no pregunta', async () => {
-    const el = await mount({}, hassWith('armed_home'));
-    await tap(el);
+describe('sin confirmación', () => {
+  it('pulsar arma o desarma directamente: no hay vista de «¿Armar?» / «¿Desarmar?»', async () => {
+    const calls: unknown[][] = [];
+    const el = await mount({}, hassWith('armed_home', { calls }));
+    click(el);
+    await flush(el);
     expect(view(el)).toBeNull();
+    expect(calls.map((c) => c[1])).toEqual(['alarm_disarm']);
   });
 
-  it('activada: pregunta antes de desarmar, con el foco en «Cancelar», y no lanza nada hasta aceptar', async () => {
+  it('una config antigua con `confirmation: true` se ignora: no pregunta y no falla', async () => {
     const calls: unknown[][] = [];
     const el = await mount({ confirmation: true }, hassWith('armed_home', { calls }));
-    await tap(el);
-    expect(title(el)).toBe('¿Desarmar?');
-    expect(calls).toEqual([]);
-    expect(el.shadowRoot!.activeElement?.classList.contains('cancel')).toBe(true);
-    el.shadowRoot!.querySelector<HTMLButtonElement>('.view .accept')!.click();
+    click(el);
     await flush(el);
-    expect(calls).toEqual([['alarm_control_panel', 'alarm_disarm', { entity_id: 'alarm_control_panel.casa' }]]);
-  });
-
-  it('activada y con un solo modo: pregunta «¿Armar?» antes de armar', async () => {
-    const el = await mount({ confirmation: true }, hassWith('disarmed', { attributes: { supported_features: 1 } }));
-    await tap(el);
-    expect(title(el)).toBe('¿Armar?');
-  });
-
-  it('elegir un modo ya es una decisión: no vuelve a preguntar', async () => {
-    const calls: unknown[][] = [];
-    const el = await mount({ confirmation: true }, hassWith('disarmed', { calls }));
-    await tap(el);
-    viewButtons(el)[0].click();
-    await flush(el);
-    expect(calls.length).toBe(1);
-  });
-
-  it('cancelar no lanza nada', async () => {
-    const calls: unknown[][] = [];
-    const el = await mount({ confirmation: true }, hassWith('armed_home', { calls }));
-    await tap(el);
-    el.shadowRoot!.querySelector<HTMLButtonElement>('.view .cancel')!.click();
-    await flush(el);
-    expect(calls).toEqual([]);
     expect(view(el)).toBeNull();
+    expect(calls.map((c) => c[1])).toEqual(['alarm_disarm']);
+  });
+
+  it('con un solo modo soportado arma directo aunque haya `confirmation: true` heredado', async () => {
+    const calls: unknown[][] = [];
+    const el = await mount({ confirmation: true }, hassWith('disarmed', { calls, attributes: { supported_features: 1 } }));
+    click(el);
+    await flush(el);
+    expect(view(el)).toBeNull();
+    expect(calls.map((c) => c[1])).toEqual(['alarm_arm_home']);
   });
 });
 
