@@ -10,5 +10,6 @@ export {
   neonRingSplitPaths,
   neonRingSplitTemplate,
 } from './glow';
+export { isCssColor, toHex6 } from './css-color';
 export { RingSizeController } from './ring-size';
 export type { RingSize } from './ring-size';

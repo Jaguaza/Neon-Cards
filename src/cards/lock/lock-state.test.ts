@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { displayState, doorSensorOpen, isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, isOpeningAction, lockChoices, lockSupportsOpen, resolveLockState, isCssColor, statusColorGroup, statusDotColor } from './lock-state';
+import { displayState, doorSensorOpen, isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, isOpeningAction, lockChoices, lockSupportsOpen, resolveLockState, statusColorGroup, statusDotColor } from './lock-state';
 import type { LockVisualState } from './types';
 import { HA_LOCK_STATES } from './constants';
 import type { HomeAssistant } from '../../ha/types';
@@ -199,19 +199,6 @@ describe('statusColorGroup', () => {
     expect(['locked', 'locking'].map((s) => statusColorGroup(s as never))).toEqual(['closed', 'closed']);
     expect(['unlocked', 'unlocking', 'open', 'opening'].map((s) => statusColorGroup(s as never))).toEqual(['open', 'open', 'open', 'open']);
     expect(['jammed', 'error'].map((s) => statusColorGroup(s as never))).toEqual(['alert', 'alert']);
-  });
-});
-
-describe('isCssColor', () => {
-  it('acepta hex, rgb/hsl, nombres y var(--x)', () => {
-    for (const ok of ['#fff', '#39e07a', '#39e07a80', 'rgb(255, 0, 0)', 'rgba(255,0,0,.5)', 'hsl(120 50% 50%)', 'orange', 'var(--primary-color)', '  #fff  ']) {
-      expect(isCssColor(ok), ok).toBe(true);
-    }
-  });
-  it('rechaza lo que no es un color o intenta colar otras propiedades', () => {
-    for (const bad of ['', '   ', 'red; background: url(x)', 'red}', '#12', '#ggg', 'url(x)', 'expression(alert(1))', 'rgb(1,2,3); x:y', 'var(--a); color: red', '"red"', 5, null, undefined, {}]) {
-      expect(isCssColor(bad), String(bad)).toBe(false);
-    }
   });
 });
 

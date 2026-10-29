@@ -2,7 +2,7 @@ import { LitElement, html, nothing } from 'lit';
 import type { PropertyValues, TemplateResult } from 'lit';
 import { EDITOR_ACTIONS } from '../../ha/types';
 import type { ActionConfig, HomeAssistant, ValueChangedEvent } from '../../ha/types';
-import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
+import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, isCssColor, toHex6, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
 import { getInfoLabels, localize } from '../../core';
 import { LOCK_ICON_TYPES, LOCK_ICONS, resolveLockIconType } from './icons';
@@ -12,21 +12,12 @@ import { LOCK_TRANSLATIONS } from './translations';
 import type { LockTranslations } from './translations';
 import { FOOTER_ORDER, footerItemTypes, normalizeFooterItems } from './footer';
 import { STATUS_DOT_DEFAULTS } from './constants';
-import { isCssColor } from './lock-state';
 import type { LockFooterItem, LockSize, LockSubtitleType, NeonLockCardConfig } from './types';
 import { DEFAULT_LOCK_SIZE, LOCK_SIZES, resolveLockSize } from './lock-size';
 
 
 /** Orden de las opciones del selector de subtítulo; 'none' es el valor por defecto (el estado ya va arriba a la derecha). */
 const SUBTITLE_TYPES: readonly LockSubtitleType[] = ['none', 'state', 'custom', 'last-changed', 'last-updated'];
-
-/** `#rgb` o `#rrggbb` → `#rrggbb` (lo único que acepta `<input type=color>`); otro formato → `undefined`. */
-function toHex6(color: string): string | undefined {
-  const value = color.trim().toLowerCase();
-  if (/^#[0-9a-f]{6}$/.test(value)) return value;
-  if (/^#[0-9a-f]{3}$/.test(value)) return `#${value[1]}${value[1]}${value[2]}${value[2]}${value[3]}${value[3]}`;
-  return undefined;
-}
 
 /** Dominios que ofrece el selector de entidad de cada dato del pie. */
 const FOOTER_ENTITY_DOMAINS = {

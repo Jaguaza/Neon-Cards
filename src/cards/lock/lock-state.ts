@@ -1,5 +1,6 @@
 import type { HomeAssistant } from '../../ha/types';
 import { HA_LOCK_STATES } from './constants';
+import { isCssColor } from '../../shared';
 import type { LockVisualState, NeonLockCardConfig } from './types';
 import type { ActionConfig } from '../../ha/types';
 import { OPERATING_ACTIONS } from './constants';
@@ -150,22 +151,6 @@ export function statusColorGroup(state: LockVisualState): StatusColorGroup {
   if (state === 'locked' || state === 'locking') return 'closed';
   if (state === 'jammed' || state === 'error') return 'alert';
   return 'open';
-}
-
-/** Lista blanca de colores CSS que se aceptan en la config: hex, rgb/hsl, un nombre o `var(--x)`. */
-const CSS_COLOR = /^(#[0-9a-f]{3,8}|[a-z]{3,30}|(rgb|hsl)a?\([0-9a-z%.,/\s-]{1,60}\)|var\(--[\w-]{1,60}\))$/i;
-
-/**
- * ¿Es un color que se puede escribir tal cual en un estilo? La config viene
- * de YAML y acaba en un atributo `style`: solo pasa la lista blanca (sin `;`,
- * llaves ni comillas, así que no puede colar otras propiedades) y, donde el
- * navegador lo sabe comprobar, que CSS lo reconozca como color.
- */
-export function isCssColor(value: unknown): value is string {
-  if (typeof value !== 'string') return false;
-  const color = value.trim();
-  if (!CSS_COLOR.test(color)) return false;
-  return typeof CSS === 'undefined' || typeof CSS.supports !== 'function' || CSS.supports('color', color);
 }
 
 const STATUS_COLOR_KEYS = {
