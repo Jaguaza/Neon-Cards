@@ -1217,6 +1217,10 @@ development). Full specification in
 | `footer_sensors` | `string[]` | — | Up to four sensor types for the footer, in that order (two in `medium`, none in `compact`). Each type is a `binary_sensor` `device_class` (`motion`, `door`, `window`, `vibration`…) or `lock` for locks. The card shows all sensors of that type (except those in `footer_excluded`) and how many are active; types are stacked one below the other, each at full width; tapping the item opens the list. Repeated and empty values are ignored. |
 | `footer_only_active` | `boolean` | `false` | With `true` the footer only shows what is active: types with no active sensor disappear (and the whole footer if none is left) and the list only shows the active sensors. |
 | `footer_excluded` | `string[]` | — | Entities (`binary_sensor.*` or `lock.*`) the card neither counts nor lists. The editor ticks them with checks under each sensor type. |
+| `status_color_disarmed` / `status_color_armed_home` / `status_color_armed_away` / `status_color_armed_night` / `status_color_armed_vacation` / `status_color_armed_custom_bypass` | `string` (CSS color) | per state | Color of the state dot for the disarmed alarm and for each armed mode. Accepts hex, `rgb()`/`hsl()`, a name or `var(--x)`; an invalid one is ignored. |
+| `status_color_transition` | `string` (CSS color) | one color per transition | Color of the dot in the three transitions at once: pending, arming and disarming. |
+| `status_color_triggered` / `status_color_unavailable` | `string` (CSS color) | red | Color of the dot when the alarm is triggered and when it is unavailable or has no entity. |
+| `sensor_active_color` | `string` (CSS color) | amber (`#ffb02e`) | Color of the active sensors in the footer and in the list. |
 | `confirmation` | `boolean` | `false` | Asks for confirmation ("Arm?" / "Disarm?") before arming or disarming. Picking a mode in the selection does not ask again. |
 | `tap_action` | `ActionConfig` | `{ action: toggle }` | Action on tap. `toggle` arms (with mode selection) or disarms. |
 | `hold_action` | `ActionConfig` | `{ action: more-info }` | Action on hold. |

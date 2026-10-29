@@ -1220,6 +1220,10 @@ consola). Especificación completa en
 | `footer_sensors` | `string[]` | — | Hasta cuatro tipos de sensor para el pie, en ese orden (dos en `medium`, ninguno en `compact`). Cada tipo es una `device_class` de `binary_sensor` (`motion`, `door`, `window`, `vibration`…) o `lock` para las cerraduras. La tarjeta muestra todos los sensores de ese tipo (menos los de `footer_excluded`) y cuántos están activos; los tipos se apilan uno debajo de otro, cada uno a todo el ancho; al pulsar el dato se abre la lista. Los repetidos y los vacíos se ignoran. |
 | `footer_only_active` | `boolean` | `false` | Con `true` el pie solo enseña lo activo: los tipos sin ningún sensor activo desaparecen (y el pie entero si no queda ninguno) y la lista solo enseña los sensores activos. |
 | `footer_excluded` | `string[]` | — | Entidades (`binary_sensor.*` o `lock.*`) que la tarjeta no cuenta ni lista. El editor las marca con checks bajo cada tipo de sensor. |
+| `status_color_disarmed` / `status_color_armed_home` / `status_color_armed_away` / `status_color_armed_night` / `status_color_armed_vacation` / `status_color_armed_custom_bypass` | `string` (color CSS) | según el estado | Color del punto de estado de la alarma desarmada y de cada modo armado. Acepta hex, `rgb()`/`hsl()`, un nombre o `var(--x)`; uno inválido se ignora. |
+| `status_color_transition` | `string` (color CSS) | un color por transición | Color del punto en las tres transiciones a la vez: pendiente, armando y desarmando. |
+| `status_color_triggered` / `status_color_unavailable` | `string` (color CSS) | rojo | Color del punto con la alarma disparada y con ella no disponible o sin entidad. |
+| `sensor_active_color` | `string` (color CSS) | ámbar (`#ffb02e`) | Color de los sensores activos en el pie y en la lista. |
 | `confirmation` | `boolean` | `false` | Pide confirmación («¿Armar?» / «¿Desarmar?») antes de armar o desarmar. Elegir un modo en la selección no vuelve a preguntar. |
 | `tap_action` | `ActionConfig` | `{ action: toggle }` | Acción al pulsar. `toggle` arma (con selección de modo) o desarma. |
 | `hold_action` | `ActionConfig` | `{ action: more-info }` | Acción al mantener. |

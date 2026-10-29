@@ -384,6 +384,21 @@ hold_action:
   action: more-info
 ```
 
+Con colores propios (punto de estado y sensores activos):
+
+```yaml
+type: custom:neon-alarm-card
+entity: alarm_control_panel.casa
+footer_sensors:
+  - motion
+  - door
+status_color_disarmed: '#3b82f6'
+status_color_armed_away: '#ff00aa'
+status_color_transition: '#00ffd5'
+status_color_triggered: '#ff3b3b'
+sensor_active_color: '#ff3df5'
+```
+
 Versión mediana con dos tipos de sensor en el pie:
 
 ```yaml
@@ -429,7 +444,7 @@ texto) y avisa si el código es incorrecto; armar solo lo pide si
 armar o desarmar. El pie (`footer_sensors`) admite hasta cuatro tipos de sensor
 de seguridad (cualquier `device_class` de `binary_sensor`, como `motion`,
 `door` o `window`, o `lock` para las cerraduras): muestra cuántos de todos los
-de ese tipo están activos y, al pulsar el dato, los lista. Con `footer_only_active: true` solo se ven los tipos con algún sensor activo, y con `footer_excluded` se ocultan sensores concretos (el editor los lista con checks bajo cada tipo). El tamaño se elige
+de ese tipo están activos y, al pulsar el dato, los lista. Los colores del punto de estado (uno por situación) y de los sensores activos se cambian con `status_color_*` y `sensor_active_color` (el editor los trae en la sección «Colores»). Con `footer_only_active: true` solo se ven los tipos con algún sensor activo, y con `footer_excluded` se ocultan sensores concretos (el editor los lista con checks bajo cada tipo). El tamaño se elige
 con `size`: `large` (grande, hasta cuatro tipos de sensor), `medium` (mediana,
 sin subtítulo y hasta dos) o `compact` (compacta, sin pie). Los huecos de
 inicio de la rejilla son 12, 6 y 3 columnas, con alto automático.
@@ -820,6 +835,21 @@ hold_action:
   action: more-info
 ```
 
+With custom colors (state dot and active sensors):
+
+```yaml
+type: custom:neon-alarm-card
+entity: alarm_control_panel.home
+footer_sensors:
+  - motion
+  - door
+status_color_disarmed: '#3b82f6'
+status_color_armed_away: '#ff00aa'
+status_color_transition: '#00ffd5'
+status_color_triggered: '#ff3b3b'
+sensor_active_color: '#ff3df5'
+```
+
 Medium version with two sensor types in the footer:
 
 ```yaml
@@ -865,7 +895,7 @@ text field) and warns if the code is wrong; arming only asks for it if
 arming or disarming. The footer (`footer_sensors`) accepts up to four
 security sensor types (any `binary_sensor` `device_class`, such as `motion`,
 `door` or `window`, or `lock` for locks): it shows how many of all the
-sensors of that type are active and lists them when you tap the item. With `footer_only_active: true` only the types with an active sensor are shown, and `footer_excluded` hides specific sensors (the editor lists them with checks under each type). Size is
+sensors of that type are active and lists them when you tap the item. The colors of the state dot (one per situation) and of the active sensors are changed with `status_color_*` and `sensor_active_color` (the editor has them in the "Colors" section). With `footer_only_active: true` only the types with an active sensor are shown, and `footer_excluded` hides specific sensors (the editor lists them with checks under each type). Size is
 chosen with `size`: `large` (large, up to four sensor types), `medium`
 (medium, no subtitle and up to two) or `compact` (compact, no footer). The
 starting grid slots are 12, 6 and 3 columns, with automatic height.

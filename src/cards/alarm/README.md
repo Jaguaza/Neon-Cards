@@ -125,6 +125,24 @@ El editor ofrece los tipos de seguridad habituales (`motion`, `occupancy`,
 La lista que se abre al pulsar un dato se coloca arriba, justo bajo el título,
 y hace scroll por dentro si hay muchos sensores.
 
+### Colores
+
+Todo cambia desde el editor, en la sección «Colores» (cada selector parte del
+color que ya tiene la tarjeta; el botón «Restablecer» los quita todos):
+
+| Clave | Qué colorea |
+|---|---|
+| `status_color_disarmed` | El punto de estado con la alarma desarmada |
+| `status_color_armed_home`, `status_color_armed_away`, `status_color_armed_night`, `status_color_armed_vacation`, `status_color_armed_custom_bypass` | El punto de cada modo armado (uno por modo) |
+| `status_color_transition` | El punto de las tres transiciones a la vez: pendiente, armando y desarmando |
+| `status_color_triggered` | El punto con la alarma disparada |
+| `status_color_unavailable` | El punto con la alarma no disponible o sin entidad |
+| `sensor_active_color` | Los sensores activos, en el pie y en la lista (ámbar por defecto) |
+
+Aceptan hex, `rgb()`/`hsl()`, un nombre de color o `var(--x)`; un valor
+inválido se ignora y vale el color por defecto. Sin configurar nada, cada
+transición (pendiente, armando, desarmando) conserva su propio color.
+
 ## Estructura de la carpeta
 
 | Archivo | Qué hace |
@@ -268,6 +286,25 @@ The editor offers the usual security types (`motion`, `occupancy`, `presence`,
 
 The list opened by tapping an item sits at the top, right under the title, and
 scrolls inside if there are many sensors.
+
+### Colors
+
+Everything changes from the editor, in the "Colors" section (each picker
+starts from the color the card already has; the "Reset" button removes them
+all):
+
+| Key | What it colors |
+|---|---|
+| `status_color_disarmed` | The state dot when the alarm is disarmed |
+| `status_color_armed_home`, `status_color_armed_away`, `status_color_armed_night`, `status_color_armed_vacation`, `status_color_armed_custom_bypass` | The dot of each armed mode (one per mode) |
+| `status_color_transition` | The dot of the three transitions at once: pending, arming and disarming |
+| `status_color_triggered` | The dot when the alarm is triggered |
+| `status_color_unavailable` | The dot when the alarm is unavailable or has no entity |
+| `sensor_active_color` | Active sensors, in the footer and in the list (amber by default) |
+
+They accept hex, `rgb()`/`hsl()`, a color name or `var(--x)`; an invalid value
+is ignored and the default color is used. With nothing configured, each
+transition (pending, arming, disarming) keeps its own color.
 
 ## Folder layout
 
