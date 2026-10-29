@@ -71,6 +71,23 @@ export interface NeonAlarmCardConfig {
   footer_excluded?: string[];
   /** Pide confirmación antes de armar o desarmar. Desactivado por defecto. */
   confirmation?: boolean;
+  /**
+   * Color del punto de estado de cada situación (hex, `rgb()`/`hsl()`, nombre
+   * o `var(--x)`): desarmada, cada modo armado, transición (pendiente,
+   * armando y desarmando a la vez), disparada y no disponible. Sin valor o
+   * con uno inválido vale el color por defecto.
+   */
+  status_color_disarmed?: string;
+  status_color_armed_home?: string;
+  status_color_armed_away?: string;
+  status_color_armed_night?: string;
+  status_color_armed_vacation?: string;
+  status_color_armed_custom_bypass?: string;
+  status_color_transition?: string;
+  status_color_triggered?: string;
+  status_color_unavailable?: string;
+  /** Color de los sensores activos en el pie y en la lista (ámbar por defecto). */
+  sensor_active_color?: string;
   tap_action?: ActionConfig;
   hold_action?: ActionConfig;
   double_tap_action?: ActionConfig;

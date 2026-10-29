@@ -239,7 +239,7 @@ export const NEON_ALARM_VIEWS_STYLES = css`
     color: var(--secondary-text-color);
   }
   .sensor-row.is-active {
-    color: #ffb02e;
+    color: var(--alarm-sensor-active, #ffb02e);
     font-weight: 600;
   }
   .sensor-name {

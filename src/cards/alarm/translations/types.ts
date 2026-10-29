@@ -94,4 +94,20 @@ export interface AlarmTranslations {
   sensor_hidden_suffix: string;
   entity_hint: string;
   name_hint: string;
+  section_colors: string;
+  colors_hint: string;
+  color_group_disarmed: string;
+  color_group_armed_home: string;
+  color_group_armed_away: string;
+  color_group_armed_night: string;
+  color_group_armed_vacation: string;
+  color_group_armed_custom_bypass: string;
+  color_group_transition: string;
+  color_group_triggered: string;
+  color_group_unavailable: string;
+  color_sensor_active: string;
+  colors_status_title: string;
+  colors_sensor_title: string;
+  colors_sensor_hint: string;
+  colors_reset: string;
 }

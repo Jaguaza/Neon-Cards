@@ -113,8 +113,8 @@ describe('NeonAlarmCardEditor', () => {
 
   it('paleta personalizada: muestra los tres colores y los escribe', async () => {
     const { el, last } = await mount({ neon_palette: 'custom' });
-    expect(el.shadowRoot!.querySelectorAll('input[type="color"]').length).toBe(3);
-    const input = el.shadowRoot!.querySelector('input[type="color"]') as HTMLInputElement;
+    expect(el.shadowRoot!.querySelectorAll('.custom-colors-grid input[type="color"]').length).toBe(3);
+    const input = el.shadowRoot!.querySelector('.custom-colors-grid input[type="color"]') as HTMLInputElement;
     input.value = '#112233';
     input.dispatchEvent(new Event('input'));
     expect(last().neon_color1).toBe('#112233');

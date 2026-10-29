@@ -6,7 +6,7 @@ import type { GestureState } from '../../core';
 import { resolveGradientColors, NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, neonHaloVars, neonRingSplitTemplate, RingSizeController } from '../../shared';
 import { ACTION_PENDING_MS, ALARM_GRID, COMMAND_SERVICES, TRIGGERED_HALO } from './constants';
 import { AlarmFlow } from './alarm-flow';
-import { commandChoices, commandNeedsCode, codeFormat, isAlarmAlert, isAlarmHaloOn, isAlarmMoving, isToggleAction, resolveAlarmState } from './alarm-state';
+import { commandChoices, commandNeedsCode, codeFormat, isAlarmAlert, isAlarmHaloOn, isAlarmMoving, isToggleAction, resolveAlarmState, sensorActiveColor, statusDotColor } from './alarm-state';
 import { resolveAlarmSize } from './alarm-size';
 import { footerSensorView, normalizeExcluded, normalizeFooterTypes, visibleFooterViews } from './alarm-sensors';
 import type { FooterOptions, FooterSensorView } from './alarm-sensors';
@@ -200,7 +200,8 @@ export class NeonAlarmCard extends BaseNeonCard {
   }
 
   private _renderStatus(state: AlarmVisualState): TemplateResult {
-    return html`<span class="status" data-state=${state}><span class="status-dot"></span><span class="status-text">${this._t(`state_${state}`)}</span></span>`;
+    const color = statusDotColor(this._config, state);
+    return html`<span class="status" data-state=${state} style=${color ? `--dot-color: ${color}` : nothing}><span class="status-dot"></span><span class="status-text">${this._t(`state_${state}`)}</span></span>`;
   }
 
   /** Los tres puntos: abre el diálogo «más información» de la entidad sin disparar la acción de la tarjeta. */
@@ -232,6 +233,12 @@ export class NeonAlarmCard extends BaseNeonCard {
         ${state ? html`<div class="top-right">${this._renderStatus(state)}${menu}</div>` : nothing}
       </div>
     `;
+  }
+
+  /** Variable CSS con el color de los sensores activos, si hay uno válido en la config (si no, vale el ámbar de la hoja de estilos). */
+  private _sensorColorVar(): string {
+    const color = sensorActiveColor(this._config);
+    return color ? ` --alarm-sensor-active: ${color};` : '';
   }
 
   /** Entidades que no se cuentan y si solo se enseña lo activo, según la config. */
@@ -297,7 +304,7 @@ export class NeonAlarmCard extends BaseNeonCard {
     return html`
       <ha-card
         class="neon-ring-host size-${size} ${viewing ? 'viewing' : ''} ${this._haloClasses(state)}"
-        style=${neonHaloVars(state === 'triggered' ? TRIGGERED_HALO : colors)}
+        style=${neonHaloVars(state === 'triggered' ? TRIGGERED_HALO : colors)}${this._sensorColorVar()}
         @pointerdown=${(ev: PointerEvent) => handlePointerDown(this._gesture, ev, '.-none-', () => this._handleAction('hold'))}
         @pointerup=${() => cancelHold(this._gesture)}
         @pointercancel=${() => cancelHold(this._gesture)}

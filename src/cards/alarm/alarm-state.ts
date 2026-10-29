@@ -1,5 +1,7 @@
 import type { ActionConfig, HomeAssistant } from '../../ha/types';
-import { ARM_FEATURE_BITS, ARM_MODE_ORDER, HA_ALARM_STATES } from './constants';
+import { isCssColor } from '../../shared';
+import { ARM_FEATURE_BITS, ARM_MODE_ORDER, HA_ALARM_STATES, SENSOR_ACTIVE_COLOR_KEY, STATUS_COLOR_KEYS } from './constants';
+import type { StatusColorGroup } from './constants';
 import type { AlarmArmMode, AlarmCommand, AlarmVisualState, NeonAlarmCardConfig } from './types';
 
 /**
@@ -76,4 +78,23 @@ export function commandChoices(state: AlarmVisualState | undefined, attributes: 
 /** ¿La acción `toggle` (la de por defecto al pulsar) es la que gestiona la tarjeta? */
 export function isToggleAction(action: ActionConfig): boolean {
   return action.action === 'toggle';
+}
+
+/** Grupo de color al que pertenece un estado: las tres transiciones comparten uno y «sin entidad» va con «no disponible». */
+export function statusColorGroup(state: AlarmVisualState): StatusColorGroup {
+  if (state === 'pending' || state === 'arming' || state === 'disarming') return 'transition';
+  if (state === 'error') return 'unavailable';
+  return state;
+}
+
+/** Color elegido en la config para el punto de este estado; `undefined` si no hay o no es válido (vale el de la hoja de estilos). */
+export function statusDotColor(config: NeonAlarmCardConfig | undefined, state: AlarmVisualState): string | undefined {
+  const value = config?.[STATUS_COLOR_KEYS[statusColorGroup(state)]];
+  return isCssColor(value) ? value.trim() : undefined;
+}
+
+/** Color elegido para los sensores activos; `undefined` si no hay o no es válido (vale el ámbar por defecto). */
+export function sensorActiveColor(config: NeonAlarmCardConfig | undefined): string | undefined {
+  const value = config?.[SENSOR_ACTIVE_COLOR_KEY];
+  return isCssColor(value) ? value.trim() : undefined;
 }

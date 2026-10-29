@@ -22,6 +22,28 @@ export const NEON_ALARM_EDITOR_STYLES = css`
     padding: 4px 0;
     color: var(--secondary-text-color);
   }
+  .color-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 4px 0 10px;
+  }
+  /* Una fila por color: el nombre a la izquierda y un muestrario pequeño a la derecha. */
+  .color-list .color-picker-wrapper {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .color-list input[type='color'] {
+    flex: none;
+    width: 56px;
+    min-width: 56px;
+  }
+  .reset-colors {
+    align-self: flex-start;
+    margin-top: 6px;
+  }
   .bulk-actions {
     display: flex;
     gap: 8px;

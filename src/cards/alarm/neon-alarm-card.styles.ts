@@ -227,7 +227,7 @@ export const NEON_ALARM_CARD_STYLES = css`
   }
   .item--warn ha-icon,
   .item--warn .item-value {
-    color: #ffb02e;
+    color: var(--alarm-sensor-active, #ffb02e);
   }
   .item--muted ha-icon,
   .item--muted .item-value {

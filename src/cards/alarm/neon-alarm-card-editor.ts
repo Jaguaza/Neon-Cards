@@ -2,10 +2,10 @@ import { LitElement, html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import { EDITOR_ACTIONS } from '../../ha/types';
 import type { ActionConfig, HomeAssistant, ValueChangedEvent } from '../../ha/types';
-import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
+import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, isCssColor, toHex6, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
 import { getInfoLabels, localize } from '../../core';
-import { FOOTER_MAX, SECURITY_SENSOR_TYPES } from './constants';
+import { FOOTER_MAX, SECURITY_SENSOR_TYPES, SENSOR_ACTIVE_COLOR_KEY, SENSOR_ACTIVE_DEFAULT, STATUS_COLOR_GROUPS, STATUS_COLOR_KEYS, STATUS_DOT_DEFAULTS } from './constants';
 import { DEFAULT_ALARM_SIZE, ALARM_SIZES, resolveAlarmSize } from './alarm-size';
 import { allSensorsOfType, normalizeExcluded, normalizeFooterTypes } from './alarm-sensors';
 import type { SensorEntry } from './alarm-sensors';
@@ -60,7 +60,7 @@ export class NeonAlarmCardEditor extends LitElement {
     if (!this.hass || !this._config) return nothing;
     return html`
       <div class="editor-container">
-        ${this._renderMainSection()} ${this._renderBehaviorSection()} ${this._renderSensorsSection()} ${this._renderHaloSection()} ${this._renderActionsSection()}
+        ${this._renderMainSection()} ${this._renderBehaviorSection()} ${this._renderSensorsSection()} ${this._renderColorsSection()} ${this._renderHaloSection()} ${this._renderActionsSection()}
       </div>
     `;
   }
@@ -239,6 +239,49 @@ export class NeonAlarmCardEditor extends LitElement {
     slots[index] = value;
     const next = normalizeFooterTypes(slots, 'large');
     this._configChanged('footer_sensors', next.length ? next : undefined);
+  }
+
+  /**
+   * Colores del punto de estado (uno por situación) y de los sensores activos.
+   * Cada selector parte del color que tiene ahora (el configurado, si es
+   * válido, o el de por defecto); el botón de restablecer solo sale si hay
+   * alguno cambiado.
+   */
+  private _renderColorsSection(): TemplateResult {
+    const keys: string[] = [...STATUS_COLOR_GROUPS.map((group) => STATUS_COLOR_KEYS[group]), SENSOR_ACTIVE_COLOR_KEY];
+    const anySet = keys.some((key) => this._config?.[key] !== undefined);
+    return html`
+      <div class="editor-section">
+        <div class="section-header">${this._t('section_colors')}</div>
+        <span class="data-hint">${this._t('colors_hint')}</span>
+        <span class="native-select-label">${this._t('colors_status_title')}</span>
+        <div class="color-list">${STATUS_COLOR_GROUPS.map((group) => this._renderColorRow(STATUS_COLOR_KEYS[group], STATUS_DOT_DEFAULTS[group], this._t(`color_group_${group}` as keyof AlarmTranslations)))}</div>
+        <span class="native-select-label">${this._t('colors_sensor_title')}</span>
+        <span class="data-hint">${this._t('colors_sensor_hint')}</span>
+        <div class="color-list">${this._renderColorRow(SENSOR_ACTIVE_COLOR_KEY, SENSOR_ACTIVE_DEFAULT, this._t('color_sensor_active'))}</div>
+        ${anySet ? html`<button type="button" class="reset-colors bulk-btn" @click=${() => this._resetColors(keys)}>${this._t('colors_reset')}</button>` : nothing}
+      </div>
+    `;
+  }
+
+  private _renderColorRow(configKey: string, fallback: string, label: string): TemplateResult {
+    const configured = this._config?.[configKey];
+    const value = isCssColor(configured) ? (toHex6(configured) ?? fallback) : fallback;
+    return html`
+      <div class="color-picker-wrapper">
+        <span>${label}</span>
+        <input type="color" data-color=${configKey} .value=${value} @input=${(ev: Event) => this._configChanged(configKey, (ev.target as HTMLInputElement).value)} />
+      </div>
+    `;
+  }
+
+  /** Quita todos los colores de una vez (un solo `config-changed`). */
+  private _resetColors(keys: string[]): void {
+    if (!this._config) return;
+    const newConfig: NeonAlarmCardConfig = { ...this._config };
+    for (const key of keys) delete newConfig[key];
+    this._config = newConfig;
+    this.dispatchEvent(new CustomEvent('config-changed', { detail: { config: newConfig }, bubbles: true, composed: true }));
   }
 
   private _renderHaloSection(): TemplateResult {

@@ -55,6 +55,49 @@ export const COMMAND_ICONS = {
   armed_custom_bypass: 'mdi:shield-half-full',
 } as const;
 
+/**
+ * Grupos de color del punto de estado que se pueden cambiar en la config:
+ * uno para desarmada, uno por cada modo armado, uno compartido por las tres
+ * transiciones (pendiente, armando y desarmando), uno para disparada y otro
+ * para no disponible (que también cubre «sin entidad»).
+ */
+export const STATUS_COLOR_GROUPS = ['disarmed', 'armed_home', 'armed_away', 'armed_night', 'armed_vacation', 'armed_custom_bypass', 'transition', 'triggered', 'unavailable'] as const;
+export type StatusColorGroup = (typeof STATUS_COLOR_GROUPS)[number];
+
+/** Clave de la config de cada grupo. */
+export const STATUS_COLOR_KEYS = {
+  disarmed: 'status_color_disarmed',
+  armed_home: 'status_color_armed_home',
+  armed_away: 'status_color_armed_away',
+  armed_night: 'status_color_armed_night',
+  armed_vacation: 'status_color_armed_vacation',
+  armed_custom_bypass: 'status_color_armed_custom_bypass',
+  transition: 'status_color_transition',
+  triggered: 'status_color_triggered',
+  unavailable: 'status_color_unavailable',
+} as const satisfies Record<StatusColorGroup, string>;
+
+/**
+ * Color que tiene el punto de cada grupo si no se configura nada: el valor
+ * inicial de los selectores del editor. Las tres transiciones tienen cada una
+ * el suyo en la hoja de estilos; el de `transition` es el de «pendiente».
+ */
+export const STATUS_DOT_DEFAULTS: Record<StatusColorGroup, string> = {
+  disarmed: '#39e07a',
+  armed_home: '#ffb02e',
+  armed_away: '#ff7a3d',
+  armed_night: '#7c6cff',
+  armed_vacation: '#1ecdf2',
+  armed_custom_bypass: '#d36cff',
+  transition: '#ffd84a',
+  triggered: '#ff5c5c',
+  unavailable: '#ff5c5c',
+};
+
+/** Clave de la config del color de los sensores activos del pie y de la lista, y su valor por defecto. */
+export const SENSOR_ACTIVE_COLOR_KEY = 'sensor_active_color';
+export const SENSOR_ACTIVE_DEFAULT = '#ffb02e';
+
 /** Con la alarma disparada el aro y el halo se vuelven rojos, sea cual sea la paleta elegida. */
 export const TRIGGERED_HALO: GradientColors = { c1: '#ff3b3b', c2: '#ff5c5c', c3: '#ff2d6b' };
 
