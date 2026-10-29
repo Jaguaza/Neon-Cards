@@ -74,4 +74,43 @@ export const NEON_ALARM_EDITOR_STYLES = css`
     max-height: 180px;
     overflow-y: auto;
   }
+  .sensor-checks-list ha-formfield {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+  }
+  /* Móvil y pantallas táctiles: filas de 48px que se pulsan enteras, sin
+     scroll interno (en el móvil el propio editor ya hace scroll y dos
+     scrolls anidados se pelean) y botones de marcar todos más grandes. */
+  @media (max-width: 600px), (pointer: coarse) {
+    .sensor-checks summary {
+      padding: 12px 0;
+    }
+    .sensor-checks-list {
+      max-height: none;
+      overflow: visible;
+    }
+    .sensor-checks-list ha-formfield {
+      min-height: 48px;
+      border-bottom: 1px solid color-mix(in srgb, var(--primary-text-color) 10%, transparent);
+      --mdc-checkbox-touch-target-size: 48px;
+    }
+    .bulk-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .bulk-btn {
+      min-height: 44px;
+      font-size: 14px;
+    }
+    .color-list .color-picker-wrapper {
+      min-height: 44px;
+    }
+    .color-list input[type='color'] {
+      width: 64px;
+      min-width: 64px;
+      height: 36px;
+    }
+  }
 `;
