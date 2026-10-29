@@ -1221,7 +1221,6 @@ development). Full specification in
 | `status_color_transition` | `string` (CSS color) | one color per transition | Color of the dot in the three transitions at once: pending, arming and disarming. |
 | `status_color_triggered` / `status_color_unavailable` | `string` (CSS color) | red | Color of the dot when the alarm is triggered and when it is unavailable or has no entity. |
 | `sensor_active_color` | `string` (CSS color) | amber (`#ffb02e`) | Color of the active sensors in the footer and in the list. |
-| `confirmation` | `boolean` | `false` | Asks for confirmation ("Arm?" / "Disarm?") before arming or disarming. Picking a mode in the selection does not ask again. |
 | `tap_action` | `ActionConfig` | `{ action: toggle }` | Action on tap. `toggle` arms (with mode selection) or disarms. |
 | `hold_action` | `ActionConfig` | `{ action: more-info }` | Action on hold. |
 | `double_tap_action` | `ActionConfig` | `{ action: none }` | Action on double tap. |
@@ -1264,7 +1263,6 @@ footer_sensors:
 footer_only_active: true
 footer_excluded:
   - binary_sensor.storage_room_motion
-confirmation: true
 tap_action:
   action: toggle
 hold_action:

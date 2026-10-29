@@ -1224,7 +1224,6 @@ consola). Especificación completa en
 | `status_color_transition` | `string` (color CSS) | un color por transición | Color del punto en las tres transiciones a la vez: pendiente, armando y desarmando. |
 | `status_color_triggered` / `status_color_unavailable` | `string` (color CSS) | rojo | Color del punto con la alarma disparada y con ella no disponible o sin entidad. |
 | `sensor_active_color` | `string` (color CSS) | ámbar (`#ffb02e`) | Color de los sensores activos en el pie y en la lista. |
-| `confirmation` | `boolean` | `false` | Pide confirmación («¿Armar?» / «¿Desarmar?») antes de armar o desarmar. Elegir un modo en la selección no vuelve a preguntar. |
 | `tap_action` | `ActionConfig` | `{ action: toggle }` | Acción al pulsar. `toggle` arma (con selección de modo) o desarma. |
 | `hold_action` | `ActionConfig` | `{ action: more-info }` | Acción al mantener. |
 | `double_tap_action` | `ActionConfig` | `{ action: none }` | Acción al doble toque. |
@@ -1267,7 +1266,6 @@ footer_sensors:
 footer_only_active: true
 footer_excluded:
   - binary_sensor.movimiento_trastero
-confirmation: true
 tap_action:
   action: toggle
 hold_action:

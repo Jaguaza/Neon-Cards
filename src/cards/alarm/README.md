@@ -80,12 +80,9 @@ Si la entidad exige código (atributo `code_format`), la tarjeta pide el código
 
 Sin `code_format` no hay teclado.
 
-### Confirmación (`confirmation`)
-
-Desactivada por defecto. Con `confirmation: true` la tarjeta pregunta «¿Armar?»
-o «¿Desarmar?» antes de actuar, con el foco en «Cancelar». Elegir un modo en la
-selección ya es una decisión explícita, así que **no** vuelve a preguntar. Si la
-alarma pide código, el teclado sale después de aceptar la confirmación.
+Pulsar arma o desarma directamente: la tarjeta no pide confirmación (si la
+alarma exige código, el teclado ya hace de filtro). Una config antigua con
+`confirmation: true` se ignora.
 
 Las vistas se cierran solas tras 30 s sin actividad, y también si la alarma
 cambia de estado mientras están abiertas.
@@ -152,7 +149,7 @@ transición (pendiente, armando, desarmando) conserva su propio color.
 | `alarm-flow.ts` | Vista abierta, código escrito y temporizadores |
 | `alarm-sensors.ts` | Búsqueda y recuento de sensores del pie |
 | `shield-icon.ts` | El escudo animado y el dibujo de cada estado |
-| `flow-views.ts`, `keypad-view.ts`, `sensors-view.ts`, `footer-view.ts` | Vistas de modos, confirmación, teclado, lista y pie |
+| `flow-views.ts`, `keypad-view.ts`, `sensors-view.ts`, `footer-view.ts` | Vistas de modos, teclado, lista y pie |
 | `*.styles.ts` | Estilos divididos (tarjeta, tamaños, vistas, escudo, editor) |
 | `translations/` | Textos en español e inglés |
 | `neon-alarm-card-editor.ts` | Editor visual |
@@ -243,12 +240,9 @@ If the entity requires a code (`code_format` attribute), the card asks for it
 
 Without `code_format` there is no keypad.
 
-### Confirmation (`confirmation`)
-
-Off by default. With `confirmation: true` the card asks "Arm?" or "Disarm?"
-before acting, with the focus on "Cancel". Picking a mode in the selection is
-already an explicit decision, so it does **not** ask again. If the alarm needs
-a code, the keypad appears after the confirmation is accepted.
+Tapping arms or disarms straight away: the card asks for no confirmation (if
+the alarm requires a code, the keypad already acts as a filter). An old config
+with `confirmation: true` is ignored.
 
 Views close by themselves after 30 s without activity, and also if the alarm
 changes state while they are open.
@@ -315,7 +309,7 @@ transition (pending, arming, disarming) keeps its own color.
 | `alarm-flow.ts` | Open view, typed code and timers |
 | `alarm-sensors.ts` | Footer sensor lookup and counting |
 | `shield-icon.ts` | The animated shield and each state's drawing |
-| `flow-views.ts`, `keypad-view.ts`, `sensors-view.ts`, `footer-view.ts` | Mode, confirmation, keypad, list and footer views |
+| `flow-views.ts`, `keypad-view.ts`, `sensors-view.ts`, `footer-view.ts` | Mode, keypad, list and footer views |
 | `*.styles.ts` | Split styles (card, sizes, views, shield, editor) |
 | `translations/` | Spanish and English texts |
 | `neon-alarm-card-editor.ts` | Visual editor |

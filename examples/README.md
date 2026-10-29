@@ -360,7 +360,7 @@ entity: alarm_control_panel.casa
 
 ### YAML avanzado
 
-Alarma de casa con subtítulo, cuatro tipos de sensor en el pie (solo se ven los activos, sin el sensor del trastero) y confirmación:
+Alarma de casa con subtítulo, cuatro tipos de sensor en el pie (solo se ven los activos, sin el sensor del trastero):
 
 ```yaml
 type: custom:neon-alarm-card
@@ -377,7 +377,6 @@ footer_sensors:
 footer_only_active: true
 footer_excluded:
   - binary_sensor.movimiento_trastero
-confirmation: true
 tap_action:
   action: toggle
 hold_action:
@@ -440,8 +439,7 @@ soporta la entidad (si soporta uno, arma directamente); al pulsar una armada,
 en transición o disparada, se desarma. Si la entidad exige código
 (`code_format`), la propia tarjeta muestra un teclado numérico (o un campo de
 texto) y avisa si el código es incorrecto; armar solo lo pide si
-`code_arm_required` no es `false`. Con `confirmation: true` pregunta antes de
-armar o desarmar. El pie (`footer_sensors`) admite hasta cuatro tipos de sensor
+`code_arm_required` no es `false`. El pie (`footer_sensors`) admite hasta cuatro tipos de sensor
 de seguridad (cualquier `device_class` de `binary_sensor`, como `motion`,
 `door` o `window`, o `lock` para las cerraduras): muestra cuántos de todos los
 de ese tipo están activos y, al pulsar el dato, los lista. Los colores del punto de estado (uno por situación) y de los sensores activos se cambian con `status_color_*` y `sensor_active_color` (el editor los trae en la sección «Colores»). Con `footer_only_active: true` solo se ven los tipos con algún sensor activo, y con `footer_excluded` se ocultan sensores concretos (el editor los lista con checks bajo cada tipo). El tamaño se elige
@@ -811,7 +809,7 @@ entity: alarm_control_panel.home
 
 ### Advanced YAML
 
-Home alarm with a subtitle, four sensor types in the footer (only the active ones are shown, without the storage-room sensor) and confirmation:
+Home alarm with a subtitle, four sensor types in the footer (only the active ones are shown, without the storage-room sensor):
 
 ```yaml
 type: custom:neon-alarm-card
@@ -828,7 +826,6 @@ footer_sensors:
 footer_only_active: true
 footer_excluded:
   - binary_sensor.storage_room_motion
-confirmation: true
 tap_action:
   action: toggle
 hold_action:
@@ -891,8 +888,7 @@ modes the entity supports (if it supports one, it arms straight away);
 tapping an armed, transitioning or triggered one disarms it. If the entity
 requires a code (`code_format`), the card itself shows a numeric keypad (or a
 text field) and warns if the code is wrong; arming only asks for it if
-`code_arm_required` is not `false`. With `confirmation: true` it asks before
-arming or disarming. The footer (`footer_sensors`) accepts up to four
+`code_arm_required` is not `false`. The footer (`footer_sensors`) accepts up to four
 security sensor types (any `binary_sensor` `device_class`, such as `motion`,
 `door` or `window`, or `lock` for locks): it shows how many of all the
 sensors of that type are active and lists them when you tap the item. The colors of the state dot (one per situation) and of the active sensors are changed with `status_color_*` and `sensor_active_color` (the editor has them in the "Colors" section). With `footer_only_active: true` only the types with an active sensor are shown, and `footer_excluded` hides specific sensors (the editor lists them with checks under each type). Size is
