@@ -126,17 +126,22 @@ export class NeonAlarmCardEditor extends LitElement {
     `;
   }
 
-  /** Pie: un selector de tipo de sensor por hueco (hasta tres en la grande, dos en la mediana, ninguno en la compacta). */
-  private _renderSensorsSection(): TemplateResult {
+  /**
+   * Pie: un selector de tipo de sensor por hueco (hasta cuatro en la grande y
+   * dos en la mediana). La compacta no tiene pie, así que su editor no ofrece
+   * nada de sensores: ni la sección ni sus ayudas.
+   */
+  private _renderSensorsSection(): TemplateResult | typeof nothing {
     const size = resolveAlarmSize(this._config);
-    const hint = size === 'compact' ? 'sensors_hint_compact' : size === 'medium' ? 'sensors_hint_medium' : 'sensors_hint';
+    if (size === 'compact') return nothing;
+    const hint = size === 'medium' ? 'sensors_hint_medium' : 'sensors_hint';
     const slots = Array.from({ length: FOOTER_MAX[size] }, (_, index) => this._renderSensorSlot(index));
     return html`
       <div class="editor-section">
         <div class="section-header">${this._t('section_sensors')}</div>
         <span class="data-hint">${this._t(hint)}</span>
         ${slots}
-        ${size === 'compact' ? nothing : this._renderOnlyActive()}
+        ${this._renderOnlyActive()}
       </div>
     `;
   }
@@ -236,7 +241,8 @@ export class NeonAlarmCardEditor extends LitElement {
    * alguno cambiado.
    */
   private _renderColorsSection(): TemplateResult {
-    const keys: string[] = [...STATUS_COLOR_GROUPS.map((group) => STATUS_COLOR_KEYS[group]), SENSOR_ACTIVE_COLOR_KEY];
+    const showSensorColor = resolveAlarmSize(this._config) !== 'compact';
+    const keys: string[] = [...STATUS_COLOR_GROUPS.map((group) => STATUS_COLOR_KEYS[group]), ...(showSensorColor ? [SENSOR_ACTIVE_COLOR_KEY] : [])];
     const anySet = keys.some((key) => this._config?.[key] !== undefined);
     return html`
       <div class="editor-section">
@@ -244,11 +250,18 @@ export class NeonAlarmCardEditor extends LitElement {
         <span class="data-hint">${this._t('colors_hint')}</span>
         <span class="native-select-label">${this._t('colors_status_title')}</span>
         <div class="color-list">${STATUS_COLOR_GROUPS.map((group) => this._renderColorRow(STATUS_COLOR_KEYS[group], STATUS_DOT_DEFAULTS[group], this._t(`color_group_${group}` as keyof AlarmTranslations)))}</div>
-        <span class="native-select-label">${this._t('colors_sensor_title')}</span>
-        <span class="data-hint">${this._t('colors_sensor_hint')}</span>
-        <div class="color-list">${this._renderColorRow(SENSOR_ACTIVE_COLOR_KEY, SENSOR_ACTIVE_DEFAULT, this._t('color_sensor_active'))}</div>
+        ${showSensorColor ? this._renderSensorColor() : nothing}
         ${anySet ? html`<button type="button" class="reset-colors bulk-btn" @click=${() => this._resetColors(keys)}>${this._t('colors_reset')}</button>` : nothing}
       </div>
+    `;
+  }
+
+  /** Color de los sensores activos: solo donde hay sensores que pintar (grande y mediana). */
+  private _renderSensorColor(): TemplateResult {
+    return html`
+      <span class="native-select-label">${this._t('colors_sensor_title')}</span>
+      <span class="data-hint">${this._t('colors_sensor_hint')}</span>
+      <div class="color-list">${this._renderColorRow(SENSOR_ACTIVE_COLOR_KEY, SENSOR_ACTIVE_DEFAULT, this._t('color_sensor_active'))}</div>
     `;
   }
 

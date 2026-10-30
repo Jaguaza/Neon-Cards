@@ -74,7 +74,6 @@ export interface AlarmTranslations {
   section_sensors: string;
   sensors_hint: string;
   sensors_hint_medium: string;
-  sensors_hint_compact: string;
   sensor_slot_label: string;
   sensor_slot_none: string;
   only_active_label: string;

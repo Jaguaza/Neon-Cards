@@ -226,4 +226,24 @@ describe('NeonAlarmCardEditor', () => {
     expect(bulk(all.el, 'mark').disabled).toBe(true);
     expect(bulk(all.el, 'clear').disabled).toBe(false);
   });
+
+  it('la compacta no ofrece nada de sensores: ni la sección, ni los huecos, ni «solo activos», ni listas, ni ayudas', async () => {
+    const { el } = await mount({ size: 'compact', footer_sensors: ['motion'], footer_only_active: true });
+    const text = el.shadowRoot!.textContent!;
+    expect(text).not.toContain('Pie de la tarjeta');
+    expect(text).not.toContain('Tipo de sensor');
+    expect(text).not.toContain('Mostrar solo los sensores activos');
+    expect(text).not.toContain('Ocultar sensores concretos');
+    expect(q(el, '.sensor-slot')).toBeNull();
+    expect(q(el, 'select[id^="sensor-"]')).toBeNull();
+    expect(q(el, '.sensor-checks')).toBeNull();
+  });
+
+  it('la mediana y la grande sí ofrecen la sección de sensores', async () => {
+    for (const size of ['medium', 'large']) {
+      const { el } = await mount({ size });
+      expect(el.shadowRoot!.textContent, size).toContain('Pie de la tarjeta');
+      expect(q(el, '.sensor-slot'), size).not.toBeNull();
+    }
+  });
 });

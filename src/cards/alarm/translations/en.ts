@@ -71,7 +71,6 @@ export const en: AlarmTranslations = {
   section_sensors: 'Card footer: sensors',
   sensors_hint: 'Pick which sensor types the footer shows (up to four). Each type is a row with how many sensors of that type are active; tapping a row on the card opens the list of sensors.',
   sensors_hint_medium: 'The medium card shows up to two sensor types in the footer. Each type is a row with how many sensors of that type are active.',
-  sensors_hint_compact: 'The compact card only shows icon, name and state: it has no sensor footer. Pick the medium or large size to use it.',
   sensor_slot_label: 'Sensor type',
   sensor_slot_none: 'None (do not show this row)',
   only_active_label: 'Show only active sensors',

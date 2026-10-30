@@ -71,7 +71,6 @@ export const es: AlarmTranslations = {
   section_sensors: 'Pie de la tarjeta: sensores',
   sensors_hint: 'Elige qué tipos de sensor enseña el pie (hasta cuatro). Cada tipo es una fila con cuántos sensores de ese tipo hay activos; al pulsar una fila en la tarjeta se abre la lista de sensores.',
   sensors_hint_medium: 'La tarjeta mediana enseña hasta dos tipos de sensor en el pie. Cada tipo es una fila con cuántos sensores de ese tipo hay activos.',
-  sensors_hint_compact: 'La tarjeta compacta solo muestra icono, nombre y estado: no tiene pie de sensores. Elige el tamaño mediana o grande para usarlo.',
   sensor_slot_label: 'Tipo de sensor',
   sensor_slot_none: 'Ninguno (no mostrar esta fila)',
   only_active_label: 'Mostrar solo los sensores activos',

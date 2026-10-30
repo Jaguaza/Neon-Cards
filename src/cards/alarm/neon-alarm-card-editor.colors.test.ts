@@ -86,4 +86,24 @@ describe('editor · colores', () => {
     expect(events()).toBe(1);
     expect(last()).toEqual({ entity: 'alarm_control_panel.casa', name: 'Mi alarma' });
   });
+
+  it('la compacta no tiene sensores que pintar: sin el color de sensores activos, pero con los del punto de estado', async () => {
+    const { el } = await mount({ size: 'compact' });
+    const keys = Array.from(el.shadowRoot!.querySelectorAll<HTMLInputElement>('input[data-color]')).map((i) => i.dataset.color);
+    expect(keys).toHaveLength(9);
+    expect(keys).not.toContain('sensor_active_color');
+    expect(el.shadowRoot!.textContent).not.toContain('Sensores activos');
+    expect(el.shadowRoot!.textContent).toContain('Punto de estado');
+  });
+
+  it('en la compacta, restablecer no toca el color de sensores (por si vuelve a la grande)', async () => {
+    const { el, last } = await mount({ size: 'compact', status_color_armed_away: '#111111', sensor_active_color: '#333333' });
+    resetButton(el)!.click();
+    expect(last()).toEqual({ size: 'compact', sensor_active_color: '#333333' });
+  });
+
+  it('en la compacta, un color de sensores heredado no hace que salga el botón de restablecer', async () => {
+    const { el } = await mount({ size: 'compact', sensor_active_color: '#333333' });
+    expect(resetButton(el)).toBeNull();
+  });
 });
