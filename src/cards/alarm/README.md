@@ -100,6 +100,9 @@ está cerrada con llave.
 Al pulsar un dato se abre la **lista** de sensores de ese tipo, los activos
 primero, sin disparar la acción de la tarjeta.
 
+La compacta no tiene pie: su editor no ofrece los tipos de sensor, «solo
+activos», la lista de sensores a ocultar ni el color de sensores activos.
+
 El editor ofrece los tipos de seguridad habituales (`motion`, `occupancy`,
 `presence`, `door`, `garage_door`, `window`, `opening`, `vibration`, `tamper`,
 `smoke`, `gas`, `carbon_monoxide`, `moisture`, `heat`, `sound`, `safety`,
@@ -258,6 +261,9 @@ lock counts as active if it is not locked.
 
 Tapping an item opens the **list** of sensors of that type, active ones first,
 without triggering the card's action.
+
+The compact card has no footer: its editor does not offer the sensor types,
+"only active", the list of sensors to hide or the active-sensor color.
 
 The editor offers the usual security types (`motion`, `occupancy`, `presence`,
 `door`, `garage_door`, `window`, `opening`, `vibration`, `tamper`, `smoke`,
