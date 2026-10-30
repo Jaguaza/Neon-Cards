@@ -60,12 +60,55 @@ export const NEON_ALARM_SIZE_STYLES = css`
       display: inline;
     }
   }
-  /* Compacta: solo icono, nombre y estado. El menú de tres puntos tampoco va. */
+  /* Compacta: solo escudo, nombre y estado, en columna (el escudo arriba y
+     debajo el nombre y el estado a todo el ancho), como la compacta de la Lock
+     Card. Con tan poco ancho el texto no se corta con puntos suspensivos: se
+     parte en varias líneas (el nombre, hasta dos). Sin pie ni tres puntos. */
   .size-compact {
-    padding: 12px 14px;
+    container-type: inline-size;
+    padding: 12px;
+  }
+  .size-compact .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .size-compact .header > .text {
+    align-self: stretch;
   }
   .size-compact .name {
-    font-size: 16px;
-    line-height: 20px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    font-size: 15px;
+    line-height: 18px;
+    white-space: normal;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+  .size-compact .status {
+    align-items: flex-start;
+    white-space: normal;
+  }
+  .size-compact .status-dot {
+    margin-top: 4px;
+  }
+  .size-compact .status-text {
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+  }
+  /* Compacta muy estrecha (un hueco de 3 columnas en una pantalla pequeña):
+     letra un punto menor para que las palabras largas («Desarmada») no se
+     partan a mitad. */
+  @container (max-width: 112px) {
+    .size-compact .name {
+      font-size: 14px;
+      line-height: 17px;
+    }
+    .size-compact .status {
+      gap: 4px;
+      font-size: 11px;
+    }
   }
 `;

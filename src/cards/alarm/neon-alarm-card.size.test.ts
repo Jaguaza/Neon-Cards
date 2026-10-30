@@ -44,4 +44,20 @@ describe('tamaño de la Alarm card', () => {
     expect((await mount({ size: 'medium', footer_sensors: types }, hass)).shadowRoot!.querySelectorAll('.footer .item').length).toBe(2);
     expect((await mount({ footer_sensors: types }, hass)).shadowRoot!.querySelectorAll('.footer .item').length).toBe(4);
   });
+
+  it('la compacta apila el escudo sobre el texto y no corta el nombre ni el estado con puntos suspensivos', async () => {
+    const el = await mount({ size: 'compact' });
+    const css = (el.constructor as unknown as { styles: Array<{ cssText: string }> }).styles.map((style) => style.cssText).join('\n');
+    // Todas las reglas con ese selector juntas (algunas van en una @container para anchos muy pequeños).
+    const rule = (selector: string) =>
+      css
+        .split(selector)
+        .slice(1)
+        .map((part) => part.slice(0, part.indexOf('}')))
+        .join('\n');
+    expect(rule('.size-compact .header {')).toContain('flex-direction: column');
+    expect(rule('.size-compact .name {')).toContain('white-space: normal');
+    expect(rule('.size-compact .status {')).toContain('white-space: normal');
+    expect(rule('.size-compact .status-text {')).toContain('text-overflow: clip');
+  });
 });
