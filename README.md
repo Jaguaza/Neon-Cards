@@ -22,7 +22,9 @@ https://github.com/user-attachments/assets/adf351f8-18a3-4f6e-bc8f-4353c1061a87
 ---
 
 ## Apoya el proyecto ❤️ Support the project
-Si te está gustando este Repositorio pásate [por Aquí](#apoyo_es)  - If you’re enjoying this repository, do pop [over here](#apoyo_en) 
+Si te está gustando este Repositorio pásate [por Aquí](#apoyo_es)
+
+If you’re enjoying this repository, do pop [over here](#apoyo_en) 
 
 ---
 
