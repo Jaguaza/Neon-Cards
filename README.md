@@ -342,6 +342,7 @@ threshold_names:
   low: Frío
   ok: Confort
   high: Calor
+  ```
 
 <a name="cerradura-card"></a>
 ### **🔐 Neón Lock Card**
