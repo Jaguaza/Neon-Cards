@@ -60,6 +60,8 @@ Interruptor minimalista con animaciones SVG, paletas dinámicas y arquitectura m
   <img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/entity/Entity%20completa.jpg" width="450" style="margin-right:20px;">
 </p>
 
+https://github.com/user-attachments/assets/8ae87d5e-a995-4531-8aae-b137a4cc1fca
+
 ### **Paletas disponibles**
 
 - **Cyber Emerald** *(Predeterminada)*  
