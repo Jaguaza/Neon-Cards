@@ -1,3 +1,7 @@
+
+
+https://github.com/user-attachments/assets/adf351f8-18a3-4f6e-bc8f-4353c1061a87
+
 ![Cabecera](https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/branding/social-preview.png)
 
 Colección de tarjetas personalizadas para Home Assistant con una estética moderna inspirada en el neón. Estas tarjetas toman automáticamente el radio de las esquinas, los colores internos y otros estilos del tema que tengas seleccionado, adaptándose a cualquier tema instalado en tu Home Assistant.
@@ -8,11 +12,7 @@ Collection of custom cards for Home Assistant with a modern neon‑inspired aest
 
 ### 🎬 Video explicativo / Explainer video
 
-<p align="center">
-  <a href="https://youtu.be/0MzlXAx52JY">
-    <img src="https://img.youtube.com/vi/0MzlXAx52JY/hqdefault.jpg" width="720">
-  </a>
-</p>
+Uploading Neón Cards.mp4…
 
 <p align="center">
   <strong>Imagen de las tarjetas / Cards preview</strong>
