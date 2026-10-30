@@ -47,7 +47,7 @@ animaciones de entrada.
 |---|---|---|
 | `large` (por defecto) | Escudo, nombre, subtítulo, estado, tres puntos y pie de hasta cuatro tipos de sensor | 12 |
 | `medium` | Sin subtítulo, con el estado bajo el nombre; pie de hasta dos tipos de sensor | 6 |
-| `compact` | Solo escudo, nombre y estado; sin pie ni tres puntos. Los botones de las vistas son solo iconos | 3 |
+| `compact` | Solo escudo, nombre y estado, en columna (el escudo arriba y debajo el texto, que se parte en líneas en vez de cortarse); sin pie ni tres puntos. Los botones de las vistas son solo iconos | 3 |
 
 El alto es automático. Una vista abierta (modos, teclado…) ocupa el sitio del
 contenido y la tarjeta crece lo necesario en vez de cortarla.
@@ -210,7 +210,7 @@ pulses or entry animations.
 |---|---|---|
 | `large` (default) | Shield, name, subtitle, state, three dots and a footer of up to four sensor types | 12 |
 | `medium` | No subtitle, state under the name; footer of up to two sensor types | 6 |
-| `compact` | Only shield, name and state; no footer or three dots. View buttons are icon-only | 3 |
+| `compact` | Only shield, name and state, in a column (the shield on top and the text below, which wraps onto several lines instead of being cut); no footer or three dots. View buttons are icon-only | 3 |
 
 Height is automatic. An open view (modes, keypad…) takes the place of the
 content and the card grows as needed instead of clipping it.
