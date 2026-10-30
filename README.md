@@ -9,7 +9,6 @@ Collection of custom cards for Home Assistant with a modern neon‑inspired aest
 ### 🎬 Video explicativo / Explainer video
 
 https://github.com/user-attachments/assets/adf351f8-18a3-4f6e-bc8f-4353c1061a87
-Uploading Neón Cards.mp4…
 
 <p align="center">
   <strong>Imagen de las tarjetas / Cards preview</strong>
