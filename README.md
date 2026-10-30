@@ -282,6 +282,8 @@ Tarjeta de solo lectura para **una** entidad `sensor` o `binary_sensor`: nombre,
 
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/sensor/Neon_Sensor_Cards.png" width="450"></p>
 
+https://github.com/user-attachments/assets/61e9c55d-5969-4e8a-8084-c566e2018f88
+
 ### **Título y subtítulo**
 
 `name` es el título (por defecto, el nombre de la entidad) y `subtitle` el texto de debajo. Sin `subtitle` se muestra «Sensor» o «Sensor binario». Con `show_subtitle: false` (o desmarcando «Mostrar subtítulo» en el editor) no se muestra ningún subtítulo.
@@ -340,10 +342,6 @@ threshold_names:
   low: Frío
   ok: Confort
   high: Calor
-```
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/Sensor.gif" width="450"></p>
-
----
 
 <a name="cerradura-card"></a>
 ### **🔐 Neón Lock Card**
