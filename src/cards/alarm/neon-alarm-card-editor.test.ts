@@ -64,9 +64,9 @@ describe('NeonAlarmCardEditor', () => {
     expect(q(medium.el, '#subtitle-type')).toBeNull();
   });
 
-  it('los tipos de sensor: cuatro huecos en la grande, dos en la mediana y ninguno en la compacta', async () => {
+  it('los tipos de sensor: cuatro huecos en la grande y en la mediana, y ninguno en la compacta', async () => {
     const count = async (size: string) => (await mount({ size })).el.shadowRoot!.querySelectorAll('.sensor-slot').length;
-    expect([await count('large'), await count('medium'), await count('compact')]).toEqual([4, 2, 0]);
+    expect([await count('large'), await count('medium'), await count('compact')]).toEqual([4, 4, 0]);
   });
 
   it('cada hueco ofrece los tipos de seguridad y las cerraduras, y escribe footer_sensors en orden', async () => {

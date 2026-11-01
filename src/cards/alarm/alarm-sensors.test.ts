@@ -19,7 +19,7 @@ const hass = hassWith('disarmed', {
 describe('normalizeFooterTypes', () => {
   it('quita repetidos, vacíos y no textos, y recorta al máximo del tamaño', () => {
     expect(normalizeFooterTypes(['motion', 'motion', ' ', 3, 'door', 'window', 'lock', 'smoke'], 'large')).toEqual(['motion', 'door', 'window', 'lock']);
-    expect(normalizeFooterTypes(['motion', 'door', 'window'], 'medium')).toEqual(['motion', 'door']);
+    expect(normalizeFooterTypes(['motion', 'door', 'window', 'lock', 'smoke'], 'medium')).toEqual(['motion', 'door', 'window', 'lock']);
     expect(normalizeFooterTypes(['motion'], 'compact')).toEqual([]);
   });
 

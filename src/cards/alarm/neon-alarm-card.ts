@@ -10,7 +10,7 @@ import { commandChoices, commandNeedsCode, codeFormat, isAlarmAlert, isAlarmHalo
 import { resolveAlarmSize } from './alarm-size';
 import { footerSensorView, normalizeExcluded, normalizeFooterTypes, visibleFooterViews } from './alarm-sensors';
 import type { FooterOptions, FooterSensorView } from './alarm-sensors';
-import { renderFooterSensor } from './footer-view';
+import { renderFooterChip, renderFooterSensor } from './footer-view';
 import { renderModesView } from './flow-views';
 import type { ViewContext } from './flow-views';
 import { renderKeypadView } from './keypad-view';
@@ -240,13 +240,14 @@ export class NeonAlarmCard extends BaseNeonCard {
     return { excluded: normalizeExcluded(this._config?.footer_excluded), onlyActive: this._config?.footer_only_active === true };
   }
 
-  /** Pie: un dato por tipo de sensor. Con «solo activos» los tipos en reposo no salen y, si no queda ninguno, tampoco el pie. */
+  /** Pie: un dato por tipo de sensor (una fila por tipo en la grande; fichas con icono y número, en una línea, en la mediana). Con «solo activos» los tipos en reposo no salen y, si no queda ninguno, tampoco el pie. */
   private _renderFooter(size: ReturnType<typeof resolveAlarmSize>): TemplateResult | typeof nothing {
     const types = normalizeFooterTypes(this._config?.footer_sensors, size);
     const views = visibleFooterViews(this.hass, types, this._footerOptions());
     if (!views.length) return nothing;
-    const items = views.map((sensor) => renderFooterSensor(sensor, { label: this._sensorTypeLabel(sensor.type), ...this._sensorCount(sensor), onOpen: (t) => this._flow.open({ kind: 'sensors', type: t }) }));
-    return html`<div class="footer">${items}</div>`;
+    const render = size === 'medium' ? renderFooterChip : renderFooterSensor;
+    const items = views.map((sensor) => render(sensor, { label: this._sensorTypeLabel(sensor.type), ...this._sensorCount(sensor), onOpen: (t) => this._flow.open({ kind: 'sensors', type: t }) }));
+    return html`<div class="footer ${size === 'medium' ? 'footer--chips' : ''}">${items}</div>`;
   }
 
   /** Recuento y texto de un dato del pie: «2 activos», «1 activo», «0 En reposo» o «—» sin sensores. */

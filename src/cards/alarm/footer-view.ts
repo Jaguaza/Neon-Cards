@@ -44,3 +44,34 @@ export function renderFooterSensor(sensor: FooterSensorView, ctx: FooterItemCont
     </button>
   `;
 }
+
+/**
+ * Ficha del pie de la tarjeta mediana: solo el icono del tipo y el número de
+ * sensores activos (el nombre y el texto van en la etiqueta accesible y en el
+ * tooltip), para que quepan hasta cuatro en una línea. Pulsarla abre la lista,
+ * como el dato de la grande.
+ */
+export function renderFooterChip(sensor: FooterSensorView, ctx: FooterItemContext): TemplateResult {
+  const tone = sensor.activeCount > 0 ? 'warn' : sensor.total === 0 ? 'muted' : 'normal';
+  const description = `${ctx.label}: ${ctx.count} ${ctx.word}`.trim();
+  return html`
+    <button
+      type="button"
+      class="chip chip--${tone}"
+      data-type=${sensor.type}
+      aria-label=${description}
+      title=${description}
+      @pointerdown=${stop}
+      @pointerup=${stop}
+      @pointercancel=${stop}
+      @click=${(ev: Event) => {
+        ev.stopPropagation();
+        ctx.onOpen(sensor.type);
+      }}
+    >
+      <ha-icon icon=${sensor.icon}></ha-icon>
+      <span class="chip-count">${ctx.count}</span>
+    </button>
+  `;
+}
+

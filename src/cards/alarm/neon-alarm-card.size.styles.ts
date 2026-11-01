@@ -36,28 +36,61 @@ export const NEON_ALARM_SIZE_STYLES = css`
   .size-compact .status-dot {
     flex: none;
   }
-  .size-medium .item {
-    gap: 8px;
+  /* Pie de la mediana: una sola línea de fichas, cada una con el icono del
+     tipo de sensor y cuántos hay activos. Reparten el ancho a partes iguales. */
+  .footer--chips {
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 4px;
+    padding-top: 6px;
   }
-  .size-medium .item ha-icon {
+  .chip {
+    flex: 1 1 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-width: 0;
+    padding: 8px 2px;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    color: var(--primary-text-color);
+    cursor: pointer;
+  }
+  .chip:focus-visible {
+    outline: 1.5px solid var(--neon-c1);
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+  .chip ha-icon {
     --mdc-icon-size: 20px;
+    flex: none;
+    margin: 0;
+    color: inherit;
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--neon-c1) 55%, transparent));
   }
-  /* Mediana muy estrecha: el nombre del tipo cede sitio al recuento, y de este
-     solo el número si ni así cabe. */
+  .chip-count {
+    font-size: 14px;
+    line-height: 16px;
+    font-weight: 600;
+  }
+  .chip--warn {
+    color: var(--alarm-sensor-active, #ffb02e);
+  }
+  .chip--muted {
+    color: var(--secondary-text-color);
+  }
+  /* Mediana estrecha (4 columnas): fichas algo más pequeñas para que quepan las cuatro. */
   @container (max-width: 150px) {
-    .size-medium .item-label {
-      display: none;
+    .chip {
+      gap: 3px;
     }
-    .size-medium .item-text {
-      justify-content: flex-start;
+    .chip ha-icon {
+      --mdc-icon-size: 18px;
     }
-  }
-  @container (max-width: 120px) {
-    .size-medium .item-value .word {
-      display: none;
-    }
-    .size-medium .item-value.is-idle .count {
-      display: inline;
+    .chip-count {
+      font-size: 13px;
     }
   }
   /* Compacta: solo escudo, nombre y estado, en columna (el escudo arriba y
