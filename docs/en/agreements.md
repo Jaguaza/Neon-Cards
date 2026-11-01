@@ -133,7 +133,7 @@ compatibility is not maintained.
 
 ## 25. Framework freeze
 
-Once the Neón Card Entity is finished, the architecture, public API, and
+Once the Neón Entity Card is finished, the architecture, public API, and
 conventions are frozen. From that point on, the framework evolves without
 being redesigned.
 

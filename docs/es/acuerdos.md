@@ -132,7 +132,7 @@ mantiene compatibilidad indefinida.
 
 ## 25. Framework Freeze
 
-Cuando la Neón Card Entity esté terminada, se congela la arquitectura, la
+Cuando la Neón Entity Card esté terminada, se congela la arquitectura, la
 API pública y las convenciones. A partir de ese momento el framework
 evoluciona sin rediseñarse.
 

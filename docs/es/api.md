@@ -28,7 +28,7 @@ Ver también la versión en [inglés](../en/api.md).
   - [Tamaño del aro (`ring-size.ts`)](#tamaño-del-aro-ring-sizets)
   - [Editor: carcasa común (`editor-form.styles.ts`)](#editor-carcasa-común-editor-formstylests)
   - [Traducciones compartidas (`translations/`)](#traducciones-compartidas-translations)
-- [Neón Card Entity — Configuración YAML](#neón-card-entity--configuración-yaml)
+- [Neón Entity Card — Configuración YAML](#neón-entity-card--configuración-yaml)
 - [Neón Button Card — Configuración YAML](#neón-button-card--configuración-yaml)
 - [Neón Thermostat Card — Configuración YAML](#neón-thermostat-card--configuración-yaml)
 - [Neón Sensor Card — Configuración YAML](#neón-sensor-card--configuración-yaml)
@@ -630,7 +630,7 @@ Sensor Card para su gráfico.
 ## `src/shared` — Paleta y efectos neón compartidos
 
 Lo visual reutilizable entre tarjetas (acuerdo nº4: nunca se copia por
-tarjeta). Nace en Neón Card Entity y lo consume también Neón Button
+tarjeta). Nace en Neón Entity Card y lo consume también Neón Button
 Card. Es intencionadamente independiente del tema de Home Assistant: la
 identidad "neón" no depende del tema activo, solo el resto de la
 tarjeta (fondo, texto) sí lo hace a través de variables CSS de HA.
@@ -870,7 +870,7 @@ localize(hass, SHARED_TRANSLATIONS, 'action_tap'); // '1 Toque (Tap)'
 
 ---
 
-## Neón Card Entity — Configuración YAML
+## Neón Entity Card — Configuración YAML
 
 Todas las claves de `NeonCardEntityConfig` (`src/cards/entity/types.ts`).
 Ver ejemplos completos en [`examples/`](../../examples/README.md).

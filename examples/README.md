@@ -5,7 +5,7 @@
 Ejemplos oficiales de uso de cada tarjeta y de cada API pública (acuerdo
 nº12 y nº17).
 
-## Neón Card Entity (`custom:neon-card-entity`)
+## Neón Entity Card (`custom:neon-card-entity`)
 
 ### YAML mínimo
 
@@ -39,15 +39,15 @@ card_orientation: right
 
 ### Capturas
 
-![Escenarios de Neón Card Entity](../assets/screenshots/entity/Entity%20completa.jpg)
+![Escenarios de Neón Entity Card](../assets/screenshots/entity/Entity%20completa.jpg)
 
 ### GIF
 
-![Neón Card Entity en acción](../assets/gifs/Neón%20Cards.gif)
+![Neón Entity Card en acción](../assets/gifs/Neón%20Cards.gif)
 
 ### Explicación
 
-Neón Card Entity es un interruptor con un halo neón degradado de 3 colores
+Neón Entity Card es un interruptor con un halo neón degradado de 3 colores
 alrededor de la píldora. Cada entidad puede mostrar información primaria y
 secundaria (nombre, estado, último cambio...), un punto de estado opcional,
 y admite tap / mantener pulsado / doble toque configurables por separado.
@@ -108,7 +108,7 @@ script/servicio, o representar una habitación/zona sin estar ligado a
 ningún dominio concreto. En estado activo, un halo neón con degradado de
 3 colores se dibuja en dos direcciones desde la esquina superior
 izquierda, encontrándose en la inferior derecha — mismo lenguaje visual
-que el halo de Neón Card Entity, pero con mecanismo propio (no comparte
+que el halo de Neón Entity Card, pero con mecanismo propio (no comparte
 componente con ella). Admite un sensor suelto (`top_sensor`) y hasta 3
 sensores agrupados (`sensors`) bajo un divisor, con icono/estado/unidad
 calculados automáticamente. El tamaño de la tarjeta (ancho y alto en el
@@ -461,7 +461,7 @@ inicio de la rejilla son 12, 6 y 3 columnas, con alto automático.
 Official usage examples for every card and every public API (agreement
 nº12 and nº17).
 
-## Neón Card Entity (`custom:neon-card-entity`)
+## Neón Entity Card (`custom:neon-card-entity`)
 
 ### Minimal YAML
 
@@ -495,15 +495,15 @@ card_orientation: right
 
 ### Screenshots
 
-![Neón Card Entity scenarios](../assets/screenshots/entity/Entity%20completa.jpg)
+![Neón Entity Card scenarios](../assets/screenshots/entity/Entity%20completa.jpg)
 
 ### GIF
 
-![Neón Card Entity in action](../assets/gifs/Neón%20Cards.gif)
+![Neón Entity Card in action](../assets/gifs/Neón%20Cards.gif)
 
 ### Explanation
 
-Neón Card Entity is a switch with a 3-color neon gradient halo around the
+Neón Entity Card is a switch with a 3-color neon gradient halo around the
 pill. Each entity can show primary and secondary information (name,
 state, last changed...), an optional status dot, and supports
 separately-configurable tap / hold / double-tap actions. The card's
@@ -563,7 +563,7 @@ can navigate to another tab, open a popup/more-info, run a
 script/service, or represent a room/zone without being tied to any
 particular domain. In its active state, a 3-color neon gradient halo
 draws itself in two directions from the top-left corner, meeting at the
-bottom-right — the same visual language as the Neón Card Entity halo,
+bottom-right — the same visual language as the Neón Entity Card halo,
 but with its own mechanism (no shared component between them). It
 supports one ungrouped sensor (`top_sensor`) and up to 3 grouped sensors
 (`sensors`) below a divider, with icon/state/unit computed

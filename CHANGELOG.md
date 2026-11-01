@@ -13,6 +13,10 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 - **Neón Alarm Card** (`custom:neon-alarm-card`, `src/cards/alarm/`): quinta tarjeta del paquete, para entidades `alarm_control_panel`. Escudo animado con un dibujo y un color por cada estado (desarmada, los cinco modos armados, pendiente, armando, desarmando, disparada y no disponible), halo neón mientras la alarma vigila y halo rojo de alerta. Al pulsar, selección del modo de armado con solo los modos que soporta la entidad (`supported_features`) o desarme; teclado numérico (o campo de texto) en la propia tarjeta cuando la entidad exige código (`code_format`, `code_arm_required`), con aviso de código incorrecto. Pie con hasta cuatro tipos de sensor de seguridad (`footer_sensors`: cualquier `device_class` de `binary_sensor` o `lock`), apilados uno debajo de otro, con el recuento de activos y la lista al pulsar; `footer_only_active` para enseñar solo lo activo y `footer_excluded` (checks en el editor) para ocultar sensores concretos; colores configurables del punto de estado (`status_color_*`: desarmada, cada modo armado, transición, disparada y no disponible) y de los sensores activos (`sensor_active_color`). Tres tamaños (grande con los sensores en filas apiladas, mediana con los sensores como fichas de icono y número en una sola línea, y compacta en columna sin pie), editor visual, traducciones ES y EN y perfil en `npm run perf`.
 
+### Fixed
+
+- Neón Entity Card: en el selector de tarjetas de Home Assistant aparecía como «Neón Card Entity» en vez de «Neón Entity Card», el nombre acordado y el mismo patrón «Neón X Card» que usan las demás tarjetas. Se corrige el nombre del selector y de sus mensajes de error, y también en la documentación, los ejemplos y los acuerdos. El `type:` de YAML (`custom:neon-card-entity`) no cambia, así que los dashboards existentes siguen funcionando.
+
 ### Changed
 
 - `src/shared`: nuevos `isCssColor` y `toHex6` (`src/shared/css-color.ts`), movidos desde la Lock Card para que la Alarm Card los reutilice en lugar de repetir la validación de colores. Solo se añaden exports: no cambia ninguna firma existente y la Lock Card se ve y se comporta igual (mismo DOM y mismo CSS, comprobado antes y después).
@@ -352,6 +356,10 @@ and this project follows [Semantic Versioning](https://semver.org/).
 ### Added
 
 - **Neón Alarm Card** (`custom:neon-alarm-card`, `src/cards/alarm/`): fifth card of the package, for `alarm_control_panel` entities. Animated shield with a drawing and a color for each state (disarmed, the five armed modes, pending, arming, disarming, triggered and unavailable), neon halo while the alarm is watching and a red alert halo. On tap, arming-mode selection with only the modes the entity supports (`supported_features`) or disarm; a numeric keypad (or text field) inside the card when the entity requires a code (`code_format`, `code_arm_required`), with a wrong-code notice. Footer with up to four security sensor types (`footer_sensors`: any `binary_sensor` `device_class` or `lock`), stacked one below the other, with the active count and the list on tap; `footer_only_active` to show only what is active and `footer_excluded` (checks in the editor) to hide specific sensors; configurable colors for the state dot (`status_color_*`: disarmed, each armed mode, transition, triggered and unavailable) and for the active sensors (`sensor_active_color`). Three sizes (large with the sensors in stacked rows, medium with the sensors as icon-and-count chips in a single line, and compact in a column with no footer), visual editor, ES and EN translations and a profile in `npm run perf`.
+
+### Fixed
+
+- Neón Entity Card: in Home Assistant's card picker it appeared as "Neón Card Entity" instead of "Neón Entity Card", the agreed name and the same "Neón X Card" pattern the other cards use. The picker name and its error messages are fixed, as well as the documentation, the examples and the agreements. The YAML `type:` (`custom:neon-card-entity`) does not change, so existing dashboards keep working.
 
 ### Changed
 
