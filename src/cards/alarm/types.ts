@@ -55,7 +55,7 @@ export interface NeonAlarmCardConfig {
    * `device_class` de `binary_sensor` (`motion`, `door`, `window`,
    * `vibration`…) o `lock` para las cerraduras; la tarjeta cuenta todos los
    * sensores de ese tipo que hay abiertos (menos los de `footer_excluded`) y,
-   * al pulsar el dato, los lista. Hasta cuatro en la grande, dos en la mediana.
+   * al pulsar el dato, los lista. Hasta cuatro en la grande y tres en la mediana.
    */
   footer_sensors?: string[];
   /**

@@ -70,7 +70,7 @@ export const en: AlarmTranslations = {
   palette_label: 'Halo palette',
   section_sensors: 'Card footer: sensors',
   sensors_hint: 'Pick which sensor types the footer shows (up to four). Each type is a row with how many sensors of that type are active; tapping a row on the card opens the list of sensors.',
-  sensors_hint_medium: 'The medium card shows up to four sensor types in a single line. Each type is a chip with its icon and how many sensors of that type are active; tapping it on the card opens the list.',
+  sensors_hint_medium: 'The medium card shows up to three sensor types in a single line. Each type is a chip with its icon and how many sensors of that type are active; tapping it on the card opens the list.',
   sensor_slot_label: 'Sensor type',
   sensor_slot_none: 'None (do not show this row)',
   only_active_label: 'Show only active sensors',

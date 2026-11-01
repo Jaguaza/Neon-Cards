@@ -70,7 +70,7 @@ export const es: AlarmTranslations = {
   palette_label: 'Paleta del halo',
   section_sensors: 'Pie de la tarjeta: sensores',
   sensors_hint: 'Elige qué tipos de sensor enseña el pie (hasta cuatro). Cada tipo es una fila con cuántos sensores de ese tipo hay activos; al pulsar una fila en la tarjeta se abre la lista de sensores.',
-  sensors_hint_medium: 'La tarjeta mediana enseña hasta cuatro tipos de sensor en una sola línea. Cada tipo es una ficha con su icono y cuántos sensores de ese tipo hay activos; al pulsarla en la tarjeta se abre la lista.',
+  sensors_hint_medium: 'La tarjeta mediana enseña hasta tres tipos de sensor en una sola línea. Cada tipo es una ficha con su icono y cuántos sensores de ese tipo hay activos; al pulsarla en la tarjeta se abre la lista.',
   sensor_slot_label: 'Tipo de sensor',
   sensor_slot_none: 'Ninguno (no mostrar esta fila)',
   only_active_label: 'Mostrar solo los sensores activos',

@@ -81,7 +81,7 @@ export const NEON_ALARM_SIZE_STYLES = css`
   .chip--muted {
     color: var(--secondary-text-color);
   }
-  /* Mediana estrecha (4 columnas): fichas algo más pequeñas para que quepan las cuatro. */
+  /* Mediana estrecha (4 columnas): fichas algo más pequeñas para que quepan las tres. */
   @container (max-width: 150px) {
     .chip {
       gap: 3px;

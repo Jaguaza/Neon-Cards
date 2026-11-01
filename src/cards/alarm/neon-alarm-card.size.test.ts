@@ -38,10 +38,10 @@ describe('tamaño de la Alarm card', () => {
     expect(el.shadowRoot!.querySelector('.footer')).toBeNull();
   });
 
-  it('la mediana y la grande muestran como mucho cuatro tipos en el pie (la mediana como fichas, la grande como filas)', async () => {
+  it('la mediana muestra como mucho tres tipos en el pie (fichas) y la grande cuatro (filas)', async () => {
     const hass = hassWith('armed_home');
     const types = ['motion', 'door', 'window', 'lock', 'smoke'];
-    expect((await mount({ size: 'medium', footer_sensors: types }, hass)).shadowRoot!.querySelectorAll('.footer .chip').length).toBe(4);
+    expect((await mount({ size: 'medium', footer_sensors: types }, hass)).shadowRoot!.querySelectorAll('.footer .chip').length).toBe(3);
     expect((await mount({ footer_sensors: types }, hass)).shadowRoot!.querySelectorAll('.footer .item').length).toBe(4);
   });
 

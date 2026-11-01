@@ -21,7 +21,7 @@ const hass = () =>
 
 const chips = (el: Card) => Array.from(el.shadowRoot!.querySelectorAll<HTMLButtonElement>('.footer .chip'));
 const count = (chip: Element) => chip.querySelector('.chip-count')!.textContent;
-const types = ['motion', 'door', 'vibration', 'lock'];
+const types = ['motion', 'door', 'vibration'];
 
 describe('tarjeta mediana · sensores en fichas', () => {
   it('el pie es una sola línea de fichas, una por tipo y en el orden configurado, y no hay filas', async () => {
@@ -33,7 +33,7 @@ describe('tarjeta mediana · sensores en fichas', () => {
 
   it('cada ficha lleva solo el icono y el número de sensores activos de su tipo', async () => {
     const el = await mount({ size: 'medium', footer_sensors: types }, hass());
-    expect(chips(el).map(count)).toEqual(['2', '0', '1', '0']);
+    expect(chips(el).map(count)).toEqual(['2', '0', '1']);
     for (const chip of chips(el)) {
       expect(chip.querySelector('ha-icon')).not.toBeNull();
       expect(chip.querySelector('.item-label')).toBeNull();
@@ -103,5 +103,10 @@ describe('tarjeta mediana · sensores en fichas', () => {
     expect(large.shadowRoot!.querySelectorAll('.footer .chip').length).toBe(0);
     const compact = await mount({ size: 'compact', footer_sensors: ['motion'] }, hass());
     expect(compact.shadowRoot!.querySelector('.footer')).toBeNull();
+  });
+
+  it('la mediana admite como mucho tres tipos: un cuarto configurado por YAML no sale', async () => {
+    const el = await mount({ size: 'medium', footer_sensors: ['motion', 'door', 'vibration', 'lock'] }, hass());
+    expect(chips(el).map((c) => c.dataset.type)).toEqual(['motion', 'door', 'vibration']);
   });
 });
