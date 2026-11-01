@@ -18,7 +18,7 @@ import type { EntityItemConfig, NeonCardEntityConfig } from './types';
 import { ENTITY_TRANSLATIONS } from './translations';
 
 /**
- * Neón Card Entity
+ * Neón Entity Card
  * ------------------------------------------------------------
  * Creador: Jaguaza
  *

@@ -16,7 +16,7 @@ const win = window as CustomCardWindow;
 win.customCards = win.customCards || [];
 win.customCards.push({
   type: 'neon-card-entity',
-  name: 'Neón Card Entity',
-  description: 'Interruptor Neón Card Entity con halo degradado de 3 colores.',
+  name: 'Neón Entity Card',
+  description: 'Interruptor Neón Entity Card con halo degradado de 3 colores.',
   preview: true,
 });

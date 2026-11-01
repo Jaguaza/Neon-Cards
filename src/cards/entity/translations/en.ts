@@ -12,6 +12,6 @@ export const en: EntityTranslations = {
   orientation_label: 'Card orientation',
   orientation_left: 'Left view',
   orientation_right: 'Right view',
-  config_error_missing_entity: "You must set 'entity' or 'entities' on the Neón Card Entity.",
+  config_error_missing_entity: "You must set 'entity' or 'entities' on the Neón Entity Card.",
   entity_unavailable_suffix: '(unavailable)',
 };
