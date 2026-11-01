@@ -46,7 +46,7 @@ animaciones de entrada.
 | `size` | Contenido | Columnas de inicio |
 |---|---|---|
 | `large` (por defecto) | Escudo, nombre, subtítulo, estado, tres puntos y pie de hasta cuatro tipos de sensor | 12 |
-| `medium` | Sin subtítulo, con el estado bajo el nombre; pie de hasta dos tipos de sensor | 6 |
+| `medium` | Sin subtítulo, con el estado bajo el nombre; pie de hasta cuatro tipos de sensor como fichas en una sola línea (icono y número de activos) | 6 |
 | `compact` | Solo escudo, nombre y estado, en columna (el escudo arriba y debajo el texto, que se parte en líneas en vez de cortarse); sin pie ni tres puntos. Los botones de las vistas son solo iconos | 3 |
 
 El alto es automático. Una vista abierta (modos, teclado…) ocupa el sitio del
@@ -89,8 +89,10 @@ cambia de estado mientras están abiertas.
 
 ## Pie de sensores
 
-`footer_sensors` es una lista de hasta cuatro tipos (dos en `medium`, ninguno en
-`compact`). Cada tipo es una `device_class` de `binary_sensor` (`motion`,
+`footer_sensors` es una lista de hasta cuatro tipos (ninguno en `compact`). En
+`large` cada tipo es una fila a todo el ancho; en `medium` es una **ficha** con
+el icono del tipo y el número de sensores activos, todas en una línea (el nombre
+del tipo va en el tooltip y en la etiqueta accesible). Cada tipo es una `device_class` de `binary_sensor` (`motion`,
 `door`, `window`, `vibration`…) o `lock` para las cerraduras. La tarjeta
 encuentra **todos** los sensores de Home Assistant de ese tipo (sin filtros por
 área ni exclusiones) y muestra cuántos están activos: ámbar si hay alguno, «En
@@ -209,7 +211,7 @@ pulses or entry animations.
 | `size` | Content | Starting columns |
 |---|---|---|
 | `large` (default) | Shield, name, subtitle, state, three dots and a footer of up to four sensor types | 12 |
-| `medium` | No subtitle, state under the name; footer of up to two sensor types | 6 |
+| `medium` | No subtitle, state under the name; footer of up to four sensor types as chips in a single line (icon and active count) | 6 |
 | `compact` | Only shield, name and state, in a column (the shield on top and the text below, which wraps onto several lines instead of being cut); no footer or three dots. View buttons are icon-only | 3 |
 
 Height is automatic. An open view (modes, keypad…) takes the place of the
@@ -252,8 +254,10 @@ changes state while they are open.
 
 ## Sensor footer
 
-`footer_sensors` is a list of up to four types (two in `medium`, none in
-`compact`). Each type is a `binary_sensor` `device_class` (`motion`, `door`,
+`footer_sensors` is a list of up to four types (none in `compact`). In `large`
+each type is a full-width row; in `medium` it is a **chip** with the type's icon
+and the number of active sensors, all in a single line (the type name is in the
+tooltip and in the accessible label). Each type is a `binary_sensor` `device_class` (`motion`, `door`,
 `window`, `vibration`…) or `lock` for locks. The card finds **all** Home
 Assistant sensors of that type (no area filter or exclusions) and shows how
 many are active: amber if any, "Idle" if none, "—" if there are no sensors. A
