@@ -60,4 +60,17 @@ describe('tamaño de la Alarm card', () => {
     expect(rule('.size-compact .status {')).toContain('white-space: normal');
     expect(rule('.size-compact .status-text {')).toContain('text-overflow: clip');
   });
+
+  it('la compacta tiene reglas para huecos minúsculos (portátil a 150 %): menos relleno, letra del estado adaptable y punto de estado en la esquina', async () => {
+    const el = await mount({ size: 'compact' });
+    const css = (el.constructor as unknown as { styles: Array<{ cssText: string }> }).styles.map((style) => style.cssText).join('\n');
+    const after = (marker: string) => css.slice(css.indexOf(marker));
+    // Nivel pequeño (3-4 columnas): contenido hacia fuera y letra del estado que se adapta al ancho.
+    const small = after('@container (max-width: 72px)');
+    expect(small).toContain('margin: -4px');
+    expect(small).toMatch(/font-size: clamp\([^)]*cqi/);
+    // Nivel minúsculo (~65 px): el punto sale de la línea del texto, a la esquina.
+    const tiny = after('@container (max-width: 52px)');
+    expect(tiny).toMatch(/\.size-compact \.status-dot \{[^}]*position: absolute/);
+  });
 });

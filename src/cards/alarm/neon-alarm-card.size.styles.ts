@@ -144,4 +144,62 @@ export const NEON_ALARM_SIZE_STYLES = css`
       font-size: 11px;
     }
   }
+
+  /* Compacta pequeña (de 3 a 4 columnas en un portátil de 13,3" escalado al
+     150 %: ~65-95 px de tarjeta). Las consultas miden el contenido (la tarjeta
+     menos su relleno de 12px por lado). Menos relleno (el contenido sale 4px
+     hacia fuera), escudo y letra más pequeños; el nombre, dos líneas como mucho. */
+  @container (max-width: 72px) {
+    .size-compact .content {
+      margin: -4px;
+    }
+    .size-compact .header {
+      gap: 4px;
+    }
+    .size-compact .alarm-icon {
+      width: 32px;
+      height: 32px;
+    }
+    .size-compact .name {
+      font-size: 13px;
+      line-height: 15px;
+    }
+    .size-compact .status {
+      gap: 3px;
+      font-size: clamp(8.5px, calc(13cqi + 1px), 10px);
+    }
+    .size-compact .status-dot {
+      width: 6px;
+      height: 6px;
+      margin-top: 3px;
+    }
+  }
+  /* Compacta minúscula (~65-76 px): el punto de estado sale a la esquina, a la
+     altura del escudo, y el texto del estado usa todo el ancho (con 49 px de
+     contenido «Desarmada» no cabe junto al punto sin partirse). */
+  @container (max-width: 52px) {
+    .size-compact .alarm-icon {
+      width: 30px;
+      height: 30px;
+    }
+    .size-compact .name {
+      font-size: 12px;
+      line-height: 14px;
+    }
+    .size-compact .status-dot {
+      position: absolute;
+      top: 14px;
+      right: 12px;
+      margin-top: 0;
+    }
+    /* La letra del estado se adapta al ancho (16% del contenido + 0,8px, entre
+       7,5 y 10px) para que la palabra más larga, «Desarmando…», no se parta:
+       con 49px de contenido sale a ~8,6px y con 41px a 7,5px. */
+    .size-compact .status {
+      font-size: clamp(7.5px, calc(16cqi + 0.8px), 10px);
+    }
+    .size-compact .status-text {
+      letter-spacing: -0.2px;
+    }
+  }
 `;
