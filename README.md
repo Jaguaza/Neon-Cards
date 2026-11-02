@@ -163,6 +163,8 @@ Termostato con dial neón arrastrable, color por modo y soporte para **una o dos
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/termostato/thermostat-views.jpg" width="450"></p>
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/termostato/thermostat-views1.jpg" width="450"></p>
 
+https://github.com/user-attachments/assets/c63b32f6-91c9-46d2-b6d7-fd5577900b99
+
 ### **Tres vistas**
 
 | Vista (`size`) | Qué muestra | Tamaño fijo en el grid (columnas × filas) |
@@ -230,8 +232,6 @@ size: large
 footer:
   - entity: sensor.salon_humidity
 ```
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/Termostato%20Gif.gif" width="450"></p>
-
 ### **Exclusión también para cambios hechos fuera de la tarjeta (opcional)**
 
 La tarjeta solo apaga la otra entidad cuando eliges el modo **en ella**; no actúa por su cuenta cuando el cambio viene de fuera (otra tarjeta, el diálogo de la entidad, un asistente de voz u otras automatizaciones). Si quieres esa garantía también en esos casos, **necesitas una automatización de Home Assistant** (funciona con el panel cerrado). Es opcional y solo tiene sentido con `entity_2`. Sustituye `climate.entity_1` y `climate.entity_2` por las entidades de la tarjeta (`entity_1` es `entity`; `entity_2` es `entity_2`):
@@ -353,6 +353,8 @@ Tarjeta para entidades `lock` de Home Assistant (cerraduras, pestillos, cerradur
 
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/cerradura/cerradura.png" width="450"></p>
 
+https://github.com/user-attachments/assets/22f7d50a-79cb-42ef-9f17-445cb9d78281
+
 ### **Cuatro iconos animados**
 
 Se elige con `lock_icon` (o desde el editor visual, que enseña el dibujo de cada uno): `padlock` *(predeterminado)*, `door`, `garage_roller` (garaje con puerta enrollable) y `garage_sliding` (garaje con puerta corredera). Son dibujos propios que se animan al abrir y al cerrar; con `prefers-reduced-motion` cambian de pose sin animación.
@@ -403,7 +405,6 @@ neon_palette: electric
 footer_items: [battery, last_user, door]
 door_entity: binary_sensor.puerta_principal
 ```
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/Cerradura.gif" width="450"></p>
 
 ## 🚀 Próximamente
 
