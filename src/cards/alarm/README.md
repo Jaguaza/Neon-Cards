@@ -52,6 +52,11 @@ animaciones de entrada.
 El alto es automático. Una vista abierta (modos, teclado…) ocupa el sitio del
 contenido y la tarjeta crece lo necesario en vez de cortarla.
 
+La compacta también se adapta a huecos muy pequeños, como 3 columnas en un
+portátil de 13,3" escalado al 150 % (~65 px): reduce el relleno, el escudo y la
+letra, esta última según el ancho disponible, y saca el punto de estado a la
+esquina para que palabras como «Desarmando…» no se partan.
+
 ## Pulsar: armar y desarmar
 
 Con `tap_action: toggle` (el valor por defecto):
@@ -217,6 +222,11 @@ pulses or entry animations.
 
 Height is automatic. An open view (modes, keypad…) takes the place of the
 content and the card grows as needed instead of clipping it.
+
+The compact card also adapts to very small slots, such as 3 columns on a 13.3"
+laptop scaled to 150% (~65 px): it reduces the padding, the shield and the
+text (the latter according to the available width) and moves the state dot to
+the corner so words like "Disarming…" do not break.
 
 ## Tapping: arm and disarm
 
