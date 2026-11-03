@@ -1,5 +1,6 @@
 import type { ActionConfig } from '../../ha/types';
 import type { InfoOption } from '../../core';
+import type { CardSize } from '../../shared';
 
 /**
  * Estados visuales de la tarjeta. Los siete primeros son los estados
@@ -25,7 +26,7 @@ export type LockVisualState =
  * compacta: solo icono, nombre y estado (sin tres puntos ni pie) y, al
  * pulsar, la orden se elige con iconos de candado en vez de con texto.
  */
-export type LockSize = 'compact' | 'medium' | 'large';
+export type LockSize = CardSize;
 
 /**
  * Qué mostrar bajo el nombre: 'state' (por defecto, estado traducido de

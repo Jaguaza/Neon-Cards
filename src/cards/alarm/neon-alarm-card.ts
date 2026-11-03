@@ -3,11 +3,10 @@ import type { PropertyValues, TemplateResult } from 'lit';
 import type { ActionConfig, HomeAssistant } from '../../ha/types';
 import { BaseNeonCard, createGestureState, handlePointerDown, cancelHold, handleClick, dispatchHassAction, computeInfoDisplay, localize } from '../../core';
 import type { GestureState } from '../../core';
-import { resolveGradientColors, NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, neonHaloVars, neonRingSplitTemplate, RingSizeController } from '../../shared';
-import { ACTION_PENDING_MS, ALARM_GRID, COMMAND_SERVICES, TRIGGERED_HALO } from './constants';
+import { CARD_GRID, resolveCardSize, resolveGradientColors, NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, neonHaloVars, neonRingSplitTemplate, RingSizeController } from '../../shared';
+import { ACTION_PENDING_MS, COMMAND_SERVICES, TRIGGERED_HALO } from './constants';
 import { AlarmFlow } from './alarm-flow';
 import { commandChoices, commandNeedsCode, codeFormat, isAlarmAlert, isAlarmHaloOn, isAlarmMoving, isToggleAction, resolveAlarmState, sensorActiveColor, statusDotColor } from './alarm-state';
-import { resolveAlarmSize } from './alarm-size';
 import { footerSensorView, normalizeExcluded, normalizeFooterTypes, visibleFooterViews } from './alarm-sensors';
 import type { FooterOptions, FooterSensorView } from './alarm-sensors';
 import { renderFooterChip, renderFooterSensor } from './footer-view';
@@ -92,7 +91,7 @@ export class NeonAlarmCard extends BaseNeonCard {
 
   /** Columnas de inicio: grande 12, mediana 6 y compacta 3; alto automático. */
   getGridOptions(): { rows: 'auto'; columns: number; min_columns: number } {
-    return { rows: 'auto', ...ALARM_GRID[resolveAlarmSize(this._config)] };
+    return { rows: 'auto', ...CARD_GRID[resolveCardSize(this._config)] };
   }
 
   private get _stateObj() {
@@ -241,7 +240,7 @@ export class NeonAlarmCard extends BaseNeonCard {
   }
 
   /** Pie: un dato por tipo de sensor (una fila por tipo en la grande; fichas con icono y número, en una línea, en la mediana). Con «solo activos» los tipos en reposo no salen y, si no queda ninguno, tampoco el pie. */
-  private _renderFooter(size: ReturnType<typeof resolveAlarmSize>): TemplateResult | typeof nothing {
+  private _renderFooter(size: ReturnType<typeof resolveCardSize>): TemplateResult | typeof nothing {
     const types = normalizeFooterTypes(this._config?.footer_sensors, size);
     const views = visibleFooterViews(this.hass, types, this._footerOptions());
     if (!views.length) return nothing;
@@ -292,7 +291,7 @@ export class NeonAlarmCard extends BaseNeonCard {
     if (!this._config) return nothing;
     const colors = resolveGradientColors(this._config);
     const state = resolveAlarmState(this._config, this.hass);
-    const size = resolveAlarmSize(this._config);
+    const size = resolveCardSize(this._config);
     const viewing = !!this._flow.view && this._flow.shown;
     const hasDoubleTap = !!this._config.double_tap_action && this._config.double_tap_action.action !== 'none';
     return html`

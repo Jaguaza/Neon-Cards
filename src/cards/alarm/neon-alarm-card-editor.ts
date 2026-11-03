@@ -2,11 +2,10 @@ import { LitElement, html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import { EDITOR_ACTIONS } from '../../ha/types';
 import type { ActionConfig, HomeAssistant, ValueChangedEvent } from '../../ha/types';
-import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, isCssColor, toHex6, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
+import { CARD_SIZES, DEFAULT_CARD_SIZE, DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, isCssColor, resolveCardSize, toHex6, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
 import { getInfoLabels, localize } from '../../core';
 import { FOOTER_MAX, SECURITY_SENSOR_TYPES, SENSOR_ACTIVE_COLOR_KEY, SENSOR_ACTIVE_DEFAULT, STATUS_COLOR_GROUPS, STATUS_COLOR_KEYS, STATUS_DOT_DEFAULTS } from './constants';
-import { DEFAULT_ALARM_SIZE, ALARM_SIZES, resolveAlarmSize } from './alarm-size';
 import { allSensorsOfType, normalizeExcluded, normalizeFooterTypes } from './alarm-sensors';
 import type { SensorEntry } from './alarm-sensors';
 import { NEON_ALARM_EDITOR_STYLES } from './neon-alarm-card-editor.styles';
@@ -67,7 +66,7 @@ export class NeonAlarmCardEditor extends LitElement {
 
   private _renderMainSection(): TemplateResult {
     const config = this._config!;
-    const size = resolveAlarmSize(config);
+    const size = resolveCardSize(config);
     return html`
       <div class="editor-section">
         <div class="section-header">${this._t('section_main')}</div>
@@ -90,11 +89,11 @@ export class NeonAlarmCardEditor extends LitElement {
           .value=${size}
           @change=${(ev: Event) => {
             const value = (ev.target as HTMLSelectElement).value as AlarmSize;
-            if (!value || value === resolveAlarmSize(this._config)) return;
-            this._configChanged('size', value === DEFAULT_ALARM_SIZE ? undefined : value);
+            if (!value || value === resolveCardSize(this._config)) return;
+            this._configChanged('size', value === DEFAULT_CARD_SIZE ? undefined : value);
           }}
         >
-          ${ALARM_SIZES.map((opt) => html`<option value=${opt} ?selected=${opt === size}>${this._t(`size_${opt}`)}</option>`)}
+          ${CARD_SIZES.map((opt) => html`<option value=${opt} ?selected=${opt === size}>${this._t(`size_${opt}`)}</option>`)}
         </select>
         ${size === 'large' ? this._renderSubtitleFields() : nothing}
       </div>
@@ -132,7 +131,7 @@ export class NeonAlarmCardEditor extends LitElement {
    * nada de sensores: ni la sección ni sus ayudas.
    */
   private _renderSensorsSection(): TemplateResult | typeof nothing {
-    const size = resolveAlarmSize(this._config);
+    const size = resolveCardSize(this._config);
     if (size === 'compact') return nothing;
     const hint = size === 'medium' ? 'sensors_hint_medium' : 'sensors_hint';
     const slots = Array.from({ length: FOOTER_MAX[size] }, (_, index) => this._renderSensorSlot(index));
@@ -241,7 +240,7 @@ export class NeonAlarmCardEditor extends LitElement {
    * alguno cambiado.
    */
   private _renderColorsSection(): TemplateResult {
-    const showSensorColor = resolveAlarmSize(this._config) !== 'compact';
+    const showSensorColor = resolveCardSize(this._config) !== 'compact';
     const keys: string[] = [...STATUS_COLOR_GROUPS.map((group) => STATUS_COLOR_KEYS[group]), ...(showSensorColor ? [SENSOR_ACTIVE_COLOR_KEY] : [])];
     const anySet = keys.some((key) => this._config?.[key] !== undefined);
     return html`

@@ -2,7 +2,7 @@ import { LitElement, html, nothing } from 'lit';
 import type { PropertyValues, TemplateResult } from 'lit';
 import { EDITOR_ACTIONS } from '../../ha/types';
 import type { ActionConfig, HomeAssistant, ValueChangedEvent } from '../../ha/types';
-import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, isCssColor, toHex6, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
+import { CARD_SIZES, DEFAULT_CARD_SIZE, DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, isCssColor, resolveCardSize, toHex6, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
 import { getInfoLabels, localize } from '../../core';
 import { LOCK_ICON_TYPES, LOCK_ICONS, resolveLockIconType } from './icons';
@@ -13,7 +13,6 @@ import type { LockTranslations } from './translations';
 import { FOOTER_ORDER, footerItemTypes, normalizeFooterItems } from './footer';
 import { STATUS_DOT_DEFAULTS } from './constants';
 import type { LockFooterItem, LockSize, LockSubtitleType, NeonLockCardConfig } from './types';
-import { DEFAULT_LOCK_SIZE, LOCK_SIZES, resolveLockSize } from './lock-size';
 
 
 /** Orden de las opciones del selector de subtítulo; 'none' es el valor por defecto (el estado ya va arriba a la derecha). */
@@ -84,14 +83,14 @@ export class NeonLockCardEditor extends LitElement {
     if (!this.hass || !this._config) return nothing;
     return html`
       <div class="editor-container">
-        ${this._renderMainSection()} ${resolveLockSize(this._config) === 'compact' ? this._renderStatusDoorSection('footer_hint_compact') : this._renderFooterSection()} ${this._renderHaloSection()} ${this._renderStatusColorsSection()} ${this._renderActionsSection()}
+        ${this._renderMainSection()} ${resolveCardSize(this._config) === 'compact' ? this._renderStatusDoorSection('footer_hint_compact') : this._renderFooterSection()} ${this._renderHaloSection()} ${this._renderStatusColorsSection()} ${this._renderActionsSection()}
       </div>
     `;
   }
 
   private _renderMainSection(): TemplateResult {
     const config = this._config!;
-    const size = resolveLockSize(config);
+    const size = resolveCardSize(config);
     return html`
       <div class="editor-section">
         <div class="section-header">${this._t('section_main')}</div>
@@ -118,11 +117,11 @@ export class NeonLockCardEditor extends LitElement {
           .value=${size}
           @change=${(ev: Event) => {
             const value = (ev.target as HTMLSelectElement).value as LockSize;
-            if (!value || value === resolveLockSize(this._config)) return;
-            this._configChanged('size', value === DEFAULT_LOCK_SIZE ? undefined : value);
+            if (!value || value === resolveCardSize(this._config)) return;
+            this._configChanged('size', value === DEFAULT_CARD_SIZE ? undefined : value);
           }}
         >
-          ${LOCK_SIZES.map((opt) => html`<option value=${opt} ?selected=${opt === size}>${this._t(`size_${opt}`)}</option>`)}
+          ${CARD_SIZES.map((opt) => html`<option value=${opt} ?selected=${opt === size}>${this._t(`size_${opt}`)}</option>`)}
         </select>
         ${this._renderIconPicker()}
         ${size === 'large' ? this._renderSubtitleFields() : nothing}
@@ -214,7 +213,7 @@ export class NeonLockCardEditor extends LitElement {
    * aviso de que no se pinta en el pie (ver `_renderStatusDoorSection`).
    */
   private _renderFooterSection(): TemplateResult {
-    const size = resolveLockSize(this._config);
+    const size = resolveCardSize(this._config);
     const types = footerItemTypes(size);
     return html`
       <div class="editor-section">
@@ -245,7 +244,7 @@ export class NeonLockCardEditor extends LitElement {
 
   private _renderFooterCard(type: LockFooterItem): TemplateResult {
     const row = FOOTER_ROWS[type];
-    const on = normalizeFooterItems(this._config?.footer_items, resolveLockSize(this._config)).includes(type);
+    const on = normalizeFooterItems(this._config?.footer_items, resolveCardSize(this._config)).includes(type);
     const entity = (this._config?.[row.entityKey] as string | undefined) || '';
     const title = this._t(`footer_${type}`);
     // El sensor de puerta también alimenta el estado «Puerta abierta» aunque

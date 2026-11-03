@@ -1,5 +1,6 @@
 import type { ActionConfig } from '../../ha/types';
 import type { InfoOption } from '../../core';
+import type { CardSize } from '../../shared';
 
 /**
  * Estados visuales de la tarjeta. Los once primeros son los estados del
@@ -32,7 +33,7 @@ export type AlarmCommand = 'disarm' | AlarmArmMode;
  * Tamaño: `large` (por defecto), `medium` (sin subtítulo, con el estado bajo
  * el nombre) y `compact` (solo icono, nombre y estado, sin pie).
  */
-export type AlarmSize = 'compact' | 'medium' | 'large';
+export type AlarmSize = CardSize;
 
 /** Qué mostrar bajo el nombre (tamaño grande): como en la Lock Card. */
 export type AlarmSubtitleType = 'none' | 'state' | 'custom' | Exclude<InfoOption, 'name'>;

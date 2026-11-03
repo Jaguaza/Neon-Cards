@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CONFIRM_REVEAL_MS } from './constants';
-import { resolveLockSize } from './lock-size';
 
 (globalThis as { __DEV__?: boolean }).__DEV__ = false;
 
@@ -46,11 +45,12 @@ afterEach(() => {
 });
 
 describe('tamaño de la Lock Card', () => {
-  it('por defecto es la grande (la tarjeta de siempre) y un valor desconocido también', () => {
-    expect(resolveLockSize({})).toBe('large');
-    expect(resolveLockSize({ size: 'medium' })).toBe('medium');
-    expect(resolveLockSize({ size: 'compact' })).toBe('compact');
-    expect(resolveLockSize({ size: 'xl' as never })).toBe('large');
+  it('por defecto es la grande (la tarjeta de siempre) y un valor desconocido también', async () => {
+    for (const config of [{}, { size: 'xl' }]) {
+      const el = await mount(config);
+      expect(q(el, 'ha-card')!.classList.contains('size-large')).toBe(true);
+      el.remove();
+    }
   });
 
   describe('grande (sin cambios)', () => {

@@ -119,13 +119,6 @@ export const VIEW_TIMEOUT_MS = 30000;
  */
 export const VIEW_REVEAL_MS = 120;
 
-/** Columnas del grid de HA con las que empieza cada tamaño y mínimo al que se puede reducir. */
-export const ALARM_GRID: Record<AlarmSize, { columns: number; min_columns: number }> = {
-  compact: { columns: 3, min_columns: 3 },
-  medium: { columns: 6, min_columns: 4 },
-  large: { columns: 12, min_columns: 4 },
-};
-
 /** Máximo de tipos de sensor en el pie según el tamaño (la compacta no tiene pie). */
 export const FOOTER_MAX: Record<AlarmSize, number> = { compact: 0, medium: 3, large: 4 };
 

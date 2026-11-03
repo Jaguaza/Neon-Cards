@@ -1,6 +1,5 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest';
-import { resolveAlarmSize } from './alarm-size';
 import { card, hassWith, mount } from './neon-alarm-card.fixtures';
 import type { Card } from './neon-alarm-card.fixtures';
 
@@ -11,11 +10,12 @@ afterEach(() => {
 const grid = (el: Card) => (el as unknown as { getGridOptions(): Record<string, unknown> }).getGridOptions();
 
 describe('tamaño de la Alarm card', () => {
-  it('por defecto es grande; un valor desconocido también', () => {
-    expect(resolveAlarmSize(undefined)).toBe('large');
-    expect(resolveAlarmSize({})).toBe('large');
-    expect(resolveAlarmSize({ size: 'enorme' as never })).toBe('large');
-    expect(resolveAlarmSize({ size: 'compact' })).toBe('compact');
+  it('por defecto es grande; un valor desconocido también', async () => {
+    for (const config of [{}, { size: 'enorme' }]) {
+      const el = await mount(config);
+      expect(card(el).classList.contains('size-large')).toBe(true);
+      el.remove();
+    }
   });
 
   it('el tamaño pone su clase en la tarjeta', async () => {

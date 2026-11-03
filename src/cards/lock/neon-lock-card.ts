@@ -19,15 +19,16 @@ import {
   neonHaloVars,
   neonRingSplitTemplate,
   RingSizeController,
+  CARD_GRID,
+  resolveCardSize,
 } from '../../shared';
-import { ACTION_PENDING_MS, CONFIRM_REVEAL_MS, CONFIRM_TIMEOUT_MS, ERROR_ICON, LOCK_GRID, OPERATING_ACTIONS } from './constants';
+import { ACTION_PENDING_MS, CONFIRM_REVEAL_MS, CONFIRM_TIMEOUT_MS, ERROR_ICON, OPERATING_ACTIONS } from './constants';
 import { LOCK_ICONS, resolveLockIconType } from './icons';
 import type { LockIconDef } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
 import { LockPoseAnimator } from './lock-pose-animator';
 import { displayState, doorSensorOpen, isLockAlert, isLockHaloOn, isLockMoving, isLockOpenPose, isOpeningAction, lockChoices, lockSupportsOpen, resolveLockState, statusDotColor } from './lock-state';
 import type { LockCommand } from './lock-state';
-import { resolveLockSize } from './lock-size';
 import { NEON_LOCK_CARD_STYLES } from './neon-lock-card.styles';
 import { NEON_LOCK_SIZE_STYLES } from './neon-lock-card.size.styles';
 import { LOCK_TRANSLATIONS } from './translations';
@@ -142,8 +143,8 @@ export class NeonLockCard extends BaseNeonCard {
 
   /** Columnas de inicio: grande 12, mediana 6 y compacta 3; alto automático. */
   getGridOptions(): { rows: 'auto'; columns: number; min_columns: number } {
-    // Columnas de inicio según el tamaño (ver `LOCK_GRID`).
-    return { rows: 'auto', ...LOCK_GRID[resolveLockSize(this._config)] };
+    // Columnas de inicio según el tamaño (ver `CARD_GRID`).
+    return { rows: 'auto', ...CARD_GRID[resolveCardSize(this._config)] };
   }
 
   private get _stateObj() {
@@ -329,7 +330,7 @@ export class NeonLockCard extends BaseNeonCard {
   private _renderHeader(
     state: ReturnType<typeof resolveLockState>,
     shown: ReturnType<typeof displayState>,
-    size: ReturnType<typeof resolveLockSize>
+    size: ReturnType<typeof resolveCardSize>
   ): TemplateResult {
     const icon = isLockAlert(state) ? html`<ha-icon class="neon-halo-icon" icon=${ERROR_ICON}></ha-icon>` : this._iconDef.template(isLockOpenPose(state));
     if (size !== 'large') {
@@ -366,7 +367,7 @@ export class NeonLockCard extends BaseNeonCard {
     // Lo que dice el rótulo: «Puerta abierta» solo con el sensor de puerta
     // activo y «Abriendo puerta…» al abrir (ver `displayState`).
     const shown = displayState(state, doorSensorOpen(this._config, this.hass), this._isPending() && this._pendingOpening);
-    const size = resolveLockSize(this._config);
+    const size = resolveCardSize(this._config);
     const compact = size === 'compact';
     const medium = size === 'medium';
     // La compacta no lleva pie, la mediana muestra como mucho dos datos
