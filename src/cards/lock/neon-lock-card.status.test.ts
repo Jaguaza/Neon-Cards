@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ACTION_PENDING_MS } from '../../shared';
-import { CONFIRM_REVEAL_MS, STATUS_DOT_DEFAULTS } from './constants';
+import { ACTION_PENDING_MS, VIEW_REVEAL_MS } from '../../shared';
+import { STATUS_DOT_DEFAULTS } from './constants';
 import { NEON_LOCK_CARD_STYLES } from './neon-lock-card.styles';
 import { active, click, hassWith, mount, status, subtitle } from './neon-lock-card.fixtures';
 import type { Card } from './neon-lock-card.fixtures';
@@ -214,7 +214,7 @@ describe('rótulo de estado, sensor de puerta y «Abriendo puerta…»', () => {
     });
     const ask = async (el: Card) => {
       click(el);
-      vi.advanceTimersByTime(CONFIRM_REVEAL_MS);
+      vi.advanceTimersByTime(VIEW_REVEAL_MS);
       await el.updateComplete;
     };
     const choose = (el: Card, command: string) => el.shadowRoot!.querySelector<HTMLButtonElement>(`.confirm .accept[data-command="${command}"]`)!.click();

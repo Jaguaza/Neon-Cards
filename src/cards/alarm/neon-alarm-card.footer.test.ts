@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { card, hassWith, mount, view } from './neon-alarm-card.fixtures';
 import type { Card } from './neon-alarm-card.fixtures';
-import { VIEW_REVEAL_MS } from './constants';
+import { VIEW_REVEAL_MS } from '../../shared';
 
 afterEach(() => {
   document.body.innerHTML = '';

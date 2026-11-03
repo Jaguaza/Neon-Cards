@@ -1,4 +1,5 @@
-import { VIEW_REVEAL_MS, VIEW_TIMEOUT_MS } from './constants';
+import { VIEW_REVEAL_MS } from '../../shared';
+import { VIEW_TIMEOUT_MS } from './constants';
 import type { AlarmCommand } from './types';
 
 /** Vista que cuelga sobre el contenido de la tarjeta mientras se pide algo al usuario. */

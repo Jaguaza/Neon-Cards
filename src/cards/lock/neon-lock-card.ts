@@ -22,8 +22,9 @@ import {
   CARD_GRID,
   resolveCardSize,
   ActionPendingController,
+  VIEW_REVEAL_MS,
 } from '../../shared';
-import { CONFIRM_REVEAL_MS, CONFIRM_TIMEOUT_MS, ERROR_ICON, OPERATING_ACTIONS } from './constants';
+import { CONFIRM_TIMEOUT_MS, ERROR_ICON, OPERATING_ACTIONS } from './constants';
 import { LOCK_ICONS, resolveLockIconType } from './icons';
 import type { LockIconDef } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
@@ -72,7 +73,7 @@ export class NeonLockCard extends BaseNeonCard {
   /** Vista «¿Abrir?» abierta: el gesto que la provocó, para ejecutarlo al aceptar. */
   private _confirm?: { actionType: string; choices: LockCommand[] };
   private _confirmTimer?: ReturnType<typeof setTimeout>;
-  /** La vista se muestra `CONFIRM_REVEAL_MS` después de encender el halo (ver esa constante). */
+  /** La vista se muestra `VIEW_REVEAL_MS` después de encender el halo (ver esa constante). */
   private _confirmShown = false;
   private _revealTimer?: ReturnType<typeof setTimeout>;
   private _confirmFocused = false;
@@ -235,7 +236,7 @@ export class NeonLockCard extends BaseNeonCard {
     this._revealTimer = setTimeout(() => {
       this._confirmShown = true;
       this.requestUpdate();
-    }, CONFIRM_REVEAL_MS);
+    }, VIEW_REVEAL_MS);
     this.requestUpdate();
   }
 

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CONFIRM_REVEAL_MS } from './constants';
+import { VIEW_REVEAL_MS } from '../../shared';
 
 (globalThis as { __DEV__?: boolean }).__DEV__ = false;
 
@@ -159,7 +159,7 @@ describe('tamaño de la Lock Card', () => {
     });
     const ask = async (el: Card) => {
       (q(el, 'ha-card') as HTMLElement).click();
-      vi.advanceTimersByTime(CONFIRM_REVEAL_MS);
+      vi.advanceTimersByTime(VIEW_REVEAL_MS);
       await el.updateComplete;
     };
     const buttons = (el: Card) => Array.from(el.shadowRoot!.querySelectorAll<HTMLButtonElement>('.confirm .confirm-btn'));
@@ -196,7 +196,7 @@ describe('tamaño de la Lock Card', () => {
       menu.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
       menu.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, composed: true }));
       menu.click();
-      vi.advanceTimersByTime(CONFIRM_REVEAL_MS);
+      vi.advanceTimersByTime(VIEW_REVEAL_MS);
       await el.updateComplete;
       expect(events).toHaveLength(1);
       expect(events[0].config.entity).toBe('lock.puerta');

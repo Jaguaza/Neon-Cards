@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CONFIRM_REVEAL_MS, STATUS_DOT_DEFAULTS } from './constants';
+import { VIEW_REVEAL_MS } from '../../shared';
+import { STATUS_DOT_DEFAULTS } from './constants';
 import { NEON_LOCK_CARD_STYLES } from './neon-lock-card.styles';
 import { DOOR_DURATION_MS, doorLeafPath } from './icons/door';
 import { GARAGE_ROLLER_DURATION_MS, rollerGeometry, slatsPath } from './icons/garage-roller';
@@ -103,7 +104,7 @@ describe('NeonLockCard', () => {
       vi.useFakeTimers();
       const el = await mount({ footer_items: ['battery'] }, hass({ battery_level: 85 }));
       click(el);
-      vi.advanceTimersByTime(CONFIRM_REVEAL_MS);
+      vi.advanceTimersByTime(VIEW_REVEAL_MS);
       await el.updateComplete;
       expect(el.shadowRoot!.querySelector('.content')!.classList.contains('content--hidden')).toBe(true);
       expect(el.shadowRoot!.querySelector('.content .footer')).not.toBeNull();

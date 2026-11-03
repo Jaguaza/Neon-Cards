@@ -9,6 +9,7 @@ export {
   neonHaloVars,
   neonRingSplitPaths,
   neonRingSplitTemplate,
+  VIEW_REVEAL_MS,
 } from './glow';
 export { isCssColor, toHex6 } from './css-color';
 export { ACTION_PENDING_MS, ActionPendingController } from './action-pending';

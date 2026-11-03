@@ -107,12 +107,6 @@ export const ERROR_ICON = 'mdi:close';
 /** Tiempo (ms) sin actividad tras el que una vista (modo, teclado, lista) se cierra sola. */
 export const VIEW_TIMEOUT_MS = 30000;
 
-/**
- * Retardo (ms) entre encender el halo y mostrar la vista, para que la
- * transición del aro arranque limpia en WebKit (mismo motivo que en la Lock Card).
- */
-export const VIEW_REVEAL_MS = 120;
-
 /** Máximo de tipos de sensor en el pie según el tamaño (la compacta no tiene pie). */
 export const FOOTER_MAX: Record<AlarmSize, number> = { compact: 0, medium: 3, large: 4 };
 

@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CONFIRM_REVEAL_MS, CONFIRM_TIMEOUT_MS } from './constants';
+import { VIEW_REVEAL_MS } from '../../shared';
+import { CONFIRM_TIMEOUT_MS } from './constants';
 import { active, card, click, hassWith, mount } from './neon-lock-card.fixtures';
 import type { Card } from './neon-lock-card.fixtures';
 
@@ -13,7 +14,7 @@ describe('NeonLockCard', () => {
   describe('confirmación al abrir', () => {
     const ask = async (el: Card) => {
       click(el);
-      vi.advanceTimersByTime(CONFIRM_REVEAL_MS); // primero el halo, un instante después la vista
+      vi.advanceTimersByTime(VIEW_REVEAL_MS); // primero el halo, un instante después la vista
       await el.updateComplete;
     };
     beforeEach(() => {
@@ -59,7 +60,7 @@ describe('NeonLockCard', () => {
       await el.updateComplete;
       expect(active(el)).toBe(true); // el halo ya está encendido…
       expect(confirmView(el)).toBeNull(); // …y la vista todavía no
-      vi.advanceTimersByTime(CONFIRM_REVEAL_MS - 1);
+      vi.advanceTimersByTime(VIEW_REVEAL_MS - 1);
       await el.updateComplete;
       expect(confirmView(el)).toBeNull();
       vi.advanceTimersByTime(1);
@@ -72,7 +73,7 @@ describe('NeonLockCard', () => {
       const el = await mount({});
       click(el);
       click(el);
-      vi.advanceTimersByTime(CONFIRM_REVEAL_MS);
+      vi.advanceTimersByTime(VIEW_REVEAL_MS);
       await el.updateComplete;
       expect(el.shadowRoot!.querySelectorAll('.confirm').length).toBe(1);
     });
@@ -82,7 +83,7 @@ describe('NeonLockCard', () => {
       click(el);
       el.hass = hassWith('unlocked'); // cambia el estado antes de revelarse
       await el.updateComplete;
-      vi.advanceTimersByTime(CONFIRM_REVEAL_MS + 10);
+      vi.advanceTimersByTime(VIEW_REVEAL_MS + 10);
       await el.updateComplete;
       expect(confirmView(el)).toBeNull();
     });
@@ -94,7 +95,7 @@ describe('NeonLockCard', () => {
       click(el);
       await el.updateComplete;
       expect(content().classList.contains('content--hidden')).toBe(false); // aún no se ha mostrado la vista
-      vi.advanceTimersByTime(CONFIRM_REVEAL_MS);
+      vi.advanceTimersByTime(VIEW_REVEAL_MS);
       await el.updateComplete;
       expect(content().classList.contains('content--hidden')).toBe(true);
       expect(content().getAttribute('aria-hidden')).toBe('true');
@@ -163,7 +164,7 @@ describe('NeonLockCard', () => {
       const el = await mount({});
       const actions = listen(el);
       await ask(el);
-      vi.advanceTimersByTime(CONFIRM_TIMEOUT_MS - CONFIRM_REVEAL_MS - 1);
+      vi.advanceTimersByTime(CONFIRM_TIMEOUT_MS - VIEW_REVEAL_MS - 1);
       await el.updateComplete;
       expect(confirmView(el)).not.toBeNull();
       vi.advanceTimersByTime(1);
@@ -233,7 +234,7 @@ describe('NeonLockCard', () => {
   describe('cerraduras con varias órdenes (supported_features: abrir)', () => {
     const ask = async (el: Card) => {
       click(el);
-      vi.advanceTimersByTime(CONFIRM_REVEAL_MS); // primero el halo, un instante después la vista
+      vi.advanceTimersByTime(VIEW_REVEAL_MS); // primero el halo, un instante después la vista
       await el.updateComplete;
     };
     beforeEach(() => {

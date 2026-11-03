@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { VIEW_REVEAL_MS } from './constants';
+import { VIEW_REVEAL_MS } from '../../shared';
 import { click, hassWith, key, mount, view, viewButtons } from './neon-alarm-card.fixtures';
 import type { Card } from './neon-alarm-card.fixtures';
 

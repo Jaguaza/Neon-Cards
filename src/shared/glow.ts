@@ -202,3 +202,15 @@ export function neonRingSplitTemplate(
 export function neonHaloVars(colors: GradientColors): string {
   return `--neon-c1: ${colors.c1}; --neon-c2: ${colors.c2}; --neon-c3: ${colors.c3};`;
 }
+
+/**
+ * Retardo (ms) entre encender el halo y mostrar una vista dentro de la
+ * tarjeta (confirmación, elección de modo, teclado…).
+ *
+ * El aro se dibuja con una transición CSS (`stroke-dashoffset`) y WebKit
+ * (iOS, la app de HA) no la arranca si en el MISMO fotograma se inserta
+ * además una capa nueva: el halo aparecía ya dibujado. Encendiendo primero
+ * el halo y mostrando la vista un instante después, la transición empieza
+ * limpia y el aro se dibuja mientras la vista aparece.
+ */
+export const VIEW_REVEAL_MS = 120;
