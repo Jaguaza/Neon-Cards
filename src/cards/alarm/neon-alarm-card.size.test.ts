@@ -73,4 +73,32 @@ describe('tamaño de la Alarm card', () => {
     const tiny = after('@container (max-width: 52px)');
     expect(tiny).toMatch(/\.size-compact \.status-dot \{[^}]*position: absolute/);
   });
+
+  it('la mediana parte el nombre y el estado en líneas en vez de cortarlos con puntos suspensivos', async () => {
+    const el = await mount({ size: 'medium' });
+    const css = (el.constructor as unknown as { styles: Array<{ cssText: string }> }).styles.map((style) => style.cssText).join('\n');
+    const rules = (selector: string) =>
+      css
+        .split(selector)
+        .slice(1)
+        .map((part) => part.slice(0, part.indexOf('}')))
+        .join('\n');
+    expect(rules('.size-medium .name {')).toContain('white-space: normal');
+    expect(rules('.size-medium .name {')).toContain('-webkit-line-clamp: 2');
+    expect(rules('.size-medium .status {')).toContain('white-space: normal');
+    expect(rules('.size-medium .status-text {')).toContain('text-overflow: clip');
+  });
+
+  it('la mediana estrecha (portátil a 150 %) pone el escudo arriba y las fichas con el número bajo el icono', async () => {
+    const el = await mount({ size: 'medium' });
+    const css = (el.constructor as unknown as { styles: Array<{ cssText: string }> }).styles.map((style) => style.cssText).join('\n');
+    const after = (marker: string) => css.slice(css.indexOf(marker));
+    // ≤150px de contenido: el escudo arriba y el texto a todo el ancho, sin reservar sitio para los tres puntos.
+    const stacked = after('@container (max-width: 150px) {\n    .size-medium .header');
+    expect(stacked).toMatch(/\.size-medium \.header \{[^}]*flex-direction: column/);
+    expect(stacked).toMatch(/\.size-medium \.name \{[^}]*padding-right: 0/);
+    // ≤110px: las fichas apilan icono y número para que quepan las tres.
+    const narrow = after('@container (max-width: 110px)');
+    expect(narrow).toMatch(/\.chip \{[^}]*flex-direction: column/);
+  });
 });

@@ -14,9 +14,6 @@ export const NEON_ALARM_SIZE_STYLES = css`
   }
   /* Los tres puntos van en posición absoluta: el estado, una línea más abajo,
      usa todo el ancho. El nombre deja libre esa esquina. */
-  .size-medium .name {
-    padding-right: 28px;
-  }
   .size-medium .menu {
     position: absolute;
     top: -6px;
@@ -35,6 +32,29 @@ export const NEON_ALARM_SIZE_STYLES = css`
   .size-medium .status-dot,
   .size-compact .status-dot {
     flex: none;
+  }
+  /* Mediana: nombre y estado se parten en líneas en vez de cortarse con puntos
+     suspensivos (el nombre, hasta dos; deja libre la esquina de los tres puntos). */
+  .size-medium .name {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    padding-right: 28px;
+    white-space: normal;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+  .size-medium .status {
+    align-items: flex-start;
+    white-space: normal;
+  }
+  .size-medium .status-dot {
+    margin-top: 4px;
+  }
+  .size-medium .status-text {
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
   }
   /* Pie de la mediana: una sola línea de fichas, cada una con el icono del
      tipo de sensor y cuántos hay activos. Reparten el ancho a partes iguales. */
@@ -200,6 +220,78 @@ export const NEON_ALARM_SIZE_STYLES = css`
     }
     .size-compact .status-text {
       letter-spacing: -0.2px;
+    }
+  }
+
+  /* Mediana estrecha (hasta ~180 px de tarjeta, p. ej. 6 columnas en un portátil
+     de 13,3" escalado al 150 %): el escudo pasa arriba y el nombre y el estado
+     usan todo el ancho, como en la compacta, porque en fila el nombre se queda
+     con unos 50px y se parte a mitad de palabra. Los tres puntos siguen en la
+     esquina. */
+  @container (max-width: 150px) {
+    .size-medium .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .size-medium .header > .text {
+      align-self: stretch;
+    }
+    .size-medium .alarm-icon {
+      width: 34px;
+      height: 34px;
+    }
+    .size-medium .name {
+      padding-right: 0;
+      font-size: 15px;
+      line-height: 18px;
+    }
+  }
+  /* Más estrecha aún (~140 px de tarjeta o menos): letra del estado algo menor y
+     las fichas ponen el número bajo el icono para que quepan las tres. */
+  @container (max-width: 110px) {
+    .size-medium .status {
+      gap: 4px;
+      font-size: 11px;
+    }
+    .chip {
+      flex-direction: column;
+      gap: 0;
+      padding: 6px 0;
+    }
+    .chip ha-icon {
+      --mdc-icon-size: 18px;
+    }
+    .chip-count {
+      font-size: 12px;
+      line-height: 14px;
+    }
+  }
+  /* Mediana mínima (4 columnas en ese portátil: ~90 px): menos relleno y la
+     letra del estado se adapta al ancho, como en la compacta pequeña. */
+  @container (max-width: 72px) {
+    .size-medium .content {
+      margin: -4px;
+    }
+    .size-medium .header {
+      gap: 4px;
+    }
+    .size-medium .alarm-icon {
+      width: 30px;
+      height: 30px;
+    }
+    .size-medium .name {
+      font-size: 13px;
+      line-height: 15px;
+    }
+    .size-medium .status {
+      gap: 3px;
+      font-size: clamp(8.5px, calc(13cqi + 1px), 10px);
+    }
+    .size-medium .status-dot {
+      width: 6px;
+      height: 6px;
+      margin-top: 3px;
     }
   }
 `;
