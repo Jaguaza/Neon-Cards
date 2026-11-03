@@ -57,6 +57,10 @@ portátil de 13,3" escalado al 150 % (~65 px): reduce el relleno, el escudo y la
 letra, esta última según el ancho disponible, y saca el punto de estado a la
 esquina para que palabras como «Desarmando…» no se partan.
 
+El teclado de la compacta se ajusta al ancho de la tarjeta: las teclas son tan
+altas como anchas (hasta 34 px), la letra y los iconos de borrar y aceptar
+escalan con ellas y los puntos del código bajan de línea si no caben.
+
 La mediana hace lo propio: el nombre y el estado se parten en líneas en vez de
 cortarse con puntos suspensivos (el nombre, hasta dos), y en una mediana
 estrecha (hasta ~180 px, p. ej. 6 columnas en ese portátil) el escudo pasa arriba
@@ -233,6 +237,10 @@ The compact card also adapts to very small slots, such as 3 columns on a 13.3"
 laptop scaled to 150% (~65 px): it reduces the padding, the shield and the
 text (the latter according to the available width) and moves the state dot to
 the corner so words like "Disarming…" do not break.
+
+The compact keypad adjusts to the card width: the keys are as tall as they are
+wide (up to 34 px), the digits and the delete and accept icons scale with them
+and the code dots wrap onto another line if they do not fit.
 
 The medium card does the same: the name and the state wrap onto several lines
 instead of being cut with ellipses (the name up to two), and on a narrow medium
