@@ -57,6 +57,12 @@ portátil de 13,3" escalado al 150 % (~65 px): reduce el relleno, el escudo y la
 letra, esta última según el ancho disponible, y saca el punto de estado a la
 esquina para que palabras como «Desarmando…» no se partan.
 
+La mediana hace lo propio: el nombre y el estado se parten en líneas en vez de
+cortarse con puntos suspensivos (el nombre, hasta dos), y en una mediana
+estrecha (hasta ~180 px, p. ej. 6 columnas en ese portátil) el escudo pasa arriba
+y el texto usa todo el ancho; con menos de ~140 px las fichas de sensores ponen
+el número bajo el icono.
+
 ## Pulsar: armar y desarmar
 
 Con `tap_action: toggle` (el valor por defecto):
@@ -227,6 +233,12 @@ The compact card also adapts to very small slots, such as 3 columns on a 13.3"
 laptop scaled to 150% (~65 px): it reduces the padding, the shield and the
 text (the latter according to the available width) and moves the state dot to
 the corner so words like "Disarming…" do not break.
+
+The medium card does the same: the name and the state wrap onto several lines
+instead of being cut with ellipses (the name up to two), and on a narrow medium
+card (up to ~180 px, e.g. 6 columns on that laptop) the shield moves to the top
+and the text uses the full width; below ~140 px the sensor chips put the number
+under the icon.
 
 ## Tapping: arm and disarm
 
