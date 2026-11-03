@@ -29,6 +29,6 @@ sin haberlo pensado no vale nada.
 ## Si es una tarjeta nueva o cambia su comportamiento visible
 
 - [ ] Editor visual probado, no solo YAML.
-- [ ] `examples/README.md` con capturas y GIF **reales** de Home
+- [ ] `examples/README.md` con capturas y video **reales** de Home
       Assistant (nº17/18) — nada de placeholders "pendiente".
 - [ ] Sin `TODO`/`FIXME`/`HACK` en el código (nº19).

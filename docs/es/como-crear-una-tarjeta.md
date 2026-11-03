@@ -122,7 +122,7 @@ Toda en español **e** inglés, versionada en el repo:
   función o constante pública nueva en `core`/`ha`/`shared`, documéntala
   ahí también con descripción, parámetros, valor devuelto y ejemplo
   (acuerdo nº16) — no solo la config YAML.
-- `examples/README.md` — YAML mínimo, YAML avanzado, captura, GIF y
+- `examples/README.md` — YAML mínimo, YAML avanzado, captura, video y
   explicación para la tarjeta nueva (acuerdo nº17).
 
 ## 6. Diagnóstico en desarrollo (acuerdo nº22)
@@ -157,7 +157,7 @@ Checklist final, todo debe cumplirse antes de integrar:
 - [ ] Editor visual funcional (no solo YAML).
 - [ ] `README.md` de la tarjeta y ambas versiones de `docs/*/api.md`
       actualizadas.
-- [ ] `examples/README.md` con captura y GIF **reales** de Home
+- [ ] `examples/README.md` con captura y video **reales** de Home
       Assistant, no placeholders "pendiente".
 - [ ] Sin `TODO`/`FIXME`/`HACK` en el código (acuerdo nº19) — cualquier
       pendiente real se registra como Issue en su lugar.

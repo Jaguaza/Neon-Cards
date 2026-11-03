@@ -90,7 +90,7 @@ Every public API has: description, parameters, return value, and example.
 
 ## 17. One example per card
 
-Every card includes: minimal YAML, advanced YAML, screenshot, GIF, and
+Every card includes: minimal YAML, advanced YAML, screenshot, video, and
 explanation.
 
 ## 18. Mandatory quality gate before publishing

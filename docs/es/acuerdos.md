@@ -91,7 +91,7 @@ Toda API pública tiene: descripción, parámetros, valor devuelto y ejemplo.
 
 ## 17. Un ejemplo por tarjeta
 
-Cada tarjeta tiene: YAML mínimo, YAML avanzado, captura, GIF y explicación.
+Cada tarjeta tiene: YAML mínimo, YAML avanzado, captura, video y explicación.
 
 ## 18. Calidad obligatoria antes de publicar
 

@@ -124,7 +124,7 @@ All of it in Spanish **and** English, versioned in the repo:
   constant in `core`/`ha`/`shared`, document that there too with
   description, parameters, return value and example (agreement nº16) —
   not just the YAML config.
-- `examples/README.md` — minimal YAML, advanced YAML, screenshot, GIF
+- `examples/README.md` — minimal YAML, advanced YAML, screenshot, video
   and explanation for the new card (agreement nº17).
 
 ## 6. Development diagnostics (agreement nº22)
@@ -162,7 +162,7 @@ Final checklist, all of it must pass before integrating:
 - [ ] The card's `README.md` and both versions of `docs/*/api.md`
       updated.
 - [ ] `examples/README.md` with **real** Home Assistant screenshots and
-      GIF, not "pending" placeholders.
+      video, not "pending" placeholders.
 - [ ] No `TODO`/`FIXME`/`HACK` in the code (agreement nº19) — any real
       pending item gets registered as an Issue instead.
 - [ ] Architecture, API, performance and documentation review
