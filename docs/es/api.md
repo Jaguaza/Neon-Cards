@@ -795,6 +795,39 @@ cosa. Lo usan la Lock Card y la Alarm Card.
 
 ---
 
+### Tamaño de las tarjetas (`card-size.ts`)
+
+El tamaño (`compact`, `medium`, `large`) y las columnas del grid de HA con las
+que empieza cada uno. Lo usan la Lock Card y la Alarm Card; `LockSize` y
+`AlarmSize` son alias de `CardSize`.
+
+#### `CardSize`, `CARD_SIZES` y `DEFAULT_CARD_SIZE`
+
+- **Descripción:** `CardSize` es `'compact' | 'medium' | 'large'`. `CARD_SIZES`
+  lista los tres en ese orden (es lo que ofrece el selector del editor).
+  `DEFAULT_CARD_SIZE` es `'large'`, la tarjeta de siempre, para que las ya
+  creadas no cambien.
+- **Ejemplo:** `CARD_SIZES` → `['compact', 'medium', 'large']`.
+
+#### `resolveCardSize(config)`
+
+- **Descripción:** el tamaño que se debe usar para una config. Un valor
+  ausente o desconocido cuenta como el predeterminado.
+- **Parámetros:** `config: { size?: CardSize } | undefined`.
+- **Devuelve:** `CardSize`.
+- **Ejemplo:** `resolveCardSize({ size: 'compact' })` → `'compact'`;
+  `resolveCardSize({ size: 'enorme' })` → `'large'`.
+
+#### `CARD_GRID`
+
+- **Descripción:** columnas del grid de HA (12 por sección) con las que empieza
+  cada tamaño y mínimo al que se puede reducir a mano. El alto es automático.
+  Es lo que devuelve `getGridOptions()` de las tarjetas que lo usan.
+- **Tipo:** `Record<CardSize, { columns: number; min_columns: number }>`.
+- **Ejemplo:** `CARD_GRID.medium` → `{ columns: 6, min_columns: 4 }`.
+
+---
+
 ### Tamaño del aro (`ring-size.ts`)
 
 #### `RingSizeController`
@@ -1162,8 +1195,8 @@ opción llama a `lock.unlock`, `lock.open` o `lock.lock`.
 ### `getGridOptions()` — tamaño según `size`
 
 El alto es automático (`rows: 'auto'`); `size` fija las columnas de inicio y
-el mínimo al que se puede reducir a mano (`LOCK_GRID` en
-`src/cards/lock/constants.ts`). Una tarjeta con `grid_options` guardado en el
+el mínimo al que se puede reducir a mano (`CARD_GRID` en
+`src/shared/card-size.ts`). Una tarjeta con `grid_options` guardado en el
 YAML conserva su ancho. `getCardSize()` devuelve `3`.
 
 | `size` | Tamaño | `columns` | `min_columns` |
@@ -1239,8 +1272,8 @@ numérico (`number`) o un campo de contraseña (`text`); armar solo lo pide si
 ### `getGridOptions()` — tamaño según `size`
 
 El alto es automático (`rows: 'auto'`); `size` fija las columnas de inicio y
-el mínimo al que se puede reducir a mano (`ALARM_GRID` en
-`src/cards/alarm/constants.ts`). Una tarjeta con `grid_options` guardado en el
+el mínimo al que se puede reducir a mano (`CARD_GRID` en
+`src/shared/card-size.ts`). Una tarjeta con `grid_options` guardado en el
 YAML conserva su ancho. `getCardSize()` devuelve `3`.
 
 | `size` | Tamaño | `columns` | `min_columns` |

@@ -793,6 +793,39 @@ the Lock Card and the Alarm Card.
 
 ---
 
+### Card size (`card-size.ts`)
+
+The size (`compact`, `medium`, `large`) and the HA grid columns each one starts
+with. Used by the Lock Card and the Alarm Card; `LockSize` and `AlarmSize` are
+aliases of `CardSize`.
+
+#### `CardSize`, `CARD_SIZES` and `DEFAULT_CARD_SIZE`
+
+- **Description:** `CardSize` is `'compact' | 'medium' | 'large'`. `CARD_SIZES`
+  lists the three in that order (what the editor's selector offers).
+  `DEFAULT_CARD_SIZE` is `'large'`, the original card, so existing cards do not
+  change.
+- **Example:** `CARD_SIZES` → `['compact', 'medium', 'large']`.
+
+#### `resolveCardSize(config)`
+
+- **Description:** the size to use for a config. A missing or unknown value
+  counts as the default.
+- **Parameters:** `config: { size?: CardSize } | undefined`.
+- **Returns:** `CardSize`.
+- **Example:** `resolveCardSize({ size: 'compact' })` → `'compact'`;
+  `resolveCardSize({ size: 'huge' })` → `'large'`.
+
+#### `CARD_GRID`
+
+- **Description:** HA grid columns (12 per section) each size starts with and
+  the minimum it can be reduced to by hand. The height is automatic. It is what
+  `getGridOptions()` returns in the cards that use it.
+- **Type:** `Record<CardSize, { columns: number; min_columns: number }>`.
+- **Example:** `CARD_GRID.medium` → `{ columns: 6, min_columns: 4 }`.
+
+---
+
 ### Ring size (`ring-size.ts`)
 
 #### `RingSizeController`
@@ -1159,8 +1192,8 @@ option calls `lock.unlock`, `lock.open` or `lock.lock`.
 ### `getGridOptions()` — size driven by `size`
 
 The height is automatic (`rows: 'auto'`); `size` sets the starting columns and
-the minimum it can be reduced to by hand (`LOCK_GRID` in
-`src/cards/lock/constants.ts`). A card with `grid_options` saved in the YAML
+the minimum it can be reduced to by hand (`CARD_GRID` in
+`src/shared/card-size.ts`). A card with `grid_options` saved in the YAML
 keeps its width. `getCardSize()` returns `3`.
 
 | `size` | Size | `columns` | `min_columns` |
@@ -1236,8 +1269,8 @@ it if `code_arm_required` is not `false`. The services are
 ### `getGridOptions()` — size according to `size`
 
 Height is automatic (`rows: 'auto'`); `size` sets the starting columns and the
-minimum it can be shrunk to by hand (`ALARM_GRID` in
-`src/cards/alarm/constants.ts`). A card with `grid_options` saved in the YAML
+minimum it can be shrunk to by hand (`CARD_GRID` in
+`src/shared/card-size.ts`). A card with `grid_options` saved in the YAML
 keeps its width. `getCardSize()` returns `3`.
 
 | `size` | Size | `columns` | `min_columns` |
