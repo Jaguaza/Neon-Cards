@@ -854,6 +854,49 @@ que empieza cada uno. Lo usan la Lock Card y la Alarm Card; `LockSize` y
 
 ---
 
+### Espera de la acción (`action-pending.ts`)
+
+Lo usan la Lock Card y la Alarm Card para encender el halo en cuanto se pulsa
+una acción, sin esperar al cambio de estado de la entidad.
+
+#### `ACTION_PENDING_MS`
+
+- **Descripción:** tiempo máximo (ms) que el halo espera encendido el cambio de
+  estado tras pulsar una acción. Si el estado cambia, manda el estado; si no
+  cambia (acción fallida), el halo se apaga al agotarse.
+- **Valor:** `6000`.
+
+#### `ActionPendingController`
+
+- **Descripción:** controlador reactivo de Lit que lleva la cuenta de esa
+  espera. Guarda la **marca de tiempo** en la que termina y no un booleano:
+  `active` se decide comparando con el reloj en cada render, así que aunque el
+  temporizador no llegase a dispararse, cualquier actualización de `hass` la da
+  por vencida. El temporizador solo pide un último render al agotarse. Si la
+  tarjeta se reconecta a mitad de la espera, se retoma desde el reloj; al
+  desconectar, el temporizador se detiene.
+- **Constructor:** `new ActionPendingController(host)`, con `host` un
+  `ReactiveControllerHost` (se registra solo con `addController`).
+- **Propiedad:** `active: boolean` — ¿sigue la espera?
+- **Métodos:** `start(ms = ACTION_PENDING_MS)` enciende la espera y pide un
+  render; `clear()` la da por terminada (el estado cambió o la orden falló).
+- **Ejemplo:**
+  ```ts
+  private readonly _pending = new ActionPendingController(this);
+
+  private _run(): void {
+    this._pending.start();
+    void this.hass.callService('lock', 'lock', { entity_id: this._config.entity });
+  }
+
+  render() {
+    const on = isHaloOn(state) || this._pending.active;
+    return html`<ha-card class=${on ? 'neon-halo-active' : ''}>…</ha-card>`;
+  }
+  ```
+
+---
+
 ### Editor: carcasa común (`editor-form.styles.ts`)
 
 #### `NEON_EDITOR_FORM_STYLES`

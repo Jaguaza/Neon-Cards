@@ -852,6 +852,49 @@ aliases of `CardSize`.
 
 ---
 
+### Action wait (`action-pending.ts`)
+
+Used by the Lock Card and the Alarm Card to switch the halo on as soon as an
+action is pressed, without waiting for the entity's state to change.
+
+#### `ACTION_PENDING_MS`
+
+- **Description:** maximum time (ms) the halo stays on waiting for the state to
+  change after an action is pressed. If the state changes, the state takes
+  over; if it does not (failed action), the halo goes off when the time runs
+  out.
+- **Value:** `6000`.
+
+#### `ActionPendingController`
+
+- **Description:** Lit reactive controller that keeps track of that wait. It
+  stores the **timestamp** at which it ends, not a boolean: `active` is decided
+  by comparing against the clock on every render, so even if the timer never
+  fired, any `hass` update treats the wait as expired. The timer only asks for
+  one last render when time runs out. If the card is reconnected in the middle
+  of the wait, it resumes from the clock; on disconnect, the timer stops.
+- **Constructor:** `new ActionPendingController(host)`, with `host` a
+  `ReactiveControllerHost` (it registers itself with `addController`).
+- **Property:** `active: boolean` — is the wait still on?
+- **Methods:** `start(ms = ACTION_PENDING_MS)` turns the wait on and requests a
+  render; `clear()` ends it (the state changed or the command failed).
+- **Example:**
+  ```ts
+  private readonly _pending = new ActionPendingController(this);
+
+  private _run(): void {
+    this._pending.start();
+    void this.hass.callService('lock', 'lock', { entity_id: this._config.entity });
+  }
+
+  render() {
+    const on = isHaloOn(state) || this._pending.active;
+    return html`<ha-card class=${on ? 'neon-halo-active' : ''}>…</ha-card>`;
+  }
+  ```
+
+---
+
 ### Editor: shared shell (`editor-form.styles.ts`)
 
 #### `NEON_EDITOR_FORM_STYLES`
