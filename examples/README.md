@@ -41,9 +41,9 @@ card_orientation: right
 
 ![Escenarios de Neón Entity Card](../assets/screenshots/entity/Entity%20completa.jpg)
 
-### GIF
+### Video
 
-![Neón Entity Card en acción](../assets/gifs/Neón%20Cards.gif)
+https://github.com/user-attachments/assets/8ae87d5e-a995-4531-8aae-b137a4cc1fca
 
 ### Explicación
 
@@ -96,9 +96,9 @@ sensors:
 ![Escenarios de Neón Button Card, sin activar](../assets/screenshots/button/Button%201.jpg)
 ![Escenarios de Neón Button Card, con halo activo](../assets/screenshots/button/Button%202.jpg)
 
-### GIF
+### Video
 
-![Neón Button Card en acción](../assets/gifs/Button.gif)
+https://github.com/user-attachments/assets/52b46ae6-df7a-4e43-ba21-e260f69b32ac
 
 ### Explicación
 
@@ -150,9 +150,9 @@ footer:
 ![Neón Thermostat Card, Tarjeta en reposo](../assets/screenshots/termostato/thermostat-views.jpg)
 ![Neón Thermostat Card, Tarjeta activada](../assets/screenshots/termostato/thermostat-views1.jpg)
 
-### GIF
+### Video
 
-![Neón Thermostat Card en acción](../assets/gifs/Termostato%20Gif.gif)
+https://github.com/user-attachments/assets/c63b32f6-91c9-46d2-b6d7-fd5577900b99
 
 ### Explicación
 
@@ -244,9 +244,9 @@ neon_color: "#ff9f1a"
 
 ![Neón Sensor Card, efectos de color y umbrales](../assets/screenshots/sensor/Neon_Sensor_Cards.png)
 
-### GIF
+### Video
 
-![Neón Sensor Card en acción](../assets/gifs/Sensor.gif)
+https://github.com/user-attachments/assets/61e9c55d-5969-4e8a-8084-c566e2018f88
 
 ### Explicación
 
@@ -321,9 +321,9 @@ confirm_open: false
 
 ![Neón Lock Card, los tres tamaños, los cuatro iconos y el estado no disponible](../assets/screenshots/cerradura/cerradura.png)
 
-### GIF
+### Video
 
-![Neón Lock Card en acción](../assets/gifs/Cerradura.gif)
+https://github.com/user-attachments/assets/22f7d50a-79cb-42ef-9f17-445cb9d78281
 
 ### Explicación
 
@@ -423,9 +423,9 @@ size: compact
 
 > Pendiente de añadir: captura real de la tarjeta (tamaños y estados).
 
-### GIF
+### Video
 
-> Pendiente de añadir: GIF real de la tarjeta en acción.
+> Pendiente de añadir: video real de la tarjeta en acción.
 
 ### Explicación
 
@@ -496,9 +496,9 @@ card_orientation: right
 
 ![Neón Entity Card scenarios](../assets/screenshots/entity/Entity%20completa.jpg)
 
-### GIF
+### Video
 
-![Neón Entity Card in action](../assets/gifs/Neón%20Cards.gif)
+https://github.com/user-attachments/assets/8ae87d5e-a995-4531-8aae-b137a4cc1fca
 
 ### Explanation
 
@@ -551,9 +551,9 @@ sensors:
 ![Neón Button Card scenarios, inactive](../assets/screenshots/button/Button%201.jpg)
 ![Neón Button Card scenarios, active halo](../assets/screenshots/button/Button%202.jpg)
 
-### GIF
+### Video
 
-![Neón Button Card in action](../assets/gifs/Button.gif)
+https://github.com/user-attachments/assets/52b46ae6-df7a-4e43-ba21-e260f69b32ac
 
 ### Explanation
 
@@ -605,9 +605,9 @@ footer:
 ![Neón Thermostat Card, standby](../assets/screenshots/termostato/thermostat-views.jpg)
 ![Neón Thermostat Card, active](../assets/screenshots/termostato/thermostat-views1.jpg)
 
-### GIF
+### Video
 
-![Neón Thermostat Card in action](../assets/gifs/Termostato%20Gif.gif)
+https://github.com/user-attachments/assets/c63b32f6-91c9-46d2-b6d7-fd5577900b99
 
 ### Explanation
 
@@ -698,9 +698,9 @@ neon_color: "#ff9f1a"
 
 ![Neón Sensor Card, color effects and thresholds](../assets/screenshots/sensor/Neon_Sensor_Cards.png)
 
-### GIF
+### Video
 
-![Neón Sensor Card in action](../assets/gifs/Sensor.gif)
+https://github.com/user-attachments/assets/61e9c55d-5969-4e8a-8084-c566e2018f88
 
 ### Explanation
 
@@ -772,9 +772,9 @@ confirm_open: false
 
 ![Neón Lock Card, the three sizes, the four icons and the unavailable state](../assets/screenshots/cerradura/cerradura.png)
 
-### GIF
+### Video
 
-![Neón Lock Card in action](../assets/gifs/Cerradura.gif)
+https://github.com/user-attachments/assets/22f7d50a-79cb-42ef-9f17-445cb9d78281
 
 ### Explanation
 
@@ -874,9 +874,9 @@ size: compact
 
 > To be added: real screenshot of the card (sizes and states).
 
-### GIF
+### Video
 
-> To be added: real GIF of the card in action.
+> To be added: real video of the card in action.
 
 ### Explanation
 
