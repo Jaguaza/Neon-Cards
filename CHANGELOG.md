@@ -19,6 +19,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- Documentación: los GIF pasan a ser vídeos, que se ven mejor en todos los dispositivos. La parte en inglés del README usa los mismos vídeos que la española, la sección «GIF» de cada tarjeta en `examples/README.md` pasa a «Video» y el acuerdo nº17, la guía para crear una tarjeta y la plantilla de PR piden «captura, video y explicación» en lugar de GIF.
 - `src/shared`: nuevos `isCssColor` y `toHex6` (`src/shared/css-color.ts`), movidos desde la Lock Card para que la Alarm Card los reutilice en lugar de repetir la validación de colores. Solo se añaden exports: no cambia ninguna firma existente y la Lock Card se ve y se comporta igual (mismo DOM y mismo CSS, comprobado antes y después).
 - README: Neón Cards ya está en HACS, así que la instalación deja de pedir añadir un repositorio personalizado. Ahora se instala con un botón de «My Home Assistant» que abre el repositorio en HACS, o buscando «Neon Cards» en HACS.
 
@@ -363,6 +364,7 @@ and this project follows [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Documentation: GIFs are replaced by videos, which look better on every device. The English part of the README uses the same videos as the Spanish one, the "GIF" section of each card in `examples/README.md` becomes "Video", and agreement nº17, the guide to building a card and the PR template ask for "screenshot, video and explanation" instead of a GIF.
 - `src/shared`: new `isCssColor` and `toHex6` (`src/shared/css-color.ts`), moved from the Lock Card so the Alarm Card reuses them instead of repeating the color validation. Only exports are added: no existing signature changes and the Lock Card looks and behaves the same (same DOM and same CSS, checked before and after).
 - README: Neón Cards is now in HACS, so installation no longer asks you to add a custom repository. It is now installed with a "My Home Assistant" button that opens the repository in HACS, or by searching for "Neon Cards" in HACS.
 
