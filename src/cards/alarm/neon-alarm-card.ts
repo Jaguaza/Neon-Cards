@@ -3,8 +3,8 @@ import type { PropertyValues, TemplateResult } from 'lit';
 import type { ActionConfig, HomeAssistant } from '../../ha/types';
 import { BaseNeonCard, createGestureState, handlePointerDown, cancelHold, handleClick, dispatchHassAction, computeInfoDisplay, localize } from '../../core';
 import type { GestureState } from '../../core';
-import { CARD_GRID, resolveCardSize, resolveGradientColors, NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, neonHaloVars, neonRingSplitTemplate, RingSizeController } from '../../shared';
-import { ACTION_PENDING_MS, COMMAND_SERVICES, TRIGGERED_HALO } from './constants';
+import { ActionPendingController, CARD_GRID, resolveCardSize, resolveGradientColors, NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, neonHaloVars, neonRingSplitTemplate, RingSizeController } from '../../shared';
+import { COMMAND_SERVICES, TRIGGERED_HALO } from './constants';
 import { AlarmFlow } from './alarm-flow';
 import { commandChoices, commandNeedsCode, codeFormat, isAlarmAlert, isAlarmHaloOn, isAlarmMoving, isToggleAction, resolveAlarmState, sensorActiveColor, statusDotColor } from './alarm-state';
 import { footerSensorView, normalizeExcluded, normalizeFooterTypes, visibleFooterViews } from './alarm-sensors';
@@ -47,9 +47,8 @@ export class NeonAlarmCard extends BaseNeonCard {
   private readonly _ringUid = Math.random().toString(36).slice(2);
   private readonly _ring = new RingSizeController(this);
   private readonly _flow = new AlarmFlow(() => this.requestUpdate());
-  /** Instante (performance.now) hasta el que el halo espera encendido el cambio de estado tras lanzar una orden. */
-  private _pendingUntil = 0;
-  private _pendingTimer?: ReturnType<typeof setTimeout>;
+  /** Espera del cambio de estado tras lanzar una orden (ver `ACTION_PENDING_MS`). */
+  private readonly _pending = new ActionPendingController(this);
   private _lastSeen?: { entity: string | undefined; state: AlarmVisualState };
 
   static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_SHIELD_ICON_STYLES, NEON_ALARM_CARD_STYLES, NEON_ALARM_SIZE_STYLES, NEON_ALARM_VIEWS_STYLES];
@@ -165,9 +164,7 @@ export class NeonAlarmCard extends BaseNeonCard {
   }
 
   private _startPending(): void {
-    this._pendingUntil = performance.now() + ACTION_PENDING_MS;
-    this._schedulePendingEnd(ACTION_PENDING_MS);
-    this.requestUpdate();
+    this._pending.start();
   }
 
   /** Lanza el servicio. Con código, si HA lo rechaza (código incorrecto) la vista sigue abierta y lo avisa. */
@@ -180,7 +177,7 @@ export class NeonAlarmCard extends BaseNeonCard {
       await this.hass.callService('alarm_control_panel', COMMAND_SERVICES[command], data);
       this._flow.close();
     } catch {
-      this._pendingUntil = 0;
+      this._pending.clear();
       if (code === undefined) this._flow.close();
       else this._flow.markError();
     }
@@ -283,7 +280,7 @@ export class NeonAlarmCard extends BaseNeonCard {
   }
 
   private _haloClasses(state: AlarmVisualState | undefined): string {
-    const on = isAlarmHaloOn(state) || this._isPending() || !!this._flow.view;
+    const on = isAlarmHaloOn(state) || this._pending.active || !!this._flow.view;
     return [on ? 'neon-halo-active' : '', isAlarmAlert(state) ? 'neon-halo-error' : '', isAlarmMoving(state) ? 'alarm-moving' : '', state === 'triggered' ? 'alarm-triggered' : ''].join(' ');
   }
 
@@ -324,30 +321,14 @@ export class NeonAlarmCard extends BaseNeonCard {
     const entity = this._config?.entity;
     const last = this._lastSeen;
     if (last && last.entity === entity && last.state !== state) {
-      this._pendingUntil = 0;
+      this._pending.clear();
       if (this._flow.view?.kind !== 'sensors') this._flow.drop();
     }
     this._lastSeen = { entity, state };
   }
 
-  private _isPending(): boolean {
-    return performance.now() < this._pendingUntil;
-  }
-
-  private _schedulePendingEnd(ms: number): void {
-    clearTimeout(this._pendingTimer);
-    this._pendingTimer = setTimeout(() => this.requestUpdate(), ms);
-  }
-
-  connectedCallback(): void {
-    super.connectedCallback();
-    const remaining = this._pendingUntil - performance.now();
-    if (remaining > 0) this._schedulePendingEnd(remaining);
-  }
-
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    clearTimeout(this._pendingTimer);
     this._flow.drop();
   }
 }

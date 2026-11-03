@@ -21,8 +21,9 @@ import {
   RingSizeController,
   CARD_GRID,
   resolveCardSize,
+  ActionPendingController,
 } from '../../shared';
-import { ACTION_PENDING_MS, CONFIRM_REVEAL_MS, CONFIRM_TIMEOUT_MS, ERROR_ICON, OPERATING_ACTIONS } from './constants';
+import { CONFIRM_REVEAL_MS, CONFIRM_TIMEOUT_MS, ERROR_ICON, OPERATING_ACTIONS } from './constants';
 import { LOCK_ICONS, resolveLockIconType } from './icons';
 import type { LockIconDef } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';
@@ -64,16 +65,8 @@ export class NeonLockCard extends BaseNeonCard {
   private readonly _ringUid = Math.random().toString(36).slice(2);
   /** Tamaño real de ha-card para el aro SVG (ver RingSizeController). */
   private readonly _ring = new RingSizeController(this);
-  /**
-   * Instante (performance.now) hasta el que el halo espera encendido el
-   * cambio de estado tras pulsar una acción que opera la cerradura (ver
-   * `ACTION_PENDING_MS`). Se guarda la MARCA DE TIEMPO y no un booleano: se
-   * decide comparando con el reloj en cada render, así que aunque el
-   * temporizador no llegase a dispararse, cualquier actualización de
-   * `hass` lo da por vencido. Se anula en cuanto el estado cambia.
-   */
-  private _pendingUntil = 0;
-  private _pendingTimer?: ReturnType<typeof setTimeout>;
+  /** Espera del cambio de estado tras pulsar una acción que opera la cerradura (ver `ACTION_PENDING_MS`). */
+  private readonly _pending = new ActionPendingController(this);
   /** La orden pendiente es abrir: el rótulo dice «Abriendo puerta…» desde ya (ver `displayState`). */
   private _pendingOpening = false;
   /** Vista «¿Abrir?» abierta: el gesto que la provocó, para ejecutarlo al aceptar. */
@@ -200,9 +193,7 @@ export class NeonLockCard extends BaseNeonCard {
   /** Enciende el halo en espera del cambio de estado (ver `ACTION_PENDING_MS`). */
   private _startPending(opening = false): void {
     this._pendingOpening = opening;
-    this._pendingUntil = performance.now() + ACTION_PENDING_MS;
-    this._schedulePendingEnd(ACTION_PENDING_MS);
-    this.requestUpdate();
+    this._pending.start();
   }
 
   /** Lanza directamente la orden elegida (`lock.lock`, `lock.unlock` o `lock.open`). */
@@ -366,7 +357,7 @@ export class NeonLockCard extends BaseNeonCard {
     const state = resolveLockState(this._config, this.hass);
     // Lo que dice el rótulo: «Puerta abierta» solo con el sensor de puerta
     // activo y «Abriendo puerta…» al abrir (ver `displayState`).
-    const shown = displayState(state, doorSensorOpen(this._config, this.hass), this._isPending() && this._pendingOpening);
+    const shown = displayState(state, doorSensorOpen(this._config, this.hass), this._pending.active && this._pendingOpening);
     const size = resolveCardSize(this._config);
     const compact = size === 'compact';
     const medium = size === 'medium';
@@ -377,7 +368,7 @@ export class NeonLockCard extends BaseNeonCard {
 
     return html`
       <ha-card
-        class="neon-ring-host size-${size} ${this._confirm && this._confirmShown ? 'confirming' : ''} ${isLockHaloOn(state) || this._isPending() || this._confirm ? 'neon-halo-active' : ''} ${isLockAlert(state) ? 'neon-halo-error' : ''} ${isLockMoving(state) ? 'lock-moving' : ''}"
+        class="neon-ring-host size-${size} ${this._confirm && this._confirmShown ? 'confirming' : ''} ${isLockHaloOn(state) || this._pending.active || this._confirm ? 'neon-halo-active' : ''} ${isLockAlert(state) ? 'neon-halo-error' : ''} ${isLockMoving(state) ? 'lock-moving' : ''}"
         style=${neonHaloVars(colors)}
         @pointerdown=${(ev: PointerEvent) => handlePointerDown(this._gesture, ev, '.-none-', () => this._handleAction('hold'))}
         @pointerup=${() => cancelHold(this._gesture)}
@@ -402,7 +393,7 @@ export class NeonLockCard extends BaseNeonCard {
   /**
    * Cuando la entidad cambia de estado (la accionó esta tarjeta, otra, la
    * app de HA, una automatización o el propio dispositivo) manda el
-   * estado: la espera de `_pendingUntil` se da por terminada. No cuenta el
+   * estado: la espera pendiente se da por terminada. No cuenta el
    * primer estado que se ve, cambiar de entidad en la config ni volver de
    * `error`.
    */
@@ -417,20 +408,11 @@ export class NeonLockCard extends BaseNeonCard {
     const entity = this._config?.entity;
     const last = this._lastSeen;
     if (last && last.entity === entity && last.state !== state) {
-      this._pendingUntil = 0;
+      this._pending.clear();
       // Si la cerradura cambia mientras se pregunta, la pregunta ya no vale.
       this._dropConfirm();
     }
     this._lastSeen = { entity, state };
-  }
-
-  private _isPending(): boolean {
-    return performance.now() < this._pendingUntil;
-  }
-
-  private _schedulePendingEnd(ms: number): void {
-    clearTimeout(this._pendingTimer);
-    this._pendingTimer = setTimeout(() => this.requestUpdate(), ms);
   }
 
   private _paintIcon(s: number): void {
@@ -466,16 +448,11 @@ export class NeonLockCard extends BaseNeonCard {
 
   connectedCallback(): void {
     super.connectedCallback();
-    // Si se reconecta a mitad de la espera de un cambio de estado, se
-    // retoma desde el reloj: nada se queda a medias.
-    const remaining = this._pendingUntil - performance.now();
-    if (remaining > 0) this._schedulePendingEnd(remaining);
     this._pose.set(isLockOpenPose(resolveLockState(this._config, this.hass)));
   }
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    clearTimeout(this._pendingTimer);
     this._dropConfirm();
     this._pose.dispose();
   }

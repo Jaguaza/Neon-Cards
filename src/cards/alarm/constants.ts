@@ -104,12 +104,6 @@ export const TRIGGERED_HALO: GradientColors = { c1: '#ff3b3b', c2: '#ff5c5c', c3
 /** Icono `mdi` del estado `error` (sin entidad válida). */
 export const ERROR_ICON = 'mdi:close';
 
-/**
- * Espera (ms) del halo encendido tras lanzar una orden, hasta que la
- * entidad cambia de estado. Si no cambia (orden fallida) se apaga.
- */
-export const ACTION_PENDING_MS = 6000;
-
 /** Tiempo (ms) sin actividad tras el que una vista (modo, teclado, lista) se cierra sola. */
 export const VIEW_TIMEOUT_MS = 30000;
 

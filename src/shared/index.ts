@@ -11,6 +11,7 @@ export {
   neonRingSplitTemplate,
 } from './glow';
 export { isCssColor, toHex6 } from './css-color';
+export { ACTION_PENDING_MS, ActionPendingController } from './action-pending';
 export { CARD_GRID, CARD_SIZES, DEFAULT_CARD_SIZE, resolveCardSize } from './card-size';
 export type { CardSize } from './card-size';
 export { RingSizeController } from './ring-size';

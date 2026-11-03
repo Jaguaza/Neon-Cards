@@ -29,16 +29,6 @@ export const HA_LOCK_STATES: readonly LockVisualState[] = [
 export const OPERATING_ACTIONS: readonly string[] = ['toggle', 'call-service', 'perform-action'];
 
 /**
- * El halo sigue al estado de la cerradura (encendido mientras está abierta,
- * apagado al llegar a `locked`; ver `isLockHaloOn`). Para dar respuesta
- * inmediata al pulsar una acción que la opera —hay cerraduras que tardan
- * un par de segundos en cambiar de estado—, el halo se enciende ya y
- * espera, como máximo este tiempo (ms), a que el estado cambie; en cuanto
- * cambia manda el estado. Si no cambia (acción fallida) se apaga al agotarse.
- */
-export const ACTION_PENDING_MS = 6000;
-
-/**
  * Tiempo (ms) que la vista «¿Abrir?» espera una respuesta antes de
  * cancelarse sola: una cerradura no debe quedarse con la orden de abrir
  * pendiente indefinidamente si alguien pulsa y se va.

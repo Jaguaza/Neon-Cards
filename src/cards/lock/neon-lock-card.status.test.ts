@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ACTION_PENDING_MS, CONFIRM_REVEAL_MS, STATUS_DOT_DEFAULTS } from './constants';
+import { ACTION_PENDING_MS } from '../../shared';
+import { CONFIRM_REVEAL_MS, STATUS_DOT_DEFAULTS } from './constants';
 import { NEON_LOCK_CARD_STYLES } from './neon-lock-card.styles';
 import { active, click, hassWith, mount, status, subtitle } from './neon-lock-card.fixtures';
 import type { Card } from './neon-lock-card.fixtures';

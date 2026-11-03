@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ACTION_PENDING_MS } from './constants';
+import { ACTION_PENDING_MS } from '../../shared';
 import { POSE_TOTAL_MS, shacklePath } from './icons/padlock-geometry';
 import { active, card, click, errorIcon, hassWith, isOpen, mount, padlock, shackleD, status, subtitle, xIcon } from './neon-lock-card.fixtures';
 
