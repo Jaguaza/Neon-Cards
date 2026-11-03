@@ -665,6 +665,7 @@ tarjeta (fondo, texto) sí lo hace a través de variables CSS de HA.
 |---|---|
 | `NEON_PRESETS` | `Record<string, NeonPreset>` — los 5 presets (`emerald`, `cyberpunk`, `electric`, `sunset`, `toxic`), cada uno con `{ name, c1, c2, c3 }`. |
 | `DEFAULT_PALETTE` | `'emerald'` — preset usado cuando no se indica `neon_palette` o el valor no existe. |
+| `PALETTE_IDS` | `readonly string[]` — los ids de las paletas (`Object.keys(NEON_PRESETS)`), en el orden en que los editores las ofrecen en el selector. |
 | `NeonPreset` | `{ name: string; c1: string; c2: string; c3: string }`. `name` es un campo congelado (acuerdo nº25) que **no** se usa para pintar la UI — para eso está `getPaletteName`, justo abajo. |
 | `GradientColors` | `{ c1: string; c2: string; c3: string }` — lo que devuelve `resolveGradientColors`. |
 
@@ -764,6 +765,16 @@ coordenadas en unidades reales (el atributo `d` no admite `%` ni
 `static styles`, pone la clase `neon-ring-host` en el contenedor y
 `neon-halo-active` cuando el estado es activo (comparte la clase con
 `NEON_HALO_STYLES`).
+
+#### `VIEW_REVEAL_MS`
+
+- **Descripción:** retardo (ms) entre encender el halo y mostrar una vista
+  dentro de la tarjeta (confirmación, elección de modo, teclado…). El aro se
+  dibuja con una transición CSS y WebKit (iOS, la app de HA) no la arranca si
+  en el mismo fotograma se inserta además una capa nueva; encendiendo primero
+  el halo y mostrando la vista un instante después, la transición empieza
+  limpia. Lo usan la Lock Card y la Alarm Card.
+- **Valor:** `120`.
 
 ---
 

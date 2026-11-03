@@ -665,6 +665,7 @@ the card (background, text) does, through HA CSS variables.
 |---|---|
 | `NEON_PRESETS` | `Record<string, NeonPreset>` — the 5 presets (`emerald`, `cyberpunk`, `electric`, `sunset`, `toxic`), each `{ name, c1, c2, c3 }`. |
 | `DEFAULT_PALETTE` | `'emerald'` — preset used when `neon_palette` is unset or doesn't exist. |
+| `PALETTE_IDS` | `readonly string[]` — the palette ids (`Object.keys(NEON_PRESETS)`), in the order the editors offer them in the selector. |
 | `NeonPreset` | `{ name: string; c1: string; c2: string; c3: string }`. `name` is a frozen field (agreement nº25) that is **not** used to render the UI — see `getPaletteName` right below for that. |
 | `GradientColors` | `{ c1: string; c2: string; c3: string }` — what `resolveGradientColors` returns. |
 
@@ -762,6 +763,16 @@ attribute doesn't support `%` or `calc()`).
 styles`, puts the `neon-ring-host` class on the container, and
 `neon-halo-active` when the state is active (shared class with
 `NEON_HALO_STYLES`).
+
+#### `VIEW_REVEAL_MS`
+
+- **Description:** delay (ms) between switching the halo on and showing a view
+  inside the card (confirmation, mode choice, keypad…). The ring is drawn with
+  a CSS transition and WebKit (iOS, the HA app) does not start it if a new
+  layer is also inserted in the same frame; switching the halo on first and
+  showing the view a moment later lets the transition start cleanly. Used by
+  the Lock Card and the Alarm Card.
+- **Value:** `120`.
 
 ---
 
