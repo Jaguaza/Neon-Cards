@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveGradientColors, NEON_PRESETS, DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel } from './neon-palette';
+import { resolveGradientColors, NEON_PRESETS, DEFAULT_PALETTE, PALETTE_IDS, getPaletteName, getPaletteCustomLabel } from './neon-palette';
 
 describe('resolveGradientColors', () => {
   it('usa el preset por defecto sin config', () => {
@@ -70,5 +70,16 @@ describe('getPaletteName', () => {
 describe('getPaletteCustomLabel', () => {
   it('devuelve un texto no vacío', () => {
     expect(getPaletteCustomLabel(undefined).length).toBeGreaterThan(0);
+  });
+});
+
+describe('PALETTE_IDS', () => {
+  it('lista las paletas en el orden en que los editores las ofrecen', () => {
+    expect(PALETTE_IDS).toEqual(['emerald', 'cyberpunk', 'electric', 'sunset', 'toxic']);
+  });
+
+  it('cada id tiene su paleta y la predeterminada es una de ellas', () => {
+    for (const id of PALETTE_IDS) expect(NEON_PRESETS[id]).toBeDefined();
+    expect(PALETTE_IDS).toContain(DEFAULT_PALETTE);
   });
 });

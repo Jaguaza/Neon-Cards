@@ -2,7 +2,7 @@ import { LitElement, html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import { EDITOR_ACTIONS } from '../../ha/types';
 import type { ActionConfig, HomeAssistant, ValueChangedEvent } from '../../ha/types';
-import { CARD_SIZES, DEFAULT_CARD_SIZE, DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, isCssColor, resolveCardSize, toHex6, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
+import { CARD_SIZES, DEFAULT_CARD_SIZE, DEFAULT_PALETTE, PALETTE_IDS, getPaletteName, getPaletteCustomLabel, isCssColor, resolveCardSize, toHex6, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
 import { getInfoLabels, localize } from '../../core';
 import { FOOTER_MAX, SECURITY_SENSOR_TYPES, SENSOR_ACTIVE_COLOR_KEY, SENSOR_ACTIVE_DEFAULT, STATUS_COLOR_GROUPS, STATUS_COLOR_KEYS, STATUS_DOT_DEFAULTS } from './constants';
@@ -16,7 +16,6 @@ import type { AlarmSize, AlarmSubtitleType, NeonAlarmCardConfig } from './types'
 /** Orden de las opciones del selector de subtítulo; 'none' es el valor por defecto (el estado ya va arriba a la derecha). */
 const SUBTITLE_TYPES: readonly AlarmSubtitleType[] = ['none', 'state', 'custom', 'last-changed', 'last-updated'];
 
-const PALETTES = ['emerald', 'cyberpunk', 'electric', 'sunset', 'toxic'];
 
 export class NeonAlarmCardEditor extends LitElement {
   static properties = {
@@ -301,7 +300,7 @@ export class NeonAlarmCardEditor extends LitElement {
             this._configChanged('neon_palette', value);
           }}
         >
-          ${PALETTES.map((id) => html`<option value=${id} ?selected=${id === currentPalette}>${getPaletteName(this.hass, id)}</option>`)}
+          ${PALETTE_IDS.map((id) => html`<option value=${id} ?selected=${id === currentPalette}>${getPaletteName(this.hass, id)}</option>`)}
           <option value="custom" ?selected=${currentPalette === 'custom'}>${getPaletteCustomLabel(this.hass)}</option>
         </select>
         ${currentPalette === 'custom' ? this._renderCustomColors(config) : nothing}

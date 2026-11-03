@@ -2,7 +2,7 @@ import { LitElement, html, nothing } from 'lit';
 import type { PropertyValues, TemplateResult } from 'lit';
 import { EDITOR_ACTIONS } from '../../ha/types';
 import type { ActionConfig, HomeAssistant, ValueChangedEvent } from '../../ha/types';
-import { CARD_SIZES, DEFAULT_CARD_SIZE, DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, isCssColor, resolveCardSize, toHex6, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
+import { CARD_SIZES, DEFAULT_CARD_SIZE, DEFAULT_PALETTE, PALETTE_IDS, getPaletteName, getPaletteCustomLabel, isCssColor, resolveCardSize, toHex6, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
 import { getInfoLabels, localize } from '../../core';
 import { LOCK_ICON_TYPES, LOCK_ICONS, resolveLockIconType } from './icons';
@@ -314,7 +314,7 @@ export class NeonLockCardEditor extends LitElement {
             this._configChanged('neon_palette', value);
           }}
         >
-          ${['emerald', 'cyberpunk', 'electric', 'sunset', 'toxic'].map(
+          ${PALETTE_IDS.map(
             (id) => html`<option value=${id} ?selected=${id === currentPalette}>${getPaletteName(this.hass, id)}</option>`
           )}
           <option value="custom" ?selected=${currentPalette === 'custom'}>${getPaletteCustomLabel(this.hass)}</option>

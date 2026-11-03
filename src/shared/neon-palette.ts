@@ -95,6 +95,9 @@ export function getPaletteCustomLabel(hass: HomeAssistant | undefined): string {
 
 export const DEFAULT_PALETTE = 'emerald';
 
+/** Ids de las paletas, en el orden en que los editores las ofrecen. */
+export const PALETTE_IDS: readonly string[] = Object.keys(NEON_PRESETS);
+
 export interface GradientColors {
   c1: string;
   c2: string;

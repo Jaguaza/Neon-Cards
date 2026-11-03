@@ -5,6 +5,7 @@ import type { ActionConfig, HomeAssistant, ValueChangedEvent } from '../../ha/ty
 import { localize } from '../../core';
 import {
   DEFAULT_PALETTE,
+  PALETTE_IDS,
   getPaletteName,
   getPaletteCustomLabel,
   SHARED_TRANSLATIONS,
@@ -19,7 +20,6 @@ import { resolveEffect } from './sensor-colors';
 import { hasGraph, resolveSize } from './sensor-size';
 import type { NeonEffect, NeonSensorCardConfig, ThresholdLevel, ThresholdNames, SensorSize } from './types';
 
-const PALETTES = ['emerald', 'cyberpunk', 'electric', 'sunset', 'toxic'];
 const SIZES: Array<[SensorSize, keyof SensorTranslations]> = [
   ['large', 'size_large'],
   ['normal', 'size_normal'],
@@ -180,7 +180,7 @@ export class NeonSensorCardEditor extends LitElement {
         .value=${current}
         @change=${(ev: Event) => this._configChanged('neon_palette', (ev.target as HTMLSelectElement).value)}
       >
-        ${PALETTES.map((id) => html`<option value=${id} ?selected=${id === current}>${getPaletteName(this.hass, id)}</option>`)}
+        ${PALETTE_IDS.map((id) => html`<option value=${id} ?selected=${id === current}>${getPaletteName(this.hass, id)}</option>`)}
         <option value="custom" ?selected=${current === 'custom'}>${getPaletteCustomLabel(this.hass)}</option>
       </select>
       ${current === 'custom'

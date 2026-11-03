@@ -1,4 +1,4 @@
-export { NEON_PRESETS, DEFAULT_PALETTE, resolveGradientColors, getPaletteName, getPaletteCustomLabel } from './neon-palette';
+export { NEON_PRESETS, DEFAULT_PALETTE, PALETTE_IDS, resolveGradientColors, getPaletteName, getPaletteCustomLabel } from './neon-palette';
 export type { NeonPreset, GradientColors, NeonPaletteConfig } from './neon-palette';
 export { SHARED_TRANSLATIONS } from './translations';
 export type { SharedTranslations } from './translations';
