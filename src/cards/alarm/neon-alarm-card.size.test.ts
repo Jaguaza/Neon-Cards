@@ -101,4 +101,19 @@ describe('tamaño de la Alarm card', () => {
     const narrow = after('@container (max-width: 110px)');
     expect(narrow).toMatch(/\.chip \{[^}]*flex-direction: column/);
   });
+
+  it('el teclado de la compacta ajusta teclas, letra e iconos al ancho y deja bajar de línea los puntos del código', async () => {
+    const el = await mount({ size: 'compact' });
+    const css = (el.constructor as unknown as { styles: Array<{ cssText: string }> }).styles.map((style) => style.cssText).join('\n');
+    const rule = (selector: string) => css.slice(css.indexOf(selector)).split('}')[0];
+    // Teclas tan altas como anchas (hasta 34 px): sin el límite de 220 px ni el alto fijo de las píldoras estrechas.
+    expect(rule('.size-compact .keypad {')).toContain('max-width: none');
+    expect(rule('.size-compact .key {')).toMatch(/height: min\(34px, calc\(\(100cqi/);
+    expect(rule('.size-compact .key {')).toMatch(/font-size: clamp\([^)]*cqi/);
+    // El icono de borrar y el de aceptar se ajustan al ancho y no se encogen dentro de la tecla.
+    expect(rule('.size-compact .key ha-icon {')).toMatch(/--mdc-icon-size: clamp\([^)]*cqi/);
+    expect(rule('.size-compact .key ha-icon {')).toContain('flex: none');
+    // Con un código largo los puntos bajan de línea en vez de desbordar la tarjeta.
+    expect(rule('.size-compact .code-dots {')).toContain('flex-wrap: wrap');
+  });
 });

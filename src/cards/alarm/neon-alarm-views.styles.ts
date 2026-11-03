@@ -199,6 +199,33 @@ export const NEON_ALARM_VIEWS_STYLES = css`
     margin: 0;
     color: inherit;
   }
+  /* Teclado de la compacta: con ~75 px de ancho útil las teclas de siempre
+     (34 px de alto) salían como píldoras estrechas y el icono de borrar
+     (20 px) no cabía y se encogía o se desbordaba. Aquí las teclas son tan
+     altas como anchas (hasta 34 px) y la letra y los iconos se ajustan al
+     ancho de la tarjeta; los puntos del código bajan de línea si no caben. */
+  .size-compact .keypad {
+    gap: 4px;
+    max-width: none;
+  }
+  .size-compact .key {
+    height: min(34px, calc((100cqi - 8px) / 3));
+    padding: 0;
+    border-radius: 8px;
+    font-size: clamp(9px, calc(100cqi / 6), 16px);
+  }
+  .size-compact .key ha-icon {
+    --mdc-icon-size: clamp(8px, calc(100cqi / 6), 20px);
+    flex: none;
+  }
+  .size-compact .code-dots {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .size-compact .code-dots .dot {
+    width: 8px;
+    height: 8px;
+  }
   .code-text {
     display: flex;
     gap: 8px;
