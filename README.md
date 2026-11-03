@@ -518,6 +518,8 @@ Minimalist switch with SVG animations, dynamic palettes, and modular architectur
   <img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/entity/Entity%20completa.jpg" width="450" style="margin-right:20px;">
 </p>
 
+https://github.com/user-attachments/assets/8ae87d5e-a995-4531-8aae-b137a4cc1fca
+
 ### **Available Palettes**
 
 - **Cyber Emerald** *(Default)*  
@@ -569,6 +571,8 @@ Minimalist button with SVG animations, dynamic palettes, and modular architectur
   <img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/button/Button%201.jpg" width="450" style="margin-right:20px;"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/button/Button%202.jpg" width="450" style="margin-right:20px;">
 </p>
 
+https://github.com/user-attachments/assets/52b46ae6-df7a-4e43-ba21-e260f69b32ac
+
 ### **Available Palettes**
 
 - **Cyber Emerald** *(Default)*  
@@ -612,6 +616,8 @@ Thermostat with a draggable neon dial, a color per mode and support for **one or
 
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/termostato/thermostat-views.jpg" width="450"></p>
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/termostato/thermostat-views1.jpg" width="450"></p>
+
+https://github.com/user-attachments/assets/c63b32f6-91c9-46d2-b6d7-fd5577900b99
 
 ### **Three views**
 
@@ -679,7 +685,6 @@ size: large
 footer:
   - entity: sensor.living_room_humidity
 ```
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/Termostato%20Gif.gif" width="450"></p>
 
 ### **Exclusion also for changes made outside the card (optional)**
 
@@ -732,6 +737,8 @@ The fan (`fan_only`) is free by default: an air conditioner in fan-only mode doe
 Read-only card for **one** `sensor` or `binary_sensor` entity: name, icon, value with its unit and a **history graph** drawn like the trace of a vital-signs monitor. The graph is shown in the medium and large sizes (the small one has none); what you choose is its color effect. State thresholds are optional and are what marks the card's perimeter. Any other entity (`light`, `switch`, `climate`…) is rejected.
 
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/sensor/Neon_Sensor_Cards.png" width="450"></p>
+
+https://github.com/user-attachments/assets/61e9c55d-5969-4e8a-8084-c566e2018f88
 
 ### **Title and subtitle**
 
@@ -792,7 +799,6 @@ threshold_names:
   ok: Comfort
   high: Hot
 ```
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/Sensor.gif" width="450"></p>
 
 ---
 
@@ -802,6 +808,8 @@ threshold_names:
 Card for Home Assistant `lock` entities (door locks, latches, garage locks) with an **animated icon** that really opens and closes, a neon halo that follows the lock's state and a **confirmation before opening**. Any entity that is not in the `lock` domain is shown as "Unavailable".
 
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/cerradura/cerradura.png" width="450"></p>
+
+https://github.com/user-attachments/assets/22f7d50a-79cb-42ef-9f17-445cb9d78281
 
 ### **Four animated icons**
 
@@ -853,7 +861,6 @@ neon_palette: electric
 footer_items: [battery, last_user, door]
 door_entity: binary_sensor.front_door
 ```
-  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/gifs/Cerradura.gif" width="450"></p>
 
 ## 🚀 Coming Soon
 
