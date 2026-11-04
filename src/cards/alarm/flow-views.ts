@@ -1,5 +1,6 @@
 import { html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
+import { renderAlertDialog } from '../../shared';
 import { COMMAND_ICONS } from './constants';
 import type { AlarmTranslations } from './translations';
 import type { AlarmCommand } from './types';
@@ -10,32 +11,6 @@ export interface ViewContext {
   compact: boolean;
   translate: (key: keyof AlarmTranslations) => string;
   onCancel: () => void;
-}
-
-/**
- * Las vistas cuelgan encima del contenido y recogen sus propios gestos: sin
- * cortar la propagación, el clic en un botón llegaría al `ha-card` y se
- * interpretaría como otra pulsación de la tarjeta.
- */
-const stop = (ev: Event) => ev.stopPropagation();
-
-export function viewDialog(className: string, title: string, onCancel: () => void, content: TemplateResult): TemplateResult {
-  return html`
-    <div
-      class=${className}
-      role="alertdialog"
-      aria-label=${title}
-      @pointerdown=${stop}
-      @pointerup=${stop}
-      @pointercancel=${stop}
-      @click=${stop}
-      @keydown=${(ev: KeyboardEvent) => {
-        if (ev.key === 'Escape') onCancel();
-      }}
-    >
-      ${content}
-    </div>
-  `;
 }
 
 /** Botón de la vista: en la compacta solo icono (el texto queda como aria-label y tooltip). */
@@ -57,7 +32,7 @@ export function cancelButton(ctx: ViewContext): TemplateResult {
 export function renderModesView(ctx: ViewContext, choices: AlarmCommand[], onPick: (command: AlarmCommand) => void): TemplateResult {
   const title = ctx.translate('mode_title');
   const buttons = choices.map((command) => viewButton('accept', ctx.translate(`command_${command}`), COMMAND_ICONS[command], ctx.compact, () => onPick(command), command));
-  return viewDialog(
+  return renderAlertDialog(
     'view view--modes',
     title,
     ctx.onCancel,

@@ -1,6 +1,7 @@
 import { html } from 'lit';
 import type { TemplateResult } from 'lit';
 import { nothing } from 'lit';
+import { renderAlertDialog } from '../../shared';
 import { COMMAND_ICONS } from './constants';
 import type { LockCommand } from './lock-state';
 import type { LockTranslations } from './translations';
@@ -12,32 +13,6 @@ export interface ConfirmViewContext {
   translate: (key: keyof LockTranslations) => string;
   onCancel: () => void;
   onAccept: (command?: LockCommand) => void;
-}
-
-/**
- * La vista «¿Abrir?» cuelga encima del contenido y recoge sus propios
- * gestos: sin cortar la propagación, el clic en un botón llegaría al
- * `ha-card` y se interpretaría como otra pulsación (y otra confirmación).
- */
-const stop = (ev: Event) => ev.stopPropagation();
-
-function confirmDialog(className: string, title: string, onCancel: () => void, content: TemplateResult): TemplateResult {
-  return html`
-    <div
-      class=${className}
-      role="alertdialog"
-      aria-label=${title}
-      @pointerdown=${stop}
-      @pointerup=${stop}
-      @pointercancel=${stop}
-      @click=${stop}
-      @keydown=${(ev: KeyboardEvent) => {
-        if (ev.key === 'Escape') onCancel();
-      }}
-    >
-      ${content}
-    </div>
-  `;
 }
 
 function iconButton(role: 'cancel' | 'accept', label: string, icon: string, onClick: () => void, command?: LockCommand): TemplateResult {
@@ -58,7 +33,7 @@ export function renderCompactConfirm(ctx: ConfirmViewContext): TemplateResult {
   const accepts = multi
     ? choices.map((command) => iconButton('accept', t(`command_${command}`), COMMAND_ICONS[command], () => ctx.onAccept(command), command))
     : [iconButton('accept', t('confirm_accept'), COMMAND_ICONS.unlock, () => ctx.onAccept())];
-  return confirmDialog(
+  return renderAlertDialog(
     'confirm confirm--compact',
     t(multi ? 'confirm_choose' : 'confirm_title'),
     ctx.onCancel,
@@ -85,7 +60,7 @@ export function renderFullConfirm(ctx: ConfirmViewContext): TemplateResult {
   const accepts = multi
     ? choices.map((command) => labelledButton('accept', t(`command_${command}`), COMMAND_ICONS[command], () => ctx.onAccept(command), { command }))
     : labelledButton('accept', t('confirm_accept'), COMMAND_ICONS.unlock, () => ctx.onAccept());
-  return confirmDialog(
+  return renderAlertDialog(
     `confirm ${multi ? 'confirm--multi' : ''}`,
     title,
     ctx.onCancel,

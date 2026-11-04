@@ -20,6 +20,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- `src/shared`: new `renderAlertDialog` (`alert-dialog.ts`), the common `alertdialog` of the floating views that the Lock Card and the Alarm Card each had copied. No visible changes.
+- `src/shared`: nuevo `renderAlertDialog` (`alert-dialog.ts`), el `alertdialog` común de las vistas flotantes que la Lock Card y la Alarm Card tenían copiado cada una. Sin cambios visibles.
 - `src/shared`: new `CARD_AUTHOR`, `CARD_VERSION` (`card-identity.ts`) and `ERROR_ICON` (`error-icon.ts`), replacing the constants each of the six cards defined on its own (`ERROR_ICON` in Button, Sensor, Lock and Alarm). No visible changes.
 - `src/shared`: nuevos `CARD_AUTHOR`, `CARD_VERSION` (`card-identity.ts`) y `ERROR_ICON` (`error-icon.ts`), que sustituyen a las constantes que cada una de las seis tarjetas definía por su cuenta (`ERROR_ICON` en Button, Sensor, Lock y Alarm). Sin cambios visibles.
 - Alarm Card: the list opened by tapping a footer sensor in the medium card now always shows only the active sensors, with or without `footer_only_active`. The large card is unchanged: it shows all the sensors, or only the active ones with `footer_only_active`.

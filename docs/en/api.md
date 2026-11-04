@@ -906,6 +906,24 @@ action is pressed, without waiting for the entity's state to change.
 
 ---
 
+### Floating view (`alert-dialog.ts`)
+
+#### `renderAlertDialog(className, title, onCancel, content)`
+
+- **Description:** common wrapper of the views that hang over a card's content (confirm, pick a mode, keypad, sensor list). It is an accessible `alertdialog` that stops `pointerdown`, `pointerup`, `pointercancel` and `click` (without that, the click would reach the `ha-card` and count as another press of the card) and calls `onCancel` on Escape. Used by the Lock Card and the Alarm Card.
+- **Parameters:**
+  - `className` (`string`): classes of the container; the card puts its own here.
+  - `title` (`string`): accessible name of the dialog (`aria-label`).
+  - `onCancel` (`() => void`): called when Escape is pressed.
+  - `content` (`TemplateResult`): what goes inside, text and buttons.
+- **Returns:** `TemplateResult`.
+- **Example:**
+  ```ts
+  return renderAlertDialog('confirm', t('confirm_title'), onCancel, html`<div class="confirm-actions">...</div>`);
+  ```
+
+---
+
 ### Identity and error icon (`card-identity.ts`, `error-icon.ts`)
 
 All six cards use them: each one imports from here instead of repeating the

@@ -1,6 +1,7 @@
 import { html } from 'lit';
 import type { TemplateResult } from 'lit';
-import { cancelButton, viewDialog } from './flow-views';
+import { renderAlertDialog } from '../../shared';
+import { cancelButton } from './flow-views';
 import type { ViewContext } from './flow-views';
 
 /** Teclas del teclado numérico, en filas de tres. */
@@ -70,7 +71,7 @@ function textField(ctx: KeypadContext): TemplateResult {
  */
 export function renderKeypadView(ctx: KeypadContext): TemplateResult {
   const title = ctx.translate(ctx.error ? 'code_error' : 'code_title');
-  return viewDialog(
+  return renderAlertDialog(
     `view view--keypad ${ctx.error ? 'has-error' : ''}`,
     title,
     ctx.onCancel,

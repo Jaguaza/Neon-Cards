@@ -908,6 +908,24 @@ una acción, sin esperar al cambio de estado de la entidad.
 
 ---
 
+### Vista flotante (`alert-dialog.ts`)
+
+#### `renderAlertDialog(className, title, onCancel, content)`
+
+- **Descripción:** envoltorio común de las vistas que cuelgan encima del contenido de una tarjeta (confirmar, elegir modo, teclado, lista de sensores). Es un `alertdialog` accesible que corta `pointerdown`, `pointerup`, `pointercancel` y `click` (sin eso el clic llegaría al `ha-card` y contaría como otra pulsación de la tarjeta) y llama a `onCancel` con Escape. Lo usan la Lock Card y la Alarm Card.
+- **Parámetros:**
+  - `className` (`string`): clases del contenedor; la tarjeta pone aquí las suyas.
+  - `title` (`string`): nombre accesible del diálogo (`aria-label`).
+  - `onCancel` (`() => void`): se llama al pulsar Escape.
+  - `content` (`TemplateResult`): lo de dentro, texto y botones.
+- **Devuelve:** `TemplateResult`.
+- **Ejemplo:**
+  ```ts
+  return renderAlertDialog('confirm', t('confirm_title'), onCancel, html`<div class="confirm-actions">...</div>`);
+  ```
+
+---
+
 ### Identidad e icono de error (`card-identity.ts`, `error-icon.ts`)
 
 Lo usan las seis tarjetas: cada una importa de aquí en lugar de repetir las

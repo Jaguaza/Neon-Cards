@@ -2,7 +2,8 @@ import { html } from 'lit';
 import type { TemplateResult } from 'lit';
 import { LOCK_SENSOR_TYPE } from './constants';
 import type { FooterSensorView, SensorEntry } from './alarm-sensors';
-import { cancelButton, viewDialog } from './flow-views';
+import { renderAlertDialog } from '../../shared';
+import { cancelButton } from './flow-views';
 import type { ViewContext } from './flow-views';
 
 /** Texto del estado de un sensor de la lista (las cerraduras hablan de «sin cerrar», el resto de «activo»). */
@@ -30,7 +31,7 @@ export function renderSensorsView(ctx: ViewContext, sensor: FooterSensorView, ty
   const rows = sensor.entries.length
     ? html`<ul class="sensor-list">${sensor.entries.map((entry) => entryRow(ctx, sensor.type, entry))}</ul>`
     : html`<p class="sensor-empty">${ctx.translate(onlyActive ? 'sensors_none_active' : 'sensors_empty')}</p>`;
-  return viewDialog(
+  return renderAlertDialog(
     'view view--sensors',
     title,
     ctx.onCancel,
