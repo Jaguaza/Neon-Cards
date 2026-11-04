@@ -1,5 +1,5 @@
 import { logCardBanner } from '../../core';
-import { CARD_AUTHOR, CARD_VERSION } from './constants';
+import { CARD_AUTHOR, CARD_VERSION } from '../../shared';
 import { NeonThermostatCard } from './neon-thermostat-card';
 import { NeonThermostatCardEditor } from './neon-thermostat-card-editor';
 

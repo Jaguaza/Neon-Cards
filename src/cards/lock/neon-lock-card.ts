@@ -23,8 +23,9 @@ import {
   resolveCardSize,
   ActionPendingController,
   VIEW_REVEAL_MS,
+  ERROR_ICON,
 } from '../../shared';
-import { CONFIRM_TIMEOUT_MS, ERROR_ICON, OPERATING_ACTIONS } from './constants';
+import { CONFIRM_TIMEOUT_MS, OPERATING_ACTIONS } from './constants';
 import { LOCK_ICONS, resolveLockIconType } from './icons';
 import type { LockIconDef } from './icons';
 import { NEON_LOCK_ICON_STYLES } from './lock-icon.styles';

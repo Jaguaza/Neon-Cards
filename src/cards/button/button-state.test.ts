@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { cardSizeRows, gridColumnsFor, isButtonActive, isEntityBroken, resolveButtonIcon } from './button-state';
-import { DEFAULT_ICON, ERROR_ICON } from './constants';
+import { ERROR_ICON } from '../../shared';
+import { DEFAULT_ICON } from './constants';
 import type { HomeAssistant } from '../../ha/types';
 import type { NeonButtonCardConfig } from './types';
 

@@ -19,6 +19,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- `src/shared`: new `CARD_AUTHOR`, `CARD_VERSION` (`card-identity.ts`) and `ERROR_ICON` (`error-icon.ts`), replacing the constants each of the six cards defined on its own (`ERROR_ICON` in Button, Sensor, Lock and Alarm). No visible changes.
+- `src/shared`: nuevos `CARD_AUTHOR`, `CARD_VERSION` (`card-identity.ts`) y `ERROR_ICON` (`error-icon.ts`), que sustituyen a las constantes que cada una de las seis tarjetas definía por su cuenta (`ERROR_ICON` en Button, Sensor, Lock y Alarm). Sin cambios visibles.
 - Alarm Card: the list opened by tapping a footer sensor in the medium card now always shows only the active sensors, with or without `footer_only_active`. The large card is unchanged: it shows all the sensors, or only the active ones with `footer_only_active`.
 - Alarm Card: la lista que se abre al pulsar un sensor del pie en la tarjeta mediana enseña ahora siempre solo los sensores activos, tenga o no `footer_only_active`. La grande no cambia: enseña todos los sensores, o solo los activos con `footer_only_active`.
 - Documentación: los GIF pasan a ser vídeos, que se ven mejor en todos los dispositivos. La parte en inglés del README usa los mismos vídeos que la española, la sección «GIF» de cada tarjeta en `examples/README.md` pasa a «Video» y el acuerdo nº17, la guía para crear una tarjeta y la plantilla de PR piden «captura, video y explicación» en lugar de GIF.

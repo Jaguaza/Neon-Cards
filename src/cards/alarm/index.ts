@@ -1,5 +1,5 @@
 import { logCardBanner } from '../../core';
-import { CARD_AUTHOR, CARD_VERSION } from './constants';
+import { CARD_AUTHOR, CARD_VERSION } from '../../shared';
 import { NeonAlarmCard } from './neon-alarm-card';
 import { NeonAlarmCardEditor } from './neon-alarm-card-editor';
 

@@ -1,9 +1,5 @@
-import { NEON_CARDS_VERSION } from '../../version';
 import type { GradientColors } from '../../shared';
 import type { AlarmArmMode, AlarmSize, AlarmVisualState } from './types';
-
-export const CARD_AUTHOR = 'Jaguaza';
-export const CARD_VERSION = NEON_CARDS_VERSION;
 
 /** Estados del dominio `alarm_control_panel` que la tarjeta pinta tal cual. */
 export const HA_ALARM_STATES: readonly AlarmVisualState[] = [
@@ -100,9 +96,6 @@ export const SENSOR_ACTIVE_DEFAULT = '#ffb02e';
 
 /** Con la alarma disparada el aro y el halo se vuelven rojos, sea cual sea la paleta elegida. */
 export const TRIGGERED_HALO: GradientColors = { c1: '#ff3b3b', c2: '#ff5c5c', c3: '#ff2d6b' };
-
-/** Icono `mdi` del estado `error` (sin entidad válida). */
-export const ERROR_ICON = 'mdi:close';
 
 /** Tiempo (ms) sin actividad tras el que una vista (modo, teclado, lista) se cierra sola. */
 export const VIEW_TIMEOUT_MS = 30000;

@@ -908,6 +908,31 @@ una acción, sin esperar al cambio de estado de la entidad.
 
 ---
 
+### Identidad e icono de error (`card-identity.ts`, `error-icon.ts`)
+
+Lo usan las seis tarjetas: cada una importa de aquí en lugar de repetir las
+constantes.
+
+#### `CARD_AUTHOR`
+
+- **Descripción:** autor que sale en el banner de desarrollo de cada tarjeta.
+- **Valor:** `'Jaguaza'`.
+
+#### `CARD_VERSION`
+
+- **Descripción:** versión del paquete (la única del proyecto, `NEON_CARDS_VERSION` de `src/version.ts`) que sale en el banner de desarrollo.
+- **Ejemplo:**
+  ```ts
+  logCardBanner('NEON LOCK CARD', CARD_AUTHOR, CARD_VERSION);
+  ```
+
+#### `ERROR_ICON`
+
+- **Descripción:** icono `mdi` del estado `error` (sin entidad válida). Lleva el tratamiento neón del icono activo (`.neon-halo-error` en `glow.ts`), nunca el icono roto del navegador. Lo usan las tarjetas Button, Sensor y Lock.
+- **Valor:** `'mdi:close'`.
+
+---
+
 ### Editor: carcasa común (`editor-form.styles.ts`)
 
 #### `NEON_EDITOR_FORM_STYLES`

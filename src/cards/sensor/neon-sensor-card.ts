@@ -13,8 +13,8 @@ import {
   dispatchHassAction,
   openMoreInfo,
 } from '../../core';
-import { NEON_HALO_STYLES, neonHaloVars } from '../../shared';
-import { COMPACT_DECIMALS, DEFAULT_GRAPH_HOURS, ERROR_ICON, SIZE_GRID } from './constants';
+import { ERROR_ICON, NEON_HALO_STYLES, neonHaloVars } from '../../shared';
+import { COMPACT_DECIMALS, DEFAULT_GRAPH_HOURS, SIZE_GRID } from './constants';
 import { HistoryController } from './history-controller';
 import { buildStepPath, buildTracePath, TRACE_HEIGHT, TRACE_WIDTH } from './monitor-trace';
 import { resolveCardColors, resolveEdgeColor, resolveEffect } from './sensor-colors';

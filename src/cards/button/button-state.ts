@@ -1,5 +1,6 @@
 import type { HomeAssistant } from '../../ha/types';
-import { DEFAULT_ICON, ERROR_ICON } from './constants';
+import { ERROR_ICON } from '../../shared';
+import { DEFAULT_ICON } from './constants';
 import type { NeonButtonCardConfig } from './types';
 
 /** Dominios cuyo estado "on" se interpreta como botón activo. */

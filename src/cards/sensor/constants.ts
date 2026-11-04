@@ -1,11 +1,4 @@
-import { NEON_CARDS_VERSION } from '../../version';
 import type { SensorSize, ThresholdLevel } from './types';
-
-export const CARD_AUTHOR = 'Jaguaza';
-export const CARD_VERSION = NEON_CARDS_VERSION;
-
-/** Icono cuando la entidad no existe o no es un sensor/binary_sensor. */
-export const ERROR_ICON = 'mdi:close';
 
 export const DEFAULT_GRAPH_HOURS = 24;
 /** Tramos en que se reparte el histórico: una arista del trazo por tramo. */

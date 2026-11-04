@@ -17,3 +17,5 @@ export { CARD_GRID, CARD_SIZES, DEFAULT_CARD_SIZE, resolveCardSize } from './car
 export type { CardSize } from './card-size';
 export { RingSizeController } from './ring-size';
 export type { RingSize } from './ring-size';
+export { CARD_AUTHOR, CARD_VERSION } from './card-identity';
+export { ERROR_ICON } from './error-icon';

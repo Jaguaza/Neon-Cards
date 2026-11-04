@@ -906,6 +906,31 @@ action is pressed, without waiting for the entity's state to change.
 
 ---
 
+### Identity and error icon (`card-identity.ts`, `error-icon.ts`)
+
+All six cards use them: each one imports from here instead of repeating the
+constants.
+
+#### `CARD_AUTHOR`
+
+- **Description:** author shown in each card's development banner.
+- **Value:** `'Jaguaza'`.
+
+#### `CARD_VERSION`
+
+- **Description:** package version (the only one in the project, `NEON_CARDS_VERSION` from `src/version.ts`) shown in the development banner.
+- **Example:**
+  ```ts
+  logCardBanner('NEON LOCK CARD', CARD_AUTHOR, CARD_VERSION);
+  ```
+
+#### `ERROR_ICON`
+
+- **Description:** `mdi` icon for the `error` state (no valid entity). It gets the neon treatment of the active icon (`.neon-halo-error` in `glow.ts`), never the browser's broken icon. Used by the Button, Sensor and Lock cards.
+- **Value:** `'mdi:close'`.
+
+---
+
 ### Editor: shared shell (`editor-form.styles.ts`)
 
 #### `NEON_EDITOR_FORM_STYLES`

@@ -1,10 +1,6 @@
-import { NEON_CARDS_VERSION } from '../../version';
 import type { HvacMode } from '../../ha/climate';
 import type { ThermostatSize } from './types';
 import type { ThermostatTranslations } from './translations';
-
-export const CARD_AUTHOR = 'Jaguaza';
-export const CARD_VERSION = NEON_CARDS_VERSION;
 
 export const DEFAULT_SIZE: ThermostatSize = 'normal';
 

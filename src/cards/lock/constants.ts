@@ -1,15 +1,4 @@
-import { NEON_CARDS_VERSION } from '../../version';
 import type { LockVisualState } from './types';
-
-export const CARD_AUTHOR = 'Jaguaza';
-export const CARD_VERSION = NEON_CARDS_VERSION;
-
-/**
- * Icono `mdi` del estado `error` (sin entidad válida): mismo `mdi:close`
- * que Button para "entidad rota". El resto de estados dibujan el
- * candado animado de `lock-icon.ts`.
- */
-export const ERROR_ICON = 'mdi:close';
 
 /** Estados del dominio `lock` que HA puede devolver (todo lo demás es `error`). */
 export const HA_LOCK_STATES: readonly LockVisualState[] = [
