@@ -20,3 +20,5 @@ export type { RingSize } from './ring-size';
 export { CARD_AUTHOR, CARD_VERSION } from './card-identity';
 export { ERROR_ICON } from './error-icon';
 export { renderAlertDialog } from './alert-dialog';
+export { renderCustomColors, renderHaloSection } from './halo-section';
+export type { HaloChange, HaloConfig, HaloConfigKey, HaloSectionTexts } from './halo-section';

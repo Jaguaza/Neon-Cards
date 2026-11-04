@@ -942,6 +942,34 @@ action is pressed, without waiting for the entity's state to change.
 
 ---
 
+### Halo section in the editors (`halo-section.ts`)
+
+#### `renderHaloSection(hass, config, texts, onChange)`
+
+- **Description:** the "Halo appearance" section of the editors: title, palette selector (those of `PALETTE_IDS` plus "custom") and, with the custom palette, the three color pickers. Used by the Lock Card and Alarm Card editors.
+- **Parameters:**
+  - `hass: HomeAssistant | undefined` — for the language of the palette and color names.
+  - `config: HaloConfig` — what it reads from the configuration: `neon_palette`, `neon_color1`, `neon_color2`, `neon_color3`.
+  - `texts: { section: string; palette: string }` — section title and selector label, specific to each card.
+  - `onChange: (key: HaloConfigKey, value: string) => void` — called with the key and the new value; choosing the palette that was already selected does not notify.
+- **Returns:** `TemplateResult`.
+- **Example:**
+  ```ts
+  return renderHaloSection(this.hass, this._config!, { section: this._t('section_halo'), palette: this._t('palette_label') }, (key, value) => this._configChanged(key, value));
+  ```
+
+#### `renderCustomColors(hass, config, onChange)`
+
+- **Description:** the three color pickers of the custom palette (start, middle and end of the gradient), with the emerald palette colors when the configuration has none. Besides `renderHaloSection`, the Button, Entity and Thermostat card editors use it, as they have their own palette selector.
+- **Parameters:** the same `hass`, `config` and `onChange`.
+- **Returns:** `TemplateResult`.
+- **Example:**
+  ```ts
+  ${currentPalette === 'custom' ? renderCustomColors(this.hass, config, (key, value) => this._configChanged(key, value)) : nothing}
+  ```
+
+---
+
 ### Floating view (`alert-dialog.ts`)
 
 #### `renderAlertDialog(className, title, onCancel, content)`

@@ -2,7 +2,7 @@ import { LitElement, html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import { EDITOR_ACTIONS } from '../../ha/types';
 import type { HomeAssistant } from '../../ha/types';
-import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
+import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, renderCustomColors, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
 import { INFO_OPTIONS, actionConfigFor, getInfoLabels, localize } from '../../core';
 import { MAX_GROUPED_SENSORS } from './constants';
@@ -203,34 +203,7 @@ export class NeonButtonCardEditor extends LitElement {
           <option value="toxic">${getPaletteName(this.hass, 'toxic')}</option>
           <option value="custom">${getPaletteCustomLabel(this.hass)}</option>
         </select>
-        ${currentPalette === 'custom' ? this._renderCustomColors(config) : nothing}
-      </div>
-    `;
-  }
-
-  private _renderCustomColors(config: NeonButtonCardConfig): TemplateResult {
-    return html`
-      <div class="custom-colors-grid">
-        ${this._renderColorPicker('color_start', 'neon_color1', config.neon_color1 || '#39e07a')}
-        ${this._renderColorPicker('color_middle', 'neon_color2', config.neon_color2 || '#2dd6b8')}
-        ${this._renderColorPicker('color_end', 'neon_color3', config.neon_color3 || '#1ecdf2')}
-      </div>
-    `;
-  }
-
-  private _renderColorPicker(
-    labelKey: 'color_start' | 'color_middle' | 'color_end',
-    configKey: 'neon_color1' | 'neon_color2' | 'neon_color3',
-    value: string
-  ): TemplateResult {
-    return html`
-      <div class="color-picker-wrapper">
-        <span>${this._ts(labelKey)}</span>
-        <input
-          type="color"
-          .value=${value}
-          @input=${(ev: Event) => this._configChanged(configKey, (ev.target as HTMLInputElement).value)}
-        />
+        ${currentPalette === 'custom' ? renderCustomColors(this.hass, config, (key, value) => this._configChanged(key, value)) : nothing}
       </div>
     `;
   }

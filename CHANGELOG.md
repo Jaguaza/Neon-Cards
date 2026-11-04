@@ -20,6 +20,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- `src/shared`: new `renderHaloSection` and `renderCustomColors` (`halo-section.ts`): the "Halo appearance" section of the Lock and Alarm editors and the three color pickers of the Button, Entity and Thermostat editors, which each editor had copied. No visible changes (the DOM of the five editors is identical).
+- `src/shared`: nuevos `renderHaloSection` y `renderCustomColors` (`halo-section.ts`): la sección «Apariencia del halo» de los editores de Lock y Alarm y los tres selectores de color de los editores de Button, Entity y Thermostat, que cada editor tenía copiados. Sin cambios visibles (el DOM de los cinco editores es idéntico).
 - `src/core`: new `actionConfigFor`, `gestureActionFor`, `resolveActionConfigs`, `TOGGLE_ACTION_DEFAULTS` and `INFO_ACTION_DEFAULTS` (`actions.ts`), replacing the per-gesture action calculation repeated by the Alarm, Lock, Button and Sensor cards and the Alarm, Lock, Button, Sensor and Entity editors. No visible changes.
 - `src/core`: nuevos `actionConfigFor`, `gestureActionFor`, `resolveActionConfigs`, `TOGGLE_ACTION_DEFAULTS` e `INFO_ACTION_DEFAULTS` (`actions.ts`), que sustituyen al cálculo de la acción de cada gesto que repetían las tarjetas Alarm, Lock, Button y Sensor y los editores de Alarm, Lock, Button, Sensor y Entity. Sin cambios visibles.
 - `src/shared`: new `renderAlertDialog` (`alert-dialog.ts`), the common `alertdialog` of the floating views that the Lock Card and the Alarm Card each had copied. No visible changes.

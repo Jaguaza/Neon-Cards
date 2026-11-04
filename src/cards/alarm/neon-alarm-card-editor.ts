@@ -2,7 +2,7 @@ import { LitElement, html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import { EDITOR_ACTIONS } from '../../ha/types';
 import type { HomeAssistant, ValueChangedEvent } from '../../ha/types';
-import { CARD_SIZES, DEFAULT_CARD_SIZE, DEFAULT_PALETTE, PALETTE_IDS, getPaletteName, getPaletteCustomLabel, isCssColor, resolveCardSize, toHex6, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
+import { CARD_SIZES, DEFAULT_CARD_SIZE, renderHaloSection, isCssColor, resolveCardSize, toHex6, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
 import { actionConfigFor, getInfoLabels, localize } from '../../core';
 import { FOOTER_MAX, SECURITY_SENSOR_TYPES, SENSOR_ACTIVE_COLOR_KEY, SENSOR_ACTIVE_DEFAULT, STATUS_COLOR_GROUPS, STATUS_COLOR_KEYS, STATUS_DOT_DEFAULTS } from './constants';
@@ -280,46 +280,7 @@ export class NeonAlarmCardEditor extends LitElement {
   }
 
   private _renderHaloSection(): TemplateResult {
-    const config = this._config!;
-    const currentPalette = config.neon_palette || DEFAULT_PALETTE;
-    return html`
-      <div class="editor-section">
-        <div class="section-header">${this._t('section_halo')}</div>
-        <label class="native-select-label" for="palette">${this._t('palette_label')}</label>
-        <select
-          id="palette"
-          class="native-select"
-          .value=${currentPalette}
-          @change=${(ev: Event) => {
-            const value = (ev.target as HTMLSelectElement).value;
-            if (!value || value === currentPalette) return;
-            this._configChanged('neon_palette', value);
-          }}
-        >
-          ${PALETTE_IDS.map((id) => html`<option value=${id} ?selected=${id === currentPalette}>${getPaletteName(this.hass, id)}</option>`)}
-          <option value="custom" ?selected=${currentPalette === 'custom'}>${getPaletteCustomLabel(this.hass)}</option>
-        </select>
-        ${currentPalette === 'custom' ? this._renderCustomColors(config) : nothing}
-      </div>
-    `;
-  }
-
-  private _renderCustomColors(config: NeonAlarmCardConfig): TemplateResult {
-    return html`
-      <div class="custom-colors-grid">
-        ${this._renderColorPicker('color_start', 'neon_color1', config.neon_color1 || '#39e07a')} ${this._renderColorPicker('color_middle', 'neon_color2', config.neon_color2 || '#2dd6b8')}
-        ${this._renderColorPicker('color_end', 'neon_color3', config.neon_color3 || '#1ecdf2')}
-      </div>
-    `;
-  }
-
-  private _renderColorPicker(labelKey: 'color_start' | 'color_middle' | 'color_end', configKey: 'neon_color1' | 'neon_color2' | 'neon_color3', value: string): TemplateResult {
-    return html`
-      <div class="color-picker-wrapper">
-        <span>${this._ts(labelKey)}</span>
-        <input type="color" .value=${value} @input=${(ev: Event) => this._configChanged(configKey, (ev.target as HTMLInputElement).value)} />
-      </div>
-    `;
+    return renderHaloSection(this.hass, this._config!, { section: this._t('section_halo'), palette: this._t('palette_label') }, (key, value) => this._configChanged(key, value));
   }
 
   private _renderActionsSection(): TemplateResult {

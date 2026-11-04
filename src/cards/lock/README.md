@@ -221,10 +221,9 @@ vacío:
 
 La vista de confirmación («¿Abrir?», «¿Qué quieres hacer?») flota sobre el
 contenido y la tarjeta **no cambia de tamaño** al abrirla (así no pisa a la
-tarjeta de debajo en la rejilla). Se adapta al ancho para caber siempre en una
-fila: con sitio, título y botones con texto; en una tarjeta más estrecha, solo
-los botones con texto; y en una muy estrecha, botones redondos con icono (el
-texto queda como etiqueta accesible).
+tarjeta de debajo en la rejilla). Se adapta al ancho para caber en una fila: con
+sitio, título y botones con texto; más estrecha, solo botones con texto; y muy
+estrecha, botones redondos con icono (el texto queda como etiqueta accesible).
 
 La hora del último acceso es la del último cambio de estado de la entidad
 que la aporta: si la cerradura se vuelve a cerrar sola, esa hora es la del

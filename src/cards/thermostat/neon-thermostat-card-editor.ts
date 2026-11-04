@@ -9,9 +9,8 @@ import {
   DEFAULT_PALETTE,
   getPaletteName,
   getPaletteCustomLabel,
-  SHARED_TRANSLATIONS,
+  renderCustomColors,
 } from '../../shared';
-import type { SharedTranslations } from '../../shared';
 import { DEFAULT_SIZE, HVAC_MODE_ICONS, HVAC_MODE_DEFAULT_COLORS, HVAC_MODE_LABEL_KEYS, MAX_FOOTER_SENSORS } from './constants';
 import { THERMOSTAT_TRANSLATIONS } from './translations';
 import type { ThermostatTranslations } from './translations';
@@ -126,12 +125,6 @@ export class NeonThermostatCardEditor extends LitElement {
 
   private _t(key: keyof ThermostatTranslations): string {
     return localize(this.hass, THERMOSTAT_TRANSLATIONS, key);
-  }
-
-  /** Igual que _t(), pero para claves de src/shared/translations —
-      textos de la paleta neón compartidos por todo el paquete. */
-  private _ts(key: keyof SharedTranslations): string {
-    return localize(this.hass, SHARED_TRANSLATIONS, key);
   }
 
   private _modeLabel(mode: HvacMode): string {
@@ -338,34 +331,7 @@ export class NeonThermostatCardEditor extends LitElement {
           <option value="toxic">${getPaletteName(this.hass, 'toxic')}</option>
           <option value="custom">${getPaletteCustomLabel(this.hass)}</option>
         </select>
-        ${currentPalette === 'custom' ? this._renderCustomColors(config) : nothing}
-      </div>
-    `;
-  }
-
-  private _renderCustomColors(config: NeonThermostatCardConfig): TemplateResult {
-    return html`
-      <div class="custom-colors-grid">
-        ${this._renderColorPicker('color_start', 'neon_color1', config.neon_color1 || '#39e07a')}
-        ${this._renderColorPicker('color_middle', 'neon_color2', config.neon_color2 || '#2dd6b8')}
-        ${this._renderColorPicker('color_end', 'neon_color3', config.neon_color3 || '#1ecdf2')}
-      </div>
-    `;
-  }
-
-  private _renderColorPicker(
-    labelKey: 'color_start' | 'color_middle' | 'color_end',
-    configKey: 'neon_color1' | 'neon_color2' | 'neon_color3',
-    value: string
-  ): TemplateResult {
-    return html`
-      <div class="color-picker-wrapper">
-        <span>${this._ts(labelKey)}</span>
-        <input
-          type="color"
-          .value=${value}
-          @input=${(ev: Event) => this._configChanged(configKey, (ev.target as HTMLInputElement).value)}
-        />
+        ${currentPalette === 'custom' ? renderCustomColors(this.hass, config, (key, value) => this._configChanged(key, value)) : nothing}
       </div>
     `;
   }

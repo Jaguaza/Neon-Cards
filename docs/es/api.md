@@ -944,6 +944,34 @@ una acción, sin esperar al cambio de estado de la entidad.
 
 ---
 
+### Sección del halo en los editores (`halo-section.ts`)
+
+#### `renderHaloSection(hass, config, texts, onChange)`
+
+- **Descripción:** la sección «Apariencia del halo» de los editores: título, selector de paleta (las de `PALETTE_IDS` más «personalizada») y, con la paleta personalizada, los tres selectores de color. Lo usan los editores de la Lock Card y la Alarm Card.
+- **Parámetros:**
+  - `hass: HomeAssistant | undefined` — para el idioma de los nombres de paleta y de color.
+  - `config: HaloConfig` — lo que lee de la configuración: `neon_palette`, `neon_color1`, `neon_color2`, `neon_color3`.
+  - `texts: { section: string; palette: string }` — título de la sección y etiqueta del selector, propios de cada tarjeta.
+  - `onChange: (key: HaloConfigKey, value: string) => void` — se llama con la clave y el valor nuevo; elegir la paleta que ya estaba no avisa.
+- **Devuelve:** `TemplateResult`.
+- **Ejemplo:**
+  ```ts
+  return renderHaloSection(this.hass, this._config!, { section: this._t('section_halo'), palette: this._t('palette_label') }, (key, value) => this._configChanged(key, value));
+  ```
+
+#### `renderCustomColors(hass, config, onChange)`
+
+- **Descripción:** los tres selectores de color de la paleta personalizada (inicio, medio y fin del degradado), con los colores de la paleta esmeralda cuando la configuración no trae ninguno. Lo usan, además de `renderHaloSection`, los editores de las tarjetas Button, Entity y Thermostat, que tienen su propio selector de paleta.
+- **Parámetros:** los mismos `hass`, `config` y `onChange`.
+- **Devuelve:** `TemplateResult`.
+- **Ejemplo:**
+  ```ts
+  ${currentPalette === 'custom' ? renderCustomColors(this.hass, config, (key, value) => this._configChanged(key, value)) : nothing}
+  ```
+
+---
+
 ### Vista flotante (`alert-dialog.ts`)
 
 #### `renderAlertDialog(className, title, onCancel, content)`
