@@ -20,6 +20,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- `src/core`: new `actionConfigFor`, `gestureActionFor`, `resolveActionConfigs`, `TOGGLE_ACTION_DEFAULTS` and `INFO_ACTION_DEFAULTS` (`actions.ts`), replacing the per-gesture action calculation repeated by the Alarm, Lock, Button and Sensor cards and the Alarm, Lock, Button, Sensor and Entity editors. No visible changes.
+- `src/core`: nuevos `actionConfigFor`, `gestureActionFor`, `resolveActionConfigs`, `TOGGLE_ACTION_DEFAULTS` e `INFO_ACTION_DEFAULTS` (`actions.ts`), que sustituyen al cálculo de la acción de cada gesto que repetían las tarjetas Alarm, Lock, Button y Sensor y los editores de Alarm, Lock, Button, Sensor y Entity. Sin cambios visibles.
 - `src/shared`: new `renderAlertDialog` (`alert-dialog.ts`), the common `alertdialog` of the floating views that the Lock Card and the Alarm Card each had copied. No visible changes.
 - `src/shared`: nuevo `renderAlertDialog` (`alert-dialog.ts`), el `alertdialog` común de las vistas flotantes que la Lock Card y la Alarm Card tenían copiado cada una. Sin cambios visibles.
 - `src/shared`: new `CARD_AUTHOR`, `CARD_VERSION` (`card-identity.ts`) and `ERROR_ICON` (`error-icon.ts`), replacing the constants each of the six cards defined on its own (`ERROR_ICON` in Button, Sensor, Lock and Alarm). No visible changes.

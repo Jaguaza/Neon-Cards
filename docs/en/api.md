@@ -194,6 +194,42 @@ wouldn't survive between taps.
   openMoreInfo(this, 'climate.living_room');
   ```
 
+#### `actionConfigFor(config, key, defaultAction)`
+
+- **Description:** the action configured in `key` or, if there is none, `{ action: defaultAction }`. It is what the editors show in each action selector (`ui-action`).
+- **Parameters:**
+  - `config: Partial<Record<ActionKey, ActionConfig>> | undefined` — the card's configuration.
+  - `key: ActionKey` — `'tap_action' | 'hold_action' | 'double_tap_action'`.
+  - `defaultAction: string` — the default `action`, e.g. `'more-info'`.
+- **Returns:** `ActionConfig`.
+- **Example:**
+  ```ts
+  html`<ha-selector .hass=${this.hass} .selector=${{ ui_action: {} }} .value=${actionConfigFor(this._config, 'hold_action', 'none')}></ha-selector>`;
+  ```
+
+#### `gestureActionFor(config, gesture, defaults)`
+
+- **Description:** the same from the card's gesture; any gesture that is not `'hold'` or `'double_tap'` counts as `'tap'`.
+- **Parameters:**
+  - `config` — as in `actionConfigFor`.
+  - `gesture: string` — `'tap' | 'hold' | 'double_tap'`.
+  - `defaults: ActionDefaults` — the default action of each gesture: `TOGGLE_ACTION_DEFAULTS` (tap toggles, hold opens "more info", double tap does nothing) or `INFO_ACTION_DEFAULTS` (tap opens "more info", the rest do nothing).
+- **Returns:** `ActionConfig`.
+- **Example:**
+  ```ts
+  const action = gestureActionFor(this._config, 'hold', TOGGLE_ACTION_DEFAULTS); // { action: 'more-info' }
+  ```
+
+#### `resolveActionConfigs(config, defaults)`
+
+- **Description:** the three actions with their default values, ready for `dispatchHassAction`.
+- **Parameters:** `config` and `defaults`, as above.
+- **Returns:** `{ tap_action, hold_action, double_tap_action }`.
+- **Example:**
+  ```ts
+  dispatchHassAction(this, { entity: this._config?.entity, ...resolveActionConfigs(this._config, INFO_ACTION_DEFAULTS) }, 'tap');
+  ```
+
 ---
 
 ### Version banner (`banner.ts`)

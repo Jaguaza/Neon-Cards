@@ -16,7 +16,16 @@ export {
   DOUBLE_TAP_DELAY_MS,
 } from './gestures';
 export type { GestureState, TapHandlers } from './gestures';
-export { dispatchHassAction, openMoreInfo } from './actions';
+export {
+  dispatchHassAction,
+  openMoreInfo,
+  actionConfigFor,
+  gestureActionFor,
+  resolveActionConfigs,
+  TOGGLE_ACTION_DEFAULTS,
+  INFO_ACTION_DEFAULTS,
+} from './actions';
+export type { ActionKey, ActionDefaults } from './actions';
 export { logCardBanner } from './banner';
 export { computeInfoDisplay, INFO_OPTIONS, getInfoLabels } from './info';
 export type { InfoOption } from './info';

@@ -12,6 +12,8 @@ import {
   cancelHold,
   dispatchHassAction,
   openMoreInfo,
+  resolveActionConfigs,
+  INFO_ACTION_DEFAULTS,
 } from '../../core';
 import { ERROR_ICON, NEON_HALO_STYLES, neonHaloVars } from '../../shared';
 import { COMPACT_DECIMALS, DEFAULT_GRAPH_HOURS, SIZE_GRID } from './constants';
@@ -154,16 +156,7 @@ export class NeonSensorCard extends BaseNeonCard {
   }
 
   private _dispatchAction(actionType: string): void {
-    dispatchHassAction(
-      this,
-      {
-        entity: this._config?.entity,
-        tap_action: this._config?.tap_action || { action: 'more-info' },
-        hold_action: this._config?.hold_action || { action: 'none' },
-        double_tap_action: this._config?.double_tap_action || { action: 'none' },
-      },
-      actionType
-    );
+    dispatchHassAction(this, { entity: this._config?.entity, ...resolveActionConfigs(this._config, INFO_ACTION_DEFAULTS) }, actionType);
   }
 
   private _renderGraph(effect: NeonEffect): TemplateResult | typeof nothing {

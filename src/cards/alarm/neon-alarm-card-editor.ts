@@ -1,10 +1,10 @@
 import { LitElement, html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import { EDITOR_ACTIONS } from '../../ha/types';
-import type { ActionConfig, HomeAssistant, ValueChangedEvent } from '../../ha/types';
+import type { HomeAssistant, ValueChangedEvent } from '../../ha/types';
 import { CARD_SIZES, DEFAULT_CARD_SIZE, DEFAULT_PALETTE, PALETTE_IDS, getPaletteName, getPaletteCustomLabel, isCssColor, resolveCardSize, toHex6, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
-import { getInfoLabels, localize } from '../../core';
+import { actionConfigFor, getInfoLabels, localize } from '../../core';
 import { FOOTER_MAX, SECURITY_SENSOR_TYPES, SENSOR_ACTIVE_COLOR_KEY, SENSOR_ACTIVE_DEFAULT, STATUS_COLOR_GROUPS, STATUS_COLOR_KEYS, STATUS_DOT_DEFAULTS } from './constants';
 import { allSensorsOfType, normalizeExcluded, normalizeFooterTypes } from './alarm-sensors';
 import type { SensorEntry } from './alarm-sensors';
@@ -39,10 +39,6 @@ export class NeonAlarmCardEditor extends LitElement {
     else newConfig[key] = value;
     this._config = newConfig;
     this.dispatchEvent(new CustomEvent('config-changed', { detail: { config: newConfig }, bubbles: true, composed: true }));
-  }
-
-  private _actionFor(key: 'tap_action' | 'hold_action' | 'double_tap_action', defaultAction: string): ActionConfig {
-    return (this._config?.[key] as ActionConfig | undefined) || { action: defaultAction };
   }
 
   private _t(key: keyof AlarmTranslations): string {
@@ -342,7 +338,7 @@ export class NeonAlarmCardEditor extends LitElement {
         <span class="action-title">${this._ts(titleKey)}</span>
         <hui-action-editor
           .hass=${this.hass}
-          .config=${this._actionFor(configKey, defaultAction)}
+          .config=${actionConfigFor(this._config, configKey, defaultAction)}
           .actions=${EDITOR_ACTIONS}
           .configValue=${configKey}
           @value-changed=${(ev: ValueChangedEvent) => this._configChanged(configKey, ev.detail.value)}

@@ -1,7 +1,7 @@
 import { html, nothing } from 'lit';
 import type { PropertyValues, TemplateResult } from 'lit';
 import type { ActionConfig, HomeAssistant } from '../../ha/types';
-import { BaseNeonCard, createGestureState, handlePointerDown, cancelHold, handleClick, dispatchHassAction, computeInfoDisplay, localize } from '../../core';
+import { BaseNeonCard, createGestureState, handlePointerDown, cancelHold, handleClick, dispatchHassAction, computeInfoDisplay, localize, gestureActionFor, resolveActionConfigs, TOGGLE_ACTION_DEFAULTS } from '../../core';
 import type { GestureState } from '../../core';
 import { ActionPendingController, CARD_GRID, resolveCardSize, resolveGradientColors, NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, neonHaloVars, neonRingSplitTemplate, RingSizeController } from '../../shared';
 import { COMMAND_SERVICES, TRIGGERED_HALO } from './constants';
@@ -123,9 +123,7 @@ export class NeonAlarmCard extends BaseNeonCard {
   }
 
   private _actionFor(actionType: string): ActionConfig {
-    if (actionType === 'hold') return this._config?.hold_action || { action: 'more-info' };
-    if (actionType === 'double_tap') return this._config?.double_tap_action || { action: 'none' };
-    return this._config?.tap_action || { action: 'toggle' };
+    return gestureActionFor(this._config, actionType, TOGGLE_ACTION_DEFAULTS);
   }
 
   private _handleAction(actionType: string): void {
@@ -135,8 +133,7 @@ export class NeonAlarmCard extends BaseNeonCard {
 
   /** Lanza hacia Home Assistant la acción configurada para el gesto (más información, navegar, llamar a un servicio…). */
   private _dispatch(actionType: string): void {
-    const config = { entity: this._config?.entity, tap_action: this._actionFor('tap'), hold_action: this._actionFor('hold'), double_tap_action: this._actionFor('double_tap') };
-    dispatchHassAction(this, config, actionType);
+    dispatchHassAction(this, { entity: this._config?.entity, ...resolveActionConfigs(this._config, TOGGLE_ACTION_DEFAULTS) }, actionType);
   }
 
   /**

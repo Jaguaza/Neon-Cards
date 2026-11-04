@@ -8,6 +8,9 @@ import {
   cancelHold,
   handleClick,
   dispatchHassAction,
+  gestureActionFor,
+  resolveActionConfigs,
+  TOGGLE_ACTION_DEFAULTS,
   computeInfoDisplay,
   localize,
 } from '../../core';
@@ -166,9 +169,7 @@ export class NeonLockCard extends BaseNeonCard {
 
   /** Acción configurada para cada gesto, con los valores por defecto de la tarjeta. */
   private _actionFor(actionType: string): ActionConfig {
-    if (actionType === 'hold') return this._config?.hold_action || { action: 'more-info' };
-    if (actionType === 'double_tap') return this._config?.double_tap_action || { action: 'none' };
-    return this._config?.tap_action || { action: 'toggle' };
+    return gestureActionFor(this._config, actionType, TOGGLE_ACTION_DEFAULTS);
   }
 
   private _handleAction(actionType: string): void {
@@ -214,16 +215,7 @@ export class NeonLockCard extends BaseNeonCard {
     if (OPERATING_ACTIONS.includes(action.action) && state !== 'error') {
       this._startPending(isOpeningAction(action, state));
     }
-    dispatchHassAction(
-      this,
-      {
-        entity: this._config?.entity,
-        tap_action: this._actionFor('tap'),
-        hold_action: this._actionFor('hold'),
-        double_tap_action: this._actionFor('double_tap'),
-      },
-      actionType
-    );
+    dispatchHassAction(this, { entity: this._config?.entity, ...resolveActionConfigs(this._config, TOGGLE_ACTION_DEFAULTS) }, actionType);
   }
 
   private _askConfirm(actionType: string, choices: LockCommand[]): void {

@@ -9,6 +9,8 @@ import {
   cancelHold,
   handleClick,
   dispatchHassAction,
+  resolveActionConfigs,
+  INFO_ACTION_DEFAULTS,
   computeInfoDisplay,
 } from '../../core';
 import type { GestureState } from '../../core';
@@ -199,16 +201,7 @@ export class NeonButtonCard extends BaseNeonCard {
   }
 
   private _dispatchAction(actionType: string): void {
-    dispatchHassAction(
-      this,
-      {
-        entity: this._config?.entity,
-        tap_action: this._config?.tap_action || { action: 'more-info' },
-        hold_action: this._config?.hold_action || { action: 'none' },
-        double_tap_action: this._config?.double_tap_action || { action: 'none' },
-      },
-      actionType
-    );
+    dispatchHassAction(this, { entity: this._config?.entity, ...resolveActionConfigs(this._config, INFO_ACTION_DEFAULTS) }, actionType);
   }
 
   /** Sensor suelto y opcional, encima del divisor, sin agrupar. */

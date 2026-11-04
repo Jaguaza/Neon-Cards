@@ -1,8 +1,8 @@
 import { LitElement, html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import { EDITOR_ACTIONS } from '../../ha/types';
-import type { ActionConfig, HomeAssistant, ValueChangedEvent } from '../../ha/types';
-import { localize } from '../../core';
+import type { HomeAssistant, ValueChangedEvent } from '../../ha/types';
+import { actionConfigFor, localize } from '../../core';
 import {
   DEFAULT_PALETTE,
   PALETTE_IDS,
@@ -85,10 +85,6 @@ export class NeonSensorCardEditor extends LitElement {
 
   private _ts(key: keyof SharedTranslations): string {
     return localize(this.hass, SHARED_TRANSLATIONS, key);
-  }
-
-  private _actionFor(key: 'tap_action' | 'hold_action' | 'double_tap_action', fallback: string): ActionConfig {
-    return (this._config?.[key] as ActionConfig | undefined) || { action: fallback };
   }
 
   private _numberField(id: string, label: string, key: string, value: unknown, min?: number, max?: number): TemplateResult {
@@ -319,7 +315,7 @@ export class NeonSensorCardEditor extends LitElement {
         <span class="action-title">${title}</span>
         <hui-action-editor
           .hass=${this.hass}
-          .config=${this._actionFor(key, fallback)}
+          .config=${actionConfigFor(this._config, key, fallback)}
           .actions=${EDITOR_ACTIONS}
           .configValue=${key}
           @value-changed=${(ev: ValueChangedEvent) => this._configChanged(key, ev.detail.value)}

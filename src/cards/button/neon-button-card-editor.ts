@@ -4,11 +4,10 @@ import { EDITOR_ACTIONS } from '../../ha/types';
 import type { HomeAssistant } from '../../ha/types';
 import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
-import { INFO_OPTIONS, getInfoLabels, localize } from '../../core';
+import { INFO_OPTIONS, actionConfigFor, getInfoLabels, localize } from '../../core';
 import { MAX_GROUPED_SENSORS } from './constants';
 import type { ValueChangedEvent } from '../../ha/types';
 import type { SensorItemConfig, NeonButtonCardConfig } from './types';
-import type { ActionConfig } from '../../ha/types';
 import { NEON_BUTTON_CARD_EDITOR_STYLES } from './neon-button-card-editor.styles';
 import { BUTTON_TRANSLATIONS } from './translations';
 import type { ButtonTranslations } from './translations';
@@ -45,10 +44,6 @@ export class NeonButtonCardEditor extends LitElement {
       composed: true,
     });
     this.dispatchEvent(event);
-  }
-
-  private _actionFor(key: 'tap_action' | 'hold_action' | 'double_tap_action', defaultAction: string): ActionConfig {
-    return (this._config?.[key] as ActionConfig | undefined) || { action: defaultAction };
   }
 
   private get _sensors(): SensorItemConfig[] {
@@ -342,7 +337,7 @@ export class NeonButtonCardEditor extends LitElement {
           <span class="action-title">${this._ts('action_tap')}</span>
           <hui-action-editor
             .hass=${this.hass}
-            .config=${this._actionFor('tap_action', 'more-info')}
+            .config=${actionConfigFor(this._config, 'tap_action', 'more-info')}
             .actions=${EDITOR_ACTIONS}
             .configValue=${'tap_action'}
             @value-changed=${(ev: ValueChangedEvent) => this._configChanged('tap_action', ev.detail.value)}
@@ -352,7 +347,7 @@ export class NeonButtonCardEditor extends LitElement {
           <span class="action-title">${this._ts('action_hold')}</span>
           <hui-action-editor
             .hass=${this.hass}
-            .config=${this._actionFor('hold_action', 'none')}
+            .config=${actionConfigFor(this._config, 'hold_action', 'none')}
             .actions=${EDITOR_ACTIONS}
             .configValue=${'hold_action'}
             @value-changed=${(ev: ValueChangedEvent) => this._configChanged('hold_action', ev.detail.value)}
@@ -362,7 +357,7 @@ export class NeonButtonCardEditor extends LitElement {
           <span class="action-title">${this._ts('action_double_tap')}</span>
           <hui-action-editor
             .hass=${this.hass}
-            .config=${this._actionFor('double_tap_action', 'none')}
+            .config=${actionConfigFor(this._config, 'double_tap_action', 'none')}
             .actions=${EDITOR_ACTIONS}
             .configValue=${'double_tap_action'}
             @value-changed=${(ev: ValueChangedEvent) => this._configChanged('double_tap_action', ev.detail.value)}

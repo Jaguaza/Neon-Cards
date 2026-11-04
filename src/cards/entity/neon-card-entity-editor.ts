@@ -2,11 +2,11 @@ import { LitElement, html, css, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import { EDITOR_ACTIONS } from '../../ha/types';
 import type { HomeAssistant } from '../../ha/types';
-import { INFO_OPTIONS, getInfoLabels, localize } from '../../core';
+import { INFO_OPTIONS, actionConfigFor, getInfoLabels, localize } from '../../core';
 import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
 import type { ValueChangedEvent } from '../../ha/types';
-import type { ActionConfig, NeonCardEntityConfig } from './types';
+import type { NeonCardEntityConfig } from './types';
 import { ENTITY_TRANSLATIONS } from './translations';
 import type { EntityTranslations } from './translations';
 
@@ -55,10 +55,6 @@ export class NeonCardEntityEditor extends LitElement {
       composed: true,
     });
     this.dispatchEvent(event);
-  }
-
-  private _actionFor(key: 'tap_action' | 'hold_action' | 'double_tap_action', defaultAction: string): ActionConfig {
-    return this._config?.[key] as ActionConfig | undefined || { action: defaultAction };
   }
 
   private _t(key: keyof EntityTranslations): string {
@@ -236,7 +232,7 @@ export class NeonCardEntityEditor extends LitElement {
         <span class="action-title">${this._ts(titleKey)}</span>
         <hui-action-editor
           .hass=${this.hass}
-          .config=${this._actionFor(key, defaultAction)}
+          .config=${actionConfigFor(this._config, key, defaultAction)}
           .actions=${EDITOR_ACTIONS}
           .configValue=${key}
           @value-changed=${(ev: ValueChangedEvent) => this._configChanged(key, ev.detail.value)}

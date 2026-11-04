@@ -196,6 +196,42 @@ sobrevivirían entre pulsaciones.
   openMoreInfo(this, 'climate.salon');
   ```
 
+#### `actionConfigFor(config, key, defaultAction)`
+
+- **Descripción:** la acción configurada en `key` o, si no hay ninguna, `{ action: defaultAction }`. Es lo que enseñan los editores en cada selector de acción (`ui-action`).
+- **Parámetros:**
+  - `config: Partial<Record<ActionKey, ActionConfig>> | undefined` — la configuración de la tarjeta.
+  - `key: ActionKey` — `'tap_action' | 'hold_action' | 'double_tap_action'`.
+  - `defaultAction: string` — el `action` por defecto, p. ej. `'more-info'`.
+- **Devuelve:** `ActionConfig`.
+- **Ejemplo:**
+  ```ts
+  html`<ha-selector .hass=${this.hass} .selector=${{ ui_action: {} }} .value=${actionConfigFor(this._config, 'hold_action', 'none')}></ha-selector>`;
+  ```
+
+#### `gestureActionFor(config, gesture, defaults)`
+
+- **Descripción:** lo mismo a partir del gesto de la tarjeta; cualquier gesto que no sea `'hold'` o `'double_tap'` cuenta como `'tap'`.
+- **Parámetros:**
+  - `config` — como en `actionConfigFor`.
+  - `gesture: string` — `'tap' | 'hold' | 'double_tap'`.
+  - `defaults: ActionDefaults` — la acción por defecto de cada gesto: `TOGGLE_ACTION_DEFAULTS` (pulsar alterna, mantener abre «más información», doble toque no hace nada) o `INFO_ACTION_DEFAULTS` (pulsar abre «más información», el resto no hace nada).
+- **Devuelve:** `ActionConfig`.
+- **Ejemplo:**
+  ```ts
+  const action = gestureActionFor(this._config, 'hold', TOGGLE_ACTION_DEFAULTS); // { action: 'more-info' }
+  ```
+
+#### `resolveActionConfigs(config, defaults)`
+
+- **Descripción:** las tres acciones con sus valores por defecto, listas para `dispatchHassAction`.
+- **Parámetros:** `config` y `defaults`, como arriba.
+- **Devuelve:** `{ tap_action, hold_action, double_tap_action }`.
+- **Ejemplo:**
+  ```ts
+  dispatchHassAction(this, { entity: this._config?.entity, ...resolveActionConfigs(this._config, INFO_ACTION_DEFAULTS) }, 'tap');
+  ```
+
 ---
 
 ### Banner de versión (`banner.ts`)
