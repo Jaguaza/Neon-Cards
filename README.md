@@ -415,13 +415,7 @@ Tarjeta para entidades `alarm_control_panel` de Home Assistant con un **escudo a
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/alarma/alarma-desarmada.png" width="900"></p>
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/alarma/alarma-disparada.png" width="900"></p>
 
-<!-- ⚠️⚠️⚠️ PENDIENTE — INSERTAR AQUÍ EL VÍDEO DE LA ALARM CARD ⚠️⚠️⚠️
-     Borra el bloque «PENDIENTE» de abajo (de la línea que empieza por «>» hasta la siguiente línea en blanco)
-     y pega en su lugar la URL del vídeo (https://github.com/user-attachments/assets/...) en una línea sola,
-     sin nada más, igual que en las demás tarjetas. -->
-
-> ## 🎬⚠️ PENDIENTE: AQUÍ VA EL VÍDEO DE LA ALARM CARD
-> **Sustituye todo este bloque por la URL del vídeo, en una línea sola:** `https://github.com/user-attachments/assets/...`
+https://github.com/user-attachments/assets/82e31425-b566-4ba2-857e-dc4497867b66
 
 ### **Estados y halo**
 
@@ -479,6 +473,7 @@ footer_only_active: true
 ## 🚀 Próximamente
 
 Neon Cards se está diseñando como una colección completa de tarjetas para Home Assistant, se irán añadiendo más tarjetas.
+- **Próxima Tarjeta: ¿?**
 
 ---
 
@@ -939,13 +934,7 @@ Card for Home Assistant `alarm_control_panel` entities with an **animated shield
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/alarma/alarma-desarmada.png" width="900"></p>
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/alarma/alarma-disparada.png" width="900"></p>
 
-<!-- ⚠️⚠️⚠️ PENDING — INSERT THE ALARM CARD VIDEO HERE ⚠️⚠️⚠️
-     Delete the "PENDING" block below (from the line that starts with ">" to the next blank line)
-     and paste the video URL (https://github.com/user-attachments/assets/...) in its place, on a line of
-     its own with nothing else, just like in the other cards. -->
-
-> ## 🎬⚠️ PENDING: THE ALARM CARD VIDEO GOES HERE
-> **Replace this whole block with the video URL, on a line of its own:** `https://github.com/user-attachments/assets/...`
+https://github.com/user-attachments/assets/82e31425-b566-4ba2-857e-dc4497867b66
 
 ### **States and halo**
 
@@ -1004,6 +993,7 @@ footer_only_active: true
 
 Neon Cards is being designed as a complete collection of cards for Home Assistant. More cards will be added over time.
 
+- **NEXT CARD: ¿?**
 ---
 
 ## 📚 Documentation
