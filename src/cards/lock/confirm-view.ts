@@ -66,16 +66,25 @@ export function renderCompactConfirm(ctx: ConfirmViewContext): TemplateResult {
   );
 }
 
-/** Grande y mediana: título, nombre y botones con texto. */
+/**
+ * Botón de la vista grande y mediana: texto e icono. El icono solo se ve
+ * cuando la tarjeta es tan estrecha que los botones pasan a ser redondos
+ * (ver `neon-lock-card.size.styles.ts`); sin hueco entre ambos para que el
+ * `textContent` del botón siga siendo solo su texto.
+ */
+function labelledButton(role: 'cancel' | 'accept', label: string, icon: string, onClick: () => void, extra: { command?: LockCommand; iconOnly?: boolean } = {}): TemplateResult {
+  const text = extra.iconOnly ? nothing : html`<span class="confirm-btn-label">${label}</span>`;
+  return html`<button type="button" class="confirm-btn ${role}" data-command=${extra.command ?? nothing} aria-label=${label} title=${label} @click=${onClick}><ha-icon class="confirm-btn-icon" icon=${icon}></ha-icon>${text}</button>`;
+}
+
+/** Grande y mediana: título, nombre y botones con texto (iconos redondos si la tarjeta es muy estrecha). */
 export function renderFullConfirm(ctx: ConfirmViewContext): TemplateResult {
   const { choices, translate: t } = ctx;
   const multi = choices.length > 1;
   const title = t(multi ? 'confirm_choose' : 'confirm_title');
   const accepts = multi
-    ? choices.map(
-        (command) => html`<button type="button" class="confirm-btn accept" data-command=${command} @click=${() => ctx.onAccept(command)}>${t(`command_${command}`)}</button>`
-      )
-    : html`<button type="button" class="confirm-btn accept" @click=${() => ctx.onAccept()}>${t('confirm_accept')}</button>`;
+    ? choices.map((command) => labelledButton('accept', t(`command_${command}`), COMMAND_ICONS[command], () => ctx.onAccept(command), { command }))
+    : labelledButton('accept', t('confirm_accept'), COMMAND_ICONS.unlock, () => ctx.onAccept());
   return confirmDialog(
     `confirm ${multi ? 'confirm--multi' : ''}`,
     title,
@@ -86,8 +95,7 @@ export function renderFullConfirm(ctx: ConfirmViewContext): TemplateResult {
         <span class="confirm-name">${ctx.name}</span>
       </div>
       <div class="confirm-actions">
-        <button type="button" class="confirm-btn cancel" aria-label=${t('confirm_cancel')} title=${t('confirm_cancel')} @click=${() => ctx.onCancel()}>${multi ? html`<ha-icon icon="mdi:close"></ha-icon>` : t('confirm_cancel')}</button>
-        ${accepts}
+        ${labelledButton('cancel', t('confirm_cancel'), 'mdi:close', () => ctx.onCancel(), { iconOnly: multi })} ${accepts}
       </div>
     `
   );

@@ -99,55 +99,70 @@ export const NEON_LOCK_SIZE_STYLES = css`
   }
 
   /* ───────── Vista «¿Abrir?» / «¿Qué quieres hacer?» ─────────
-     Mientras está abierta, la vista ocupa el mismo sitio que el contenido
-     (en la misma celda de una rejilla) en vez de flotar encima: la tarjeta
-     mide lo mayor de las dos y, si los botones no caben, crece en lugar de
-     cortarlos con el max-height / overflow del ha-card. */
+     Flota sobre el contenido, que sigue ocupando su hueco (oculto): la
+     tarjeta NO cambia de tamaño al abrirla. La rejilla de Home Assistant
+     reserva la altura de la tarjeta en reposo; si la vista la hacía crecer,
+     la tarjeta pisaba a la de debajo. Por eso la vista se adapta al ancho
+     para caber siempre en una sola fila: con sitio, título y botones con
+     texto; más estrecha, solo los botones con texto; muy estrecha, botones
+     redondos con icono (el texto queda como aria-label y tooltip). Los
+     anchos de las consultas son los de la tarjeta sin su relleno. */
   .confirming {
-    display: grid;
-    /* La columna mide el ancho de la tarjeta, no el del contenido (si no, el
-       contenido sin hueco la ensancharía y los botones se saldrían). */
-    grid-template-columns: minmax(0, 1fr);
-    max-height: none;
     container-type: inline-size;
   }
-  .confirming .content,
-  .confirming .confirm {
-    grid-area: 1 / 1;
-    min-width: 0;
+  @container (max-width: 384px) {
+    .confirming:not(.size-compact) .confirm {
+      justify-content: center;
+      padding: 0 10px;
+    }
+    .confirming:not(.size-compact) .confirm-text {
+      display: none;
+    }
+    .confirming:not(.size-compact) .confirm-actions {
+      flex: 0 1 auto;
+      justify-content: center;
+    }
   }
-  .confirming .confirm {
-    position: relative;
-    inset: auto;
-    padding: 4px;
+  @container (max-width: 229px) {
+    .confirming:not(.size-compact) .confirm {
+      padding: 0 4px;
+    }
+    .confirming:not(.size-compact) .confirm-actions {
+      gap: 6px;
+    }
+    .confirming:not(.size-compact) .confirm-btn {
+      width: 34px;
+      min-width: 0;
+      height: 34px;
+      padding: 0;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .confirming:not(.size-compact) .confirm-btn-label {
+      display: none;
+    }
+    .confirming:not(.size-compact) .confirm-btn-icon {
+      display: inline-flex;
+      --mdc-icon-size: 20px;
+      margin: 0;
+      color: inherit;
+    }
   }
-  /* Tarjeta estrecha (p. ej. 6 columnas en un móvil): título de una línea y
-     botones compactos en una sola fila. */
-  @container (max-width: 260px) {
-    .confirming .confirm {
-      padding: 4px 0;
-      gap: 4px 8px;
-    }
-    .confirming .confirm-title {
-      font-size: 16px;
-      line-height: 20px;
-    }
-    .confirming .confirm-text {
-      flex-basis: 100%;
-    }
-    /* Si ni así caben en una fila (~180 px), bajan a la siguiente: la
-       tarjeta crece, no se corta. */
-    .confirming .confirm-actions {
-      flex: 1 1 100%;
+
+  /* Más estrecha aún (~100 px): los tres botones redondos han de caber en una
+     sola fila, así que son algo más pequeños. */
+  @container (max-width: 139px) {
+    .confirming:not(.size-compact) .confirm-actions {
       gap: 4px;
     }
-    .confirming .confirm--multi .confirm-btn {
-      padding: 0 6px;
-      font-size: 12px;
-    }
-    .confirming .confirm--multi .confirm-btn.cancel {
+    .confirming:not(.size-compact) .confirm-btn {
       width: 26px;
-      padding: 0;
+      height: 26px;
+    }
+    .confirming:not(.size-compact) .confirm-btn-icon {
+      --mdc-icon-size: 18px;
     }
   }
 

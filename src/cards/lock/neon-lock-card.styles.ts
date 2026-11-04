@@ -343,7 +343,12 @@ export const NEON_LOCK_CARD_STYLES = css`
     align-items: center;
     justify-content: center;
   }
+  /* El icono de los botones solo se ve en la ✕ de varias órdenes; en el resto, cuando la tarjeta es muy estrecha (ver la hoja de tamaños). */
+  .confirm-btn-icon {
+    display: none;
+  }
   .confirm--multi .confirm-btn.cancel ha-icon {
+    display: inline-flex;
     --mdc-icon-size: 16px;
     margin: 0;
     color: inherit;

@@ -28,7 +28,7 @@ describe('NeonLockCard', () => {
       return actions;
     };
 
-    it('con la vista abierta la tarjeta lleva «confirming» (la vista ocupa el sitio del contenido y no se corta) y la pierde al cancelar', async () => {
+    it('con la vista abierta la tarjeta lleva «confirming» (la vista flota sobre el contenido, que conserva su hueco, y la tarjeta no cambia de tamaño) y la pierde al cancelar', async () => {
       const el = await mount({});
       expect(card(el).classList.contains('confirming')).toBe(false);
       await ask(el);
@@ -252,6 +252,19 @@ describe('NeonLockCard', () => {
       expect(choices(el)).toEqual(['unlock', 'open']);
       const labels = Array.from(el.shadowRoot!.querySelectorAll('.confirm .accept')).map((b) => b.textContent);
       expect(labels).toEqual(['Desbloquear', 'Abrir']);
+    });
+
+    it('cada botón lleva su icono (para las tarjetas muy estrechas) y su texto como etiqueta accesible', async () => {
+      const el = await mount({}, hassWith('locked', 'es', OPEN));
+      await ask(el);
+      const accepts = Array.from(el.shadowRoot!.querySelectorAll<HTMLButtonElement>('.confirm .accept'));
+      expect(accepts.map((b) => b.getAttribute('aria-label'))).toEqual(['Desbloquear', 'Abrir']);
+      expect(accepts.map((b) => b.querySelector('.confirm-btn-label')!.textContent)).toEqual(['Desbloquear', 'Abrir']);
+      expect(accepts.map((b) => b.querySelector('ha-icon.confirm-btn-icon')!.getAttribute('icon'))).toEqual(['mdi:lock-open-variant', 'mdi:lock-open-outline']);
+      const cancel = el.shadowRoot!.querySelector<HTMLButtonElement>('.confirm .cancel')!;
+      expect(cancel.getAttribute('aria-label')).toBe('Cancelar');
+      expect(cancel.querySelector('ha-icon.confirm-btn-icon')!.getAttribute('icon')).toBe('mdi:close');
+      expect(cancel.querySelector('.confirm-btn-label')).toBeNull();
     });
 
     it('desbloqueada: pregunta y ofrece Bloquear o Abrir', async () => {

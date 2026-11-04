@@ -219,9 +219,12 @@ vacío:
   se escribe en el orden fijo (batería, último acceso, puerta); en YAML se respeta
   el orden que escribas.
 
-La vista de confirmación («¿Abrir?», «¿Qué quieres hacer?») ocupa el sitio del
-contenido: si sus botones no caben en el alto de la tarjeta, la tarjeta crece en
-lugar de cortarlos, y en tarjetas estrechas el título y los botones se compactan.
+La vista de confirmación («¿Abrir?», «¿Qué quieres hacer?») flota sobre el
+contenido y la tarjeta **no cambia de tamaño** al abrirla (así no pisa a la
+tarjeta de debajo en la rejilla). Se adapta al ancho para caber siempre en una
+fila: con sitio, título y botones con texto; en una tarjeta más estrecha, solo
+los botones con texto; y en una muy estrecha, botones redondos con icono (el
+texto queda como etiqueta accesible).
 
 La hora del último acceso es la del último cambio de estado de la entidad
 que la aporta: si la cerradura se vuelve a cerrar sola, esa hora es la del
@@ -467,9 +470,12 @@ for its entity with a hint of what happens if you leave it empty:
   touched, `footer_items` is written in the fixed order (battery, last access,
   door); in YAML the order you write is respected.
 
-The confirmation view ("Open?", "What do you want to do?") takes the place of the
-content: if its buttons don't fit in the card's height, the card grows instead of
-cutting them, and in narrow cards the title and buttons are compacted.
+The confirmation view ("Open?", "What do you want to do?") floats over the
+content and the card **does not change size** when it opens (so it doesn't
+overlap the card below in the grid). It adapts to the width so it always fits in
+one row: with room, title and text buttons; in a narrower card, just the text
+buttons; and in a very narrow one, round icon buttons (the text stays as the
+accessible label).
 
 The last-access time is that of the last state change of the entity that
 provides it: if the lock re-locks by itself, that time is the lock time. For
