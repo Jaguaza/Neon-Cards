@@ -44,11 +44,12 @@ If you’re enjoying this repository, do pop [over here](#apoyo_en) 
 - 🌡 **TERMOSTATO.**  [Ir a Termostato](#termostato-card)
 - 📈 **SENSOR.**  [Ir a Sensor](#sensor-card)
 - 🔐 **CERRADURA.**  [Ir a Cerradura](#cerradura-card)
+- 🚨 **ALARMA.**  [Ir a Alarma](#alarma-card)
 
 ### 🔌 Características comunes
 
 - **Se adaptan a tu tema:** toman el radio de las esquinas y los colores del tema activo.
-- **Editor visual** en las cinco tarjetas, sin necesidad de escribir YAML.
+- **Editor visual** en las seis tarjetas, sin necesidad de escribir YAML.
 - **Interfaz de configuración en español e inglés**, según el idioma de tu Home Assistant.
 - **Paletas neón** (Cyber Emerald, Cyberpunk Pink, Electric Blue, Sunset Amber, Toxic Purple o colores propios).
 - **Tamaño automático** en el grid de Home Assistant: no hace falta indicar `grid_options`.
@@ -406,11 +407,78 @@ footer_items: [battery, last_user, door]
 door_entity: binary_sensor.puerta_principal
 ```
 
+<a name="alarma-card"></a>
+### **🚨 Neón Alarm Card**
+
+Tarjeta para entidades `alarm_control_panel` de Home Assistant con un **escudo animado** que cambia de dibujo según el estado, un halo neón que se enciende mientras la alarma vigila, **teclado para el código dentro de la propia tarjeta** y un **pie con los sensores de seguridad** (movimiento, puertas, ventanas…). Cualquier entidad que no sea del dominio `alarm_control_panel` se muestra como «No disponible».
+
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/alarma/alarma-desarmada.png" width="900"></p>
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/alarma/alarma-disparada.png" width="900"></p>
+
+<!-- ⚠️⚠️⚠️ PENDIENTE — INSERTAR AQUÍ EL VÍDEO DE LA ALARM CARD ⚠️⚠️⚠️
+     Borra el bloque «PENDIENTE» de abajo (de la línea que empieza por «>» hasta la siguiente línea en blanco)
+     y pega en su lugar la URL del vídeo (https://github.com/user-attachments/assets/...) en una línea sola,
+     sin nada más, igual que en las demás tarjetas. -->
+
+> ## 🎬⚠️ PENDIENTE: AQUÍ VA EL VÍDEO DE LA ALARM CARD
+> **Sustituye todo este bloque por la URL del vídeo, en una línea sola:** `https://github.com/user-attachments/assets/...`
+
+### **Estados y halo**
+
+La tarjeta distingue todos los estados de `alarm_control_panel`: desarmada, armada en casa, fuera, noche, vacaciones y personalizada, pendiente, armando, desarmando, disparada y no disponible. Cada uno tiene su **dibujo dentro del escudo** y su color en el punto de estado (se cambian desde el editor, en la sección «Colores»). El halo se enciende mientras la alarma vigila (armada, en transición o disparada) y se apaga al desarmarla; disparada, no disponible o sin entidad se ve el halo rojo de alerta, y las transiciones y la alarma disparada pulsan. Al pulsar una orden el halo se enciende ya, sin esperar a que cambie el estado (hasta 6 s). Con `prefers-reduced-motion` no hay pulsos ni animaciones.
+
+### **Tres tamaños**
+
+| Tamaño (`size`) | Qué muestra | Columnas de inicio (alto automático) |
+|---|---|---|
+| `large` *(predeterminado)* | Escudo, nombre con subtítulo opcional, estado y tres puntos arriba; debajo, hasta cuatro tipos de sensor, uno por fila | 12 |
+| `medium` | Sin subtítulo: el estado va bajo el nombre; pie de hasta tres tipos de sensor como fichas en una sola línea (icono y número de activos) | 6 |
+| `compact` | Solo escudo, nombre y estado, en columna; sin pie, sin subtítulo y sin tres puntos. Los botones de las vistas son solo iconos | 3 |
+
+Las columnas se pueden cambiar a mano desde la pestaña «Diseño» del editor; la tarjeta se adapta al ancho que le dan, incluso a huecos muy pequeños (por ejemplo, 3 columnas en un portátil escalado al 150 %).
+
+### **Armar y desarmar**
+
+Con `tap_action: toggle` (el valor por defecto): **desarmada** → la tarjeta enseña un botón por cada modo que soporta la entidad (según su `supported_features`) y, si solo soporta uno, arma directamente; **armada, en transición o disparada** → desarma; **no disponible o sin entidad** → no hace nada. Pulsar arma o desarma al momento, sin confirmación: si la alarma exige código, el teclado ya hace de filtro. Las vistas se cierran solas tras 30 s sin actividad o si la alarma cambia de estado.
+
+### **Código dentro de la tarjeta**
+
+Si la entidad exige código (atributo `code_format`), la tarjeta lo pide **en sí misma** antes de lanzar la orden: `number` abre un **teclado numérico** con puntos para lo escrito y `text` un campo de contraseña. Desarmar siempre pide código; armar solo si `code_arm_required` no es `false`. Si Home Assistant lo rechaza, la vista sigue abierta, avisa «Código incorrecto» y vacía lo escrito para reintentar. El código vive solo en memoria mientras la vista está abierta: nunca se guarda en la configuración.
+
+### **Pie de sensores**
+
+`footer_sensors` pone hasta cuatro tipos de sensor bajo una línea de neón (tres en `medium`, ninguno en `compact`). Cada tipo es una `device_class` de `binary_sensor` (`motion`, `door`, `window`, `smoke`…) o `lock` para las cerraduras. La tarjeta encuentra **todos** los sensores de Home Assistant de ese tipo y muestra cuántos están activos: en ámbar si hay alguno, «En reposo» si no, «—» si no hay ninguno. Al pulsar un dato se abre la **lista** de sensores de ese tipo, los activos primero: en la mediana enseña solo los activos y en la grande todos.
+
+- `footer_only_active: true` — el pie solo enseña lo que está activo (los tipos en reposo desaparecen) y la lista enseña solo los sensores activos.
+- `footer_excluded` — sensores concretos que la tarjeta no cuenta ni lista (en el editor, con checks).
+- `sensor_active_color` — color de los sensores activos.
+
+### **Acciones**
+
+`tap_action` es `toggle` por defecto (armar o desarmar), `hold_action` abre «más información» y `double_tap_action` no hace nada. Los tres puntos abren «más información» sin disparar la acción de la tarjeta. Más detalles en la [documentación de la tarjeta](./src/cards/alarm/README.md).
+
+### **Configuración mínima**
+
+```yaml
+type: custom:neon-alarm-card
+entity: alarm_control_panel.casa
+```
+
+### **Con pie de sensores**
+
+```yaml
+type: custom:neon-alarm-card
+entity: alarm_control_panel.casa
+name: Alarma de casa
+size: large
+neon_palette: electric
+footer_sensors: [motion, door, window, smoke]
+footer_only_active: true
+```
+
 ## 🚀 Próximamente
 
 Neon Cards se está diseñando como una colección completa de tarjetas para Home Assistant, se irán añadiendo más tarjetas.
-
-- **Próxima Tarjeta: 🚨 ALARMA.**
 
 ---
 
@@ -501,11 +569,12 @@ Ver el texto legal completo en [`LICENSE`](./LICENSE) (inglés, vinculante) o su
 - 🌡 **THERMOSTAT.**  [Go to Thermostat](#thermostat-card-gb)
 - 📈 **SENSOR.**  [Go to Sensor](#sensor-card-gb)
 - 🔐 **LOCK.**  [Go to Lock](#lock-card-gb)
+- 🚨 **ALARM.**  [Go to Alarm](#alarm-card-gb)
 
 ### 🔌 Common features
 
 - **They adapt to your theme:** they take the corner radius and colors of the active theme.
-- **Visual editor** in all five cards, no YAML needed.
+- **Visual editor** in all six cards, no YAML needed.
 - **Configuration UI in Spanish and English**, following your Home Assistant language.
 - **Neon palettes** (Cyber Emerald, Cyberpunk Pink, Electric Blue, Sunset Amber, Toxic Purple or your own colors).
 - **Automatic size** in Home Assistant's grid: no need to set `grid_options`.
@@ -862,11 +931,78 @@ footer_items: [battery, last_user, door]
 door_entity: binary_sensor.front_door
 ```
 
+<a name="alarm-card-gb"></a>
+### **🚨 Neon Alarm Card**
+
+Card for Home Assistant `alarm_control_panel` entities with an **animated shield** that changes its drawing with the state, a neon halo that turns on while the alarm is watching, a **keypad for the code inside the card itself** and a **footer with the security sensors** (motion, doors, windows…). Any entity that is not in the `alarm_control_panel` domain is shown as "Unavailable".
+
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/alarma/alarma-desarmada.png" width="900"></p>
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/alarma/alarma-disparada.png" width="900"></p>
+
+<!-- ⚠️⚠️⚠️ PENDING — INSERT THE ALARM CARD VIDEO HERE ⚠️⚠️⚠️
+     Delete the "PENDING" block below (from the line that starts with ">" to the next blank line)
+     and paste the video URL (https://github.com/user-attachments/assets/...) in its place, on a line of
+     its own with nothing else, just like in the other cards. -->
+
+> ## 🎬⚠️ PENDING: THE ALARM CARD VIDEO GOES HERE
+> **Replace this whole block with the video URL, on a line of its own:** `https://github.com/user-attachments/assets/...`
+
+### **States and halo**
+
+The card tells apart every `alarm_control_panel` state: disarmed, armed home, away, night, vacation and custom bypass, pending, arming, disarming, triggered and unavailable. Each one has its own **drawing inside the shield** and its color in the status dot (changed from the editor, in the "Colors" section). The halo turns on while the alarm is watching (armed, in transition or triggered) and turns off when it is disarmed; triggered, unavailable or without an entity it shows the red alert halo, and the transitions and the triggered alarm pulse. When you tap a command the halo turns on right away, without waiting for the state to change (up to 6 s). With `prefers-reduced-motion` there are no pulses or animations.
+
+### **Three sizes**
+
+| Size (`size`) | What it shows | Starting columns (automatic height) |
+|---|---|---|
+| `large` *(default)* | Shield, name with an optional subtitle, state and three dots on top; up to four sensor types below, one per row | 12 |
+| `medium` | No subtitle: the state sits under the name; footer of up to three sensor types as chips on a single line (icon and active count) | 6 |
+| `compact` | Shield, name and state only, in a column; no footer, no subtitle and no three dots. The buttons in the views are icons only | 3 |
+
+The columns can be changed by hand from the editor's "Layout" tab; the card adapts to the width it is given, even to very small slots (for example, 3 columns on a laptop scaled to 150%).
+
+### **Arm and disarm**
+
+With `tap_action: toggle` (the default): **disarmed** → the card shows a button for each mode the entity supports (according to its `supported_features`) and, if it only supports one, it arms directly; **armed, in transition or triggered** → it disarms; **unavailable or without an entity** → it does nothing. Tapping arms or disarms right away, with no confirmation: if the alarm requires a code, the keypad already acts as the filter. The views close by themselves after 30 s without activity or if the alarm changes state.
+
+### **Code inside the card**
+
+If the entity requires a code (`code_format` attribute), the card asks for it **in itself** before sending the command: `number` opens a **numeric keypad** with dots for what has been typed and `text` a password field. Disarming always asks for a code; arming only if `code_arm_required` is not `false`. If Home Assistant rejects it, the view stays open, says "Wrong code" and clears what was typed so you can try again. The code lives only in memory while the view is open: it is never saved in the configuration.
+
+### **Sensor footer**
+
+`footer_sensors` puts up to four sensor types under a neon line (three in `medium`, none in `compact`). Each type is a `binary_sensor` `device_class` (`motion`, `door`, `window`, `smoke`…) or `lock` for locks. The card finds **all** the Home Assistant sensors of that type and shows how many are active: amber if any is, "Idle" if none is, "—" if there are none. Tapping an item opens the **list** of sensors of that type, active ones first: in the medium card it shows only the active ones and in the large card all of them.
+
+- `footer_only_active: true` — the footer only shows what is active (types at rest disappear) and the list shows only the active sensors.
+- `footer_excluded` — specific sensors the card neither counts nor lists (in the editor, with checkboxes).
+- `sensor_active_color` — color of the active sensors.
+
+### **Actions**
+
+`tap_action` is `toggle` by default (arm or disarm), `hold_action` opens "more info" and `double_tap_action` does nothing. The three dots open "more info" without triggering the card's action. More details in the [card documentation](./src/cards/alarm/README.md).
+
+### **Minimal configuration**
+
+```yaml
+type: custom:neon-alarm-card
+entity: alarm_control_panel.home
+```
+
+### **With sensor footer**
+
+```yaml
+type: custom:neon-alarm-card
+entity: alarm_control_panel.home
+name: Home Alarm
+size: large
+neon_palette: electric
+footer_sensors: [motion, door, window, smoke]
+footer_only_active: true
+```
+
 ## 🚀 Coming Soon
 
 Neon Cards is being designed as a complete collection of cards for Home Assistant. More cards will be added over time.
-
-- **NEXT CARD: 🚨 ALARM.**
 
 ---
 
