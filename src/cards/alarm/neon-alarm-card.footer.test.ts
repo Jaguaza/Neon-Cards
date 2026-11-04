@@ -94,6 +94,31 @@ describe('lista al pulsar el dato', () => {
     expect(actions).toEqual([]);
   });
 
+  it('con los mismos sensores, la lista de la grande enseña todos y la de la mediana solo los activos', async () => {
+    const large = await mount({ size: 'large', footer_sensors: ['motion'] }, hass());
+    await open(large);
+    const largeNames = Array.from(large.shadowRoot!.querySelectorAll('.sensor-row .sensor-name')).map((n) => n.textContent);
+    expect(largeNames).toEqual(['Movimiento salón', 'Movimiento cocina']);
+    const medium = await mount({ size: 'medium', footer_sensors: ['motion'] }, hass());
+    medium.shadowRoot!.querySelector<HTMLButtonElement>('.footer .chip')!.click();
+    await new Promise((r) => setTimeout(r, VIEW_REVEAL_MS + 20));
+    await medium.updateComplete;
+    const mediumNames = Array.from(medium.shadowRoot!.querySelectorAll('.sensor-row .sensor-name')).map((n) => n.textContent);
+    expect(mediumNames).toEqual(['Movimiento salón']);
+  });
+
+  it('en la mediana, un sensor que se activa con la lista abierta entra en ella', async () => {
+    const el = await mount({ size: 'medium', footer_sensors: ['motion'] }, hass());
+    el.shadowRoot!.querySelector<HTMLButtonElement>('.footer .chip')!.click();
+    await new Promise((r) => setTimeout(r, VIEW_REVEAL_MS + 20));
+    const next = hass();
+    (next.states['binary_sensor.mov_cocina'] as { state: string }).state = 'on';
+    el.hass = next;
+    await el.updateComplete;
+    const names = Array.from(el.shadowRoot!.querySelectorAll('.sensor-row .sensor-name')).map((n) => n.textContent);
+    expect(names).toEqual(['Movimiento cocina', 'Movimiento salón']);
+  });
+
   it('las cerraduras hablan de «sin cerrar»', async () => {
     const el = await mount({ footer_sensors: ['lock'] }, hass());
     await open(el);
