@@ -247,3 +247,52 @@ describe('NeonAlarmCardEditor', () => {
     }
   });
 });
+
+describe('NeonAlarmCardEditor: campos básicos', () => {
+  /** Cuenta los `config-changed` que el editor lanza desde este momento. */
+  const events = (el: Editor) => {
+    let n = 0;
+    el.addEventListener('config-changed', () => n++);
+    return () => n;
+  };
+
+  it('el nombre se guarda al escribirlo y se quita al vaciarlo', async () => {
+    const { el, last } = await mount({ entity: 'alarm_control_panel.casa' });
+    const input = q(el, '#name') as HTMLInputElement;
+    input.value = 'Alarma de casa';
+    input.dispatchEvent(new Event('input'));
+    expect(last().name).toBe('Alarma de casa');
+    input.value = '';
+    input.dispatchEvent(new Event('input'));
+    expect('name' in last()).toBe(false);
+  });
+
+  it('el selector de entidad guarda la entidad elegida y la quita al borrarla', async () => {
+    const { el, last } = await mount({ entity: 'alarm_control_panel.casa' });
+    const picker = q(el, 'ha-entity-picker')!;
+    picker.dispatchEvent(new CustomEvent('value-changed', { detail: { value: 'alarm_control_panel.garaje' } }));
+    expect(last().entity).toBe('alarm_control_panel.garaje');
+    picker.dispatchEvent(new CustomEvent('value-changed', { detail: { value: '' } }));
+    expect('entity' in last()).toBe(false);
+  });
+
+  it('la paleta ofrece las cinco del proyecto y «personalizada», y se guarda al elegirla', async () => {
+    const { el, last } = await mount({ entity: 'alarm_control_panel.casa' });
+    const count = events(el);
+    const select = q(el, '#palette') as HTMLSelectElement;
+    expect(Array.from(select.options).map((o) => o.value)).toEqual(['emerald', 'cyberpunk', 'electric', 'sunset', 'toxic', 'custom']);
+    change(select, 'sunset');
+    expect(last().neon_palette).toBe('sunset');
+    expect(count()).toBe(1);
+  });
+
+  it('elegir lo que ya está seleccionado (paleta, tamaño o subtítulo) no genera ningún cambio', async () => {
+    const { el } = await mount({ entity: 'alarm_control_panel.casa' });
+    const count = events(el);
+    change(q(el, '#palette') as HTMLSelectElement, 'emerald');
+    change(q(el, '#size') as HTMLSelectElement, 'large');
+    change(q(el, '#subtitle-type') as HTMLSelectElement, 'none');
+    expect(count()).toBe(0);
+  });
+});
+
