@@ -129,17 +129,13 @@ export class NeonAlarmCard extends BaseNeonCard {
   }
 
   private _handleAction(actionType: string): void {
-    const action = this._actionFor(actionType);
-    if (!isToggleAction(action)) {
-      this._dispatch(action, actionType);
-      return;
-    }
-    this._toggle();
+    if (isToggleAction(this._actionFor(actionType))) this._toggle();
+    else this._dispatch(actionType);
   }
 
-  private _dispatch(action: ActionConfig, actionType: string): void {
+  /** Lanza hacia Home Assistant la acción configurada para el gesto (más información, navegar, llamar a un servicio…). */
+  private _dispatch(actionType: string): void {
     const config = { entity: this._config?.entity, tap_action: this._actionFor('tap'), hold_action: this._actionFor('hold'), double_tap_action: this._actionFor('double_tap') };
-    if (action.action === 'toggle') return;
     dispatchHassAction(this, config, actionType);
   }
 
