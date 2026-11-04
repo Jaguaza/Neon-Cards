@@ -421,11 +421,12 @@ size: compact
 
 ### Capturas
 
-> Pendiente de añadir: captura real de la tarjeta (tamaños y estados).
+![Neón Alarm Card, desarmada](../assets/screenshots/alarma/alarma-desarmada.png)
+![Neón Alarm Card, disparada](../assets/screenshots/alarma/alarma-disparada.png)
 
 ### Video
 
-> Pendiente de añadir: video real de la tarjeta en acción.
+https://github.com/user-attachments/assets/82e31425-b566-4ba2-857e-dc4497867b66
 
 ### Explicación
 
@@ -872,11 +873,12 @@ size: compact
 
 ### Screenshots
 
-> To be added: real screenshot of the card (sizes and states).
+![Neón Alarm Card, disarmed](../assets/screenshots/alarma/alarma-desarmada.png)
+![Neón Alarm Card, triggered](../assets/screenshots/alarma/alarma-disparada.png)
 
 ### Video
 
-> To be added: real video of the card in action.
+https://github.com/user-attachments/assets/82e31425-b566-4ba2-857e-dc4497867b66
 
 ### Explanation
 
