@@ -116,7 +116,9 @@ reposo» si no, «—» si no hay ninguno. Una cerradura cuenta como activa si n
 está cerrada con llave.
 
 Al pulsar un dato se abre la **lista** de sensores de ese tipo, los activos
-primero, sin disparar la acción de la tarjeta.
+primero, sin disparar la acción de la tarjeta. En la mediana la lista enseña
+siempre solo los sensores activos; en la grande, solo si `footer_only_active`
+está activado (si no, enseña todos).
 
 La compacta no tiene pie: su editor no ofrece los tipos de sensor, «solo
 activos», la lista de sensores a ocultar ni el color de sensores activos.
@@ -296,7 +298,9 @@ many are active: amber if any, "Idle" if none, "—" if there are no sensors. A
 lock counts as active if it is not locked.
 
 Tapping an item opens the **list** of sensors of that type, active ones first,
-without triggering the card's action.
+without triggering the card's action. In the medium card the list always shows
+only the active sensors; in the large one, only when `footer_only_active` is on
+(otherwise it shows all of them).
 
 The compact card has no footer: its editor does not offer the sensor types,
 "only active", the list of sensors to hide or the active-sensor color.

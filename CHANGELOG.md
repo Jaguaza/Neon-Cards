@@ -19,6 +19,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- Alarm Card: the list opened by tapping a footer sensor in the medium card now always shows only the active sensors, with or without `footer_only_active`. The large card is unchanged: it shows all the sensors, or only the active ones with `footer_only_active`.
+- Alarm Card: la lista que se abre al pulsar un sensor del pie en la tarjeta mediana enseña ahora siempre solo los sensores activos, tenga o no `footer_only_active`. La grande no cambia: enseña todos los sensores, o solo los activos con `footer_only_active`.
 - Documentación: los GIF pasan a ser vídeos, que se ven mejor en todos los dispositivos. La parte en inglés del README usa los mismos vídeos que la española, la sección «GIF» de cada tarjeta en `examples/README.md` pasa a «Video» y el acuerdo nº17, la guía para crear una tarjeta y la plantilla de PR piden «captura, video y explicación» en lugar de GIF.
 - `src/shared`: nuevos `PALETTE_IDS` (lista de paletas de los editores, antes repetida a mano en Alarm, Sensor y Lock) y `VIEW_REVEAL_MS` (retardo de revelado de las vistas, antes `CONFIRM_REVEAL_MS` en Lock y `VIEW_REVEAL_MS` en Alarm, con el mismo valor y motivo). Solo se añaden exports, y las tarjetas se ven y se comportan igual.
 - `src/shared`: nuevo `action-pending.ts` (`ACTION_PENDING_MS` y `ActionPendingController`), que sustituye la espera del cambio de estado que la Lock Card y la Alarm Card llevaban cada una por su cuenta (marca de tiempo, temporizador y reanudación al reconectar). Solo se añaden exports, y ambas tarjetas se ven y se comportan igual.

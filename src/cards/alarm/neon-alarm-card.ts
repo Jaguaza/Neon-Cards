@@ -253,7 +253,7 @@ export class NeonAlarmCard extends BaseNeonCard {
     return { name: this._name, compact, translate: (key) => this._t(key), onCancel: () => this._flow.close() };
   }
 
-  /** La vista abierta (modos, teclado o lista de sensores). */
+  /** La vista abierta (modos, teclado o lista de sensores). La lista de la mediana enseña siempre solo los sensores activos; la de la grande, solo si `footer_only_active` está activo. */
   private _renderView(compact: boolean): TemplateResult | typeof nothing {
     const view = this._flow.view;
     if (!view || !this._flow.shown) return nothing;
@@ -261,7 +261,8 @@ export class NeonAlarmCard extends BaseNeonCard {
     if (view.kind === 'modes') return renderModesView(ctx, view.choices, (command) => this._proceed(command));
     if (view.kind === 'sensors') {
       const options = this._footerOptions();
-      return renderSensorsView(ctx, footerSensorView(this.hass, view.type, options), this._sensorTypeLabel(view.type), options.onlyActive);
+      const onlyActive = options.onlyActive || resolveCardSize(this._config) === 'medium';
+      return renderSensorsView(ctx, footerSensorView(this.hass, view.type, { ...options, onlyActive }), this._sensorTypeLabel(view.type), onlyActive);
     }
     return renderKeypadView({
       ...ctx,

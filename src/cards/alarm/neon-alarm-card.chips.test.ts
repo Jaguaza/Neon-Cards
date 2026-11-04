@@ -80,6 +80,29 @@ describe('tarjeta mediana · sensores en fichas', () => {
     expect(actions).toEqual([]);
   });
 
+  it('la lista de la mediana enseña solo los sensores activos, aunque «solo activos» esté desactivado', async () => {
+    const mixed = hassWith('armed_home', {
+      extraStates: {
+        'binary_sensor.mov_salon': { state: 'on', attributes: { device_class: 'motion', friendly_name: 'Movimiento salón' } },
+        'binary_sensor.mov_cocina': { state: 'off', attributes: { device_class: 'motion', friendly_name: 'Movimiento cocina' } },
+      },
+    });
+    const el = await mount({ size: 'medium', footer_sensors: ['motion'] }, mixed);
+    chips(el)[0].click();
+    await new Promise((r) => setTimeout(r, VIEW_REVEAL_MS + 20));
+    await el.updateComplete;
+    const names = Array.from(el.shadowRoot!.querySelectorAll('.sensor-row .sensor-name')).map((n) => n.textContent);
+    expect(names).toEqual(['Movimiento salón']);
+  });
+
+  it('la lista de la mediana sin ningún sensor activo avisa de que no hay ninguno activo', async () => {
+    const el = await mount({ size: 'medium', footer_sensors: ['door'] }, hass());
+    chips(el)[0].click();
+    await new Promise((r) => setTimeout(r, VIEW_REVEAL_MS + 20));
+    await el.updateComplete;
+    expect(el.shadowRoot!.querySelector('.sensor-empty')!.textContent).toBe('Ningún sensor activo');
+  });
+
   it('«solo activos» quita las fichas de los tipos en reposo y, si no queda ninguna, el pie entero', async () => {
     const el = await mount({ size: 'medium', footer_sensors: types, footer_only_active: true }, hass());
     expect(chips(el).map((c) => c.dataset.type)).toEqual(['motion', 'vibration']);
