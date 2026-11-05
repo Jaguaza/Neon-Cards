@@ -988,6 +988,31 @@ action is pressed, without waiting for the entity's state to change.
 
 ---
 
+### Labelled checkbox or switch (`labeled-control.ts`)
+
+Home Assistant 2026.11 removed `ha-formfield` (frontend #54200): `ha-checkbox` and `ha-switch` now draw their own label, the one put inside them. Earlier versions still define it and it is the only thing that draws the label. These two functions make the label show on all of them. Used by the editors of the Alarm Card, the Lock Card and the Entity Card.
+
+#### `labeledControl(label, control)`
+
+- **Description:** a `ha-checkbox` or `ha-switch` with its label, whatever the Home Assistant version. Without `ha-formfield` (HA 2026.11 or later) the label goes inside the control; with `ha-formfield` (earlier HA) the control is wrapped in a `ha-formfield` with the label and nothing is put inside, so it does not show twice.
+- **Parameters:**
+  - `label` (`string`): the label text.
+  - `control` (`(slotted: string | typeof nothing) => TemplateResult`): builds the control; `slotted` is what must go inside it (the label, or `nothing` if there is a `ha-formfield`).
+- **Returns:** `TemplateResult`.
+- **Example:**
+  ```ts
+  ${labeledControl(this._t('only_active_label'), (label) => html`<ha-checkbox .checked=${on} @change=${onChange}>${label}</ha-checkbox>`)}
+  ```
+
+#### `hasFormfield()`
+
+- **Description:** does this Home Assistant define `ha-formfield`? It is what `labeledControl` decides on. It is checked on every render, not once at load time.
+- **Parameters:** none.
+- **Returns:** `boolean`.
+- **Example:** `hasFormfield()` → `false` on Home Assistant 2026.11.
+
+---
+
 ### Identity and error icon (`card-identity.ts`, `error-icon.ts`)
 
 All six cards use them: each one imports from here instead of repeating the

@@ -9,6 +9,10 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Editores visuales con Home Assistant 2026.11: los checks y los interruptores se veían sin texto (en la Alarm Card, la lista de «Ocultar sensores concretos» salía sin los nombres de los sensores y «Mostrar solo los sensores activos» sin su etiqueta; también el interruptor de confirmar al abrir de la Lock Card y el del punto de estado de la Entity Card). La 2026.11 eliminó `ha-formfield` y ahora `ha-checkbox` y `ha-switch` pintan su propia etiqueta. Cuando `ha-formfield` no existe, la etiqueta va dentro del control; en las versiones anteriores se mantiene `ha-formfield` y no cambia nada. Nuevos `labeledControl` y `hasFormfield` en `src/shared` (`labeled-control.ts`): solo se añaden exports.
+
 ## [1.4.1] - 2026-11-05
 
 ### Fixed
@@ -371,6 +375,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+### Fixed
+
+- Visual editors on Home Assistant 2026.11: checkboxes and switches showed no text (in the Alarm Card, the "Hide specific sensors" list had no sensor names and "Show only the active sensors" no label; also the Lock Card's confirm-before-opening switch and the Entity Card's status dot switch). 2026.11 removed `ha-formfield`, and `ha-checkbox` and `ha-switch` now draw their own label. When `ha-formfield` does not exist, the label goes inside the control; on earlier versions `ha-formfield` is kept and nothing changes. New `labeledControl` and `hasFormfield` in `src/shared` (`labeled-control.ts`): only exports are added.
 
 ## [1.4.1] - 2026-11-05
 
