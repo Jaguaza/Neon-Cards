@@ -66,6 +66,22 @@ Object.defineProperty(globalThis, 'navigator', {
 });
 
 /** Estado simulado de una entidad de HA (los perfiles que lo necesitan). */
+// Entidades de relleno (luces, sensores, interruptores…) que ninguna tarjeta
+// usa. Se crean una vez y se reutilizan, como hace HA con las que no cambian.
+const unrelatedCache = new Map();
+const unrelatedStates = (count) => {
+  if (!unrelatedCache.has(count)) {
+    const filler = {};
+    const domains = ['light', 'switch', 'sensor', 'binary_sensor', 'automation'];
+    for (let i = 0; i < count; i++) {
+      const id = `${domains[i % domains.length]}.relleno_${i}`;
+      filler[id] = stateOf(id, i % 7 ? 'off' : 'on', { friendly_name: `Relleno ${i}`, device_class: i % 3 ? 'temperature' : 'door' });
+    }
+    unrelatedCache.set(count, filler);
+  }
+  return unrelatedCache.get(count);
+};
+
 const stateOf = (id, state, attributes = {}) => ({
   entity_id: id,
   state,
@@ -232,6 +248,10 @@ const CARD_PROFILES = {
   },
   alarm: {
     elementName: 'neon-alarm-card',
+    // Un Home Assistant real tiene miles de entidades que no son de la
+    // tarjeta y reenvía `hass` con cada cambio de cualquiera de ellas: el pie
+    // de sensores no puede recorrerlas todas en cada actualización (por eso
+    // `unrelatedStates` mete 1500 entidades de relleno).
     entry: 'src/cards/alarm/neon-alarm-card.ts',
     exportName: 'NeonAlarmCard',
     entityDomain: 'alarm_control_panel',
@@ -248,7 +268,7 @@ const CARD_PROFILES = {
       // La alarma cambia de estado cada 25 ticks, no en cada uno: una alarma
       // real no conmuta miles de veces (mismo criterio que la cerradura).
       const armed = Math.floor(tick / 25) % 2 === 1;
-      const states = {};
+      const states = { ...unrelatedStates(1500) };
       for (const id of entityIds) {
         const base = id.split('.')[1];
         states[id] = stateOf(id, armed ? 'armed_away' : 'disarmed', { friendly_name: `Alarma de prueba ${id}`, supported_features: 63, code_format: 'number' });
