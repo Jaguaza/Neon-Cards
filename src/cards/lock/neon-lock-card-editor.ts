@@ -2,7 +2,7 @@ import { LitElement, html, nothing } from 'lit';
 import type { PropertyValues, TemplateResult } from 'lit';
 import { EDITOR_ACTIONS } from '../../ha/types';
 import type { HomeAssistant, ValueChangedEvent } from '../../ha/types';
-import { CARD_SIZES, DEFAULT_CARD_SIZE, renderHaloSection, isCssColor, resolveCardSize, toHex6, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
+import { CARD_SIZES, DEFAULT_CARD_SIZE, renderHaloSection, isCssColor, labeledControl, resolveCardSize, toHex6, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
 import { actionConfigFor, getInfoLabels, localize } from '../../core';
 import { LOCK_ICON_TYPES, LOCK_ICONS, resolveLockIconType } from './icons';
@@ -347,12 +347,12 @@ export class NeonLockCardEditor extends LitElement {
     return html`
       <div class="editor-section">
         <div class="section-header">${this._ts('section_actions')}</div>
-        <ha-formfield label=${this._t('confirm_open_label')}>
+        ${labeledControl(this._t('confirm_open_label'), (label) => html`
           <ha-switch
             .checked=${this._config?.confirm_open !== false}
             @change=${(ev: Event) => this._configChanged('confirm_open', (ev.target as HTMLInputElement).checked ? undefined : false)}
-          ></ha-switch>
-        </ha-formfield>
+          >${label}</ha-switch>
+        `)}
         ${this._renderActionEditor('action_tap', 'tap_action', 'toggle')}
         ${this._renderActionEditor('action_hold', 'hold_action', 'more-info')}
         ${this._renderActionEditor('action_double_tap', 'double_tap_action', 'none')}

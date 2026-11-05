@@ -46,7 +46,8 @@ export const NEON_LOCK_EDITOR_STYLES = css`
     border-color: var(--primary-color);
     box-shadow: inset 0 0 0 1px var(--primary-color);
   }
-  ha-formfield {
+  ha-formfield,
+  .editor-section > ha-switch {
     display: flex;
   }
   .icon-tile .lock-icon {

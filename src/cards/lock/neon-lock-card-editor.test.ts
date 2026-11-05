@@ -96,8 +96,10 @@ describe('NeonLockCardEditor', () => {
 
   it('el interruptor de confirmación al abrir está activo por defecto y desactivarlo guarda confirm_open: false', async () => {
     const { el, last } = await mount({ entity: 'lock.puerta' });
-    const sw = q(el, 'ha-formfield ha-switch') as unknown as HTMLInputElement;
+    const sw = q(el, '.editor-section > ha-switch') as unknown as HTMLInputElement;
     expect(sw.checked).toBe(true);
+    expect(sw.textContent!.trim()).not.toBe(''); // la etiqueta se ve también en HA 2026.11, que ya no tiene ha-formfield
+    expect(q(el, 'ha-formfield')).toBeNull();
     sw.checked = false;
     sw.dispatchEvent(new Event('change'));
     expect(last().confirm_open).toBe(false);

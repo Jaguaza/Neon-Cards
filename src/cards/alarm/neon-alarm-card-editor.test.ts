@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 (globalThis as { __DEV__?: boolean }).__DEV__ = false;
 
@@ -179,7 +179,7 @@ describe('NeonAlarmCardEditor', () => {
     expect(text).toContain('Marca un sensor para OCULTARLO');
     expect(text).toContain('Los que dejes sin marcar se siguen viendo');
     expect(text).toContain('Elige qué tipos de sensor enseña el pie');
-    const labels = Array.from(el.shadowRoot!.querySelectorAll('ha-formfield')).map((f) => f.getAttribute('label'));
+    const labels = Array.from(el.shadowRoot!.querySelectorAll('ha-checkbox')).map((c) => c.textContent);
     expect(labels).toContain('Mostrar solo los sensores activos');
     expect(text).toContain('esconde los que están en reposo');
     expect(text).toContain('Tipo de sensor 1');
@@ -198,9 +198,38 @@ describe('NeonAlarmCardEditor', () => {
 
   it('un sensor marcado se etiqueta como oculto y el título cuenta cuántos hay ocultos', async () => {
     const { el } = await mount({ footer_sensors: ['motion'], footer_excluded: ['binary_sensor.mov_salon'] });
-    const labels = Array.from(el.shadowRoot!.querySelectorAll('.sensor-checks-list ha-formfield')).map((f) => f.getAttribute('label'));
+    const labels = Array.from(el.shadowRoot!.querySelectorAll('.sensor-checks-list > ha-checkbox')).map((c) => c.textContent);
     expect(labels).toEqual(['Movimiento cocina', 'Movimiento roto', 'Movimiento salón (oculto)']);
     expect(el.shadowRoot!.querySelector('.sensor-checks summary')!.textContent).toBe('Ocultar sensores concretos · 1 de 3 ocultos');
+  });
+
+  describe('etiquetas de los checks según la versión de Home Assistant', () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    it('en HA 2026.11 (sin ha-formfield) cada sensor lleva su nombre dentro del check y no hay ha-formfield', async () => {
+      const { el } = await mount({ footer_sensors: ['motion'] });
+      expect(el.shadowRoot!.querySelector('ha-formfield')).toBeNull();
+      const rows = Array.from(el.shadowRoot!.querySelectorAll('.sensor-checks-list > ha-checkbox')) as HTMLElement[];
+      expect(rows.map((row) => row.dataset.entity)).toEqual(['binary_sensor.mov_cocina', 'binary_sensor.mov_roto', 'binary_sensor.mov_salon']);
+      expect(rows.every((row) => (row.textContent ?? '').trim() !== '')).toBe(true);
+    });
+
+    it('en un HA anterior (con ha-formfield) el nombre va en la etiqueta del ha-formfield y no se repite dentro del check', async () => {
+      const original = customElements.get.bind(customElements);
+      vi.spyOn(customElements, 'get').mockImplementation((name: string) => (name === 'ha-formfield' ? (class extends HTMLElement {} as CustomElementConstructor) : original(name)));
+      const { el } = await mount({ footer_sensors: ['motion'], footer_excluded: ['binary_sensor.mov_salon'] });
+      const rows = Array.from(el.shadowRoot!.querySelectorAll('.sensor-checks-list ha-formfield'));
+      expect(rows.map((row) => row.getAttribute('label'))).toEqual(['Movimiento cocina', 'Movimiento roto', 'Movimiento salón (oculto)']);
+      expect(rows.every((row) => (row.querySelector('ha-checkbox')!.textContent ?? '') === '')).toBe(true);
+    });
+
+    it('marcar un check sigue guardando la exclusión en ambos casos', async () => {
+      const { el, last } = await mount({ footer_sensors: ['motion'] });
+      const box = el.shadowRoot!.querySelector('ha-checkbox[data-entity="binary_sensor.mov_cocina"]') as unknown as HTMLInputElement;
+      box.checked = true;
+      box.dispatchEvent(new Event('change'));
+      expect(last().footer_excluded).toEqual(['binary_sensor.mov_cocina']);
+    });
   });
 
   const bulk = (el: Editor, name: 'mark' | 'clear') => q(el, `.bulk-btn[data-bulk="${name}"]`) as HTMLButtonElement;

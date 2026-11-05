@@ -2,7 +2,7 @@ import { LitElement, html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import { EDITOR_ACTIONS } from '../../ha/types';
 import type { HomeAssistant, ValueChangedEvent } from '../../ha/types';
-import { CARD_SIZES, DEFAULT_CARD_SIZE, renderHaloSection, isCssColor, resolveCardSize, toHex6, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
+import { CARD_SIZES, DEFAULT_CARD_SIZE, renderHaloSection, isCssColor, labeledControl, resolveCardSize, toHex6, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
 import { actionConfigFor, getInfoLabels, localize } from '../../core';
 import { FOOTER_MAX, SECURITY_SENSOR_TYPES, SENSOR_ACTIVE_COLOR_KEY, SENSOR_ACTIVE_DEFAULT, STATUS_COLOR_GROUPS, STATUS_COLOR_KEYS, STATUS_DOT_DEFAULTS } from './constants';
@@ -143,9 +143,7 @@ export class NeonAlarmCardEditor extends LitElement {
   /** Check «mostrar solo los sensores activos» (desactivado por defecto). */
   private _renderOnlyActive(): TemplateResult {
     return html`
-      <ha-formfield label=${this._t('only_active_label')}>
-        <ha-checkbox .checked=${this._config?.footer_only_active === true} @change=${(ev: Event) => this._configChanged('footer_only_active', (ev.target as HTMLInputElement).checked ? true : undefined)}></ha-checkbox>
-      </ha-formfield>
+      ${labeledControl(this._t('only_active_label'), (label) => html`<ha-checkbox .checked=${this._config?.footer_only_active === true} @change=${(ev: Event) => this._configChanged('footer_only_active', (ev.target as HTMLInputElement).checked ? true : undefined)}>${label}</ha-checkbox>`)}
       <span class="data-hint">${this._t('only_active_hint')}</span>
     `;
   }
@@ -189,9 +187,7 @@ export class NeonAlarmCardEditor extends LitElement {
     const rows = sensors.map((sensor) => {
       const isHidden = excluded.includes(sensor.entityId);
       return html`
-        <ha-formfield label=${isHidden ? `${sensor.name} (${suffix})` : sensor.name}>
-          <ha-checkbox data-entity=${sensor.entityId} .checked=${isHidden} @change=${(ev: Event) => this._setExcluded(sensor.entityId, (ev.target as HTMLInputElement).checked)}></ha-checkbox>
-        </ha-formfield>
+        ${labeledControl(isHidden ? `${sensor.name} (${suffix})` : sensor.name, (label) => html`<ha-checkbox data-entity=${sensor.entityId} .checked=${isHidden} @change=${(ev: Event) => this._setExcluded(sensor.entityId, (ev.target as HTMLInputElement).checked)}>${label}</ha-checkbox>`)}
       `;
     });
     return html`

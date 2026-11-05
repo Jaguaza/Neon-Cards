@@ -3,7 +3,7 @@ import type { TemplateResult } from 'lit';
 import { EDITOR_ACTIONS } from '../../ha/types';
 import type { HomeAssistant } from '../../ha/types';
 import { INFO_OPTIONS, actionConfigFor, getInfoLabels, localize } from '../../core';
-import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, renderCustomColors, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
+import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, labeledControl, renderCustomColors, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
 import type { SharedTranslations } from '../../shared';
 import type { ValueChangedEvent } from '../../ha/types';
 import type { NeonCardEntityConfig } from './types';
@@ -34,7 +34,8 @@ export class NeonCardEntityEditor extends LitElement {
         flex-direction: column;
         gap: 4px;
       }
-      ha-formfield {
+      ha-formfield,
+      .editor-section > ha-switch {
         display: flex;
       }
     `,
@@ -109,12 +110,12 @@ export class NeonCardEntityEditor extends LitElement {
       <div class="editor-section">
         <div class="section-header">${this._t('section_appearance')}</div>
         ${this._renderPaletteFields(config)} ${this._renderInfoSelectors(config)}
-        <ha-formfield label=${this._t('show_status_dot_label')}>
+        ${labeledControl(this._t('show_status_dot_label'), (label) => html`
           <ha-switch
             .checked=${config.show_status_dot ?? true}
             @change=${(ev: Event) => this._configChanged('show_status_dot', (ev.target as HTMLInputElement).checked)}
-          ></ha-switch>
-        </ha-formfield>
+          >${label}</ha-switch>
+        `)}
         <label class="native-select-label" for="orientation">${this._t('orientation_label')}</label>
         <select
           id="orientation"

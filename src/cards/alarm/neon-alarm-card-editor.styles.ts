@@ -33,7 +33,8 @@ export const NEON_ALARM_EDITOR_STYLES = css`
     display: flex;
     flex-direction: column;
   }
-  .sensor-checks-list ha-formfield {
+  .sensor-checks-list ha-formfield,
+  .sensor-checks-list > ha-checkbox {
     display: flex;
     width: 100%;
     min-width: 0;
