@@ -9,6 +9,10 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Alarm Card: la ayuda de «Mostrar solo los sensores activos» en el editor decía que, desmarcada, «se ven siempre todos», y no es cierto en la tarjeta mediana, cuya lista enseña siempre solo los sensores activos. Ahora explica que desmarcada el pie enseña siempre todos los tipos, también los que están en reposo, y que la lista enseña solo los activos salvo en la tarjeta grande con la casilla desmarcada. Se precisan igual las ayudas de los tipos de sensor y la fila de `footer_only_active` de `api.md`.
+
 ## [1.4.0] - 2026-11-05
 
 ### Added
@@ -365,6 +369,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+### Fixed
+
+- Alarm Card: the editor help for "Show only active sensors" said that, unticked, "all are always shown", which is not true in the medium card, whose list always shows only the active sensors. It now explains that, unticked, the footer always shows every type, idle ones included, and that the list shows only the active ones except in the large card with the box unticked. The sensor type helps and the `footer_only_active` row in `api.md` are made equally precise.
 
 ## [1.4.0] - 2026-11-05
 
