@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { allSensorsOfType, footerSensorView, normalizeExcluded, normalizeFooterTypes, sensorsOfType, visibleFooterViews } from './alarm-sensors';
+import { describe, expect, it, vi } from 'vitest';
+import { SensorIndex, allSensorsOfType, footerSensorView, normalizeExcluded, normalizeFooterTypes, sensorsOfType, visibleFooterViews } from './alarm-sensors';
 import { hassWith } from './neon-alarm-card.fixtures';
 import type { HomeAssistant } from '../../ha/types';
 
@@ -110,5 +110,59 @@ describe('solo sensores activos', () => {
 
   it('un tipo cuyos sensores activos están todos excluidos desaparece con onlyActive', () => {
     expect(visibleFooterViews(hass, ['door'], { onlyActive: true, excluded: ['binary_sensor.puerta'] })).toEqual([]);
+  });
+});
+
+function withStates(states: HomeAssistant['states']): HomeAssistant {
+  return { ...hass, states };
+}
+
+describe('SensorIndex', () => {
+  it('da los mismos sensores que recorrer todas las entidades', () => {
+    const index = new SensorIndex();
+    for (const type of ['motion', 'door', 'lock']) {
+      expect(sensorsOfType(hass, type, [], index)).toEqual(sensorsOfType(hass, type));
+    }
+  });
+
+  it('no recorre las entidades mientras no cambie su número, pero lee el estado nuevo de los sensores', () => {
+    const index = new SensorIndex();
+    expect(footerSensorView(hass, 'motion', { index }).activeCount).toBe(1);
+    const values = vi.spyOn(Object, 'values');
+    const next = withStates({ ...hass.states, 'binary_sensor.mov_cocina': { ...hass.states['binary_sensor.mov_cocina'], state: 'on' } });
+    expect(footerSensorView(next, 'motion', { index }).activeCount).toBe(2);
+    expect(values).not.toHaveBeenCalled();
+    values.mockRestore();
+  });
+
+  it('un sensor nuevo (cambia el número de entidades) entra en el recuento', () => {
+    const index = new SensorIndex();
+    expect(footerSensorView(hass, 'door', { index }).total).toBe(1);
+    const next = withStates({ ...hass.states, 'binary_sensor.puerta_garaje': { entity_id: 'binary_sensor.puerta_garaje', state: 'off', attributes: { device_class: 'door' } } as never });
+    expect(footerSensorView(next, 'door', { index }).total).toBe(2);
+  });
+
+  it('un sensor que desaparece deja de contarse', () => {
+    const index = new SensorIndex();
+    expect(footerSensorView(hass, 'door', { index }).total).toBe(1);
+    const rest = { ...hass.states };
+    delete rest['binary_sensor.puerta'];
+    expect(footerSensorView(withStates(rest), 'door', { index }).total).toBe(0);
+  });
+});
+
+describe('entries del pie', () => {
+  it('se ordenan al leerlas: activos primero y luego por nombre, también con «solo activos»', () => {
+    expect(footerSensorView(hass, 'motion').entries.map((e) => e.name)).toEqual(['Movimiento salón', 'Movimiento cocina']);
+    expect(footerSensorView(hass, 'motion', { onlyActive: true }).entries.map((e) => e.name)).toEqual(['Movimiento salón']);
+  });
+
+  it('contar no ordena, y la lista se ordena una sola vez', () => {
+    const compare = vi.spyOn(String.prototype, 'localeCompare');
+    const view = footerSensorView(hass, 'motion');
+    expect(view.total).toBe(2);
+    expect(compare).not.toHaveBeenCalled();
+    expect(view.entries).toBe(view.entries);
+    compare.mockRestore();
   });
 });

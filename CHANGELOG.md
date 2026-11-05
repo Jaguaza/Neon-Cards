@@ -15,6 +15,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- Alarm Card: el pie de sensores ya no recorre todas las entidades de Home Assistant en cada actualización (llega una por cada cambio de cualquier entidad). Con 3000 entidades, cada actualización pasa de 13,5 ms a 3,3 ms (CPU 4 veces más lenta) y el halo ya no pierde fotogramas; la lista de sensores solo se ordena al abrirla.
 - Lock Card: al abrir el menú de confirmar («¿Abrir?», «¿Qué quieres hacer?») las tarjetas mediana y grande ya no crecen ni pisan a la tarjeta de debajo. La vista flota sobre el contenido y se adapta al ancho para caber en una fila: título y botones con texto; solo botones con texto; botones redondos con icono en tarjetas muy estrechas.
 - Neón Entity Card: en el selector de tarjetas de Home Assistant aparecía como «Neón Card Entity» en vez de «Neón Entity Card», el nombre acordado y el mismo patrón «Neón X Card» que usan las demás tarjetas. Se corrige el nombre del selector y de sus mensajes de error, y también en la documentación, los ejemplos y los acuerdos. El `type:` de YAML (`custom:neon-card-entity`) no cambia, así que los dashboards existentes siguen funcionando.
 
@@ -374,6 +375,7 @@ and this project follows [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Alarm Card: the sensor footer no longer walks every Home Assistant entity on each update (one arrives for every change of any entity). With 3000 entities, each update goes from 13.5 ms to 3.3 ms (4x slower CPU) and the halo no longer drops frames; the sensor list is only sorted when opened.
 - Lock Card: opening the confirmation menu ("Open?", "What do you want to do?") no longer makes the medium and large cards grow and overlap the card below. The view floats over the content and adapts to the width to fit in one row: title and text buttons; text buttons only; round icon buttons on very narrow cards.
 - Neón Entity Card: in Home Assistant's card picker it appeared as "Neón Card Entity" instead of "Neón Entity Card", the agreed name and the same "Neón X Card" pattern the other cards use. The picker name and its error messages are fixed, as well as the documentation, the examples and the agreements. The YAML `type:` (`custom:neon-card-entity`) does not change, so existing dashboards keep working.
 

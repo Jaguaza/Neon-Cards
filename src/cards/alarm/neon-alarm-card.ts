@@ -7,7 +7,7 @@ import { ActionPendingController, CARD_GRID, resolveCardSize, resolveGradientCol
 import { COMMAND_SERVICES, TRIGGERED_HALO } from './constants';
 import { AlarmFlow } from './alarm-flow';
 import { commandChoices, commandNeedsCode, codeFormat, isAlarmAlert, isAlarmHaloOn, isAlarmMoving, isToggleAction, resolveAlarmState, sensorActiveColor, statusDotColor } from './alarm-state';
-import { footerSensorView, normalizeExcluded, normalizeFooterTypes, visibleFooterViews } from './alarm-sensors';
+import { SensorIndex, footerSensorView, normalizeExcluded, normalizeFooterTypes, visibleFooterViews } from './alarm-sensors';
 import type { FooterOptions, FooterSensorView } from './alarm-sensors';
 import { renderFooterChip, renderFooterSensor } from './footer-view';
 import { renderModesView } from './flow-views';
@@ -225,8 +225,10 @@ export class NeonAlarmCard extends BaseNeonCard {
   }
 
   /** Entidades que no se cuentan y si solo se enseña lo activo, según la config. */
+  private readonly _sensorIndex = new SensorIndex();
+
   private _footerOptions(): FooterOptions {
-    return { excluded: normalizeExcluded(this._config?.footer_excluded), onlyActive: this._config?.footer_only_active === true };
+    return { excluded: normalizeExcluded(this._config?.footer_excluded), onlyActive: this._config?.footer_only_active === true, index: this._sensorIndex };
   }
 
   /** Pie: un dato por tipo de sensor (una fila por tipo en la grande; fichas con icono y número, en una línea, en la mediana). Con «solo activos» los tipos en reposo no salen y, si no queda ninguno, tampoco el pie. */
