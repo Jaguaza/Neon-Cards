@@ -9,6 +9,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-11-05
+
 ### Added
 
 - **Neón Alarm Card** (`custom:neon-alarm-card`, `src/cards/alarm/`): quinta tarjeta del paquete, para entidades `alarm_control_panel`. Escudo animado con un dibujo y un color por cada estado (desarmada, los cinco modos armados, pendiente, armando, desarmando, disparada y no disponible), halo neón mientras la alarma vigila y halo rojo de alerta. Al pulsar, selección del modo de armado con solo los modos que soporta la entidad (`supported_features`) o desarme; teclado numérico (o campo de texto) en la propia tarjeta cuando la entidad exige código (`code_format`, `code_arm_required`), con aviso de código incorrecto. Pie con hasta cuatro tipos de sensor de seguridad, tres en la mediana (`footer_sensors`: cualquier `device_class` de `binary_sensor` o `lock`), apilados uno debajo de otro, con el recuento de activos y la lista al pulsar; `footer_only_active` para enseñar solo lo activo y `footer_excluded` (checks en el editor) para ocultar sensores concretos; colores configurables del punto de estado (`status_color_*`: desarmada, cada modo armado, transición, disparada y no disponible) y de los sensores activos (`sensor_active_color`). Tres tamaños (grande con los sensores en filas apiladas, mediana con los sensores como fichas de icono y número en una sola línea, y compacta en columna sin pie), editor visual, traducciones ES y EN y perfil en `npm run perf`.
@@ -363,6 +365,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [1.4.0] - 2026-11-05
 
 ### Added
 
