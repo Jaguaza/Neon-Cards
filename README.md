@@ -473,7 +473,7 @@ footer_only_active: true
 ## 🚀 Próximamente
 
 Neon Cards se está diseñando como una colección completa de tarjetas para Home Assistant, se irán añadiendo más tarjetas.
-- **Próxima Tarjeta: ¿?**
+- **Próxima Tarjeta: 💡 LUZ**
 
 ---
 
@@ -993,7 +993,7 @@ footer_only_active: true
 
 Neon Cards is being designed as a complete collection of cards for Home Assistant. More cards will be added over time.
 
-- **NEXT CARD: ¿?**
+- **NEXT CARD: 💡 LIGHT**
 ---
 
 ## 📚 Documentation
