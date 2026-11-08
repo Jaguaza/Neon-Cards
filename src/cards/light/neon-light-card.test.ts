@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest';
 import { ERROR_ICON } from '../../shared';
-import { FULL_LIGHT, active, card, errored, fill, hassWith, iconName, mount, subtitle } from './neon-light-card.fixtures';
+import { FULL_LIGHT, active, card, errored, fill, hassWith, iconName, lightColor, mount, subtitle } from './neon-light-card.fixtures';
 
 afterEach(() => {
   document.body.innerHTML = '';
@@ -91,5 +91,28 @@ describe('tarjeta', () => {
   it('el halo usa la paleta del editor', async () => {
     const el = await mount({ neon_palette: 'custom', neon_color1: '#ff0000', neon_color2: '#00ff00', neon_color3: '#0000ff' });
     expect(card(el).getAttribute('style')).toContain('#ff0000');
+  });
+});
+
+describe('el icono toma el color de la luz', () => {
+  it('verde si la luz está en verde, azul si está en azul', async () => {
+    expect(lightColor(await mount({}, hassWith('on', { attributes: { ...FULL_LIGHT, brightness: 255, rgb_color: [0, 255, 0], hs_color: [120, 100] } })))).toBe('rgb(0, 255, 0)');
+    document.body.innerHTML = '';
+    expect(lightColor(await mount({}, hassWith('on', { attributes: { ...FULL_LIGHT, brightness: 255, rgb_color: [0, 0, 255], hs_color: [240, 100] } })))).toBe('rgb(0, 0, 255)');
+  });
+
+  it('sin rgb_color usa hs_color', async () => {
+    const el = await mount({}, hassWith('on', { attributes: { ...FULL_LIGHT, hs_color: [240, 100] } }));
+    expect(lightColor(el)).toBe('hsl(240, 100%, 50%)');
+  });
+
+  it('una luz sin color (solo brillo) o apagada no pone color: el icono usa la paleta neón', async () => {
+    expect(lightColor(await mount({}, hassWith('on', { attributes: { supported_color_modes: ['brightness'], brightness: 200 } })))).toBe('');
+    document.body.innerHTML = '';
+    expect(lightColor(await mount({}, hassWith('off', { attributes: FULL_LIGHT })))).toBe('');
+  });
+
+  it('la luz no disponible no pone color', async () => {
+    expect(lightColor(await mount({}, hassWith('unavailable', { attributes: { ...FULL_LIGHT, rgb_color: [0, 255, 0] } })))).toBe('');
   });
 });

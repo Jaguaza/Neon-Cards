@@ -61,6 +61,7 @@ export const card = (el: Card) => root(el).querySelector('ha-card')!;
 export const subtitle = (el: Card) => root(el).querySelector('.subtitle')?.textContent?.trim();
 export const iconName = (el: Card) => root(el).querySelector('.icon-base')?.getAttribute('icon');
 export const fill = (el: Card) => root(el).querySelector<HTMLElement>('.light-icon')!.style.getPropertyValue('--fill');
+export const lightColor = (el: Card) => root(el).querySelector<HTMLElement>('.light-icon')!.style.getPropertyValue('--light-color');
 export const active = (el: Card) => card(el).classList.contains('neon-halo-active');
 export const errored = (el: Card) => card(el).classList.contains('neon-halo-error');
 export const click = (el: Card) => card(el).dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));

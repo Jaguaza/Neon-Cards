@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest';
-import { FULL_LIGHT, active, click, closeButton, dragSlider, effectButtons, fill, footerButton, footerItems, hassWith, mount, slider, view } from './neon-light-card.fixtures';
+import { FULL_LIGHT, active, click, closeButton, dragSlider, effectButtons, fill, footerButton, footerItems, hassWith, lightColor, mount, slider, view } from './neon-light-card.fixtures';
 
 afterEach(() => {
   document.body.innerHTML = '';
@@ -130,6 +130,38 @@ describe('barra de un control en el pie', () => {
     await el.updateComplete;
     slider(el)!.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
     expect(calls).toEqual([]);
+  });
+});
+
+describe('color del icono mientras se arrastra', () => {
+  it('la barra de color tiñe el icono en directo, con la saturación de la luz', async () => {
+    const el = await mount({}, hassWith('on', { attributes: { ...FULL_LIGHT, rgb_color: [255, 0, 0], hs_color: [0, 100] } }));
+    footerButton(el, 'color').click();
+    await el.updateComplete;
+    slider(el)!.value = '120';
+    slider(el)!.dispatchEvent(new Event('input', { bubbles: true }));
+    await el.updateComplete;
+    expect(lightColor(el)).toBe('hsl(120, 100%, 50%)');
+  });
+
+  it('la barra de temperatura tiñe el icono con el color de esa temperatura', async () => {
+    const el = await mount({}, hassWith('on', { attributes: { ...FULL_LIGHT, rgb_color: [255, 0, 0] } }));
+    footerButton(el, 'color_temp').click();
+    await el.updateComplete;
+    slider(el)!.value = '2000';
+    slider(el)!.dispatchEvent(new Event('input', { bubbles: true }));
+    await el.updateComplete;
+    expect(lightColor(el)).toBe('rgb(255, 137, 14)');
+  });
+
+  it('la barra de brillo no cambia el color del icono', async () => {
+    const el = await mount({}, hassWith('on', { attributes: { ...FULL_LIGHT, rgb_color: [0, 255, 0] } }));
+    footerButton(el, 'brightness').click();
+    await el.updateComplete;
+    slider(el)!.value = '30';
+    slider(el)!.dispatchEvent(new Event('input', { bubbles: true }));
+    await el.updateComplete;
+    expect(lightColor(el)).toBe('rgb(0, 255, 0)');
   });
 });
 

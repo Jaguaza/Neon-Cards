@@ -7,6 +7,7 @@ import { ActionPendingController, ERROR_ICON, NEON_HALO_STYLES, NEON_RING_SPLIT_
 import { DEFAULT_ICON, LIGHT_GRID } from './constants';
 import { renderEffectsView } from './effects-view';
 import { renderFooterButtons, renderFooterShell, renderFooterSlider } from './footer-view';
+import { lightColorCss } from './light-color';
 import { renderLightIcon } from './light-icon';
 import { LIGHT_ICON_STYLES } from './light-icon.styles';
 import { controlCommand, effectCommand, sendLightCommand } from './light-commands';
@@ -221,6 +222,11 @@ export class NeonLightCard extends BaseNeonCard {
     return this._broken ? 0 : fillPercent(this._stateObj, preview);
   }
 
+  /** Color del icono: el de la luz (o el que arrastras en la barra); sin color, la paleta neón. */
+  private _iconColor(): string | undefined {
+    return this._broken ? undefined : lightColorCss(this._stateObj?.attributes, this._preview);
+  }
+
   private _haloClasses(): string {
     const on = !this._broken && (isLightOn(this._config, this.hass) || this._pending.active);
     return `${on ? 'neon-halo-active' : ''} ${this._broken ? 'neon-halo-error' : ''}`;
@@ -242,7 +248,7 @@ export class NeonLightCard extends BaseNeonCard {
       >
         ${neonRingSplitTemplate(this._ringUid, this._ring.size.width, this._ring.size.height, this._ring.size.radius)}
         <div class="content ${viewing ? 'content--hidden' : ''}" aria-hidden=${viewing ? 'true' : 'false'}>
-          ${renderLightIcon(this._icon, this._fill())}
+          ${renderLightIcon(this._icon, this._fill(), this._iconColor())}
           <div class="text">
             <span class="name">${this._name}</span>
             ${subtitle !== nothing ? html`<span class="subtitle">${subtitle}</span>` : nothing}
