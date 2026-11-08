@@ -1,6 +1,6 @@
 import { css } from 'lit';
 
-/** Vista flotante de efectos: cubre la tarjeta sin cambiar su alto. */
+/** Vista flotante de efectos: cubre la tarjeta sin cambiar su alto ni tapar el halo del borde (sin fondo propio; el contenido de debajo se oculta). */
 export const NEON_LIGHT_VIEWS_STYLES = css`
   .view {
     position: absolute;
@@ -11,7 +11,6 @@ export const NEON_LIGHT_VIEWS_STYLES = css`
     flex-direction: column;
     gap: 6px;
     padding: 10px 14px;
-    background: var(--ha-card-background, var(--card-background-color, #1c1c1c));
     cursor: default;
     animation: view-in 150ms ease-out;
   }

@@ -13,12 +13,20 @@ export const NEON_LIGHT_FOOTER_STYLES = css`
     align-items: center;
     cursor: default;
   }
-  .footer-buttons,
-  .control {
+  .footer-buttons {
     display: flex;
     align-items: center;
     width: 100%;
     gap: 8px;
+  }
+  /* La fila de la barra encoge con la tarjeta: la barra cede ancho antes de
+     que nada se salga (ver el @container del final). */
+  .control {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    gap: 6px;
   }
   .foot-btn {
     flex: 1 1 0;
@@ -46,8 +54,8 @@ export const NEON_LIGHT_FOOTER_STYLES = css`
     --mdc-icon-size: 20px;
   }
   .foot-btn--close {
-    flex: 0 0 32px;
-    max-width: 32px;
+    flex: 0 0 28px;
+    max-width: 28px;
   }
   .control-icon {
     --mdc-icon-size: 20px;
@@ -56,7 +64,7 @@ export const NEON_LIGHT_FOOTER_STYLES = css`
   }
   .control-value {
     flex: none;
-    min-width: 4ch;
+    min-width: 3.5ch;
     text-align: right;
     font-size: 11px;
     color: var(--primary-text-color);
@@ -103,5 +111,20 @@ export const NEON_LIGHT_FOOTER_STYLES = css`
   }
   .slider::-moz-range-track {
     background: transparent;
+  }
+
+  /* Tarjeta muy estrecha: la barra necesita su ancho, así que el icono del
+     control (que ya identifica el color de la barra) deja su sitio al valor. */
+  @container (max-width: 160px) {
+    .control-icon {
+      display: none;
+    }
+  }
+
+  /* Por debajo de esto ya no cabe ni el valor: queda la barra y cerrar. */
+  @container (max-width: 110px) {
+    .control-value {
+      display: none;
+    }
   }
 `;
