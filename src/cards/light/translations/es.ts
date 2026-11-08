@@ -1,0 +1,24 @@
+import type { LightTranslations } from './types';
+
+export const es: LightTranslations = {
+  section_main: 'Configuración principal',
+  entity_label: 'Entidad (luz)',
+  name_label: 'Nombre',
+  subtitle_label: 'Subtítulo',
+  subtitle_type_custom: 'Personalizado',
+  subtitle_placeholder: 'Texto libre',
+  subtitle_computed_hint: 'Se calcula a partir de la entidad.',
+  icon_label: 'Icono (mdi:...)',
+  section_halo: 'Apariencia del halo',
+  palette_label: 'Paleta del halo (luz encendida)',
+  state_on: 'Encendida',
+  state_off: 'Apagada',
+  state_unavailable: 'No disponible',
+  group_count: '{on} de {total} encendidas',
+  control_brightness: 'Brillo',
+  control_color_temp: 'Temperatura de color',
+  control_color: 'Color',
+  control_effects: 'Efectos',
+  control_close: 'Cerrar',
+  effects_title: 'Efectos de la luz',
+};
