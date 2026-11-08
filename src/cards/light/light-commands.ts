@@ -1,5 +1,5 @@
 import type { HomeAssistant } from '../../ha/types';
-import { currentSaturation } from './light-state';
+import { pickSaturation } from './light-state';
 import type { FooterControl } from './types';
 
 /** Datos de una llamada a `light.turn_on`. */
@@ -24,9 +24,9 @@ export function sendLightCommand(hass: HomeAssistant, command: LightCommand): Pr
   return hass.callService('light', 'turn_on', command);
 }
 
-/** La orden de un control del pie con el valor de su barra; el color conserva la saturación que ya tiene la luz. */
+/** La orden de un control del pie con el valor de su barra; el color conserva la saturación de la luz si es un color de verdad y usa la completa si está en blanco. */
 export function controlCommand(control: FooterControl, entity: string, value: number, attributes: Record<string, unknown> | undefined): LightCommand {
   if (control === 'brightness') return brightnessCommand(entity, value);
   if (control === 'color_temp') return colorTempCommand(entity, value);
-  return colorCommand(entity, value, currentSaturation(attributes));
+  return colorCommand(entity, value, pickSaturation(attributes));
 }

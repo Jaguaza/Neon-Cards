@@ -35,6 +35,7 @@ describe('color del icono', () => {
   it('mientras se arrastra, manda la barra: tono con la saturación de la luz, o temperatura', () => {
     expect(lightColorCss({ hs_color: [10, 60], rgb_color: [255, 0, 0] }, { control: 'color', value: 120 })).toBe('hsl(120, 100%, 70%)');
     expect(lightColorCss({}, { control: 'color', value: 200 })).toBe('hsl(200, 100%, 50%)');
+    expect(lightColorCss({ hs_color: [0, 0] }, { control: 'color', value: 120 })).toBe('hsl(120, 100%, 50%)');
     expect(lightColorCss({ rgb_color: [0, 255, 0] }, { control: 'color_temp', value: 6600 })).toBe('rgb(255, 255, 255)');
     expect(lightColorCss({ rgb_color: [0, 255, 0] }, { control: 'brightness', value: 50 })).toBe('rgb(0, 255, 0)');
   });

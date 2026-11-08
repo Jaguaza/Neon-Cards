@@ -22,6 +22,13 @@ export const DEFAULT_KELVIN = { min: 2000, max: 6500 } as const;
 /** Saturación (%) con la que se elige un color si la luz aún no tiene ninguno. */
 export const DEFAULT_SATURATION = 100;
 
+/**
+ * Saturación mínima (%) que conserva la barra de color al elegir un tono. Con
+ * una luz en blanco o casi (temperatura fría, saturación ~0) mantenerla
+ * dejaría la luz blanca elijas el tono que elijas.
+ */
+export const MIN_PICK_SATURATION = 50;
+
 /** Orden de los controles en el pie. */
 export const CONTROL_ORDER: readonly FooterControl[] = ['brightness', 'color_temp', 'color'];
 

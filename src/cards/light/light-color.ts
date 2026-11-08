@@ -1,4 +1,4 @@
-import { currentSaturation } from './light-state';
+import { pickSaturation } from './light-state';
 import type { FooterControl } from './types';
 
 type Attributes = Record<string, unknown> | undefined;
@@ -45,7 +45,7 @@ function stateColor(attributes: Attributes): string | undefined {
  * tiene color (solo brillo, o apagada): el icono usa entonces la paleta neón.
  */
 export function lightColorCss(attributes: Attributes, preview?: ColorPreview): string | undefined {
-  if (preview?.control === 'color') return hsToCss(preview.value, currentSaturation(attributes));
+  if (preview?.control === 'color') return hsToCss(preview.value, pickSaturation(attributes));
   if (preview?.control === 'color_temp') return kelvinToCss(preview.value);
   return stateColor(attributes);
 }

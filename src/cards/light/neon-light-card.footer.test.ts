@@ -247,3 +247,18 @@ describe('estado que confirma la luz', () => {
     expect(slider(el)!.value).toBe('39');
   });
 });
+
+describe('color elegido con la luz en blanco', () => {
+  it('una luz en blanco (saturación 0) se tiñe del tono elegido: se manda con saturación completa', async () => {
+    const calls: unknown[][] = [];
+    const el = await mount({}, hassWith('on', { attributes: { ...FULL_LIGHT, rgb_color: [255, 255, 255], hs_color: [0, 0], color_temp_kelvin: 6500 }, calls }));
+    footerButton(el, 'color').click();
+    await el.updateComplete;
+    slider(el)!.value = '120';
+    slider(el)!.dispatchEvent(new Event('input', { bubbles: true }));
+    await el.updateComplete;
+    expect(lightColor(el)).toBe('hsl(120, 100%, 50%)');
+    slider(el)!.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(calls).toEqual([['light', 'turn_on', { entity_id: 'light.sala', hs_color: [120, 100] }]]);
+  });
+});

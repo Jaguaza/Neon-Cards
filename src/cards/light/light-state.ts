@@ -1,5 +1,5 @@
 import type { HassEntityState, HomeAssistant } from '../../ha/types';
-import { COLOR_MODES, CONTROL_ORDER, DEFAULT_KELVIN, DEFAULT_SATURATION, MIN_FILL_PERCENT } from './constants';
+import { COLOR_MODES, CONTROL_ORDER, DEFAULT_KELVIN, DEFAULT_SATURATION, MIN_FILL_PERCENT, MIN_PICK_SATURATION } from './constants';
 import type { FooterControl, FooterItem, GroupCount, NeonLightCardConfig } from './types';
 
 type Attributes = HassEntityState['attributes'] | undefined;
@@ -109,6 +109,20 @@ export const currentHue = (attributes: Attributes): number => Math.round(hsColor
 
 /** Saturación (0-100) de la luz; sin color, la predeterminada. */
 export const currentSaturation = (attributes: Attributes): number => Math.round(hsColor(attributes)?.[1] ?? DEFAULT_SATURATION);
+
+/**
+ * Saturación con la que la barra de color manda un tono: la de la luz solo si
+ * está en un modo de color y es un color de verdad (pastel o más). En
+ * temperatura de color Home Assistant también informa un `hs_color` (el del
+ * blanco cálido o frío) y, con la luz en blanco o casi, conservarlo la dejaría
+ * blanca o lavada elijas el tono que elijas: ahí se usa la saturación completa.
+ */
+export function pickSaturation(attributes: Attributes): number {
+  const mode = attributes?.color_mode;
+  if (typeof mode === 'string' && !COLOR_MODES.includes(mode)) return DEFAULT_SATURATION;
+  const saturation = currentSaturation(attributes);
+  return saturation >= MIN_PICK_SATURATION ? saturation : DEFAULT_SATURATION;
+}
 
 /** Si la entidad es un grupo de luces (trae `entity_id` con sus miembros), cuántas están encendidas. */
 export function groupCount(stateObj: HassEntityState | undefined, hass: HomeAssistant | undefined): GroupCount | undefined {
