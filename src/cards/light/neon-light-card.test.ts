@@ -83,9 +83,9 @@ describe('tarjeta', () => {
     expect(name(await mount({}))).toBe('Luz sala');
   });
 
-  it('la rejilla empieza con alto automático', async () => {
+  it('la rejilla empieza a todo el ancho (12 columnas), con alto automático', async () => {
     const el = (await mount({})) as unknown as { getGridOptions(): { rows: string; columns: number; min_columns: number } };
-    expect(el.getGridOptions()).toEqual({ rows: 'auto', columns: 6, min_columns: 4 });
+    expect(el.getGridOptions()).toEqual({ rows: 'auto', columns: 12, min_columns: 4 });
   });
 
   it('el halo usa la paleta del editor', async () => {

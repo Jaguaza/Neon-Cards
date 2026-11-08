@@ -5,10 +5,10 @@ export const DEFAULT_ICON = 'mdi:lightbulb';
 
 /**
  * Columnas del grid de Home Assistant con las que empieza la tarjeta grande
- * y mínimo al que se puede reducir a mano (el alto es automático). Cuatro
- * iconos del pie necesitan algo más de ancho que una Button.
+ * (todo el ancho de la sección) y mínimo al que se puede reducir a mano; el
+ * alto es automático.
  */
-export const LIGHT_GRID = { columns: 6, min_columns: 4 } as const;
+export const LIGHT_GRID = { columns: 12, min_columns: 4 } as const;
 
 /** Alto mínimo (%) del llenado del icono con la luz encendida, para que se vea aunque el brillo sea muy bajo. */
 export const MIN_FILL_PERCENT = 6;
