@@ -28,10 +28,10 @@ export const NEON_LIGHT_FOOTER_STYLES = css`
     min-width: 0;
     gap: 6px;
   }
+  /* Los iconos se reparten todo el ancho del pie a partes iguales. */
   .foot-btn {
     flex: 1 1 0;
     min-width: 0;
-    max-width: 56px;
     height: 32px;
     display: flex;
     align-items: center;
