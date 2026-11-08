@@ -17,7 +17,7 @@
  * script de benchmark (acuerdo nº4: reutilizable, no se copia).
  *
  * Uso: node scripts/perf-check.mjs [card] [numCards] [numUpdates]
- *   card: 'entity' | 'button' | 'thermostat' | 'sensor' | 'lock' | 'alarm' | 'all'
+ *   card: 'entity' | 'button' | 'thermostat' | 'sensor' | 'lock' | 'alarm' | 'light' | 'all'
  *   (por defecto 'all')
  */
 
@@ -275,6 +275,50 @@ const CARD_PROFILES = {
         states[`binary_sensor.${base}_mov`] = stateOf(`binary_sensor.${base}_mov`, armed ? 'on' : 'off', { device_class: 'motion', friendly_name: `Movimiento ${base}` });
         states[`binary_sensor.${base}_puerta`] = stateOf(`binary_sensor.${base}_puerta`, armed ? 'off' : 'on', { device_class: 'door', friendly_name: `Puerta ${base}` });
         states[`lock.${base}`] = stateOf(`lock.${base}`, armed ? 'locked' : 'unlocked', { friendly_name: `Cerradura ${base}` });
+      }
+      return { states, callService: async () => {} };
+    },
+  },
+  light: {
+    elementName: 'neon-light-card',
+    // Un Home Assistant real tiene miles de entidades que no son de la tarjeta
+    // y reenvía `hass` con cada cambio de cualquiera de ellas: la tarjeta (y el
+    // recuento de un grupo) no puede recorrerlas todas en cada actualización
+    // (por eso `unrelatedStates` mete 1500 entidades de relleno).
+    entry: 'src/cards/light/neon-light-card.ts',
+    exportName: 'NeonLightCard',
+    entityDomain: 'light',
+    // Luz con brillo, temperatura de color, color y efectos (el pie completo)
+    // y estado como subtítulo: es el render más completo de la tarjeta.
+    makeConfig: (entityId) => ({
+      entity: entityId,
+      name: 'Luz de prueba',
+      subtitle_type: 'state',
+    }),
+    makeHass: (entityIds, tick) => {
+      // La luz cambia de estado cada 25 ticks, no en cada uno: una luz real no
+      // conmuta miles de veces, y un cambio por tick deja pendientes el llenado
+      // del icono y el halo y falsea la medida de memoria (mismo criterio que
+      // la cerradura y la alarma).
+      const on = Math.floor(tick / 25) % 2 === 1;
+      const states = { ...unrelatedStates(1500) };
+      for (const id of entityIds) {
+        const base = id.split('.')[1];
+        const members = [`light.${base}_a`, `light.${base}_b`, `light.${base}_c`];
+        states[id] = stateOf(id, on ? 'on' : 'off', {
+          friendly_name: `Luz de prueba ${id}`,
+          supported_color_modes: ['color_temp', 'hs'],
+          min_color_temp_kelvin: 2000,
+          max_color_temp_kelvin: 6500,
+          color_temp_kelvin: 3000,
+          hs_color: [30, 80],
+          brightness: on ? 180 : null,
+          effect_list: ['rainbow', 'pulse'],
+          entity_id: members,
+        });
+        members.forEach((member, i) => {
+          states[member] = stateOf(member, on && i < 2 ? 'on' : 'off', {});
+        });
       }
       return { states, callService: async () => {} };
     },
