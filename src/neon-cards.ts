@@ -15,3 +15,4 @@ import './cards/thermostat';
 import './cards/sensor';
 import './cards/lock';
 import './cards/alarm';
+import './cards/light';
