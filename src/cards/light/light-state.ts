@@ -1,6 +1,6 @@
 import type { HassEntityState, HomeAssistant } from '../../ha/types';
 import { COLOR_MODES, CONTROL_ORDER, DEFAULT_KELVIN, DEFAULT_SATURATION, MIN_FILL_PERCENT } from './constants';
-import type { FooterControl, GroupCount, NeonLightCardConfig } from './types';
+import type { FooterControl, FooterItem, GroupCount, NeonLightCardConfig } from './types';
 
 type Attributes = HassEntityState['attributes'] | undefined;
 
@@ -116,4 +116,24 @@ export function groupCount(stateObj: HassEntityState | undefined, hass: HomeAssi
   if (!Array.isArray(members) || members.length === 0 || !hass) return undefined;
   const ids = members.filter((id): id is string => typeof id === 'string');
   return { on: ids.filter((id) => hass.states[id]?.state === 'on').length, total: ids.length };
+}
+
+/** Iconos del pie: los controles que ofrece la luz y, si declara efectos, el de efectos al final. */
+export function footerItems(attributes: Attributes): FooterItem[] {
+  const controls: FooterItem[] = availableControls(attributes);
+  return effectList(attributes).length > 0 ? [...controls, 'effects'] : controls;
+}
+
+export interface ControlRange {
+  min: number;
+  max: number;
+  value: number;
+  unit: string;
+}
+
+/** Rango, valor actual y unidad de la barra de cada control. */
+export function controlRange(control: FooterControl, attributes: Attributes): ControlRange {
+  if (control === 'brightness') return { min: 1, max: 100, value: brightnessPercent(attributes) ?? 100, unit: '%' };
+  if (control === 'color_temp') return { ...kelvinRange(attributes), value: currentKelvin(attributes), unit: ' K' };
+  return { min: 0, max: 360, value: currentHue(attributes), unit: '°' };
 }
