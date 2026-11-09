@@ -10,6 +10,13 @@ export interface GridInfo {
 type StyleReader = (element: Element) => Pick<CSSStyleDeclaration, 'display' | 'gridTemplateColumns' | 'columnGap'>;
 
 const MAX_DEPTH = 16;
+const ELEMENT_NODE = 1;
+const FRAGMENT_NODE = 11;
+
+const NO_GRID: ReturnType<StyleReader> = { display: 'block', gridTemplateColumns: 'none', columnGap: 'normal' };
+
+/** Lectura de estilos del navegador; fuera de él (pruebas de rendimiento en Node) no hay rejilla. */
+const browserStyle: StyleReader = (element) => (typeof getComputedStyle === 'function' ? getComputedStyle(element) : NO_GRID);
 
 function parseGrid(style: ReturnType<StyleReader>): GridInfo | undefined {
   if (style.display !== 'grid') return undefined;
@@ -19,21 +26,26 @@ function parseGrid(style: ReturnType<StyleReader>): GridInfo | undefined {
   return { tracks: tracks.length, trackWidth: tracks[0], gap: Number.isFinite(gap) ? gap : 0 };
 }
 
+/** Sube un nivel: al padre o, en la raíz de un shadow root, a su anfitrión. Por `nodeType`, sin las clases globales `Element` y `ShadowRoot` (no existen en Node). */
+function parentOf(node: Node): Node | null {
+  if (node.nodeType === FRAGMENT_NODE && 'host' in node) return (node as ShadowRoot).host;
+  return node.parentNode ?? null;
+}
+
 /**
  * Sube desde `start` (atravesando los shadow roots de Home Assistant) hasta
  * la primera rejilla con varias columnas resueltas en píxeles: en una vista
  * de secciones, la de la sección. Sin rejilla (masonry, panel, editor)
  * devuelve `undefined`.
  */
-export function findParentGrid(start: Node, readStyle: StyleReader = (element) => getComputedStyle(element)): GridInfo | undefined {
-  let node: Node | null = start.parentNode;
+export function findParentGrid(start: Node, readStyle: StyleReader = browserStyle): GridInfo | undefined {
+  let node = parentOf(start);
   for (let depth = 0; node && depth < MAX_DEPTH; depth++) {
-    if (node instanceof ShadowRoot) node = node.host;
-    if (node instanceof Element) {
-      const grid = parseGrid(readStyle(node));
+    if (node.nodeType === ELEMENT_NODE) {
+      const grid = parseGrid(readStyle(node as Element));
       if (grid) return grid;
     }
-    node = node.parentNode;
+    node = parentOf(node);
   }
   return undefined;
 }
