@@ -7,6 +7,7 @@ import { ActionPendingController, ERROR_ICON, NEON_HALO_STYLES, NEON_RING_SPLIT_
 import { DEFAULT_ICON, LIGHT_GRID } from './constants';
 import { renderEffectsView } from './effects-view';
 import { carouselWindow, nextStart, visibleItemCount } from './footer-carousel';
+import { columnsInGrid, findParentGrid } from './grid-columns';
 import { renderFooterButtons, renderFooterShell, renderFooterSlider } from './footer-view';
 import { lightColorCss } from './light-color';
 import { renderLightIcon } from './light-icon';
@@ -60,6 +61,9 @@ export class NeonLightCard extends BaseNeonCard {
   private _preview?: { control: FooterControl; value: number };
   /** Primer icono visible del carrusel del pie (la flecha lo avanza de uno en uno). */
   private _start = 0;
+  /** Columnas (de 12) que ocupa la tarjeta en la rejilla de Home Assistant; se recalcula solo cuando cambia su ancho. */
+  private _columns?: number;
+  private _columnsWidth = -1;
   private _lastStateObj?: HassEntityState;
   private _gesture: GestureState = createGestureState();
   /** Id estable por instancia para el degradado del aro SVG (varias tarjetas en el mismo dashboard). */
@@ -211,7 +215,7 @@ export class NeonLightCard extends BaseNeonCard {
   }
 
   private _renderButtons(items: FooterItem[]): TemplateResult {
-    const count = visibleItemCount(items.length, this._ring.size.width);
+    const count = visibleItemCount(items.length, this._ring.size.width, this._columns);
     const carousel = count < items.length;
     return renderFooterButtons(carousel ? carouselWindow(items, this._start % items.length, count) : items, {
       label: (item) => this._t(ITEM_LABEL_KEYS[item]),
@@ -238,6 +242,14 @@ export class NeonLightCard extends BaseNeonCard {
         this._effects = false;
       },
     });
+  }
+
+  /** Mide las columnas que ocupa la tarjeta solo cuando cambia su ancho: leer estilos en cada actualización de `hass` saldría caro. */
+  private _updateColumns(): void {
+    const width = this._ring.size.width;
+    if (width === this._columnsWidth) return;
+    this._columnsWidth = width;
+    this._columns = columnsInGrid(findParentGrid(this), width);
   }
 
   private _fill(): number {
@@ -291,6 +303,7 @@ export class NeonLightCard extends BaseNeonCard {
    */
   protected willUpdate(changed: PropertyValues): void {
     super.willUpdate(changed);
+    this._updateColumns();
     const stateObj = this._stateObj;
     if (stateObj !== this._lastStateObj) {
       this._lastStateObj = stateObj;

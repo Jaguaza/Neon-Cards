@@ -1,22 +1,50 @@
 import { describe, expect, it } from 'vitest';
 import { carouselWindow, nextStart, visibleItemCount } from './footer-carousel';
 
-describe('cuántos iconos caben en el pie', () => {
-  it('a 12 columnas (~620 px) caben los cuatro, a 9 (~460 px) tres y a 6 (~310 px) dos', () => {
+describe('iconos visibles por columnas de la rejilla', () => {
+  it('12 columnas: los cuatro; 9: tres; 6: dos', () => {
+    expect(visibleItemCount(4, 500, 12)).toBe(4);
+    expect(visibleItemCount(4, 400, 9)).toBe(3);
+    expect(visibleItemCount(4, 260, 6)).toBe(2);
+  });
+
+  it('entre medias: 10 y 11 columnas tres, 7 y 8 dos, de 4 a 5 uno', () => {
+    expect([11, 10].map((columns) => visibleItemCount(4, 400, columns))).toEqual([3, 3]);
+    expect([8, 7].map((columns) => visibleItemCount(4, 300, columns))).toEqual([2, 2]);
+    expect([5, 4].map((columns) => visibleItemCount(4, 200, columns))).toEqual([1, 1]);
+  });
+
+  it('con menos opciones caben antes: tres opciones a 9 columnas, y dos a 6, se ven todas', () => {
+    expect(visibleItemCount(3, 400, 9)).toBe(3);
+    expect(visibleItemCount(2, 260, 6)).toBe(2);
+    expect(visibleItemCount(3, 260, 6)).toBe(2);
+  });
+
+  it('las columnas mandan sobre el ancho en píxeles', () => {
+    expect(visibleItemCount(4, 900, 6)).toBe(2);
+    expect(visibleItemCount(4, 150, 12)).toBe(4);
+  });
+});
+
+describe('respaldo por píxeles (sin rejilla de secciones)', () => {
+  it('caben todos, o los que quepan junto a la flecha', () => {
     expect(visibleItemCount(4, 622)).toBe(4);
-    expect(visibleItemCount(4, 464)).toBe(3);
-    expect(visibleItemCount(4, 307)).toBe(2);
-  });
-
-  it('en una tarjeta muy estrecha queda al menos uno, y nunca todos si no caben', () => {
+    expect(visibleItemCount(4, 400)).toBe(3);
+    expect(visibleItemCount(4, 300)).toBe(2);
     expect(visibleItemCount(4, 202)).toBe(1);
-    expect(visibleItemCount(4, 60)).toBe(1);
-    expect(visibleItemCount(3, 464)).toBe(3);
   });
 
-  it('sin medida todavía, o con un solo icono, no hay carrusel', () => {
+  it('nunca todos si no caben, y al menos uno', () => {
+    expect(visibleItemCount(4, 60)).toBe(1);
+    expect(visibleItemCount(3, 400)).toBe(3);
+  });
+});
+
+describe('sin medida o con un solo icono no hay carrusel', () => {
+  it('ancho 0 (aún sin medir) o un icono', () => {
     expect(visibleItemCount(4, 0)).toBe(4);
-    expect(visibleItemCount(1, 100)).toBe(1);
+    expect(visibleItemCount(4, 0, 6)).toBe(4);
+    expect(visibleItemCount(1, 100, 4)).toBe(1);
     expect(visibleItemCount(0, 300)).toBe(0);
   });
 });

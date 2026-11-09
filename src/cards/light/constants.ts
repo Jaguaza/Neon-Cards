@@ -43,13 +43,21 @@ export const FOOTER_ICONS = {
 } as const;
 
 /**
- * Medidas del pie para decidir cuántos iconos caben a la vez; el resto se
- * alcanza con la flecha del carrusel. El mínimo por icono está calibrado con
- * la rejilla de Home Assistant para que la tarjeta muestre los cuatro a 12
- * columnas (~620 px), tres a 9 (~460 px) y dos a 6 (~310 px).
+ * Cuántos iconos del pie caben a la vez, por columnas de la rejilla de Home
+ * Assistant: una por cada 3 columnas que ocupa la tarjeta (12 columnas = 4
+ * iconos, 9 = 3, 6 = 2, de 4 a 5 = 1). El resto se alcanza con la flecha del
+ * carrusel.
  */
-export const FOOTER_MIN_ITEM_WIDTH = 104;
+export const GRID_UNITS = 12;
+export const COLUMNS_PER_ICON = 3;
+
+/**
+ * Respaldo por píxeles cuando la tarjeta no está en una rejilla de secciones
+ * (vista masonry, panel, vista previa del editor): ancho mínimo por icono,
+ * separación, ancho de la flecha y relleno horizontal de la tarjeta (2 × 20 px
+ * más su borde).
+ */
+export const FOOTER_MIN_ITEM_WIDTH = 96;
 export const FOOTER_GAP = 8;
 export const FOOTER_ARROW_WIDTH = 32;
-/** Relleno horizontal de la tarjeta (2 × 20 px) más su borde: lo que no es ancho útil del pie. */
 export const CARD_PADDING_X = 42;
