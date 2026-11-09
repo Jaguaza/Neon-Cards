@@ -6,6 +6,7 @@ import type { GestureState } from '../../core';
 import { ActionPendingController, ERROR_ICON, NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, RingSizeController, neonHaloVars, neonRingSplitTemplate, resolveGradientColors } from '../../shared';
 import { DEFAULT_ICON, LIGHT_GRID } from './constants';
 import { renderEffectsView } from './effects-view';
+import { carouselWindow, nextStart, visibleItemCount } from './footer-carousel';
 import { renderFooterButtons, renderFooterShell, renderFooterSlider } from './footer-view';
 import { lightColorCss } from './light-color';
 import { renderLightIcon } from './light-icon';
@@ -47,6 +48,7 @@ export class NeonLightCard extends BaseNeonCard {
     _open: { state: true },
     _effects: { state: true },
     _preview: { state: true },
+    _start: { state: true },
   };
 
   private _config?: NeonLightCardConfig;
@@ -56,6 +58,8 @@ export class NeonLightCard extends BaseNeonCard {
   private _effects = false;
   /** Valor de la barra mientras se arrastra y hasta que la luz confirma el cambio. */
   private _preview?: { control: FooterControl; value: number };
+  /** Primer icono visible del carrusel del pie (la flecha lo avanza de uno en uno). */
+  private _start = 0;
   private _lastStateObj?: HassEntityState;
   private _gesture: GestureState = createGestureState();
   /** Id estable por instancia para el degradado del aro SVG (varias tarjetas en el mismo dashboard). */
@@ -192,14 +196,33 @@ export class NeonLightCard extends BaseNeonCard {
     );
   }
 
-  /** Pie: la fila de iconos o, con uno pulsado, su barra en el mismo hueco. Sin iconos (luz solo on/off) o con la luz rota, no hay pie. */
+  /**
+   * Pie: la fila de iconos o, con uno pulsado, su barra en el mismo hueco. Si
+   * no caben todos según el ancho de la tarjeta, se ven los que quepan y una
+   * flecha desliza el carrusel de uno en uno. Sin iconos (luz solo on/off) o
+   * con la luz rota, no hay pie.
+   */
   private _renderFooter(): TemplateResult | typeof nothing {
     if (this._broken) return nothing;
     const items = footerItems(this._stateObj?.attributes);
     if (!items.length) return nothing;
     const open = this._open && items.includes(this._open) ? this._open : undefined;
-    const content = open ? this._renderControl(open) : renderFooterButtons(items, { label: (item) => this._t(ITEM_LABEL_KEYS[item]), onSelect: (item) => this._select(item) });
-    return renderFooterShell(content);
+    return renderFooterShell(open ? this._renderControl(open) : this._renderButtons(items));
+  }
+
+  private _renderButtons(items: FooterItem[]): TemplateResult {
+    const count = visibleItemCount(items.length, this._ring.size.width);
+    const carousel = count < items.length;
+    return renderFooterButtons(carousel ? carouselWindow(items, this._start % items.length, count) : items, {
+      label: (item) => this._t(ITEM_LABEL_KEYS[item]),
+      onSelect: (item) => this._select(item),
+      onNext: carousel ? () => this._advance(items.length) : undefined,
+      nextLabel: this._t('control_next'),
+    });
+  }
+
+  private _advance(total: number): void {
+    this._start = nextStart(this._start % total, total);
   }
 
   private _renderEffects(): TemplateResult | typeof nothing {

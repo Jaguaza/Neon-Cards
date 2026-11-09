@@ -19,6 +19,7 @@ export interface LightTranslations {
   control_color_temp: string;
   control_color: string;
   control_effects: string;
+  control_next: string;
   control_close: string;
   effects_title: string;
 }

@@ -19,6 +19,7 @@ export const en: LightTranslations = {
   control_color_temp: 'Color temperature',
   control_color: 'Color',
   control_effects: 'Effects',
+  control_next: 'Next',
   control_close: 'Close',
   effects_title: 'Light effects',
 };

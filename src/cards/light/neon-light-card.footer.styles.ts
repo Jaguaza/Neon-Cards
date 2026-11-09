@@ -57,6 +57,10 @@ export const NEON_LIGHT_FOOTER_STYLES = css`
     flex: 0 0 28px;
     max-width: 28px;
   }
+  .foot-btn--next {
+    flex: 0 0 32px;
+    max-width: 32px;
+  }
   .control-icon {
     --mdc-icon-size: 20px;
     flex: none;

@@ -65,7 +65,7 @@ export const lightColor = (el: Card) => root(el).querySelector<HTMLElement>('.li
 export const active = (el: Card) => card(el).classList.contains('neon-halo-active');
 export const errored = (el: Card) => card(el).classList.contains('neon-halo-error');
 export const click = (el: Card) => card(el).dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
-export const footerItems = (el: Card) => Array.from(root(el).querySelectorAll<HTMLElement>('.footer-buttons .foot-btn')).map((b) => b.dataset.item);
+export const footerItems = (el: Card) => Array.from(root(el).querySelectorAll<HTMLElement>('.footer-buttons .foot-btn[data-item]')).map((b) => b.dataset.item);
 export const footerButton = (el: Card, item: string) => root(el).querySelector<HTMLButtonElement>(`.foot-btn[data-item="${item}"]`)!;
 export const slider = (el: Card) => root(el).querySelector<HTMLInputElement>('.control .slider');
 export const closeButton = (el: Card) => root(el).querySelector<HTMLButtonElement>('.foot-btn[data-action="close"]')!;
@@ -77,4 +77,14 @@ export function dragSlider(input: HTMLInputElement, value: number): void {
   input.value = String(value);
   input.dispatchEvent(new Event('input', { bubbles: true }));
   input.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+export const nextButton = (el: Card) => root(el).querySelector<HTMLButtonElement>('.foot-btn[data-action="next"]');
+
+/** jsdom no calcula layout: se fija la medida que tendría la tarjeta (ver `RingSizeController`, que descarta lecturas de 0 px y la conserva). */
+export async function setCardWidth(el: Card, width: number): Promise<void> {
+  const ring = (el as unknown as { _ring: { size: { width: number; height: number; radius: number } } })._ring;
+  ring.size = { ...ring.size, width, height: 164 };
+  (el as unknown as { requestUpdate(): void }).requestUpdate();
+  await el.updateComplete;
 }

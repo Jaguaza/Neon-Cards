@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import { FOOTER_ICONS } from './constants';
 import type { FooterControl, FooterItem } from './types';
@@ -11,6 +11,9 @@ const readValue = (ev: Event): number => Number((ev.target as HTMLInputElement).
 export interface FooterButtonsContext {
   label: (item: FooterItem) => string;
   onSelect: (item: FooterItem) => void;
+  /** Si no caben todos los iconos, avanza el carrusel una posición; sin él no hay flecha. */
+  onNext?: () => void;
+  nextLabel: string;
 }
 
 export interface SliderSpec {
@@ -39,7 +42,7 @@ export function renderFooterShell(content: TemplateResult): TemplateResult {
   `;
 }
 
-/** Fila de iconos: brillo, temperatura, color y efectos, los que ofrezca la luz. */
+/** Fila de iconos: brillo, temperatura, color y efectos, los que ofrezca la luz y quepan; con `onNext`, la flecha del carrusel al final. */
 export function renderFooterButtons(items: FooterItem[], ctx: FooterButtonsContext): TemplateResult {
   return html`
     <div class="footer-buttons">
@@ -50,7 +53,16 @@ export function renderFooterButtons(items: FooterItem[], ctx: FooterButtonsConte
           </button>
         `
       )}
+      ${ctx.onNext ? renderNextButton(ctx.nextLabel, ctx.onNext) : nothing}
     </div>
+  `;
+}
+
+function renderNextButton(label: string, onNext: () => void): TemplateResult {
+  return html`
+    <button type="button" class="foot-btn foot-btn--next" data-action="next" aria-label=${label} title=${label} @click=${() => onNext()}>
+      <ha-icon icon=${FOOTER_ICONS.next}></ha-icon>
+    </button>
   `;
 }
 
