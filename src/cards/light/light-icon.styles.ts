@@ -1,11 +1,11 @@
 import { css } from 'lit';
 
 /**
- * Estilos del icono: solo el borde en blanco con el interior transparente
- * y, encima, el relleno que se enciende de abajo arriba, del color de la luz
- * (`--light-color`; sin él, `--neon-c1`). El resplandor va en un
- * envoltorio aparte del recorte: un `filter` y un `clip-path` en el mismo
- * elemento recortarían también el resplandor.
+ * Estilos del icono: el relleno que se enciende de abajo arriba, del color de
+ * la luz (`--light-color`; sin él, `--neon-c1`), y encima el borde en blanco
+ * con el interior transparente. El resplandor va en un envoltorio aparte del
+ * recorte: un `filter` y un `clip-path` en el mismo elemento recortarían
+ * también el resplandor.
  */
 export const LIGHT_ICON_STYLES = css`
   .light-icon {
@@ -19,14 +19,19 @@ export const LIGHT_ICON_STYLES = css`
     --mdc-icon-size: 40px;
     display: block;
   }
-  /* Capa de abajo: solo el contorno del icono. Home Assistant pinta el relleno
-     de sus iconos con currentcolor y no define trazo propio, y el trazo se
-     hereda: con color transparente el interior queda vacío y el trazo blanco
-     dibuja el borde, sea cual sea el icono. */
+  /* Capa de arriba: solo el contorno del icono, siempre visible, también
+     sobre el relleno. Home Assistant pinta el relleno de sus iconos con
+     currentcolor y no define trazo propio, y el trazo se hereda: con color
+     transparente el interior queda vacío y el trazo blanco dibuja el borde,
+     sea cual sea el icono. */
   .icon-base {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
     color: transparent;
     stroke: var(--primary-text-color, #fff);
-    stroke-width: 1;
+    stroke-width: 1.5;
     stroke-linejoin: round;
   }
   .icon-glow {
