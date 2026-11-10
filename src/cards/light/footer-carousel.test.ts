@@ -2,16 +2,20 @@ import { describe, expect, it } from 'vitest';
 import { carouselWindow, nextStart, visibleItemCount } from './footer-carousel';
 
 describe('iconos visibles por columnas de la rejilla', () => {
-  it('12 columnas: los cuatro; 9: tres; 6: dos', () => {
+  it('12 columnas: todas las opciones, sean las que sean; 9: tres; 6: dos', () => {
     expect(visibleItemCount(4, 500, 12)).toBe(4);
+    expect(visibleItemCount(5, 500, 12)).toBe(5);
+    expect(visibleItemCount(3, 500, 12)).toBe(3);
     expect(visibleItemCount(4, 400, 9)).toBe(3);
+    expect(visibleItemCount(5, 400, 9)).toBe(3);
     expect(visibleItemCount(4, 260, 6)).toBe(2);
+    expect(visibleItemCount(5, 260, 6)).toBe(2);
   });
 
   it('entre medias: 10 y 11 columnas tres, 7 y 8 dos, de 4 a 5 uno', () => {
-    expect([11, 10].map((columns) => visibleItemCount(4, 400, columns))).toEqual([3, 3]);
-    expect([8, 7].map((columns) => visibleItemCount(4, 300, columns))).toEqual([2, 2]);
-    expect([5, 4].map((columns) => visibleItemCount(4, 200, columns))).toEqual([1, 1]);
+    expect([11, 10].map((columns) => visibleItemCount(5, 400, columns))).toEqual([3, 3]);
+    expect([8, 7].map((columns) => visibleItemCount(5, 300, columns))).toEqual([2, 2]);
+    expect([5, 4].map((columns) => visibleItemCount(5, 200, columns))).toEqual([1, 1]);
   });
 
   it('con menos opciones caben antes: tres opciones a 9 columnas, y dos a 6, se ven todas', () => {

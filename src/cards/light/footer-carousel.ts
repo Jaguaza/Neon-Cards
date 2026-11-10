@@ -1,7 +1,12 @@
-import { CARD_PADDING_X, COLUMNS_PER_ICON, FOOTER_ARROW_WIDTH, FOOTER_GAP, FOOTER_MIN_ITEM_WIDTH } from './constants';
+import { CARD_PADDING_X, COLUMNS_PER_ICON, FOOTER_ARROW_WIDTH, FOOTER_GAP, FOOTER_MIN_ITEM_WIDTH, GRID_UNITS } from './constants';
 
-/** Por columnas de la rejilla: un icono por cada `COLUMNS_PER_ICON` columnas, como mínimo uno y menos que el total si no caben. */
+/**
+ * Por columnas de la rejilla: a todo el ancho (12 columnas) se ven todas las
+ * opciones; por debajo, un icono por cada `COLUMNS_PER_ICON` columnas, como
+ * mínimo uno y menos que el total si no caben.
+ */
 function visibleByColumns(total: number, columns: number): number {
+  if (columns >= GRID_UNITS) return total;
   const count = Math.max(1, Math.floor(columns / COLUMNS_PER_ICON));
   return count >= total ? total : count;
 }

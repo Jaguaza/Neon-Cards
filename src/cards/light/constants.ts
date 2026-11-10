@@ -54,9 +54,9 @@ export const FOOTER_ICONS = {
 
 /**
  * Cuántos iconos del pie caben a la vez, por columnas de la rejilla de Home
- * Assistant: una por cada 3 columnas que ocupa la tarjeta (12 columnas = 4
- * iconos, 9 = 3, 6 = 2, de 4 a 5 = 1). El resto se alcanza con la flecha del
- * carrusel.
+ * Assistant: a 12 columnas (todo el ancho) todas las opciones y, por debajo,
+ * uno por cada 3 columnas que ocupa la tarjeta (9 = 3 iconos, 6 = 2, de 4 a
+ * 5 = 1). El resto se alcanza con la flecha del carrusel.
  */
 export const GRID_UNITS = 12;
 export const COLUMNS_PER_ICON = 3;

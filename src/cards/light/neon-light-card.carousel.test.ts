@@ -122,12 +122,25 @@ describe('carrusel del pie según las columnas de la tarjeta', () => {
     expect(nextButton(el)!.getAttribute('aria-label')).toBe('Next');
   });
 
-  it('con favoritos hay cinco opciones: a 12 columnas se ven cuatro y la flecha, y la flecha pasa por los favoritos', async () => {
+  it('con favoritos hay cinco opciones: a 12 columnas se ven todas y no hay flecha', async () => {
     const el = await mountInGrid(12, undefined, { favorite_colors: ['#ff0000', '#00ff00'] });
-    expect(footerItems(el)).toEqual(['brightness', 'color_temp', 'color', 'favorites']);
-    expect(nextButton(el)).not.toBeNull();
+    expect(footerItems(el)).toEqual(['brightness', 'color_temp', 'color', 'favorites', 'effects']);
+    expect(nextButton(el)).toBeNull();
+  });
+
+  it('con favoritos, a 9 columnas se ven tres y la flecha pasa por los favoritos y los efectos', async () => {
+    const el = await mountInGrid(9, undefined, { favorite_colors: ['#ff0000', '#00ff00'] });
+    expect(footerItems(el)).toEqual(['brightness', 'color_temp', 'color']);
     nextButton(el)!.click();
     await el.updateComplete;
-    expect(footerItems(el)).toEqual(['color_temp', 'color', 'favorites', 'effects']);
+    nextButton(el)!.click();
+    await el.updateComplete;
+    expect(footerItems(el)).toEqual(['color', 'favorites', 'effects']);
+  });
+
+  it('con favoritos, a 6 columnas se ven dos', async () => {
+    const el = await mountInGrid(6, undefined, { favorite_colors: ['#ff0000'] });
+    expect(footerItems(el)).toEqual(['brightness', 'color_temp']);
+    expect(nextButton(el)).not.toBeNull();
   });
 });
