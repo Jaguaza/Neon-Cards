@@ -6,9 +6,13 @@ import { INFO_OPTIONS, actionConfigFor, getInfoLabels, localize } from '../../co
 import type { ActionKey } from '../../core';
 import { NEON_EDITOR_FORM_STYLES, SHARED_TRANSLATIONS, renderHaloSection } from '../../shared';
 import type { SharedTranslations } from '../../shared';
+import { enabledOptions, nextFavoriteColor, renderFavoritesEditor, renderFooterOptions, toggleOption } from './footer-editor';
+import { parseFavorites } from './favorites';
+import { NEON_LIGHT_EDITOR_STYLES } from './neon-light-card-editor.styles';
+import { MAX_FAVORITES } from './constants';
 import { LIGHT_TRANSLATIONS } from './translations';
 import type { LightTranslations } from './translations';
-import type { NeonLightCardConfig } from './types';
+import type { FooterItem, NeonLightCardConfig } from './types';
 
 /** Editor visual de la Neón Light Card: entidad y textos, halo y acciones. */
 export class NeonLightCardEditor extends LitElement {
@@ -20,7 +24,7 @@ export class NeonLightCardEditor extends LitElement {
   hass?: HomeAssistant;
   private _config?: NeonLightCardConfig;
 
-  static styles = [NEON_EDITOR_FORM_STYLES];
+  static styles = [NEON_EDITOR_FORM_STYLES, NEON_LIGHT_EDITOR_STYLES];
 
   setConfig(config: NeonLightCardConfig): void {
     this._config = config;
@@ -48,7 +52,7 @@ export class NeonLightCardEditor extends LitElement {
     if (!this.hass || !this._config) return nothing;
     return html`
       <div class="editor-container">
-        ${this._renderMainSection()}
+        ${this._renderMainSection()} ${this._renderFooterSection()}
         ${renderHaloSection(this.hass, this._config, { section: this._t('section_halo'), palette: this._t('palette_label') }, (key, value) => this._configChanged(key, value))}
         ${this._renderActionsSection()}
       </div>
@@ -74,6 +78,39 @@ export class NeonLightCardEditor extends LitElement {
         <ha-icon-picker id="icon" .hass=${this.hass} .value=${config.icon || ''} label=${this._t('icon_label')} @value-changed=${(ev: ValueChangedEvent) => this._configChanged('icon', ev.detail.value)}></ha-icon-picker>
       </div>
     `;
+  }
+
+  private _renderFooterSection(): TemplateResult {
+    const names: Record<FooterItem, string> = {
+      brightness: this._t('control_brightness'),
+      color_temp: this._t('control_color_temp'),
+      color: this._t('control_color'),
+      favorites: this._t('control_favorites'),
+      effects: this._t('control_effects'),
+    };
+    const favorites = parseFavorites(this._config?.favorite_colors).map((favorite) => favorite.hex);
+    return html`
+      <div class="editor-section">
+        <div class="section-header">${this._t('section_footer')}</div>
+        ${renderFooterOptions(enabledOptions(this._config?.footer_options), { label: this._t('footer_options_label'), hint: this._t('footer_options_hint'), names }, (option, on) =>
+          this._configChanged('footer_options', toggleOption(enabledOptions(this._config?.footer_options), option, on))
+        )}
+        ${renderFavoritesEditor(
+          favorites,
+          { label: this._t('favorites_label'), hint: this._t('favorites_hint'), color: this._t('favorite_color'), add: this._t('favorite_add'), remove: this._t('favorite_remove') },
+          {
+            onChange: (index, hex) => this._setFavorites(favorites.map((current, i) => (i === index ? hex : current))),
+            onAdd: () => favorites.length < MAX_FAVORITES && this._setFavorites([...favorites, nextFavoriteColor(favorites)]),
+            onRemove: (index) => this._setFavorites(favorites.filter((_, i) => i !== index)),
+          }
+        )}
+      </div>
+    `;
+  }
+
+  /** Guarda los colores favoritos; sin ninguno, quita la clave. */
+  private _setFavorites(favorites: string[]): void {
+    this._configChanged('favorite_colors', favorites.length > 0 ? favorites : undefined);
   }
 
   private _renderSubtitleFields(config: NeonLightCardConfig): TemplateResult {

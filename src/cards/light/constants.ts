@@ -38,6 +38,9 @@ export const FOOTER_OPTIONS: readonly FooterItem[] = ['brightness', 'color_temp'
 /** Máximo de colores favoritos. */
 export const MAX_FAVORITES = 5;
 
+/** Colores con los que el editor propone cada favorito nuevo, por orden. */
+export const DEFAULT_FAVORITE_COLORS: readonly string[] = ['#ff3b30', '#ff9500', '#34c759', '#0a84ff', '#bf5af2'];
+
 /** Iconos `mdi` de los botones del pie. */
 export const FOOTER_ICONS = {
   brightness: 'mdi:brightness-6',

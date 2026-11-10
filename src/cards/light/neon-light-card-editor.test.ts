@@ -94,3 +94,104 @@ describe('NeonLightCardEditor', () => {
     expect(en.el.shadowRoot!.querySelector('.section-header')!.textContent).toBe('Main configuration');
   });
 });
+
+const options = (el: Editor) => Array.from(el.shadowRoot!.querySelectorAll('ha-checkbox[data-option]')) as unknown as Array<{ checked: boolean; dataset: { option: string }; textContent: string; dispatchEvent(e: Event): boolean }>;
+const toggle = (box: { checked: boolean; dispatchEvent(e: Event): boolean }, checked: boolean) => {
+  box.checked = checked;
+  box.dispatchEvent(new Event('change'));
+};
+const favoriteInputs = (el: Editor) => Array.from(el.shadowRoot!.querySelectorAll('input[data-favorite]')) as HTMLInputElement[];
+const add = (el: Editor) => el.shadowRoot!.querySelector('button[data-add]') as HTMLButtonElement;
+
+describe('opciones del pie en el editor', () => {
+  it('salen las cinco, todas marcadas por defecto, con su nombre', async () => {
+    const { el } = await mount({ entity: 'light.sala' });
+    expect(options(el).map((box) => box.dataset.option)).toEqual(['brightness', 'color_temp', 'color', 'favorites', 'effects']);
+    expect(options(el).every((box) => box.checked)).toBe(true);
+    expect(options(el).map((box) => box.textContent)).toEqual(['Brillo', 'Temperatura de color', 'Color', 'Favoritos', 'Efectos']);
+  });
+
+  it('desmarcar una guarda solo las demás, en el orden del pie', async () => {
+    const { el, last } = await mount({ entity: 'light.sala' });
+    toggle(options(el)[2], false);
+    expect(last().footer_options).toEqual(['brightness', 'color_temp', 'favorites', 'effects']);
+    await el.updateComplete;
+    expect(options(el).map((box) => box.checked)).toEqual([true, true, false, true, true]);
+  });
+
+  it('volver a marcarlas todas quita la clave', async () => {
+    const { el, last } = await mount({ entity: 'light.sala', footer_options: ['brightness'] });
+    expect(options(el).map((box) => box.checked)).toEqual([true, false, false, false, false]);
+    for (const index of [1, 2, 3, 4]) {
+      toggle(options(el)[index], true);
+      await el.updateComplete;
+    }
+    expect('footer_options' in last()).toBe(false);
+  });
+
+  it('se pueden desmarcar todas: una lista vacía, sin pie', async () => {
+    const { el, last } = await mount({ entity: 'light.sala', footer_options: ['effects'] });
+    toggle(options(el)[4], false);
+    expect(last().footer_options).toEqual([]);
+  });
+
+  it('los textos salen en el idioma de Home Assistant', async () => {
+    const { el } = await mount({ entity: 'light.sala' }, 'en');
+    expect(options(el).map((box) => box.textContent)).toEqual(['Brightness', 'Color temperature', 'Color', 'Favorites', 'Effects']);
+  });
+});
+
+describe('colores favoritos en el editor', () => {
+  it('sin favoritos no hay selectores y «Añadir color» está activo', async () => {
+    const { el } = await mount({ entity: 'light.sala' });
+    expect(favoriteInputs(el)).toHaveLength(0);
+    expect(add(el).disabled).toBe(false);
+    expect(add(el).textContent).toBe('Añadir color');
+  });
+
+  it('añadir propone colores distintos, en orden, y se guardan en hexadecimal', async () => {
+    const { el, last } = await mount({ entity: 'light.sala' });
+    add(el).click();
+    await el.updateComplete;
+    add(el).click();
+    await el.updateComplete;
+    expect(last().favorite_colors).toEqual(['#ff3b30', '#ff9500']);
+    expect(favoriteInputs(el).map((input) => input.value)).toEqual(['#ff3b30', '#ff9500']);
+  });
+
+  it('con cinco, «Añadir color» se desactiva', async () => {
+    const { el, last } = await mount({ entity: 'light.sala', favorite_colors: ['#111111', '#222222', '#333333', '#444444', '#555555'] });
+    expect(add(el).disabled).toBe(true);
+    add(el).click();
+    expect(last().favorite_colors).toEqual(['#111111', '#222222', '#333333', '#444444', '#555555']);
+  });
+
+  it('cambiar un color solo cambia ese', async () => {
+    const { el, last } = await mount({ entity: 'light.sala', favorite_colors: ['#ff0000', '#00ff00'] });
+    const input = favoriteInputs(el)[1];
+    input.value = '#123456';
+    input.dispatchEvent(new Event('input'));
+    expect(last().favorite_colors).toEqual(['#ff0000', '#123456']);
+  });
+
+  it('quitar uno lo borra; quitar el último quita la clave', async () => {
+    const { el, last } = await mount({ entity: 'light.sala', favorite_colors: ['#ff0000', '#00ff00'] });
+    (el.shadowRoot!.querySelector('button[data-remove="0"]') as HTMLButtonElement).click();
+    expect(last().favorite_colors).toEqual(['#00ff00']);
+    await el.updateComplete;
+    (el.shadowRoot!.querySelector('button[data-remove="0"]') as HTMLButtonElement).click();
+    expect('favorite_colors' in last()).toBe(false);
+  });
+
+  it('lo que no es un color en la config se descarta al editar', async () => {
+    const { el, last } = await mount({ entity: 'light.sala', favorite_colors: ['#ff0000', 'rojo'] });
+    expect(favoriteInputs(el)).toHaveLength(1);
+    add(el).click();
+    expect(last().favorite_colors).toEqual(['#ff0000', '#ff3b30']);
+  });
+
+  it('el texto accesible de cada selector lleva su número', async () => {
+    const { el } = await mount({ entity: 'light.sala', favorite_colors: ['#ff0000', '#00ff00'] });
+    expect(favoriteInputs(el).map((input) => input.getAttribute('aria-label'))).toEqual(['Color favorito 1', 'Color favorito 2']);
+  });
+});
