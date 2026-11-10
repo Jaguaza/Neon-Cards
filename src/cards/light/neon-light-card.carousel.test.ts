@@ -8,11 +8,11 @@ afterEach(() => {
 });
 
 /** Pone la tarjeta dentro de una rejilla de 12 columnas (36 px con 8 px de separación), como una sección de Home Assistant, y le da el ancho de `columns` columnas. */
-async function mountInGrid(columns: number, hass?: unknown) {
+async function mountInGrid(columns: number, hass?: unknown, config: Record<string, unknown> = {}) {
   vi.spyOn(window, 'getComputedStyle').mockImplementation(
     (element: Element) => ({ display: element.id === 'section' ? 'grid' : 'block', gridTemplateColumns: Array(12).fill('36px').join(' '), columnGap: '8px' }) as unknown as CSSStyleDeclaration
   );
-  const el = await mount({}, hass);
+  const el = await mount(config, hass);
   const section = document.createElement('div');
   section.id = 'section';
   document.body.appendChild(section);
@@ -120,5 +120,14 @@ describe('carrusel del pie según las columnas de la tarjeta', () => {
   it('la flecha tiene su texto accesible en el idioma de Home Assistant', async () => {
     const el = await mountInGrid(6, hassWith('on', { attributes: FULL_LIGHT, language: 'en' }));
     expect(nextButton(el)!.getAttribute('aria-label')).toBe('Next');
+  });
+
+  it('con favoritos hay cinco opciones: a 12 columnas se ven cuatro y la flecha, y la flecha pasa por los favoritos', async () => {
+    const el = await mountInGrid(12, undefined, { favorite_colors: ['#ff0000', '#00ff00'] });
+    expect(footerItems(el)).toEqual(['brightness', 'color_temp', 'color', 'favorites']);
+    expect(nextButton(el)).not.toBeNull();
+    nextButton(el)!.click();
+    await el.updateComplete;
+    expect(footerItems(el)).toEqual(['color_temp', 'color', 'favorites', 'effects']);
   });
 });

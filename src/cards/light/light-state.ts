@@ -1,5 +1,5 @@
 import type { HassEntityState, HomeAssistant } from '../../ha/types';
-import { COLOR_MODES, CONTROL_ORDER, DEFAULT_KELVIN, DEFAULT_SATURATION, MIN_FILL_PERCENT, MIN_PICK_SATURATION } from './constants';
+import { COLOR_MODES, CONTROL_ORDER, DEFAULT_KELVIN, DEFAULT_SATURATION, FOOTER_OPTIONS, MIN_FILL_PERCENT, MIN_PICK_SATURATION } from './constants';
 import type { FooterControl, FooterItem, GroupCount, NeonLightCardConfig } from './types';
 
 type Attributes = HassEntityState['attributes'] | undefined;
@@ -132,10 +132,17 @@ export function groupCount(stateObj: HassEntityState | undefined, hass: HomeAssi
   return { on: ids.filter((id) => hass.states[id]?.state === 'on').length, total: ids.length };
 }
 
-/** Iconos del pie: los controles que ofrece la luz y, si declara efectos, el de efectos al final. */
-export function footerItems(attributes: Attributes): FooterItem[] {
-  const controls: FooterItem[] = availableControls(attributes);
-  return effectList(attributes).length > 0 ? [...controls, 'effects'] : controls;
+/**
+ * Iconos del pie, en su orden fijo: los controles que ofrece la luz, los
+ * favoritos (solo si hay alguno y la luz admite color) y los efectos (si los
+ * declara). `enabled` son las opciones que el usuario quiere (`footer_options`);
+ * sin él, todas.
+ */
+export function footerItems(attributes: Attributes, enabled?: readonly string[], hasFavorites = false): FooterItem[] {
+  const available = new Set<FooterItem>(availableControls(attributes));
+  if (hasFavorites && supportsColor(attributes)) available.add('favorites');
+  if (effectList(attributes).length > 0) available.add('effects');
+  return FOOTER_OPTIONS.filter((item) => available.has(item) && (!Array.isArray(enabled) || enabled.includes(item)));
 }
 
 export interface ControlRange {

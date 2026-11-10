@@ -1,4 +1,4 @@
-import type { FooterControl } from './types';
+import type { FooterControl, FooterItem } from './types';
 
 /** Icono cuando no hay `icon:` ni la entidad trae uno. */
 export const DEFAULT_ICON = 'mdi:lightbulb';
@@ -32,11 +32,18 @@ export const MIN_PICK_SATURATION = 50;
 /** Orden de los controles en el pie. */
 export const CONTROL_ORDER: readonly FooterControl[] = ['brightness', 'color_temp', 'color'];
 
+/** Todas las opciones del pie, en su orden fijo. */
+export const FOOTER_OPTIONS: readonly FooterItem[] = ['brightness', 'color_temp', 'color', 'favorites', 'effects'];
+
+/** Máximo de colores favoritos. */
+export const MAX_FAVORITES = 5;
+
 /** Iconos `mdi` de los botones del pie. */
 export const FOOTER_ICONS = {
   brightness: 'mdi:brightness-6',
   color_temp: 'mdi:white-balance-sunny',
   color: 'mdi:palette',
+  favorites: 'mdi:star',
   effects: 'mdi:auto-fix',
   close: 'mdi:close',
   next: 'mdi:chevron-right',

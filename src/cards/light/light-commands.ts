@@ -18,6 +18,9 @@ export const colorCommand = (entity: string, hue: number, saturation: number): L
   hs_color: [clamp(Math.round(hue), 0, 360), clamp(Math.round(saturation), 0, 100)],
 });
 
+/** Un color favorito, en RGB: `rgb_color` vale para cualquier modo de color, Home Assistant lo convierte. */
+export const favoriteCommand = (entity: string, rgb: readonly [number, number, number]): LightCommand => ({ entity_id: entity, rgb_color: [...rgb] });
+
 export const effectCommand = (entity: string, effect: string): LightCommand => ({ entity_id: entity, effect });
 
 export function sendLightCommand(hass: HomeAssistant, command: LightCommand): Promise<void> {

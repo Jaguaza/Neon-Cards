@@ -8,11 +8,13 @@ import { DEFAULT_ICON, LIGHT_GRID } from './constants';
 import { renderEffectsView } from './effects-view';
 import { carouselWindow, nextStart, visibleItemCount } from './footer-carousel';
 import { columnsInGrid, findParentGrid } from './grid-columns';
-import { renderFooterButtons, renderFooterShell, renderFooterSlider } from './footer-view';
+import { renderFooterButtons, renderFooterFavorites, renderFooterShell, renderFooterSlider } from './footer-view';
+import { isFavoriteActive, parseFavorites } from './favorites';
+import type { FavoriteColor } from './favorites';
 import { lightColorCss } from './light-color';
 import { renderLightIcon } from './light-icon';
 import { LIGHT_ICON_STYLES } from './light-icon.styles';
-import { controlCommand, effectCommand, sendLightCommand } from './light-commands';
+import { controlCommand, effectCommand, favoriteCommand, sendLightCommand } from './light-commands';
 import type { LightCommand } from './light-commands';
 import { controlRange, currentEffect, effectList, fillPercent, footerItems, groupCount, isLightBroken, isLightOn } from './light-state';
 import { lightStateText } from './light-text';
@@ -28,6 +30,7 @@ const ITEM_LABEL_KEYS: Record<FooterItem, keyof LightTranslations> = {
   brightness: 'control_brightness',
   color_temp: 'control_color_temp',
   color: 'control_color',
+  favorites: 'control_favorites',
   effects: 'control_effects',
 };
 
@@ -50,11 +53,12 @@ export class NeonLightCard extends BaseNeonCard {
     _effects: { state: true },
     _preview: { state: true },
     _start: { state: true },
+    _favoriteColor: { state: true },
   };
 
   private _config?: NeonLightCardConfig;
-  /** Control del pie cuya barra está abierta. */
-  private _open?: FooterControl;
+  /** Opción del pie abierta: la barra de un control o las muestras de los favoritos. */
+  private _open?: FooterControl | 'favorites';
   /** Vista flotante de efectos abierta. */
   private _effects = false;
   /** Valor de la barra mientras se arrastra y hasta que la luz confirma el cambio. */
@@ -64,6 +68,10 @@ export class NeonLightCard extends BaseNeonCard {
   /** Columnas (de 12) que ocupa la tarjeta en la rejilla de Home Assistant; se recalcula solo cuando cambia su ancho. */
   private _columns?: number;
   private _columnsWidth = -1;
+  /** Colores favoritos de la configuración (como mucho 5, ya validados). */
+  private _favorites: FavoriteColor[] = [];
+  /** Color del último favorito pulsado, para teñir el icono hasta que la luz confirme. */
+  private _favoriteColor?: string;
   private _lastStateObj?: HassEntityState;
   private _gesture: GestureState = createGestureState();
   /** Id estable por instancia para el degradado del aro SVG (varias tarjetas en el mismo dashboard). */
@@ -99,6 +107,7 @@ export class NeonLightCard extends BaseNeonCard {
     // Sin lanzar error si falta la entidad: la vista previa del selector de
     // tarjetas y el editor llaman a setConfig con configs incompletas.
     this._config = config;
+    this._favorites = parseFavorites(config.favorite_colors);
     // Solo en modo desarrollo (acuerdo nº22).
     if (__DEV__) {
       if (!config.entity) console.warn('[neon-light-card] falta `entity:` — la tarjeta se muestra como "No disponible".');
@@ -181,6 +190,14 @@ export class NeonLightCard extends BaseNeonCard {
     else this._open = item;
   }
 
+  /** Un toque en un favorito: la luz toma ese color (y se enciende si estaba apagada); el icono se tiñe ya. */
+  private _pickFavorite(favorite: FavoriteColor): void {
+    const entity = this._config?.entity;
+    if (!entity) return;
+    this._favoriteColor = favorite.hex;
+    void this._send(favoriteCommand(entity, favorite.rgb));
+  }
+
   private _renderControl(control: FooterControl): TemplateResult {
     const range = controlRange(control, this._stateObj?.attributes);
     const value = this._preview?.control === control ? this._preview.value : range.value;
@@ -208,10 +225,30 @@ export class NeonLightCard extends BaseNeonCard {
    */
   private _renderFooter(): TemplateResult | typeof nothing {
     if (this._broken) return nothing;
-    const items = footerItems(this._stateObj?.attributes);
+    const items = footerItems(this._stateObj?.attributes, this._config?.footer_options, this._favorites.length > 0);
     if (!items.length) return nothing;
     const open = this._open && items.includes(this._open) ? this._open : undefined;
-    return renderFooterShell(open ? this._renderControl(open) : this._renderButtons(items));
+    return renderFooterShell(open ? this._renderOpen(open) : this._renderButtons(items));
+  }
+
+  private _renderOpen(open: FooterControl | 'favorites'): TemplateResult {
+    return open === 'favorites' ? this._renderFavorites() : this._renderControl(open);
+  }
+
+  private _renderFavorites(): TemplateResult {
+    const attributes = this._stateObj?.attributes;
+    const on = isLightOn(this._config, this.hass);
+    return renderFooterFavorites(
+      this._favorites.map((favorite) => ({ ...favorite, active: on && isFavoriteActive(favorite, attributes) })),
+      {
+        swatchLabel: this._t('favorite_color'),
+        closeLabel: this._t('control_close'),
+        onPick: (favorite) => this._pickFavorite(favorite),
+        onClose: () => {
+          this._open = undefined;
+        },
+      }
+    );
   }
 
   private _renderButtons(items: FooterItem[]): TemplateResult {
@@ -259,7 +296,8 @@ export class NeonLightCard extends BaseNeonCard {
 
   /** Color del icono: el de la luz (o el que arrastras en la barra); sin color, la paleta neón. */
   private _iconColor(): string | undefined {
-    return this._broken ? undefined : lightColorCss(this._stateObj?.attributes, this._preview);
+    if (this._broken) return undefined;
+    return this._favoriteColor ?? lightColorCss(this._stateObj?.attributes, this._preview);
   }
 
   private _haloClasses(): string {
@@ -309,6 +347,7 @@ export class NeonLightCard extends BaseNeonCard {
       this._lastStateObj = stateObj;
       this._pending.clear();
       this._preview = undefined;
+      this._favoriteColor = undefined;
     }
     if (this._broken) {
       this._open = undefined;

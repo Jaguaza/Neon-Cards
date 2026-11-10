@@ -74,6 +74,34 @@ export const NEON_LIGHT_FOOTER_STYLES = css`
     color: var(--primary-text-color);
     font-variant-numeric: tabular-nums;
   }
+  .swatches {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 6px;
+  }
+  .swatch {
+    flex: 0 1 26px;
+    min-width: 12px;
+    max-height: 26px;
+    aspect-ratio: 1;
+    box-sizing: border-box;
+    padding: 0;
+    border-radius: 50%;
+    border: 2px solid color-mix(in srgb, var(--primary-text-color) 60%, transparent);
+    cursor: pointer;
+  }
+  /* El color que tiene ahora la luz: un aro neón alrededor de la muestra. */
+  .swatch--on {
+    border-color: var(--primary-text-color);
+    box-shadow: 0 0 0 2px var(--neon-c1);
+  }
+  .swatch:focus-visible {
+    outline: 2px solid var(--primary-text-color);
+    outline-offset: 2px;
+  }
   .slider {
     flex: 1 1 auto;
     min-width: 40px;

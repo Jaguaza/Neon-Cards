@@ -1,6 +1,7 @@
 import { html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import { FOOTER_ICONS } from './constants';
+import type { FavoriteColor } from './favorites';
 import type { FooterControl, FooterItem } from './types';
 
 /** El pie recoge sus propios gestos: sin cortarlos, un toque en un icono o en la barra llegaría al `ha-card` como pulsación de la tarjeta. */
@@ -23,6 +24,19 @@ export interface SliderSpec {
   max: number;
   value: number;
   unit: string;
+}
+
+/** Un color favorito con la marca de si es el color que tiene ahora la luz. */
+export interface FavoriteSwatch extends FavoriteColor {
+  active: boolean;
+}
+
+export interface FavoritesContext {
+  /** Texto accesible de cada muestra, antes del hexadecimal. */
+  swatchLabel: string;
+  closeLabel: string;
+  onPick: (favorite: FavoriteColor) => void;
+  onClose: () => void;
 }
 
 export interface SliderContext {
@@ -83,6 +97,34 @@ export function renderFooterSlider(spec: SliderSpec, ctx: SliderContext): Templa
         @change=${(ev: Event) => ctx.onCommit(readValue(ev))}
       />
       <span class="control-value">${spec.value}${spec.unit}</span>
+      <button type="button" class="foot-btn foot-btn--close" data-action="close" aria-label=${ctx.closeLabel} title=${ctx.closeLabel} @click=${() => ctx.onClose()}>
+        <ha-icon icon=${FOOTER_ICONS.close}></ha-icon>
+      </button>
+    </div>
+  `;
+}
+
+/** Los colores favoritos en el sitio de los iconos: icono de estrella, una muestra por color (un toque y la luz lo toma) y cerrar. */
+export function renderFooterFavorites(swatches: FavoriteSwatch[], ctx: FavoritesContext): TemplateResult {
+  return html`
+    <div class="control" data-control="favorites">
+      <ha-icon class="control-icon" icon=${FOOTER_ICONS.favorites}></ha-icon>
+      <div class="swatches">
+        ${swatches.map(
+          (swatch) => html`
+            <button
+              type="button"
+              class="swatch ${swatch.active ? 'swatch--on' : ''}"
+              data-color=${swatch.hex}
+              style=${`background: ${swatch.hex}`}
+              aria-label=${`${ctx.swatchLabel} ${swatch.hex}`}
+              title=${swatch.hex}
+              aria-pressed=${swatch.active ? 'true' : 'false'}
+              @click=${() => ctx.onPick(swatch)}
+            ></button>
+          `
+        )}
+      </div>
       <button type="button" class="foot-btn foot-btn--close" data-action="close" aria-label=${ctx.closeLabel} title=${ctx.closeLabel} @click=${() => ctx.onClose()}>
         <ha-icon icon=${FOOTER_ICONS.close}></ha-icon>
       </button>

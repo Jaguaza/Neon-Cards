@@ -19,6 +19,15 @@ export interface LightTranslations {
   control_color_temp: string;
   control_color: string;
   control_effects: string;
+  control_favorites: string;
+  favorite_color: string;
+  section_footer: string;
+  footer_options_label: string;
+  footer_options_hint: string;
+  favorites_label: string;
+  favorites_hint: string;
+  favorite_add: string;
+  favorite_remove: string;
   control_next: string;
   control_close: string;
   effects_title: string;

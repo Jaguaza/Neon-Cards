@@ -4,8 +4,11 @@ import type { InfoOption } from '../../core';
 /** Controles que el pie despliega como barra: brillo, temperatura de color y color. */
 export type FooterControl = 'brightness' | 'color_temp' | 'color';
 
-/** Iconos del pie: los tres controles y la lista de efectos (que abre una vista flotante). */
-export type FooterItem = FooterControl | 'effects';
+/**
+ * Iconos del pie: los tres controles, los colores favoritos (que ocupan el
+ * pie con sus muestras) y la lista de efectos (que abre una vista flotante).
+ */
+export type FooterItem = FooterControl | 'favorites' | 'effects';
 
 /** Recuento de un grupo de luces: cuántas de sus luces están encendidas y cuántas tiene. */
 export interface GroupCount {
@@ -32,6 +35,13 @@ export interface NeonLightCardConfig {
   neon_color1?: string;
   neon_color2?: string;
   neon_color3?: string;
+  /** Hasta 5 colores favoritos en hexadecimal (`#rrggbb`); salen con el icono de favoritos del pie. */
+  favorite_colors?: string[];
+  /**
+   * Opciones que muestra el pie (las que la luz soporte). Sin esta clave, todas;
+   * con ella, solo las indicadas, en el orden fijo del pie.
+   */
+  footer_options?: FooterItem[];
   tap_action?: ActionConfig;
   hold_action?: ActionConfig;
   double_tap_action?: ActionConfig;

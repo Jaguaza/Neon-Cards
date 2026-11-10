@@ -88,3 +88,6 @@ export async function setCardWidth(el: Card, width: number): Promise<void> {
   (el as unknown as { requestUpdate(): void }).requestUpdate();
   await el.updateComplete;
 }
+
+export const swatches = (el: Card) => Array.from(root(el).querySelectorAll<HTMLButtonElement>('.control[data-control="favorites"] .swatch'));
+export const swatch = (el: Card, hex: string) => root(el).querySelector<HTMLButtonElement>(`.swatch[data-color="${hex}"]`)!;
