@@ -2,6 +2,9 @@ import type { LightTranslations } from './types';
 
 export const es: LightTranslations = {
   section_main: 'Configuración principal',
+  size_label: 'Tamaño',
+  size_large: 'Grande - Mediana',
+  size_compact: 'Compacta - Mediana',
   entity_label: 'Entidad (luz)',
   name_label: 'Nombre',
   subtitle_label: 'Subtítulo',

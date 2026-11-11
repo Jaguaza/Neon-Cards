@@ -9,10 +9,14 @@ import type { SharedTranslations } from '../../shared';
 import { enabledOptions, nextFavoriteColor, renderFavoritesEditor, renderFooterOptions, toggleOption } from './footer-editor';
 import { parseFavorites } from './favorites';
 import { NEON_LIGHT_EDITOR_STYLES } from './neon-light-card-editor.styles';
-import { MAX_FAVORITES } from './constants';
+import { LIGHT_SIZES, MAX_FAVORITES } from './constants';
+import { resolveLightSize } from './light-state';
 import { LIGHT_TRANSLATIONS } from './translations';
 import type { LightTranslations } from './translations';
-import type { FooterItem, NeonLightCardConfig } from './types';
+import type { FooterItem, LightSize, NeonLightCardConfig } from './types';
+
+/** Texto de cada tamaño en el selector. */
+const SIZE_LABEL_KEYS: Record<LightSize, keyof LightTranslations> = { large: 'size_large', compact: 'size_compact' };
 
 /** Editor visual de la Neón Light Card: entidad y textos, halo y acciones. */
 export class NeonLightCardEditor extends LitElement {
@@ -64,6 +68,7 @@ export class NeonLightCardEditor extends LitElement {
     return html`
       <div class="editor-section">
         <div class="section-header">${this._t('section_main')}</div>
+        ${this._renderSizeField(config)}
         <ha-entity-picker
           .hass=${this.hass}
           .value=${config.entity || ''}
@@ -80,7 +85,27 @@ export class NeonLightCardEditor extends LitElement {
     `;
   }
 
-  private _renderFooterSection(): TemplateResult {
+  private _renderSizeField(config: NeonLightCardConfig): TemplateResult {
+    const size = resolveLightSize(config);
+    return html`
+      <label class="native-select-label" for="size">${this._t('size_label')}</label>
+      <select
+        id="size"
+        class="native-select"
+        .value=${size}
+        @change=${(ev: Event) => {
+          const value = (ev.target as HTMLSelectElement).value;
+          if (value && value !== size) this._configChanged('size', value === 'large' ? undefined : value);
+        }}
+      >
+        ${LIGHT_SIZES.map((option) => html`<option value=${option} ?selected=${option === size}>${this._t(SIZE_LABEL_KEYS[option])}</option>`)}
+      </select>
+    `;
+  }
+
+  /** Sección del pie; con la compacta no hay pie, así que no sale (sus valores se conservan en la config por si se vuelve a la grande). */
+  private _renderFooterSection(): TemplateResult | typeof nothing {
+    if (resolveLightSize(this._config) === 'compact') return nothing;
     const names: Record<FooterItem, string> = {
       brightness: this._t('control_brightness'),
       color_temp: this._t('control_color_temp'),

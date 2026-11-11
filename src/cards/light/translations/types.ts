@@ -1,6 +1,9 @@
 /** Textos de la Light Card: editor, estado y pie. Los de paleta y acciones están en `src/shared`. */
 export interface LightTranslations {
   section_main: string;
+  size_label: string;
+  size_large: string;
+  size_compact: string;
   entity_label: string;
   name_label: string;
   subtitle_label: string;

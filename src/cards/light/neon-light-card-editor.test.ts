@@ -195,3 +195,59 @@ describe('colores favoritos en el editor', () => {
     expect(favoriteInputs(el).map((input) => input.getAttribute('aria-label'))).toEqual(['Color favorito 1', 'Color favorito 2']);
   });
 });
+
+describe('tamaño de la tarjeta en el editor', () => {
+  const sizeSelect = (el: Editor) => q(el, '#size') as HTMLSelectElement;
+  const hasFooterSection = (el: Editor) => el.shadowRoot!.querySelector('ha-checkbox[data-option]') !== null || el.shadowRoot!.querySelector('button[data-add]') !== null;
+
+  it('ofrece Grande - Mediana (predeterminada) y Compacta - Mediana, en el idioma de Home Assistant', async () => {
+    const es = await mount({ entity: 'light.sala' });
+    expect(sizeSelect(es.el).value).toBe('large');
+    expect(Array.from(sizeSelect(es.el).options).map((o) => [o.value, o.textContent])).toEqual([
+      ['large', 'Grande - Mediana'],
+      ['compact', 'Compacta - Mediana'],
+    ]);
+    document.body.innerHTML = '';
+    const en = await mount({ entity: 'light.sala' }, 'en');
+    expect(Array.from(sizeSelect(en.el).options).map((o) => o.textContent)).toEqual(['Large - Medium', 'Compact - Medium']);
+  });
+
+  it('elegir la compacta guarda size; volver a la grande quita la clave', async () => {
+    const { el, last } = await mount({ entity: 'light.sala' });
+    change(sizeSelect(el), 'compact');
+    expect(last().size).toBe('compact');
+    await el.updateComplete;
+    change(sizeSelect(el), 'large');
+    expect('size' in last()).toBe(false);
+  });
+
+  it('con la compacta no sale la sección del pie (ni opciones ni favoritos), y con la grande sí', async () => {
+    const { el } = await mount({ entity: 'light.sala' });
+    expect(hasFooterSection(el)).toBe(true);
+    change(sizeSelect(el), 'compact');
+    await el.updateComplete;
+    expect(hasFooterSection(el)).toBe(false);
+    expect(el.shadowRoot!.textContent).not.toContain('Pie de la tarjeta');
+    change(sizeSelect(el), 'large');
+    await el.updateComplete;
+    expect(hasFooterSection(el)).toBe(true);
+  });
+
+  it('las opciones del pie y los favoritos ya guardados se conservan al pasar por la compacta', async () => {
+    const { el, last } = await mount({ entity: 'light.sala', footer_options: ['brightness', 'color'], favorite_colors: ['#ff0000', '#00ff00'] });
+    change(sizeSelect(el), 'compact');
+    expect(last().footer_options).toEqual(['brightness', 'color']);
+    expect(last().favorite_colors).toEqual(['#ff0000', '#00ff00']);
+    await el.updateComplete;
+    change(sizeSelect(el), 'large');
+    await el.updateComplete;
+    expect(options(el).map((box) => box.checked)).toEqual([true, false, true, false, false]);
+    expect(favoriteInputs(el)).toHaveLength(2);
+  });
+
+  it('abrir un editor con una config compacta ya hecha no enseña el pie', async () => {
+    const { el } = await mount({ entity: 'light.sala', size: 'compact' });
+    expect(sizeSelect(el).value).toBe('compact');
+    expect(hasFooterSection(el)).toBe(false);
+  });
+});
