@@ -7,14 +7,21 @@ export const DEFAULT_ICON = 'mdi:lightbulb';
 export const LIGHT_SIZES: readonly LightSize[] = ['large', 'compact'];
 export const DEFAULT_LIGHT_SIZE: LightSize = 'large';
 
+/** Columnas del grid de Home Assistant con las que empieza una tarjeta y entre qué valores se puede ajustar a mano. */
+export interface LightGrid {
+  columns: number;
+  min_columns: number;
+  max_columns?: number;
+}
+
 /**
- * Columnas del grid de Home Assistant (12 por sección) con las que empieza
- * cada tamaño y mínimo al que se puede reducir a mano; el alto es automático.
- * La grande empieza a todo el ancho; la compacta, a la mitad.
+ * Columnas del grid de Home Assistant (12 por sección) de cada tamaño; el alto
+ * es automático. La grande empieza a todo el ancho y se puede reducir hasta 4.
+ * La compacta empieza a 6 y solo se puede ajustar entre 6 y 3.
  */
-export const LIGHT_GRID: Record<LightSize, { columns: number; min_columns: number }> = {
+export const LIGHT_GRID: Record<LightSize, LightGrid> = {
   large: { columns: 12, min_columns: 4 },
-  compact: { columns: 6, min_columns: 3 },
+  compact: { columns: 6, min_columns: 3, max_columns: 6 },
 };
 
 /** Alto mínimo (%) del llenado del icono con la luz encendida, para que se vea aunque el brillo sea muy bajo. */

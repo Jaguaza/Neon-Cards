@@ -61,8 +61,8 @@ describe('tarjeta compacta («Compacta - Mediana»)', () => {
     expect(subtitle(broken)).toBe('No disponible');
   });
 
-  it('empieza a 6 columnas, se puede reducir hasta 3 y tiene alto automático; la grande no cambia', async () => {
-    expect(gridOptions(await mount(compact()))).toEqual({ rows: 'auto', columns: 6, min_columns: 3 });
+  it('empieza a 6 columnas y solo se puede ajustar entre 6 y 3, con alto automático; la grande no cambia', async () => {
+    expect(gridOptions(await mount(compact()))).toEqual({ rows: 'auto', columns: 6, min_columns: 3, max_columns: 6 });
     document.body.innerHTML = '';
     expect(gridOptions(await mount({}))).toEqual({ rows: 'auto', columns: 12, min_columns: 4 });
     document.body.innerHTML = '';

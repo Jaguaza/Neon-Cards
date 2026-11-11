@@ -5,6 +5,7 @@ import { BaseNeonCard, TOGGLE_ACTION_DEFAULTS, cancelHold, computeInfoDisplay, c
 import type { GestureState } from '../../core';
 import { ActionPendingController, ERROR_ICON, NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, RingSizeController, neonHaloVars, neonRingSplitTemplate, resolveGradientColors } from '../../shared';
 import { DEFAULT_ICON, LIGHT_GRID } from './constants';
+import type { LightGrid } from './constants';
 import { renderEffectsView } from './effects-view';
 import { carouselWindow, nextStart, visibleItemCount } from './footer-carousel';
 import { columnsInGrid, findParentGrid } from './grid-columns';
@@ -120,8 +121,8 @@ export class NeonLightCard extends BaseNeonCard {
     return this._size === 'compact' ? 1 : 3;
   }
 
-  /** Columnas de inicio y mínimo según el tamaño; el alto es automático. */
-  getGridOptions(): { rows: 'auto'; columns: number; min_columns: number } {
+  /** Columnas de inicio, mínimo y (en la compacta) máximo según el tamaño; el alto es automático. */
+  getGridOptions(): { rows: 'auto' } & LightGrid {
     return { rows: 'auto', ...LIGHT_GRID[this._size] };
   }
 
