@@ -1,10 +1,16 @@
 import type { HassEntityState, HomeAssistant } from '../../ha/types';
-import { COLOR_MODES, CONTROL_ORDER, DEFAULT_KELVIN, DEFAULT_SATURATION, FOOTER_OPTIONS, MIN_FILL_PERCENT, MIN_PICK_SATURATION } from './constants';
-import type { FooterControl, FooterItem, GroupCount, NeonLightCardConfig } from './types';
+import { COLOR_MODES, CONTROL_ORDER, DEFAULT_KELVIN, DEFAULT_LIGHT_SIZE, DEFAULT_SATURATION, FOOTER_OPTIONS, LIGHT_SIZES, MIN_FILL_PERCENT, MIN_PICK_SATURATION } from './constants';
+import type { FooterControl, FooterItem, GroupCount, LightSize, NeonLightCardConfig } from './types';
 
 type Attributes = HassEntityState['attributes'] | undefined;
 
 const isNumber = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
+
+/** Tamaño de la tarjeta: `compact` si se pide; cualquier otro valor (o ninguno) cuenta como el predeterminado. */
+export function resolveLightSize(config: NeonLightCardConfig | undefined): LightSize {
+  const size = config?.size;
+  return size && LIGHT_SIZES.includes(size) ? size : DEFAULT_LIGHT_SIZE;
+}
 
 export function lightStateObj(config: NeonLightCardConfig | undefined, hass: HomeAssistant | undefined): HassEntityState | undefined {
   return config?.entity ? hass?.states[config.entity] : undefined;

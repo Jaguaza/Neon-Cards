@@ -1,14 +1,21 @@
-import type { FooterControl, FooterItem } from './types';
+import type { FooterControl, FooterItem, LightSize } from './types';
 
 /** Icono cuando no hay `icon:` ni la entidad trae uno. */
 export const DEFAULT_ICON = 'mdi:lightbulb';
 
+/** Tamaños de la tarjeta, el predeterminado y el nombre de cada uno en el editor. */
+export const LIGHT_SIZES: readonly LightSize[] = ['large', 'compact'];
+export const DEFAULT_LIGHT_SIZE: LightSize = 'large';
+
 /**
- * Columnas del grid de Home Assistant con las que empieza la tarjeta grande
- * (todo el ancho de la sección) y mínimo al que se puede reducir a mano; el
- * alto es automático.
+ * Columnas del grid de Home Assistant (12 por sección) con las que empieza
+ * cada tamaño y mínimo al que se puede reducir a mano; el alto es automático.
+ * La grande empieza a todo el ancho; la compacta, a la mitad.
  */
-export const LIGHT_GRID = { columns: 12, min_columns: 4 } as const;
+export const LIGHT_GRID: Record<LightSize, { columns: number; min_columns: number }> = {
+  large: { columns: 12, min_columns: 4 },
+  compact: { columns: 6, min_columns: 3 },
+};
 
 /** Alto mínimo (%) del llenado del icono con la luz encendida, para que se vea aunque el brillo sea muy bajo. */
 export const MIN_FILL_PERCENT = 6;

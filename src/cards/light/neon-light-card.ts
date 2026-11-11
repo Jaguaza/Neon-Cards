@@ -16,14 +16,15 @@ import { renderLightIcon } from './light-icon';
 import { LIGHT_ICON_STYLES } from './light-icon.styles';
 import { controlCommand, effectCommand, favoriteCommand, sendLightCommand } from './light-commands';
 import type { LightCommand } from './light-commands';
-import { controlRange, currentEffect, effectList, fillPercent, footerItems, groupCount, isLightBroken, isLightOn } from './light-state';
+import { controlRange, currentEffect, effectList, fillPercent, footerItems, groupCount, isLightBroken, isLightOn, resolveLightSize } from './light-state';
 import { lightStateText } from './light-text';
 import { NEON_LIGHT_FOOTER_STYLES } from './neon-light-card.footer.styles';
+import { NEON_LIGHT_SIZE_STYLES } from './neon-light-card.size.styles';
 import { NEON_LIGHT_CARD_STYLES } from './neon-light-card.styles';
 import { NEON_LIGHT_VIEWS_STYLES } from './neon-light-card.views.styles';
 import { LIGHT_TRANSLATIONS } from './translations';
 import type { LightTranslations } from './translations';
-import type { FooterControl, FooterItem, NeonLightCardConfig } from './types';
+import type { FooterControl, FooterItem, LightSize, NeonLightCardConfig } from './types';
 
 /** Texto accesible de cada icono del pie. */
 const ITEM_LABEL_KEYS: Record<FooterItem, keyof LightTranslations> = {
@@ -80,7 +81,7 @@ export class NeonLightCard extends BaseNeonCard {
   /** Espera del cambio de estado tras mandar una orden a una luz apagada (ver `ACTION_PENDING_MS`). */
   private readonly _pending = new ActionPendingController(this);
 
-  static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, LIGHT_ICON_STYLES, NEON_LIGHT_CARD_STYLES, NEON_LIGHT_FOOTER_STYLES, NEON_LIGHT_VIEWS_STYLES];
+  static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, LIGHT_ICON_STYLES, NEON_LIGHT_CARD_STYLES, NEON_LIGHT_FOOTER_STYLES, NEON_LIGHT_VIEWS_STYLES, NEON_LIGHT_SIZE_STYLES];
 
   static getConfigElement(): HTMLElement {
     return document.createElement('neon-light-card-editor');
@@ -116,12 +117,16 @@ export class NeonLightCard extends BaseNeonCard {
   }
 
   getCardSize(): number {
-    return 3;
+    return this._size === 'compact' ? 1 : 3;
   }
 
-  /** Columnas de inicio y mínimo; el alto es automático. */
+  /** Columnas de inicio y mínimo según el tamaño; el alto es automático. */
   getGridOptions(): { rows: 'auto'; columns: number; min_columns: number } {
-    return { rows: 'auto', ...LIGHT_GRID };
+    return { rows: 'auto', ...LIGHT_GRID[this._size] };
+  }
+
+  private get _size(): LightSize {
+    return resolveLightSize(this._config);
   }
 
   private get _stateObj(): HassEntityState | undefined {
@@ -224,7 +229,7 @@ export class NeonLightCard extends BaseNeonCard {
    * con la luz rota, no hay pie.
    */
   private _renderFooter(): TemplateResult | typeof nothing {
-    if (this._broken) return nothing;
+    if (this._broken || this._size === 'compact') return nothing;
     const items = footerItems(this._stateObj?.attributes, this._config?.footer_options, this._favorites.length > 0);
     if (!items.length) return nothing;
     const open = this._open && items.includes(this._open) ? this._open : undefined;
@@ -267,7 +272,7 @@ export class NeonLightCard extends BaseNeonCard {
   }
 
   private _renderEffects(): TemplateResult | typeof nothing {
-    if (!this._effects || this._broken) return nothing;
+    if (!this._effects || this._broken || this._size === 'compact') return nothing;
     const attributes = this._stateObj?.attributes;
     return renderEffectsView({
       title: this._t('effects_title'),
@@ -307,12 +312,12 @@ export class NeonLightCard extends BaseNeonCard {
 
   protected render(): TemplateResult | typeof nothing {
     if (!this._config) return nothing;
-    const viewing = this._effects && !this._broken;
+    const viewing = this._effects && !this._broken && this._size !== 'compact';
     const subtitle = this._subtitle();
     const hasDoubleTap = !!this._config.double_tap_action && this._config.double_tap_action.action !== 'none';
     return html`
       <ha-card
-        class="neon-ring-host ${this._haloClasses()}"
+        class="neon-ring-host size-${this._size} ${this._haloClasses()}"
         style=${neonHaloVars(resolveGradientColors(this._config))}
         @pointerdown=${(ev: PointerEvent) => handlePointerDown(this._gesture, ev, '.-none-', () => this._handleAction('hold'))}
         @pointerup=${() => cancelHold(this._gesture)}
@@ -349,7 +354,7 @@ export class NeonLightCard extends BaseNeonCard {
       this._preview = undefined;
       this._favoriteColor = undefined;
     }
-    if (this._broken) {
+    if (this._broken || this._size === 'compact') {
       this._open = undefined;
       this._effects = false;
     }

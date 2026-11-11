@@ -1,6 +1,13 @@
 import type { ActionConfig } from '../../ha/types';
 import type { InfoOption } from '../../core';
 
+/**
+ * Tamaños de la tarjeta: `large` («Grande - Mediana», con pie de opciones, la
+ * predeterminada, para que las tarjetas ya creadas no cambien) y `compact`
+ * («Compacta - Mediana»: solo icono, nombre y subtítulo, sin pie).
+ */
+export type LightSize = 'large' | 'compact';
+
 /** Controles que el pie despliega como barra: brillo, temperatura de color y color. */
 export type FooterControl = 'brightness' | 'color_temp' | 'color';
 
@@ -20,6 +27,8 @@ export interface NeonLightCardConfig {
   type?: string;
   /** Entidad del dominio `light` (también vale un grupo de luces). */
   entity?: string;
+  /** Tamaño de la tarjeta; sin él, `large`. */
+  size?: LightSize;
   name?: string;
   /** Icono propio; si no se indica, el de la entidad y, si no, `DEFAULT_ICON`. */
   icon?: string;
