@@ -24,6 +24,13 @@ describe('iconos visibles por columnas de la rejilla', () => {
     expect(visibleItemCount(3, 260, 6)).toBe(2);
   });
 
+  it('en una sección ensanchada (más de 12 columnas) también: 24 y 12 columnas todas, 8 dos, 4 uno', () => {
+    expect([24, 12].map((columns) => visibleItemCount(5, 900, columns))).toEqual([5, 5]);
+    expect(visibleItemCount(5, 430, 8)).toBe(2);
+    expect(visibleItemCount(5, 320, 6)).toBe(2);
+    expect(visibleItemCount(5, 210, 4)).toBe(1);
+  });
+
   it('las columnas mandan sobre el ancho en píxeles', () => {
     expect(visibleItemCount(4, 900, 6)).toBe(2);
     expect(visibleItemCount(4, 150, 12)).toBe(4);

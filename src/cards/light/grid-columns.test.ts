@@ -83,3 +83,28 @@ describe('búsqueda de la rejilla', () => {
     expect(findParentGrid(leaf, () => ({ display: 'grid', gridTemplateColumns: '50px 50px', columnGap: 'normal' }))?.gap).toBe(0);
   });
 });
+
+describe('secciones ensanchadas (24, 36... columnas)', () => {
+  // Sección a doble ancho: 24 columnas de 44 px con 11,5 px de separación (como en la rejilla de Home Assistant al ensanchar la sección).
+  const wide = { tracks: 24, trackWidth: 44, gap: 11.5 };
+  const widthOf = (columns: number) => columns * 44 + (columns - 1) * 11.5;
+
+  it('la tarjeta ocupa las columnas que dice Home Assistant, sin reescalarlas a 12', () => {
+    expect(columnsInGrid(wide, widthOf(4))).toBe(4);
+    expect(columnsInGrid(wide, widthOf(6))).toBe(6);
+    expect(columnsInGrid(wide, widthOf(8))).toBe(8);
+    expect(columnsInGrid(wide, widthOf(12))).toBe(12);
+    expect(columnsInGrid(wide, widthOf(24))).toBe(24);
+  });
+
+  it('con tres secciones de ancho (36 columnas) pasa lo mismo', () => {
+    const triple = { tracks: 36, trackWidth: 30, gap: 8 };
+    expect(columnsInGrid(triple, 9 * 30 + 8 * 8)).toBe(9);
+    expect(columnsInGrid(triple, 36 * 30 + 35 * 8)).toBe(36);
+  });
+
+  it('una rejilla cuyo número de columnas no es múltiplo de 12 sigue normalizándose a 12', () => {
+    expect(columnsInGrid({ tracks: 5, trackWidth: 100, gap: 10 }, 100)).toBe(2);
+    expect(columnsInGrid({ tracks: 24, trackWidth: 44, gap: 11.5 }, widthOf(24))).toBe(24);
+  });
+});

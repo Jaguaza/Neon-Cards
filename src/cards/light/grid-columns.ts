@@ -51,12 +51,17 @@ export function findParentGrid(start: Node, readStyle: StyleReader = browserStyl
 }
 
 /**
- * Columnas (de 12) que ocupa una tarjeta de `cardWidth` px en esa rejilla:
- * 12 es todo el ancho de la sección, aunque la rejilla tenga otro número de
- * columnas. `undefined` si no se puede calcular.
+ * Columnas que ocupa una tarjeta de `cardWidth` px en esa rejilla. Las
+ * secciones de Home Assistant tienen 12 columnas por cada sección de ancho
+ * que ocupan (12, 24, 36...): ahí la tarjeta ocupa tal cual las columnas que
+ * cuenta Home Assistant en sus opciones de rejilla (en una sección ensanchada,
+ * 8 columnas son 8 y no 4). Cualquier otra rejilla (la tarjeta `grid`, por
+ * ejemplo) se normaliza a 12, que es todo su ancho. `undefined` si no se puede
+ * calcular.
  */
 export function columnsInGrid(grid: GridInfo | undefined, cardWidth: number): number | undefined {
   if (!grid || cardWidth <= 0 || grid.trackWidth + grid.gap <= 0) return undefined;
-  const span = Math.round((cardWidth + grid.gap) / (grid.trackWidth + grid.gap));
+  const span = Math.max(1, Math.round((cardWidth + grid.gap) / (grid.trackWidth + grid.gap)));
+  if (grid.tracks % GRID_UNITS === 0) return span;
   return Math.max(1, Math.min(GRID_UNITS, Math.round((span * GRID_UNITS) / grid.tracks)));
 }
