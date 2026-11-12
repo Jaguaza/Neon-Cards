@@ -98,11 +98,24 @@ export const NEON_RING_SPLIT_STYLES = css`
        no genera ese artefacto. */
     stroke-dasharray: 50;
     stroke-dashoffset: 50;
+    /* En reposo el trazo queda con su extremo justo donde empieza el trazo
+       visible (esquina inferior); con escalado de pantalla alto (2x) el
+       redondeo deja ahí unos píxeles sueltos, que el resplandor hace
+       visibles. Por eso se oculta del todo: opacity pasa a 0 cuando acaba de
+       retirarse (retardo de 900 ms = lo que dura el trazo) y a 1 al instante
+       al encender. */
+    opacity: 0;
     filter: drop-shadow(0 0 4px color-mix(in srgb, var(--neon-c2) 65%, transparent));
-    transition: stroke-dashoffset 900ms ease-in-out;
+    transition:
+      stroke-dashoffset 900ms ease-in-out,
+      opacity 0s linear 900ms;
   }
   .neon-ring-host.neon-halo-active .neon-ring-path {
     stroke-dashoffset: 0;
+    opacity: 1;
+    transition:
+      stroke-dashoffset 900ms ease-in-out,
+      opacity 0s;
   }
 `;
 

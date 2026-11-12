@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { neonRingSplitPaths } from './glow';
+import { NEON_RING_SPLIT_STYLES, neonRingSplitPaths } from './glow';
 
 /** Extrae el punto "M x y" inicial de un `d` de SVG. */
 function startPoint(d: string): [number, number] {
@@ -40,5 +40,29 @@ describe('neonRingSplitPaths', () => {
 
   it('no produce un radio negativo con dimensiones degeneradas', () => {
     expect(() => neonRingSplitPaths(0, 0, 12, 1)).not.toThrow();
+  });
+});
+
+describe('NEON_RING_SPLIT_STYLES: trazo oculto en reposo', () => {
+  const css = NEON_RING_SPLIT_STYLES.cssText.replace(/\s+/g, ' ');
+  const rule = (selector: string): string => {
+    const match = css.match(new RegExp(`${selector.replace(/[.]/g, '\\.')} \\{([^}]*)\\}`));
+    if (!match) throw new Error(`Sin regla para ${selector}`);
+    return match[1];
+  };
+
+  it('en reposo el trazo no se pinta (opacity 0), para no dejar píxeles sueltos a escalas altas', () => {
+    expect(rule('.neon-ring-path')).toContain('opacity: 0');
+  });
+
+  it('al retirarse espera lo que dura el trazo (900 ms) antes de ocultarse', () => {
+    expect(rule('.neon-ring-path')).toContain('opacity 0s linear 900ms');
+  });
+
+  it('al encender se pinta al instante, a la vez que empieza a dibujarse', () => {
+    const active = rule('.neon-ring-host.neon-halo-active .neon-ring-path');
+    expect(active).toContain('opacity: 1');
+    expect(active).toContain('stroke-dashoffset: 0');
+    expect(active).toMatch(/opacity 0s(;|$)/);
   });
 });
