@@ -1,11 +1,10 @@
 import type { HomeAssistant } from '../../ha/types';
 import { pickSaturation } from './light-state';
+import { clamp } from './numbers';
 import type { FooterControl } from './types';
 
 /** Datos de una llamada a `light.turn_on`. */
 export type LightCommand = Record<string, unknown>;
-
-const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value));
 
 /** Brillo en porcentaje (1-100): `turn_on` también enciende la luz si estaba apagada. */
 export const brightnessCommand = (entity: string, percent: number): LightCommand => ({ entity_id: entity, brightness_pct: clamp(Math.round(percent), 1, 100) });

@@ -1,10 +1,9 @@
 import type { HassEntityState, HomeAssistant } from '../../ha/types';
 import { COLOR_MODES, CONTROL_ORDER, DEFAULT_KELVIN, DEFAULT_LIGHT_SIZE, DEFAULT_SATURATION, FOOTER_OPTIONS, LIGHT_SIZES, MIN_FILL_PERCENT, MIN_PICK_SATURATION } from './constants';
+import { clamp, isNumber } from './numbers';
 import type { FooterControl, FooterItem, GroupCount, LightSize, NeonLightCardConfig } from './types';
 
 type Attributes = HassEntityState['attributes'] | undefined;
-
-const isNumber = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
 
 /** Tamaño de la tarjeta: `compact` si se pide; cualquier otro valor (o ninguno) cuenta como el predeterminado. */
 export function resolveLightSize(config: NeonLightCardConfig | undefined): LightSize {
@@ -66,7 +65,7 @@ export function currentEffect(attributes: Attributes): string | undefined {
   return typeof effect === 'string' && effectList(attributes).includes(effect) ? effect : undefined;
 }
 
-const clampPercent = (value: number): number => Math.min(100, Math.max(1, value));
+const clampPercent = (value: number): number => clamp(value, 1, 100);
 
 /** Brillo (1-100) de la luz, o `undefined` si no lo informa. */
 export function brightnessPercent(attributes: Attributes): number | undefined {

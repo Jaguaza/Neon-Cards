@@ -1,4 +1,5 @@
 import { MAX_FAVORITES } from './constants';
+import { isNumber } from './numbers';
 
 export type Rgb = [number, number, number];
 
@@ -12,7 +13,6 @@ export interface FavoriteColor {
 const SAME_COLOR_TOLERANCE = 24;
 
 const HEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
-const isNumber = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
 
 /** `#rgb` o `#rrggbb` a color; cualquier otra cosa, `undefined`. */
 export function parseHex(value: unknown): FavoriteColor | undefined {

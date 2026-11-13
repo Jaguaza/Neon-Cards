@@ -1,4 +1,5 @@
 import { pickSaturation } from './light-state';
+import { clamp, isNumber } from './numbers';
 import type { FooterControl } from './types';
 
 type Attributes = Record<string, unknown> | undefined;
@@ -9,8 +10,7 @@ export interface ColorPreview {
   value: number;
 }
 
-const isNumber = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
-const clamp255 = (value: number): number => Math.min(255, Math.max(0, Math.round(value)));
+const clamp255 = (value: number): number => clamp(Math.round(value), 0, 255);
 
 export const rgbToCss = (red: number, green: number, blue: number): string => `rgb(${clamp255(red)}, ${clamp255(green)}, ${clamp255(blue)})`;
 
