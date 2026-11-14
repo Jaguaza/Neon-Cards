@@ -2,9 +2,9 @@ import { LitElement, html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import { EDITOR_ACTIONS } from '../../ha/types';
 import type { HomeAssistant, ValueChangedEvent } from '../../ha/types';
-import { CARD_SIZES, DEFAULT_CARD_SIZE, renderHaloSection, isCssColor, labeledControl, resolveCardSize, toHex6, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
+import { CARD_SIZES, DEFAULT_CARD_SIZE, isCssColor, labeledControl, NEON_EDITOR_FORM_STYLES, renderHaloSection, renderSubtitleField, resolveCardSize, SHARED_TRANSLATIONS, toHex6 } from '../../shared';
 import type { SharedTranslations } from '../../shared';
-import { actionConfigFor, getInfoLabels, localize } from '../../core';
+import { actionConfigFor, localize } from '../../core';
 import { FOOTER_MAX, SECURITY_SENSOR_TYPES, SENSOR_ACTIVE_COLOR_KEY, SENSOR_ACTIVE_DEFAULT, STATUS_COLOR_GROUPS, STATUS_COLOR_KEYS, STATUS_DOT_DEFAULTS } from './constants';
 import { allSensorsOfType, normalizeExcluded, normalizeFooterTypes } from './alarm-sensors';
 import type { SensorEntry } from './alarm-sensors';
@@ -97,27 +97,14 @@ export class NeonAlarmCardEditor extends LitElement {
 
   /** Subtítulo (solo en la tarjeta grande: la mediana y la compacta no lo llevan). */
   private _renderSubtitleFields(): TemplateResult {
-    const config = this._config!;
-    const current: AlarmSubtitleType = config.subtitle_type || 'none';
-    const labels = getInfoLabels(this.hass);
-    return html`
-      <label class="native-select-label" for="subtitle-type">${this._t('subtitle_label')}</label>
-      <select
-        id="subtitle-type"
-        class="native-select"
-        .value=${current}
-        @change=${(ev: Event) => {
-          const value = (ev.target as HTMLSelectElement).value;
-          if (!value || value === (this._config?.subtitle_type || 'none')) return;
-          this._configChanged('subtitle_type', value === 'none' ? undefined : value);
-        }}
-      >
-        ${SUBTITLE_TYPES.map((opt) => html`<option value=${opt} ?selected=${opt === current}>${opt === 'custom' ? this._t('subtitle_type_custom') : labels[opt as keyof typeof labels]}</option>`)}
-      </select>
-      ${current === 'custom'
-        ? html`<input id="subtitle" type="text" class="native-input" placeholder=${this._t('subtitle_placeholder')} .value=${config.subtitle || ''} @input=${(ev: InputEvent) => this._configChanged('subtitle', (ev.target as HTMLInputElement).value)} />`
-        : nothing}
-    `;
+    return renderSubtitleField({
+      hass: this.hass,
+      config: this._config!,
+      types: SUBTITLE_TYPES,
+      defaultType: 'none',
+      texts: { label: this._t('subtitle_label'), custom: this._t('subtitle_type_custom'), placeholder: this._t('subtitle_placeholder') },
+      onChange: (key, value) => this._configChanged(key, value),
+    });
   }
 
   /**

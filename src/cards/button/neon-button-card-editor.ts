@@ -2,9 +2,9 @@ import { LitElement, html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import { EDITOR_ACTIONS } from '../../ha/types';
 import type { HomeAssistant } from '../../ha/types';
-import { DEFAULT_PALETTE, getPaletteName, getPaletteCustomLabel, renderCustomColors, SHARED_TRANSLATIONS, NEON_EDITOR_FORM_STYLES } from '../../shared';
+import { DEFAULT_PALETTE, getPaletteCustomLabel, getPaletteName, NEON_EDITOR_FORM_STYLES, renderCustomColors, renderSubtitleField, SHARED_TRANSLATIONS } from '../../shared';
 import type { SharedTranslations } from '../../shared';
-import { INFO_OPTIONS, actionConfigFor, getInfoLabels, localize } from '../../core';
+import { actionConfigFor, localize } from '../../core';
 import { MAX_GROUPED_SENSORS } from './constants';
 import type { ValueChangedEvent } from '../../ha/types';
 import type { SensorItemConfig, NeonButtonCardConfig } from './types';
@@ -146,37 +146,12 @@ export class NeonButtonCardEditor extends LitElement {
   }
 
   private _renderSubtitleFields(config: NeonButtonCardConfig): TemplateResult {
-    const isCustom = (config.subtitle_type || 'custom') === 'custom';
-    return html`
-      <label class="native-select-label" for="subtitle-type">${this._t('subtitle_label')}</label>
-      <select
-        id="subtitle-type"
-        class="native-select"
-        .value=${config.subtitle_type || 'custom'}
-        @change=${(ev: Event) => {
-          const value = (ev.target as HTMLSelectElement).value;
-          if (!value || value === (this._config?.subtitle_type || 'custom')) return;
-          this._configChanged('subtitle_type', value === 'custom' ? undefined : value);
-        }}
-      >
-        <option value="custom" ?selected=${isCustom}>${this._t('subtitle_type_custom')}</option>
-        ${INFO_OPTIONS.filter((opt) => opt !== 'none').map(
-          (opt) => html`<option value=${opt} ?selected=${opt === config.subtitle_type}>${getInfoLabels(this.hass)[opt]}</option>`
-        )}
-      </select>
-      ${isCustom
-        ? html`
-            <input
-              id="subtitle"
-              type="text"
-              class="native-input"
-              placeholder=${this._t('subtitle_placeholder')}
-              .value=${config.subtitle || ''}
-              @input=${(ev: InputEvent) => this._configChanged('subtitle', (ev.target as HTMLInputElement).value)}
-            />
-          `
-        : html`<span class="native-select-label">${this._t('subtitle_computed_hint')}</span>`}
-    `;
+    return renderSubtitleField({
+      hass: this.hass,
+      config,
+      texts: { label: this._t('subtitle_label'), custom: this._t('subtitle_type_custom'), placeholder: this._t('subtitle_placeholder'), computedHint: this._t('subtitle_computed_hint') },
+      onChange: (key, value) => this._configChanged(key, value),
+    });
   }
 
   private _renderHaloSection(): TemplateResult {
