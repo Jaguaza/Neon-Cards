@@ -22,4 +22,6 @@ export { ERROR_ICON } from './error-icon';
 export { renderAlertDialog } from './alert-dialog';
 export { renderCustomColors, renderHaloSection } from './halo-section';
 export { hasFormfield, labeledControl } from './labeled-control';
+export { renderSubtitleField } from './subtitle-field';
+export type { SubtitleFieldConfig, SubtitleFieldParams, SubtitleFieldTexts } from './subtitle-field';
 export type { HaloChange, HaloConfig, HaloConfigKey, HaloSectionTexts } from './halo-section';

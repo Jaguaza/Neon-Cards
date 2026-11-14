@@ -1015,6 +1015,37 @@ Home Assistant 2026.11 eliminó `ha-formfield` (frontend #54200): `ha-checkbox` 
 
 ---
 
+### Subtítulo en los editores (`subtitle-field.ts`)
+
+El selector de subtítulo de los editores de la Button Card, la Lock Card, la Alarm Card y la Light Card. Antes estaba copiado, casi igual, en cada uno de los cuatro editores.
+
+#### `renderSubtitleField(params)`
+
+- **Descripción:** un desplegable con el tipo de subtítulo (personalizado o un dato de la entidad: nombre, estado, último cambio, última actualización) y, con «personalizado», el campo de texto libre. Elegir el tipo que ya estaba, o dejarlo vacío, no avisa. Elegir el tipo por defecto avisa con `undefined`, porque ese valor no se guarda en la configuración.
+- **Parámetros:** `params: SubtitleFieldParams`, con
+  - `hass: HomeAssistant | undefined` — para el idioma de los nombres de los datos de la entidad (`getInfoLabels`).
+  - `config: SubtitleFieldConfig` — lo que lee de la configuración: `subtitle_type` y `subtitle` (el texto libre).
+  - `texts: SubtitleFieldTexts` — `label` (etiqueta del selector), `custom` (texto de la opción «personalizado»), `placeholder` (ejemplo del campo de texto) y `computedHint` (opcional: si se da, sale bajo el selector cuando el tipo no es `custom`).
+  - `onChange: (key: 'subtitle_type' | 'subtitle', value: string | undefined) => void` — se llama con la clave y el valor nuevo.
+  - `types?: readonly string[]` — los tipos que ofrece, en orden. Por defecto `custom` y los datos de la entidad (`INFO_OPTIONS` sin `none`).
+  - `defaultType?: string` — el tipo de una tarjeta sin `subtitle_type`. Por defecto `custom`.
+- **Devuelve:** `TemplateResult`.
+- **Ejemplo:**
+  ```ts
+  // Button Card y Light Card: tipos y valor por defecto de serie.
+  return renderSubtitleField({
+    hass: this.hass,
+    config: this._config!,
+    texts: { label: this._t('subtitle_label'), custom: this._t('subtitle_type_custom'), placeholder: this._t('subtitle_placeholder'), computedHint: this._t('subtitle_computed_hint') },
+    onChange: (key, value) => this._configChanged(key, value),
+  });
+
+  // Lock Card y Alarm Card: sus tipos y «ninguno» por defecto.
+  return renderSubtitleField({ hass: this.hass, config: this._config!, types: SUBTITLE_TYPES, defaultType: 'none', texts, onChange });
+  ```
+
+---
+
 ### Identidad e icono de error (`card-identity.ts`, `error-icon.ts`)
 
 Lo usan las seis tarjetas: cada una importa de aquí en lugar de repetir las
