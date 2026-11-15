@@ -33,6 +33,11 @@ Una tarjeta:
   `alarm_control_panel` con escudo animado, halo neón según el estado,
   selección de modo, teclado de código y pie con sensores de seguridad. Tres
   tamaños. Ver [ejemplo](../../examples/README.md).
+- [`light`](./light) — `custom:neon-light-card`, tarjeta para entidades
+  `light` (también grupos) con un icono que se enciende de abajo arriba según
+  el brillo y con el color de la luz, halo neón y, en el tamaño grande, un pie
+  con brillo, temperatura de color, color, colores favoritos y efectos. Dos
+  tamaños. Ver [ejemplo](../../examples/README.md).
 
 ---
 
@@ -73,3 +78,8 @@ A card:
   `alarm_control_panel` entities with an animated shield, a neon halo that
   follows the state, mode selection, a code keypad and a footer with
   security sensors. Three sizes. See the [example](../../examples/README.md).
+- [`light`](./light) — `custom:neon-light-card`, a card for `light`
+  entities (groups too) with an icon that lights up from the bottom to the top
+  to the brightness and in the light's color, a neon halo and, in the large
+  size, a footer with brightness, color temperature, color, favorite colors and
+  effects. Two sizes. See the [example](../../examples/README.md).

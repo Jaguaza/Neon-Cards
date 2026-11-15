@@ -450,6 +450,83 @@ sin subtítulo y con los sensores como fichas, hasta tres, en una sola línea) o
 `compact` (compacta, sin pie). Los huecos de
 inicio de la rejilla son 12, 6 y 3 columnas, con alto automático.
 
+## Neón Light Card (`custom:neon-light-card`)
+
+### YAML mínimo
+
+```yaml
+type: custom:neon-light-card
+entity: light.salon
+```
+
+### YAML avanzado
+
+Luz del salón con subtítulo de estado, cinco colores favoritos y el pie completo (brillo, temperatura de color, color, favoritos y efectos):
+
+```yaml
+type: custom:neon-light-card
+entity: light.salon
+name: Salón
+size: large
+subtitle_type: state
+neon_palette: electric
+favorite_colors:
+  - "#ff3b30"
+  - "#ff9500"
+  - "#34c759"
+  - "#0a84ff"
+  - "#bf5af2"
+footer_options:
+  - brightness
+  - color_temp
+  - color
+  - favorites
+  - effects
+tap_action:
+  action: toggle
+hold_action:
+  action: more-info
+```
+
+Variante compacta, en una fila y sin pie (a 6 columnas, ajustable de 6 a 3):
+
+```yaml
+type: custom:neon-light-card
+entity: light.techo
+name: Techo
+size: compact
+subtitle_type: state
+neon_palette: cyberpunk
+```
+
+### Capturas
+
+Las capturas de esta tarjeta se añadirán antes de publicarla.
+
+### Video
+
+El vídeo de esta tarjeta se añadirá antes de publicarla.
+
+### Explicación
+
+Neón Light Card controla una entidad `light` (también un grupo de luces) con
+un icono, el que quieras, que se enciende de abajo arriba hasta el brillo de la
+luz y con su color real: apagada solo se ve su contorno, y la luz verde se ve
+verde y la azul, azul. El halo neón se enciende con la luz y usa siempre la
+paleta que elijas; no disponible se ve el halo rojo. Con `subtitle_type: state`
+el subtítulo dice «Encendida · 70%» o «Apagada» y, en un grupo, cuántas luces
+hay encendidas. En el tamaño grande, el pie (`footer_options`) tiene un icono
+por función que soporta la luz: brillo, temperatura de color, color, favoritos
+(hasta cinco colores en `favorite_colors`, un toque y la luz toma ese color) y
+efectos. Al pulsar un icono, su barra aparece en el propio pie, sin que la
+tarjeta cambie de alto, y la orden se manda al soltar; con la luz apagada, usar
+una barra la enciende. Cuántos iconos se ven a la vez depende de las columnas
+que ocupa la tarjeta: 12 muestran todos, 9 tres, 6 dos y de 4 a 5 uno, con una
+flecha que desliza el resto de uno en uno. Con `size: compact` la tarjeta es
+una fila con el icono, el nombre y el subtítulo, sin pie, y se ajusta de 6 a 3
+columnas; con la grande, empieza a 12 y se reduce hasta 4. Los huecos de inicio
+de la rejilla son 12 y 6 columnas, con alto automático.
+
 ---
 
 <a id="examples-english"></a>
@@ -901,3 +978,80 @@ chosen with `size`: `large` (large, up to four sensor types), `medium`
 (medium, no subtitle and with the sensors as chips, up to three, in a single line)
 or `compact` (compact, no footer). The
 starting grid slots are 12, 6 and 3 columns, with automatic height.
+
+## Neón Light Card (`custom:neon-light-card`)
+
+### Minimal YAML
+
+```yaml
+type: custom:neon-light-card
+entity: light.living_room
+```
+
+### Advanced YAML
+
+Living room light with a state subtitle, five favorite colors and the full footer (brightness, color temperature, color, favorites and effects):
+
+```yaml
+type: custom:neon-light-card
+entity: light.living_room
+name: Living room
+size: large
+subtitle_type: state
+neon_palette: electric
+favorite_colors:
+  - "#ff3b30"
+  - "#ff9500"
+  - "#34c759"
+  - "#0a84ff"
+  - "#bf5af2"
+footer_options:
+  - brightness
+  - color_temp
+  - color
+  - favorites
+  - effects
+tap_action:
+  action: toggle
+hold_action:
+  action: more-info
+```
+
+Compact variant, in a single row and without a footer (at 6 columns, adjustable from 6 to 3):
+
+```yaml
+type: custom:neon-light-card
+entity: light.ceiling
+name: Ceiling
+size: compact
+subtitle_type: state
+neon_palette: cyberpunk
+```
+
+### Screenshots
+
+The screenshots of this card will be added before it is published.
+
+### Video
+
+The video of this card will be added before it is published.
+
+### Explanation
+
+Neón Light Card controls a `light` entity (also a light group) with an icon,
+any you like, that lights up from the bottom to the top to the light's
+brightness and in its real color: off, only its outline shows, and a green
+light looks green and a blue one blue. The neon halo lights up with the light
+and always uses the palette you choose; unavailable shows the red halo. With
+`subtitle_type: state` the subtitle says "On · 70%" or "Off" and, in a group,
+how many lights are on. In the large size, the footer (`footer_options`) has
+one icon per function the light supports: brightness, color temperature, color,
+favorites (up to five colors in `favorite_colors`, one tap and the light takes
+that color) and effects. Tapping an icon puts its bar in the footer itself,
+without the card changing height, and the command is sent on release; with the
+light off, using a bar turns it on. How many icons show at once depends on the
+columns the card takes: 12 show all, 9 three, 6 two and 4 to 5 one, with an
+arrow that slides the rest one at a time. With `size: compact` the card is a
+row with the icon, the name and the subtitle, without a footer, and adjusts from
+6 to 3 columns; the large one starts at 12 and shrinks down to 4. The starting
+grid slots are 12 and 6 columns, with automatic height.

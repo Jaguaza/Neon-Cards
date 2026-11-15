@@ -45,11 +45,12 @@ If you’re enjoying this repository, do pop [over here](#apoyo_en) 
 - 📈 **SENSOR.**  [Ir a Sensor](#sensor-card)
 - 🔐 **CERRADURA.**  [Ir a Cerradura](#cerradura-card)
 - 🚨 **ALARMA.**  [Ir a Alarma](#alarma-card)
+- 💡 **LUZ.**  [Ir a Luz](#luz-card)
 
 ### 🔌 Características comunes
 
 - **Se adaptan a tu tema:** toman el radio de las esquinas y los colores del tema activo.
-- **Editor visual** en las seis tarjetas, sin necesidad de escribir YAML.
+- **Editor visual** en las siete tarjetas, sin necesidad de escribir YAML.
 - **Interfaz de configuración en español e inglés**, según el idioma de tu Home Assistant.
 - **Paletas neón** (Cyber Emerald, Cyberpunk Pink, Electric Blue, Sunset Amber, Toxic Purple o colores propios).
 - **Tamaño automático** en el grid de Home Assistant: no hace falta indicar `grid_options`.
@@ -470,10 +471,57 @@ footer_sensors: [motion, door, window, smoke]
 footer_only_active: true
 ```
 
+<a name="luz-card"></a>
+### **💡 Neón Light Card**
+
+Tarjeta para entidades `light` de Home Assistant, también grupos de luces, con un **icono que se enciende de abajo arriba** hasta el brillo de la luz y con su color real, un halo neón que se enciende con la luz y, en el tamaño grande, un **pie con un icono por función** (brillo, temperatura de color, color, colores favoritos y efectos) cuyo control se despliega en el propio pie.
+
+### **El icono y el halo**
+
+Apagada solo se ve el **contorno blanco** del icono, con el interior transparente. Encendida, el relleno sube hasta el porcentaje de brillo y toma el **color real de la luz**: verde si la luz está en verde, azul si está en azul (una luz solo encender/apagar se llena entera). Funciona con cualquier icono. El halo usa siempre la paleta que elijas (`neon_palette`) y no el color de la luz; no disponible se ve el halo rojo. Con `subtitle_type: state` el subtítulo dice «Encendida · 70%» o «Apagada» y, en un grupo de luces, cuántas están encendidas («2 de 3 encendidas»).
+
+### **Dos tamaños**
+
+| Tamaño (`size`) | Qué muestra | Columnas de inicio (alto automático) |
+|---|---|---|
+| `large` *(predeterminado)*, «Grande - Mediana» | Icono, nombre con subtítulo opcional y pie de opciones | 12 (se reduce hasta 4) |
+| `compact`, «Compacta - Mediana» | Una fila: el icono y, a su lado, el nombre y el subtítulo; sin pie | 6 (solo se ajusta de 6 a 3) |
+
+### **El pie**
+
+Cada icono sale solo si la luz soporta esa función: **brillo** (barra de 1 a 100 %), **temperatura de color** (barra de cálido a frío, con el rango de la luz), **color** (franja de tonos), **favoritos** (una estrella con hasta cinco colores guardados) y **efectos** (lista flotante). Al pulsar un icono, su control aparece en el propio pie y la tarjeta **no cambia de alto**; la orden se manda al soltar y, con la luz apagada, usar un control la enciende. Cuántos iconos se ven a la vez depende de las columnas que ocupa la tarjeta (12: todos; 9: tres; 6: dos; de 4 a 5: uno) y una flecha desliza el resto de uno en uno.
+
+### **Colores favoritos y opciones del pie**
+
+`favorite_colors` guarda hasta cinco colores en hexadecimal: un toque en uno y la luz toma ese color. `footer_options` elige qué opciones quieres en el pie (`brightness`, `color_temp`, `color`, `favorites`, `effects`); sin ella, todas las que la luz soporte. Con la compacta no hay pie, así que el editor no enseña esas opciones.
+
+### **Acciones**
+
+`tap_action` es `toggle` por defecto, `hold_action` abre «más información» y `double_tap_action` no hace nada. El pie y sus controles no disparan la acción de la tarjeta.
+
+### **Configuración mínima**
+
+```yaml
+type: custom:neon-light-card
+entity: light.salon
+```
+
+### **Completa**
+
+```yaml
+type: custom:neon-light-card
+entity: light.salon
+name: Salón
+size: large
+subtitle_type: state
+neon_palette: electric
+favorite_colors: ["#ff3b30", "#ff9500", "#34c759", "#0a84ff", "#bf5af2"]
+footer_options: [brightness, color_temp, color, favorites, effects]
+```
+
 ## 🚀 Próximamente
 
 Neon Cards se está diseñando como una colección completa de tarjetas para Home Assistant, se irán añadiendo más tarjetas.
-- **Próxima Tarjeta: 💡 LUZ**
 
 ---
 
@@ -565,11 +613,12 @@ Ver el texto legal completo en [`LICENSE`](./LICENSE) (inglés, vinculante) o su
 - 📈 **SENSOR.**  [Go to Sensor](#sensor-card-gb)
 - 🔐 **LOCK.**  [Go to Lock](#lock-card-gb)
 - 🚨 **ALARM.**  [Go to Alarm](#alarm-card-gb)
+- 💡 **LIGHT.**  [Go to Light](#light-card-gb)
 
 ### 🔌 Common features
 
 - **They adapt to your theme:** they take the corner radius and colors of the active theme.
-- **Visual editor** in all six cards, no YAML needed.
+- **Visual editor** in all seven cards, no YAML needed.
 - **Configuration UI in Spanish and English**, following your Home Assistant language.
 - **Neon palettes** (Cyber Emerald, Cyberpunk Pink, Electric Blue, Sunset Amber, Toxic Purple or your own colors).
 - **Automatic size** in Home Assistant's grid: no need to set `grid_options`.
@@ -989,11 +1038,58 @@ footer_sensors: [motion, door, window, smoke]
 footer_only_active: true
 ```
 
+<a name="light-card-gb"></a>
+### **💡 Neon Light Card**
+
+Card for Home Assistant `light` entities, light groups included, with an **icon that lights up from the bottom to the top** to the light's brightness and in its real color, a neon halo that turns on with the light and, in the large size, a **footer with one icon per function** (brightness, color temperature, color, favorite colors and effects) whose control opens in the footer itself.
+
+### **The icon and the halo**
+
+Off, only the icon's **white outline** shows, with a transparent inside. On, the fill rises to the brightness percentage and takes the **light's real color**: green if the light is green, blue if it is blue (an on/off-only light fills completely). It works with any icon. The halo always uses the palette you choose (`neon_palette`), not the light's color; unavailable shows the red halo. With `subtitle_type: state` the subtitle says "On · 70%" or "Off" and, in a light group, how many are on ("2 of 3 on").
+
+### **Two sizes**
+
+| Size (`size`) | What it shows | Starting columns (automatic height) |
+|---|---|---|
+| `large` *(default)*, "Large - Medium" | Icon, name with optional subtitle and an options footer | 12 (shrinks down to 4) |
+| `compact`, "Compact - Medium" | One row: the icon and, next to it, the name and the subtitle; no footer | 6 (only adjustable from 6 to 3) |
+
+### **The footer**
+
+Each icon only shows if the light supports that function: **brightness** (1 to 100 % bar), **color temperature** (warm to cool bar, with the light's range), **color** (hue strip), **favorites** (a star with up to five saved colors) and **effects** (floating list). Tapping an icon puts its control in the footer itself and the card **does not change height**; the command is sent on release and, with the light off, using a control turns it on. How many icons show at once depends on the columns the card takes (12: all; 9: three; 6: two; 4 to 5: one) and an arrow slides the rest one at a time.
+
+### **Favorite colors and footer options**
+
+`favorite_colors` saves up to five colors in hexadecimal: one tap on one and the light takes that color. `footer_options` chooses which options you want in the footer (`brightness`, `color_temp`, `color`, `favorites`, `effects`); without it, all the ones the light supports. The compact card has no footer, so the editor does not show those options.
+
+### **Actions**
+
+`tap_action` is `toggle` by default, `hold_action` opens "more info" and `double_tap_action` does nothing. The footer and its controls do not trigger the card's action.
+
+### **Minimal configuration**
+
+```yaml
+type: custom:neon-light-card
+entity: light.living_room
+```
+
+### **Full**
+
+```yaml
+type: custom:neon-light-card
+entity: light.living_room
+name: Living room
+size: large
+subtitle_type: state
+neon_palette: electric
+favorite_colors: ["#ff3b30", "#ff9500", "#34c759", "#0a84ff", "#bf5af2"]
+footer_options: [brightness, color_temp, color, favorites, effects]
+```
+
 ## 🚀 Coming Soon
 
 Neon Cards is being designed as a complete collection of cards for Home Assistant. More cards will be added over time.
 
-- **NEXT CARD: 💡 LIGHT**
 ---
 
 ## 📚 Documentation

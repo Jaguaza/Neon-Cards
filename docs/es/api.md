@@ -34,6 +34,7 @@ Ver también la versión en [inglés](../en/api.md).
 - [Neón Sensor Card — Configuración YAML](#neón-sensor-card--configuración-yaml)
 - [Neón Lock Card — Configuración YAML](#neón-lock-card--configuración-yaml)
 - [Neón Alarm Card — Configuración YAML](#neón-alarm-card--configuración-yaml)
+- [Neón Light Card — Configuración YAML](#neón-light-card--configuración-yaml)
 
 ---
 
@@ -802,6 +803,12 @@ coordenadas en unidades reales (el atributo `d` no admite `%` ni
 `neon-halo-active` cuando el estado es activo (comparte la clase con
 `NEON_HALO_STYLES`).
 
+En reposo el trazo queda oculto del todo (`opacity: 0`), no solo sin dibujar:
+con un escalado de pantalla alto (2x) el extremo del trazo dejaba unos píxeles
+sueltos en la esquina inferior con la tarjeta apagada. Al encender se muestra
+al instante y se dibuja en 900 ms; al apagar se retira durante 900 ms y solo
+entonces se oculta.
+
 #### `VIEW_REVEAL_MS`
 
 - **Descripción:** retardo (ms) entre encender el halo y mostrar una vista
@@ -846,7 +853,9 @@ cosa. Lo usan la Lock Card y la Alarm Card.
 
 El tamaño (`compact`, `medium`, `large`) y las columnas del grid de HA con las
 que empieza cada uno. Lo usan la Lock Card y la Alarm Card; `LockSize` y
-`AlarmSize` son alias de `CardSize`.
+`AlarmSize` son alias de `CardSize`. La Light Card solo usa `CARD_GRID.large`:
+sus dos tamaños (`large` y `compact`) son propios y la compacta tiene columnas
+propias.
 
 #### `CardSize`, `CARD_SIZES` y `DEFAULT_CARD_SIZE`
 
@@ -903,7 +912,7 @@ que empieza cada uno. Lo usan la Lock Card y la Alarm Card; `LockSize` y
 
 ### Espera de la acción (`action-pending.ts`)
 
-Lo usan la Lock Card y la Alarm Card para encender el halo en cuanto se pulsa
+Lo usan la Lock Card, la Alarm Card y la Light Card para encender el halo en cuanto se pulsa
 una acción, sin esperar al cambio de estado de la entidad.
 
 #### `ACTION_PENDING_MS`
@@ -948,7 +957,7 @@ una acción, sin esperar al cambio de estado de la entidad.
 
 #### `renderHaloSection(hass, config, texts, onChange)`
 
-- **Descripción:** la sección «Apariencia del halo» de los editores: título, selector de paleta (las de `PALETTE_IDS` más «personalizada») y, con la paleta personalizada, los tres selectores de color. Lo usan los editores de la Lock Card y la Alarm Card.
+- **Descripción:** la sección «Apariencia del halo» de los editores: título, selector de paleta (las de `PALETTE_IDS` más «personalizada») y, con la paleta personalizada, los tres selectores de color. Lo usan los editores de la Lock Card, la Alarm Card y la Light Card.
 - **Parámetros:**
   - `hass: HomeAssistant | undefined` — para el idioma de los nombres de paleta y de color.
   - `config: HaloConfig` — lo que lee de la configuración: `neon_palette`, `neon_color1`, `neon_color2`, `neon_color3`.
@@ -976,7 +985,7 @@ una acción, sin esperar al cambio de estado de la entidad.
 
 #### `renderAlertDialog(className, title, onCancel, content)`
 
-- **Descripción:** envoltorio común de las vistas que cuelgan encima del contenido de una tarjeta (confirmar, elegir modo, teclado, lista de sensores). Es un `alertdialog` accesible que corta `pointerdown`, `pointerup`, `pointercancel` y `click` (sin eso el clic llegaría al `ha-card` y contaría como otra pulsación de la tarjeta) y llama a `onCancel` con Escape. Lo usan la Lock Card y la Alarm Card.
+- **Descripción:** envoltorio común de las vistas que cuelgan encima del contenido de una tarjeta (confirmar, elegir modo, teclado, lista de sensores). Es un `alertdialog` accesible que corta `pointerdown`, `pointerup`, `pointercancel` y `click` (sin eso el clic llegaría al `ha-card` y contaría como otra pulsación de la tarjeta) y llama a `onCancel` con Escape. Lo usan la Lock Card, la Alarm Card y la Light Card (su lista de efectos).
 - **Parámetros:**
   - `className` (`string`): clases del contenedor; la tarjeta pone aquí las suyas.
   - `title` (`string`): nombre accesible del diálogo (`aria-label`).
@@ -992,7 +1001,7 @@ una acción, sin esperar al cambio de estado de la entidad.
 
 ### Check o interruptor con etiqueta (`labeled-control.ts`)
 
-Home Assistant 2026.11 eliminó `ha-formfield` (frontend #54200): `ha-checkbox` y `ha-switch` pintan ya su propia etiqueta, la que se les pone dentro. Las versiones anteriores todavía lo definen y es lo único que la dibuja. Estas dos funciones hacen que la etiqueta se vea en todas. Las usan los editores de la Alarm Card, la Lock Card y la Entity Card.
+Home Assistant 2026.11 eliminó `ha-formfield` (frontend #54200): `ha-checkbox` y `ha-switch` pintan ya su propia etiqueta, la que se les pone dentro. Las versiones anteriores todavía lo definen y es lo único que la dibuja. Estas dos funciones hacen que la etiqueta se vea en todas. Las usan los editores de la Alarm Card, la Lock Card, la Entity Card y la Light Card.
 
 #### `labeledControl(label, control)`
 
@@ -1048,7 +1057,7 @@ El selector de subtítulo de los editores de la Button Card, la Lock Card, la Al
 
 ### Identidad e icono de error (`card-identity.ts`, `error-icon.ts`)
 
-Lo usan las seis tarjetas: cada una importa de aquí en lugar de repetir las
+Lo usan las siete tarjetas: cada una importa de aquí en lugar de repetir las
 constantes.
 
 #### `CARD_AUTHOR`
@@ -1066,7 +1075,7 @@ constantes.
 
 #### `ERROR_ICON`
 
-- **Descripción:** icono `mdi` del estado `error` (sin entidad válida). Lleva el tratamiento neón del icono activo (`.neon-halo-error` en `glow.ts`), nunca el icono roto del navegador. Lo usan las tarjetas Button, Sensor y Lock.
+- **Descripción:** icono `mdi` del estado `error` (sin entidad válida). Lleva el tratamiento neón del icono activo (`.neon-halo-error` en `glow.ts`), nunca el icono roto del navegador. Lo usan las tarjetas Button, Sensor, Lock y Light.
 - **Valor:** `'mdi:close'`.
 
 ---
@@ -1516,6 +1525,81 @@ footer_sensors:
 footer_only_active: true
 footer_excluded:
   - binary_sensor.movimiento_trastero
+tap_action:
+  action: toggle
+hold_action:
+  action: more-info
+```
+
+---
+
+## Neón Light Card — Configuración YAML
+
+Todas las claves de `NeonLightCardConfig` (`src/cards/light/types.ts`). Solo
+admite entidades del dominio `light` (también grupos de luces); sin `entity` o
+con otro dominio la tarjeta se muestra como «No disponible» (y en desarrollo
+avisa por consola). Especificación completa en
+[`src/cards/light/README.md`](../../src/cards/light/README.md) y ejemplos en
+[`examples/`](../../examples/README.md). No usa tipos nuevos de `src/ha`.
+
+| Clave | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `entity` | `string` | — (requerida) | Entidad `light.*`, también un grupo de luces. |
+| `name` | `string` | `friendly_name` de la entidad | Nombre mostrado. |
+| `icon` | `string` | icono de la entidad o `mdi:lightbulb` | Cualquier icono `mdi`: se enciende de abajo arriba según el brillo y con el color de la luz. |
+| `size` | `'large' \| 'compact'` | `'large'` | Tamaño: `large` = «Grande - Mediana», con icono, nombre, subtítulo y pie de opciones; `compact` = «Compacta - Mediana», en una fila y sin pie. Ver `getGridOptions()`. |
+| `subtitle_type` | `'custom' \| 'state' \| 'name' \| 'last-changed' \| 'last-updated'` | `'custom'` | Qué se muestra bajo el nombre. `state` enseña «Encendida · 70%» o «Apagada» y, en un grupo, cuántas luces están encendidas («2 de 3 encendidas»). |
+| `subtitle` | `string` | — | Texto libre con `subtitle_type: custom`. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta del halo. El halo usa siempre esta paleta, no el color de la luz. |
+| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | según paleta | Colores con `neon_palette: custom`. |
+| `favorite_colors` | `string[]` | — | Hasta cinco colores favoritos en hexadecimal (`#rrggbb` o `#rgb`); lo que no sea un color se ignora. Salen con el icono de estrella del pie, solo en `large` y con luces que admiten color. |
+| `footer_options` | `Array<'brightness' \| 'color_temp' \| 'color' \| 'favorites' \| 'effects'>` | todas | Opciones que muestra el pie, siempre las que la luz soporte y en el orden fijo del pie. Sin la clave, todas; una lista vacía no deja ninguna. Solo en `large`. |
+| `tap_action` | `ActionConfig` | `{ action: toggle }` | Acción al pulsar. |
+| `hold_action` | `ActionConfig` | `{ action: more-info }` | Acción al mantener. |
+| `double_tap_action` | `ActionConfig` | `{ action: none }` | Acción al doble toque. |
+
+Los controles del pie llaman a `light.turn_on`: el brillo con `brightness_pct`
+(de 1 a 100), la temperatura con `color_temp_kelvin`, el color con `hs_color`, un
+favorito con `rgb_color` y un efecto con `effect`. Los iconos que salen
+dependen de `supported_color_modes` y de `effect_list` de la luz. Si la luz está
+apagada, usar un control la enciende con ese valor. Cuántos iconos se ven a la
+vez depende de las columnas que ocupa la tarjeta en la rejilla de secciones
+(12 columnas: todos; 9: tres; 6: dos; de 4 a 5: uno), con una flecha que desliza
+el resto de uno en uno.
+
+### `getGridOptions()` — tamaño según `size`
+
+El alto es automático (`rows: 'auto'`); `size` fija las columnas de inicio y el
+rango al que se puede ajustar a mano. La grande usa `CARD_GRID.large`
+(`src/shared/card-size.ts`); la compacta tiene columnas propias y solo se
+ajusta entre 6 y 3. `getCardSize()` devuelve `3` en `large` y `1` en `compact`.
+
+| `size` | Tamaño | `columns` | `min_columns` | `max_columns` |
+|---|---|---|---|---|
+| `'compact'` | Compacta - Mediana | `6` | `3` | `6` |
+| `'large'` (por defecto) | Grande - Mediana | `12` | `4` | — |
+
+### Ejemplo completo
+
+```yaml
+type: custom:neon-light-card
+entity: light.salon
+name: Salón
+size: large
+subtitle_type: state
+neon_palette: electric
+favorite_colors:
+  - "#ff3b30"
+  - "#ff9500"
+  - "#34c759"
+  - "#0a84ff"
+  - "#bf5af2"
+footer_options:
+  - brightness
+  - color_temp
+  - color
+  - favorites
+  - effects
 tap_action:
   action: toggle
 hold_action:
