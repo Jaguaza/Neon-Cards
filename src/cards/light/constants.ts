@@ -1,3 +1,4 @@
+import { CARD_GRID } from '../../shared';
 import type { FooterControl, FooterItem, LightSize } from './types';
 
 /** Icono cuando no hay `icon:` ni la entidad trae uno. */
@@ -16,11 +17,12 @@ export interface LightGrid {
 
 /**
  * Columnas del grid de Home Assistant (12 por sección) de cada tamaño; el alto
- * es automático. La grande empieza a todo el ancho y se puede reducir hasta 4.
- * La compacta empieza a 6 y solo se puede ajustar entre 6 y 3.
+ * es automático. La grande es la grande de todas las tarjetas (`CARD_GRID.large`:
+ * a todo el ancho y reducible hasta 4). La compacta es propia de la Light:
+ * empieza a 6 y solo se puede ajustar entre 6 y 3.
  */
 export const LIGHT_GRID: Record<LightSize, LightGrid> = {
-  large: { columns: 12, min_columns: 4 },
+  large: CARD_GRID.large,
   compact: { columns: 6, min_columns: 3, max_columns: 6 },
 };
 
