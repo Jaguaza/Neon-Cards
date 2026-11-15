@@ -9,6 +9,19 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Neón Light Card** (`custom:neon-light-card`, `src/cards/light/`): séptima tarjeta del paquete, para entidades `light` (también grupos de luces). Icono, el que sea, que se enciende de abajo arriba hasta el brillo de la luz y con su color real (apagada solo se ve su contorno blanco), halo neón con la paleta elegida y, en el tamaño grande, un pie con un icono por función que soporta la luz: brillo, temperatura de color, color, colores favoritos (hasta cinco, `favorite_colors`) y efectos. Cada control se despliega en el propio pie sin cambiar el alto de la tarjeta, y las órdenes se mandan al soltar. Cuántos iconos se ven a la vez depende de las columnas que ocupa la tarjeta (12: todos; 9: tres; 6: dos; de 4 a 5: uno), con una flecha que desliza el resto de uno en uno; `footer_options` elige las opciones del pie. Dos tamaños: `large` («Grande - Mediana», empieza a 12 columnas) y `compact` («Compacta - Mediana», una fila sin pie, de 6 a 3 columnas). Los grupos de luces muestran cuántas están encendidas. Editor visual, con textos en español e inglés.
+- `src/shared`: nuevo `renderSubtitleField` (`subtitle-field.ts`), el selector de subtítulo de los editores. Documentado en `docs/es/api.md` y `docs/en/api.md`.
+
+### Changed
+
+- Button Card, Lock Card y Alarm Card: sus editores usan `renderSubtitleField` en lugar de su propia copia del selector de subtítulo. Sin cambios visibles: el DOM de los editores y su comportamiento son idénticos antes y después (comprobado en 196 casos).
+
+### Fixed
+
+- `src/shared`: el aro del halo (`NEON_RING_SPLIT_STYLES`) se oculta del todo en reposo. Con un escalado de pantalla alto (2x), el extremo del trazo dejaba unos píxeles sueltos en la esquina inferior con la tarjeta apagada; reproducido en la Light compacta, la Button y las compactas de la Lock y la Alarm. La animación al encender y al apagar no cambia.
+
 ## [1.4.2] - 2026-11-05
 
 ### Fixed
@@ -377,6 +390,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+### Added
+
+- **Neón Light Card** (`custom:neon-light-card`, `src/cards/light/`): seventh card of the package, for `light` entities (light groups included). An icon, any you like, that lights up from the bottom to the top to the light's brightness and in its real color (off, only its white outline shows), a neon halo with the chosen palette and, in the large size, a footer with one icon per function the light supports: brightness, color temperature, color, favorite colors (up to five, `favorite_colors`) and effects. Each control opens in the footer itself without the card changing height, and commands are sent on release. How many icons show at once depends on the columns the card takes (12: all; 9: three; 6: two; 4 to 5: one), with an arrow that slides the rest one at a time; `footer_options` chooses the footer options. Two sizes: `large` ("Large - Medium", starts at 12 columns) and `compact` ("Compact - Medium", a single row without a footer, from 6 to 3 columns). Light groups show how many are on. Visual editor, with Spanish and English texts.
+- `src/shared`: new `renderSubtitleField` (`subtitle-field.ts`), the subtitle selector of the editors. Documented in `docs/es/api.md` and `docs/en/api.md`.
+
+### Changed
+
+- Button Card, Lock Card and Alarm Card: their editors use `renderSubtitleField` instead of their own copy of the subtitle selector. No visible changes: the editors' DOM and behavior are identical before and after (checked in 196 cases).
+
+### Fixed
+
+- `src/shared`: the halo ring (`NEON_RING_SPLIT_STYLES`) is now hidden completely at rest. With a high screen scale (2x), the end of the stroke left a few stray pixels in the bottom corner while the card was off; reproduced in the compact Light, the Button and the compact Lock and Alarm. The animation when switching on and off does not change.
 
 ## [1.4.2] - 2026-11-05
 
