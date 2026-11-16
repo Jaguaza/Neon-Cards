@@ -24,6 +24,7 @@ export interface SliderSpec {
   max: number;
   value: number;
   unit: string;
+  showValue: boolean;
 }
 
 /** Un color favorito con la marca de si es el color que tiene ahora la luz. */
@@ -96,7 +97,7 @@ export function renderFooterSlider(spec: SliderSpec, ctx: SliderContext): Templa
         @input=${(ev: Event) => ctx.onPreview(readValue(ev))}
         @change=${(ev: Event) => ctx.onCommit(readValue(ev))}
       />
-      <span class="control-value">${spec.value}${spec.unit}</span>
+      ${spec.showValue ? html`<span class="control-value">${spec.value}${spec.unit}</span>` : nothing}
       <button type="button" class="foot-btn foot-btn--close" data-action="close" aria-label=${ctx.closeLabel} title=${ctx.closeLabel} @click=${() => ctx.onClose()}>
         <ha-icon icon=${FOOTER_ICONS.close}></ha-icon>
       </button>

@@ -155,11 +155,13 @@ export interface ControlRange {
   max: number;
   value: number;
   unit: string;
+  /** Si la barra enseña su valor al lado. El color no: el número de un tono (de 0 a 360°) no le dice nada a nadie. */
+  showValue: boolean;
 }
 
 /** Rango, valor actual y unidad de la barra de cada control. */
 export function controlRange(control: FooterControl, attributes: Attributes): ControlRange {
-  if (control === 'brightness') return { min: 1, max: 100, value: brightnessPercent(attributes) ?? 100, unit: '%' };
-  if (control === 'color_temp') return { ...kelvinRange(attributes), value: currentKelvin(attributes), unit: ' K' };
-  return { min: 0, max: 360, value: currentHue(attributes), unit: '°' };
+  if (control === 'brightness') return { min: 1, max: 100, value: brightnessPercent(attributes) ?? 100, unit: '%', showValue: true };
+  if (control === 'color_temp') return { ...kelvinRange(attributes), value: currentKelvin(attributes), unit: ' K', showValue: true };
+  return { min: 0, max: 360, value: currentHue(attributes), unit: '', showValue: false };
 }

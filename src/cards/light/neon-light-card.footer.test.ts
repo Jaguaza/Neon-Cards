@@ -165,6 +165,31 @@ describe('color del icono mientras se arrastra', () => {
   });
 });
 
+describe('valor que enseña cada barra', () => {
+  const valueOf = (el: Awaited<ReturnType<typeof mount>>) => el.shadowRoot!.querySelector('.control-value')?.textContent;
+
+  it('el brillo enseña su porcentaje y la temperatura sus kelvin', async () => {
+    const el = await mount({}, hassWith('on', { attributes: { ...FULL_LIGHT, brightness: 128, color_temp_kelvin: 3000 } }));
+    footerButton(el, 'brightness').click();
+    await el.updateComplete;
+    expect(valueOf(el)).toBe('50%');
+    closeButton(el).click();
+    await el.updateComplete;
+    footerButton(el, 'color_temp').click();
+    await el.updateComplete;
+    expect(valueOf(el)).toBe('3000 K');
+  });
+
+  it('el color no enseña ningún número: solo la franja de tonos', async () => {
+    const el = await mount({}, hassWith('on', { attributes: { ...FULL_LIGHT, hs_color: [120, 100] } }));
+    footerButton(el, 'color').click();
+    await el.updateComplete;
+    expect(el.shadowRoot!.querySelector('.control-value')).toBeNull();
+    expect(slider(el)!.value).toBe('120');
+    expect(el.shadowRoot!.textContent).not.toContain('°');
+  });
+});
+
 describe('efectos', () => {
   it('el icono abre una lista flotante con los efectos y marca el activo', async () => {
     const el = await mount({}, hassWith('on', { attributes: { ...FULL_LIGHT, effect: 'pulse' } }));

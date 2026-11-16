@@ -15,14 +15,14 @@ describe('iconos del pie', () => {
 
 describe('barra de cada control', () => {
   it('brillo de 1 a 100 con el valor actual (100 si no lo informa)', () => {
-    expect(controlRange('brightness', { brightness: 128 })).toEqual({ min: 1, max: 100, value: 50, unit: '%' });
+    expect(controlRange('brightness', { brightness: 128 })).toEqual({ min: 1, max: 100, value: 50, unit: '%', showValue: true });
     expect(controlRange('brightness', {}).value).toBe(100);
   });
   it('temperatura en el rango de la luz', () => {
-    expect(controlRange('color_temp', { min_color_temp_kelvin: 2700, max_color_temp_kelvin: 6000, color_temp_kelvin: 3000 })).toEqual({ min: 2700, max: 6000, value: 3000, unit: ' K' });
+    expect(controlRange('color_temp', { min_color_temp_kelvin: 2700, max_color_temp_kelvin: 6000, color_temp_kelvin: 3000 })).toEqual({ min: 2700, max: 6000, value: 3000, unit: ' K', showValue: true });
   });
-  it('color: tono de 0 a 360', () => {
-    expect(controlRange('color', { hs_color: [210, 70] })).toEqual({ min: 0, max: 360, value: 210, unit: '°' });
+  it('color: tono de 0 a 360, y sin número al lado', () => {
+    expect(controlRange('color', { hs_color: [210, 70] })).toEqual({ min: 0, max: 360, value: 210, unit: '', showValue: false });
   });
 });
 
