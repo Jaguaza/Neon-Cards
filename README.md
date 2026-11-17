@@ -478,7 +478,7 @@ Tarjeta para entidades `light` de Home Assistant, también grupos de luces, con 
 
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/luz/luz.png" width="900"></p>
 
-AQUÍ VA EL VIDEO
+https://github.com/user-attachments/assets/02a819ab-ed26-4d77-b068-4a7665128f68
 
 ### **El icono y el halo**
 
@@ -1051,7 +1051,7 @@ Card for Home Assistant `light` entities, light groups included, with an **icon 
 
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/luz/luz.png" width="900"></p>
 
-VIDEO GOES HERE
+[VIDEO GOES HERE](https://github.com/user-attachments/assets/02a819ab-ed26-4d77-b068-4a7665128f68)
 
 ### **The icon and the halo**
 
