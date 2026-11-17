@@ -9,6 +9,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-17
+
 ### Added
 
 - **Neón Light Card** (`custom:neon-light-card`, `src/cards/light/`): séptima tarjeta del paquete, para entidades `light` (también grupos de luces). Icono, el que sea, que se enciende de abajo arriba hasta el brillo de la luz y con su color real (apagada solo se ve su contorno blanco), halo neón con la paleta elegida y, en el tamaño grande, un pie con un icono por función que soporta la luz: brillo, temperatura de color, color, colores favoritos (hasta cinco, `favorite_colors`) y efectos. Cada control se despliega en el propio pie sin cambiar el alto de la tarjeta, y las órdenes se mandan al soltar. Cuántos iconos se ven a la vez depende de las columnas que ocupa la tarjeta (12: todos; 9: tres; 6: dos; de 4 a 5: uno), con una flecha que desliza el resto de uno en uno; `footer_options` elige las opciones del pie. Dos tamaños: `large` («Grande - Mediana», empieza a 12 columnas) y `compact` («Compacta - Mediana», una fila sin pie, de 6 a 3 columnas). Los grupos de luces muestran cuántas están encendidas. Editor visual, con textos en español e inglés.
@@ -390,6 +392,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [1.5.0] - 2026-11-17
 
 ### Added
 
