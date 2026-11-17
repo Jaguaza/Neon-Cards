@@ -1,6 +1,6 @@
 {
   "name": "neon-cards",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "private": true,
   "type": "module",
   "description": "Paquete de tarjetas Lovelace personalizadas para Home Assistant, con estética neón.",
