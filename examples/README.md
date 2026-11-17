@@ -501,11 +501,11 @@ neon_palette: cyberpunk
 
 ### Capturas
 
-Las capturas de esta tarjeta se añadirán antes de publicarla.
+![Neón Light Card, de la compacta a la grande con el pie completo](../assets/screenshots/luz/luz.png)
 
 ### Video
 
-El vídeo de esta tarjeta se añadirá antes de publicarla.
+AQUÍ VA EL VIDEO
 
 ### Explicación
 
@@ -1030,11 +1030,11 @@ neon_palette: cyberpunk
 
 ### Screenshots
 
-The screenshots of this card will be added before it is published.
+![Neón Light Card, from the compact to the large one with the full footer](../assets/screenshots/luz/luz.png)
 
 ### Video
 
-The video of this card will be added before it is published.
+VIDEO GOES HERE
 
 ### Explanation
 

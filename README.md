@@ -476,6 +476,10 @@ footer_only_active: true
 
 Tarjeta para entidades `light` de Home Assistant, también grupos de luces, con un **icono que se enciende de abajo arriba** hasta el brillo de la luz y con su color real, un halo neón que se enciende con la luz y, en el tamaño grande, un **pie con un icono por función** (brillo, temperatura de color, color, colores favoritos y efectos) cuyo control se despliega en el propio pie.
 
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/luz/luz.png" width="900"></p>
+
+AQUÍ VA EL VIDEO
+
 ### **El icono y el halo**
 
 Apagada solo se ve el **contorno blanco** del icono, con el interior transparente. Encendida, el relleno sube hasta el porcentaje de brillo y toma el **color real de la luz**: verde si la luz está en verde, azul si está en azul (una luz solo encender/apagar se llena entera). Funciona con cualquier icono. El halo usa siempre la paleta que elijas (`neon_palette`) y no el color de la luz; no disponible se ve el halo rojo. Con `subtitle_type: state` el subtítulo dice «Encendida · 70%» o «Apagada» y, en un grupo de luces, cuántas están encendidas («2 de 3 encendidas»).
@@ -522,6 +526,8 @@ footer_options: [brightness, color_temp, color, favorites, effects]
 ## 🚀 Próximamente
 
 Neon Cards se está diseñando como una colección completa de tarjetas para Home Assistant, se irán añadiendo más tarjetas.
+
+- **Próxima Tarjeta: 🪟 PERSIANA**
 
 ---
 
@@ -1043,6 +1049,10 @@ footer_only_active: true
 
 Card for Home Assistant `light` entities, light groups included, with an **icon that lights up from the bottom to the top** to the light's brightness and in its real color, a neon halo that turns on with the light and, in the large size, a **footer with one icon per function** (brightness, color temperature, color, favorite colors and effects) whose control opens in the footer itself.
 
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/luz/luz.png" width="900"></p>
+
+VIDEO GOES HERE
+
 ### **The icon and the halo**
 
 Off, only the icon's **white outline** shows, with a transparent inside. On, the fill rises to the brightness percentage and takes the **light's real color**: green if the light is green, blue if it is blue (an on/off-only light fills completely). It works with any icon. The halo always uses the palette you choose (`neon_palette`), not the light's color; unavailable shows the red halo. With `subtitle_type: state` the subtitle says "On · 70%" or "Off" and, in a light group, how many are on ("2 of 3 on").
@@ -1089,6 +1099,8 @@ footer_options: [brightness, color_temp, color, favorites, effects]
 ## 🚀 Coming Soon
 
 Neon Cards is being designed as a complete collection of cards for Home Assistant. More cards will be added over time.
+
+- **NEXT CARD: 🪟 ROLLER SHUTTER**
 
 ---
 
