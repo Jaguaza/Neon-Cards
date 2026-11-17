@@ -505,7 +505,7 @@ neon_palette: cyberpunk
 
 ### Video
 
-AQUÍ VA EL VIDEO
+https://github.com/user-attachments/assets/02a819ab-ed26-4d77-b068-4a7665128f68
 
 ### Explicación
 
@@ -1034,7 +1034,7 @@ neon_palette: cyberpunk
 
 ### Video
 
-VIDEO GOES HERE
+https://github.com/user-attachments/assets/02a819ab-ed26-4d77-b068-4a7665128f68
 
 ### Explanation
 
