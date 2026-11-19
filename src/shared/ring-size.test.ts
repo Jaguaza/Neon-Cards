@@ -25,10 +25,12 @@ class FakeResizeObserver {
   }
 }
 
-function setBox(el: HTMLElement, width: number, height: number, radius = '12px'): void {
-  Object.defineProperty(el, 'offsetWidth', { configurable: true, value: width });
-  Object.defineProperty(el, 'offsetHeight', { configurable: true, value: height });
+function setBox(el: HTMLElement, width: number, height: number, radius = '12px', border = '0px'): void {
+  Object.defineProperty(el, 'clientWidth', { configurable: true, value: width });
+  Object.defineProperty(el, 'clientHeight', { configurable: true, value: height });
   el.style.borderTopLeftRadius = radius;
+  el.style.borderTopWidth = border;
+  el.style.borderTopStyle = 'solid';
 }
 
 describe('RingSizeController', () => {
@@ -146,6 +148,28 @@ describe('RingSizeController', () => {
     controller.hostUpdated();
     drain();
     expect(controller.size.radius).toBe(28);
+  });
+
+  it('mide la caja interior: el borde del tema no entra en el ancho ni en el alto del aro', () => {
+    // 200×63 por fuera con borde de 1 px = 198×61 por dentro (clientWidth/Height).
+    setBox(card, 198, 61, '18px', '1px');
+    Object.defineProperty(card, 'offsetWidth', { configurable: true, value: 200 });
+    Object.defineProperty(card, 'offsetHeight', { configurable: true, value: 63 });
+    controller.hostConnected();
+    drain();
+    expect(controller.size.width).toBe(198);
+    expect(controller.size.height).toBe(61);
+  });
+
+  it('el radio del aro es el exterior menos el borde, y nunca baja de 0', () => {
+    setBox(card, 198, 61, '18px', '2px');
+    controller.hostConnected();
+    drain();
+    expect(controller.size.radius).toBe(16);
+    setBox(card, 198, 61, '1px', '3px');
+    controller.hostUpdated();
+    drain();
+    expect(controller.size.radius).toBe(0);
   });
 
   it('si Lit sustituye el ha-card, deja de observar el viejo y observa el nuevo', () => {

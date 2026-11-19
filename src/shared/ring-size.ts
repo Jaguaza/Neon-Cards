@@ -1,6 +1,8 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 
-/** Medidas reales de `ha-card` que necesita el aro partido (ver `glow.ts`). */
+/** Medidas de `ha-card` que necesita el aro partido (ver `glow.ts`): las de
+    su caja interior (sin el borde del tema), que es donde se pinta el SVG
+    del aro, con el radio ya ajustado a esa caja. */
 export interface RingSize {
   width: number;
   height: number;
@@ -110,10 +112,17 @@ export class RingSizeController implements ReactiveController {
   private _measure(): void {
     const target = this._target();
     if (!target) return;
-    const width = target.offsetWidth;
-    const height = target.offsetHeight;
+    // El SVG del aro es hijo absoluto de `ha-card` (`inset: 0`) y su `overflow`
+    // lo recorta: ocupa la caja interior, no la exterior. Medir con
+    // `offsetWidth/Height` (que incluyen el borde del tema) desplazaba el aro y
+    // lo cortaba por abajo y a la derecha, dejando el borde del cristal a la
+    // vista. Con el radio pasa igual: el interior es el exterior menos el borde.
+    const width = target.clientWidth;
+    const height = target.clientHeight;
     if (width < MIN_SIDE || height < MIN_SIDE) return;
-    const radius = parseFloat(getComputedStyle(target).borderTopLeftRadius) || DEFAULT_RADIUS;
+    const style = getComputedStyle(target);
+    const border = parseFloat(style.borderTopWidth) || 0;
+    const radius = Math.max(0, (parseFloat(style.borderTopLeftRadius) || DEFAULT_RADIUS) - border);
     const { size } = this;
     if (width === size.width && height === size.height && radius === size.radius) return;
     this.size = { width, height, radius };
