@@ -89,3 +89,28 @@ describe('NEON_HALO_STYLES: icono encendido en tema claro', () => {
     expect(rule('.neon-halo-active .neon-halo-icon')).toContain('10px');
   });
 });
+
+describe('NEON_RING_SPLIT_STYLES: borde del tema con el halo activo', () => {
+  const css = NEON_RING_SPLIT_STYLES.cssText.replace(/\s+/g, ' ');
+  const rule = (selector: string): string => {
+    const start = css.indexOf(`${selector} {`);
+    if (start < 0) throw new Error(`Sin regla para ${selector}`);
+    return css.slice(start, css.indexOf('}', start));
+  };
+
+  it('con el halo activo el borde es transparente y el fondo se recorta a la caja interior', () => {
+    const r = rule('.neon-ring-host.neon-halo-active');
+    expect(r).toContain('border-color: transparent');
+    expect(r).toContain('background-clip: padding-box');
+  });
+
+  it('el borde vuelve al apagar solo cuando el trazo ya se ha retirado (900 ms), y se oculta al instante al encender', () => {
+    expect(rule('.neon-ring-host')).toContain('border-color 0s linear 900ms');
+    expect(rule('.neon-ring-host.neon-halo-active')).toContain('border-color 0s');
+  });
+
+  it('conserva la transición de transform de las tarjetas', () => {
+    expect(rule('.neon-ring-host')).toContain('transform 150ms ease');
+    expect(rule('.neon-ring-host.neon-halo-active')).toContain('transform 150ms ease');
+  });
+});

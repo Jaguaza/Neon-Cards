@@ -98,6 +98,20 @@ export const NEON_HALO_STYLES = css`
 export const NEON_RING_SPLIT_STYLES = css`
   .neon-ring-host {
     position: relative;
+    /* Repite el \`transform\` de las tarjetas (\`transition\` no se puede
+       ampliar) para añadir la salida del borde: al apagar espera lo que
+       tarda el trazo en retirarse (900 ms) antes de recuperar el color. */
+    transition: transform 150ms ease, border-color 0s linear 900ms;
+  }
+  /* El aro se pinta dentro del borde de \`ha-card\` (el \`overflow\` lo recorta
+     a la caja interior). Con el halo activo el borde del tema (en claro, el
+     filo blanco del cristal) quedaba a la vista por fuera del aro: se hace
+     transparente y el fondo se recorta a la caja interior, así el aro es lo
+     último que se ve y queda a ras de la tarjeta. */
+  .neon-ring-host.neon-halo-active {
+    border-color: transparent;
+    background-clip: padding-box;
+    transition: transform 150ms ease, border-color 0s;
   }
   .neon-ring-svg {
     position: absolute;
