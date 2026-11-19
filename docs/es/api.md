@@ -63,6 +63,17 @@ export class MiTarjeta extends BaseNeonCard {
 |---|---|---|
 | `hass` | `HomeAssistant \| undefined` | El objeto `hass` de Home Assistant. Se declara como propiedad reactiva de Lit (`static properties`), así que asignarla dispara un `render()`. |
 
+#### Marca de tema claro (`data-neon-light`)
+
+En cada actualización de `hass`, `BaseNeonCard` pone el atributo
+`data-neon-light` en el host mientras el tema de HA es claro
+(`hass.themes.darkMode === false`) y lo quita en oscuro. Sin dato del
+tema (tests, `hass` parcial) no lo pone, así que el aspecto es el de
+siempre. Las hojas de `src/shared` lo usan con `:host([data-neon-light])`
+(ver [Halo de icono](#halo-de-icono-glowts)). Una tarjeta que sobrescriba
+`willUpdate` o `shouldUpdate` debe llamar a `super.willUpdate(changed)` y
+dejar pasar el cambio de `hass.themes.darkMode`.
+
 #### `getCardSize()`
 
 - **Descripción:** tamaño de la tarjeta para la vista de tipo masonry (1 unidad ≈ 50px). Por defecto devuelve `1`.
@@ -367,6 +378,7 @@ interface HomeAssistant {
   locale?: { language: string };
   callService(domain: string, service: string, serviceData?: Record<string, unknown>): Promise<void>;
   callWS?<T>(message: { type: string; [key: string]: unknown }): Promise<T>;
+  themes?: { darkMode?: boolean };
 }
 ```
 
@@ -374,6 +386,10 @@ interface HomeAssistant {
   `'en'`, `'es-419'`). De aquí sale el idioma que usa `localize` (ver
   `src/core`) para las tarjetas. Opcional porque en algunos contextos
   (tests, `hass` parcial) puede no estar.
+- **`themes?.darkMode`** — `true` en modo oscuro y `false` en claro (ya
+  resuelto, también con el tema en «automático»). `BaseNeonCard` lo usa
+  para la [marca de tema claro](#marca-de-tema-claro-data-neon-light).
+  Opcional: no existe en los `hass` parciales de los tests.
 - **`callService(domain, service, serviceData)`** — llama a un servicio de Home Assistant.
   - `domain: string` — p. ej. `'light'`, `'switch'`, `'homeassistant'`.
   - `service: string` — p. ej. `'toggle'`, `'turn_on'`.
@@ -741,8 +757,15 @@ del tema, para que la luz parezca nacer del propio icono.
 
 - **`NEON_HALO_STYLES`** — bloque `css` de Lit con las reglas
   `.neon-halo-icon` / `.neon-halo-active .neon-halo-icon` /
-  `.neon-halo-error .neon-halo-icon`. Se añade a `static styles` de la
-  tarjeta anfitriona.
+  `.neon-halo-error .neon-halo-icon`, más sus equivalentes con
+  `:host([data-neon-light])` para el tema claro. Se añade a `static
+  styles` de la tarjeta anfitriona.
+  - **Tema claro:** los colores neón apenas contrastan con un fondo claro
+    (entre 1,1 y 2,2 sobre el cristal, y lo mínimo para un elemento
+    gráfico es 3) y el halo difuminaba el borde, así que el icono perdía
+    la silueta. Con `data-neon-light` en el host se conserva el color
+    neón puro y el resplandor pasa a un contorno fino del mismo tono
+    oscurecido (con un halo muy suave). En oscuro no cambia nada.
 - **`neonHaloVars(colors)`**
   - **Descripción:** fija las variables CSS `--neon-c1/c2/c3` que
     consume `NEON_HALO_STYLES`.

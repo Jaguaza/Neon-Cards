@@ -63,6 +63,18 @@ export class MyCard extends BaseNeonCard {
 |---|---|---|
 | `hass` | `HomeAssistant \| undefined` | Home Assistant's `hass` object. Declared as a Lit reactive property (`static properties`), so assigning it triggers a `render()`. |
 
+#### Light theme mark (`data-neon-light`)
+
+On every `hass` update, `BaseNeonCard` sets the `data-neon-light`
+attribute on the host while HA's theme is light
+(`hass.themes.darkMode === false`) and removes it in dark. With no theme
+data (tests, a partial `hass`) it is not set, so the look stays as it
+always was. The `src/shared` stylesheets use it as
+`:host([data-neon-light])` (see [Icon halo](#icon-halo-glowts)). A card
+that overrides `willUpdate` or `shouldUpdate` must call
+`super.willUpdate(changed)` and let a change of `hass.themes.darkMode`
+through.
+
 #### `getCardSize()`
 
 - **Description:** the card's size for the masonry-style view (1 unit ≈ 50px). Defaults to `1`.
@@ -365,6 +377,7 @@ interface HomeAssistant {
   locale?: { language: string };
   callService(domain: string, service: string, serviceData?: Record<string, unknown>): Promise<void>;
   callWS?<T>(message: { type: string; [key: string]: unknown }): Promise<T>;
+  themes?: { darkMode?: boolean };
 }
 ```
 
@@ -372,6 +385,10 @@ interface HomeAssistant {
   `'es-419'`). This is where `localize` (see `src/core`) gets the
   language it uses for cards. Optional because it may be absent in some
   contexts (tests, a partial `hass`).
+- **`themes?.darkMode`** — `true` in dark mode and `false` in light
+  (already resolved, also with the theme on "auto"). `BaseNeonCard` uses
+  it for the [light theme mark](#light-theme-mark-data-neon-light).
+  Optional: absent from the partial `hass` objects in tests.
 - **`callService(domain, service, serviceData)`** — calls a Home Assistant service.
   - `domain: string` — e.g. `'light'`, `'switch'`, `'homeassistant'`.
   - `service: string` — e.g. `'toggle'`, `'turn_on'`.
@@ -740,8 +757,15 @@ neutral color, so the light appears to originate from the icon itself.
 
 - **`NEON_HALO_STYLES`** — Lit `css` block with the
   `.neon-halo-icon` / `.neon-halo-active .neon-halo-icon` /
-  `.neon-halo-error .neon-halo-icon` rules. Added to the host card's
-  `static styles`.
+  `.neon-halo-error .neon-halo-icon` rules, plus their
+  `:host([data-neon-light])` counterparts for the light theme. Added to
+  the host card's `static styles`.
+  - **Light theme:** neon colors barely contrast with a light background
+    (1.1 to 2.2 on the glass, while the minimum for a graphic element is
+    3) and the halo blurred the edge, so the icon lost its silhouette.
+    With `data-neon-light` on the host, the pure neon color is kept and
+    the glow becomes a thin outline of the same, darkened tone (with a
+    very soft halo). Nothing changes in dark.
 - **`neonHaloVars(colors)`**
   - **Description:** sets the `--neon-c1/c2/c3` CSS variables that
     `NEON_HALO_STYLES` consumes.

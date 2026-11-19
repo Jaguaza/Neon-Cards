@@ -9,6 +9,10 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Todas las tarjetas: con el tema de Home Assistant claro y la tarjeta encendida, el icono perdía la silueta (el color neón apenas contrasta con un fondo claro, entre 1,1 y 2,2 sobre el cristal, y el halo difuminaba el borde). Ahora conserva el color neón y lo define un contorno fino oscuro del mismo tono; en el tema oscuro no cambia nada. Comprobado en Chromium con el bundle real. `src/shared` (`NEON_HALO_STYLES`) añade las reglas `:host([data-neon-light])`; `BaseNeonCard` (`src/core`) pone ese atributo según `hass.themes.darkMode`; el tipo `HomeAssistant` (`src/ha`) añade `themes?.darkMode`. Sin cambios en ninguna firma existente.
+
 ## [1.5.0] - 2026-11-17
 
 ### Added
@@ -392,6 +396,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+### Fixed
+
+- All cards: with Home Assistant's light theme and the card on, the icon lost its silhouette (neon colors barely contrast with a light background, 1.1 to 2.2 on the glass, and the halo blurred the edge). It now keeps the neon color and is defined by a thin dark outline of the same tone; nothing changes in the dark theme. Checked in Chromium with the real bundle. `src/shared` (`NEON_HALO_STYLES`) adds the `:host([data-neon-light])` rules; `BaseNeonCard` (`src/core`) sets that attribute from `hass.themes.darkMode`; the `HomeAssistant` type (`src/ha`) adds `themes?.darkMode`. No existing signature changes.
 
 ## [1.5.0] - 2026-11-17
 
