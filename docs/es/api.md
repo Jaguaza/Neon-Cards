@@ -826,6 +826,15 @@ coordenadas en unidades reales (el atributo `d` no admite `%` ni
 `neon-halo-active` cuando el estado es activo (comparte la clase con
 `NEON_HALO_STYLES`).
 
+El aro se pinta dentro del borde de `ha-card` (su `overflow` lo recorta a la
+caja interior), así que con el halo activo `.neon-ring-host.neon-halo-active`
+hace transparente el borde del tema y recorta el fondo a la caja interior
+(`background-clip: padding-box`): el aro queda a ras de la tarjeta y no se ve
+por fuera el filo del cristal del tema claro. El borde desaparece al instante
+al encender y vuelve al apagar cuando el trazo ya se ha retirado (900 ms).
+Estas reglas repiten el `transition: transform 150ms ease` de las tarjetas,
+porque `transition` no se puede ampliar desde otra regla.
+
 En reposo el trazo queda oculto del todo (`opacity: 0`), no solo sin dibujar:
 con un escalado de pantalla alto (2x) el extremo del trazo dejaba unos píxeles
 sueltos en la esquina inferior con la tarjeta apagada. Al encender se muestra
@@ -911,14 +920,14 @@ propias.
 
 #### `RingSizeController`
 
-- **Descripción:** controlador reactivo de Lit que mantiene al día el tamaño real de `ha-card` (ancho, alto y radio de borde), que `neonRingSplitTemplate` necesita porque el atributo `d` de un `<path>` no admite porcentajes. Sustituye al bucle `requestAnimationFrame` continuo que usaban Button y Thermostat (60 callbacks por segundo y tarjeta, también en reposo). Mide solo cuando puede haber cambiado algo:
+- **Descripción:** controlador reactivo de Lit que mantiene al día el tamaño real de `ha-card` (ancho, alto y radio de borde, los de su **caja interior**, sin el borde del tema: es donde se pinta el SVG del aro; el radio es el exterior menos el ancho del borde), que `neonRingSplitTemplate` necesita porque el atributo `d` de un `<path>` no admite porcentajes. Sustituye al bucle `requestAnimationFrame` continuo que usaban Button y Thermostat (60 callbacks por segundo y tarjeta, también en reposo). Mide solo cuando puede haber cambiado algo:
   1. `ResizeObserver` sobre el `ha-card` **actual**: si Lit lo sustituye (p. ej. al pasar de «entidad no disponible» a la vista normal), se vuelve a observar el nuevo, porque un observer atado a un nodo descartado no avisa más.
   2. Una medida tras cada renderizado, fusionada en un único frame, que recoge lo que el observer no ve (el radio de borde del tema).
   3. Una ráfaga corta de medidas al conectar (30 frames, ~0,5 s) para la carrera de layout cuando el editor de HA crea o mueve la tarjeta.
 
   Al desconectar se cancela todo, y al reconectar se crea un observer nuevo. En reposo no queda ningún callback programado.
 - **Constructor:** `new RingSizeController(host, selector = 'ha-card')`, con `host` una `ReactiveElement` (se registra solo con `addController`).
-- **Propiedad:** `size: RingSize` — `{ width, height, radius }`, última medida válida. Se descartan las lecturas menores de 4 px (tarjeta oculta o sin layout).
+- **Propiedad:** `size: RingSize` — `{ width, height, radius }` de la caja interior de `ha-card`, última medida válida. Se descartan las lecturas menores de 4 px (tarjeta oculta o sin layout).
 - **Efecto:** cuando la medida cambia, llama a `host.requestUpdate()`; la tarjeta solo tiene que leer `size` en `render()`.
 - **Requisito:** `ResizeObserver` solo informa de elementos con caja (`display` distinto de `inline`). El `ha-card` de Home Assistant la tiene; si una tarjeta usa otro elemento, su CSS debe darle `display: block` o `flex`.
 - **Ejemplo:**
