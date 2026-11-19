@@ -1,5 +1,5 @@
 import { html, nothing, svg } from 'lit';
-import type { TemplateResult } from 'lit';
+import type { PropertyValues, TemplateResult } from 'lit';
 import type { HomeAssistant } from '../../ha/types';
 import { getSensorDisplay } from '../../ha/sensors';
 import type { SensorDisplay } from '../../ha/sensors';
@@ -104,16 +104,17 @@ export class NeonSensorCard extends BaseNeonCard {
   }
 
   /** Con muchas tarjetas, `hass` cambia con cada estado de HA: solo se
-      repinta si cambia la entidad propia o el idioma. */
+      repinta si cambia la entidad propia, el idioma o el tema. */
   protected shouldUpdate(changed: Map<PropertyKey, unknown>): boolean {
     if (changed.size > 1 || !changed.has('hass')) return true;
     const old = changed.get('hass') as HomeAssistant | undefined;
     const entity = this._config?.entity;
     if (!old || !this.hass || !entity) return true;
-    return old.states[entity] !== this.hass.states[entity] || old.locale?.language !== this.hass.locale?.language;
+    return old.states[entity] !== this.hass.states[entity] || old.locale?.language !== this.hass.locale?.language || old.themes?.darkMode !== this.hass.themes?.darkMode;
   }
 
-  protected willUpdate(): void {
+  protected willUpdate(changed: PropertyValues): void {
+    super.willUpdate(changed);
     this._history.sync({
       hass: this.hass,
       entity: this._config?.entity,

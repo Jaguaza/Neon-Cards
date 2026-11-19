@@ -31,6 +31,10 @@ export interface HomeAssistant {
   /** Llamada WebSocket genérica de HA (la usa `ha/history.ts`). Opcional
       por lo mismo: no existe en los `hass` parciales de los tests. */
   callWS?<T>(message: { type: string; [key: string]: unknown }): Promise<T>;
+  /** Tema activo de HA. `darkMode` es `true` en modo oscuro y `false` en
+      claro (ya resuelto, también con el tema en «automático»). Opcional
+      por lo mismo: no existe en los `hass` parciales de los tests. */
+  themes?: { darkMode?: boolean };
 }
 
 /**
