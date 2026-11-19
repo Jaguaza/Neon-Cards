@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { NEON_RING_SPLIT_STYLES, neonRingSplitPaths } from './glow';
+import { NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, neonRingSplitPaths } from './glow';
 
 /** Extrae el punto "M x y" inicial de un `d` de SVG. */
 function startPoint(d: string): [number, number] {
@@ -64,5 +64,28 @@ describe('NEON_RING_SPLIT_STYLES: trazo oculto en reposo', () => {
     expect(active).toContain('opacity: 1');
     expect(active).toContain('stroke-dashoffset: 0');
     expect(active).toMatch(/opacity 0s(;|$)/);
+  });
+});
+
+describe('NEON_HALO_STYLES: icono encendido en tema claro', () => {
+  const css = NEON_HALO_STYLES.cssText.replace(/\s+/g, ' ');
+  const rule = (selector: string): string => {
+    const start = css.indexOf(`${selector} {`);
+    if (start < 0) throw new Error(`Sin regla para ${selector}`);
+    return css.slice(start, css.indexOf('}', start));
+  };
+
+  it('el icono activo usa un contorno oscuro del mismo tono, sin el halo amplio', () => {
+    const r = rule(':host([data-neon-light]) .neon-halo-active .neon-halo-icon');
+    expect(r).toContain('var(--neon-c1) 40%, #000');
+    expect(r).not.toContain('10px');
+  });
+
+  it('el icono en error también lleva el contorno, con su rojo', () => {
+    expect(rule(':host([data-neon-light]) .neon-halo-error .neon-halo-icon')).toContain('var(--neon-error-color, #ff2d6b) 40%, #000');
+  });
+
+  it('el aspecto en oscuro no cambia: la regla base conserva el halo amplio', () => {
+    expect(rule('.neon-halo-active .neon-halo-icon')).toContain('10px');
   });
 });

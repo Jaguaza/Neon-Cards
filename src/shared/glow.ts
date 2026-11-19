@@ -47,6 +47,26 @@ export const NEON_HALO_STYLES = css`
       drop-shadow(0 0 6px var(--neon-error-color, #ff2d6b))
       drop-shadow(0 0 16px color-mix(in srgb, var(--neon-error-color, #ff2d6b) 65%, transparent));
   }
+  /**
+   * Tema claro (\`BaseNeonCard\` pone \`data-neon-light\` en el host cuando
+   * \`hass.themes.darkMode\` es false). Los colores neón apenas contrastan
+   * con un fondo claro (entre 1,1 y 2,2 sobre el cristal, cuando lo mínimo
+   * para un elemento gráfico es 3) y el halo difuminaba el borde, así que
+   * el icono perdía la silueta. Se conserva el color neón puro y se cambia
+   * el resplandor por un contorno fino del mismo tono oscurecido, con un
+   * halo muy suave. En oscuro no cambia nada. Va después del error para
+   * ganar con la misma especificidad en ambos estados.
+   */
+  :host([data-neon-light]) .neon-halo-active .neon-halo-icon {
+    filter: drop-shadow(0 0 0.6px color-mix(in srgb, var(--neon-c1) 40%, #000))
+      drop-shadow(0 0 1px color-mix(in srgb, var(--neon-c1) 40%, #000))
+      drop-shadow(0 0 3px color-mix(in srgb, var(--neon-c1) 40%, transparent));
+  }
+  :host([data-neon-light]) .neon-halo-error .neon-halo-icon {
+    filter: drop-shadow(0 0 0.6px color-mix(in srgb, var(--neon-error-color, #ff2d6b) 40%, #000))
+      drop-shadow(0 0 1px color-mix(in srgb, var(--neon-error-color, #ff2d6b) 40%, #000))
+      drop-shadow(0 0 3px color-mix(in srgb, var(--neon-error-color, #ff2d6b) 40%, transparent));
+  }
 `;
 
 /**
