@@ -117,21 +117,21 @@ export const NEON_RING_SPLIT_STYLES = css`
       left: calc(-1 * var(--ha-card-border-width, 1px));
     }
   }
-  /* Sin \`overflow-clip-margin\` (Safari) el aro no puede salir de la caja
-     interior; para que el borde del tema no quede a la vista por fuera, con
-     el halo activo se hace transparente y el fondo se recorta a esa caja. Al
-     apagar, el borde vuelve cuando el trazo ya se ha retirado (900 ms). Se
-     repite el \`transform\` de las tarjetas porque \`transition\` no se puede
-     ampliar. */
-  @supports not (overflow-clip-margin: 1px) {
-    .neon-ring-host {
-      transition: transform 150ms ease, border-color 0s linear 900ms;
-    }
-    .neon-ring-host.neon-halo-active {
-      border-color: transparent;
-      background-clip: padding-box;
-      transition: transform 150ms ease, border-color 0s;
-    }
+  /* Con el halo activo el borde del tema se hace transparente y el fondo se
+     recorta a la caja interior. Sin \`overflow-clip-margin\` (Safari) el aro no
+     puede salir de la caja interior y así el borde no queda a la vista por
+     fuera; con él, el aro ya tapa el borde, pero su píxel exterior (antialiasing)
+     se mezclaba con el borde claro del cristal y dejaba un hilo claro, y así se
+     mezcla con el fondo. Al apagar, el borde vuelve cuando el trazo ya se ha
+     retirado (900 ms). Se repite el \`transform\` de las tarjetas porque
+     \`transition\` no se puede ampliar. */
+  .neon-ring-host {
+    transition: transform 150ms ease, border-color 0s linear 900ms;
+  }
+  .neon-ring-host.neon-halo-active {
+    border-color: transparent;
+    background-clip: padding-box;
+    transition: transform 150ms ease, border-color 0s;
   }
   .neon-ring-svg {
     position: absolute;
