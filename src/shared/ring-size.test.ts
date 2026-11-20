@@ -173,6 +173,51 @@ describe('RingSizeController', () => {
     expect(controller.size).toEqual({ width: 200, height: 63, radius: 18 });
   });
 
+  it('mide con decimales (estilo calculado, border-box) en lugar de redondear al entero', () => {
+    vi.stubGlobal('CSS', { supports: () => true });
+    card.style.boxSizing = 'border-box';
+    card.style.width = '141.6px';
+    card.style.height = '63.4px';
+    card.style.borderLeftWidth = '1px';
+    card.style.borderRightWidth = '1px';
+    card.style.borderTopWidth = '1px';
+    card.style.borderBottomWidth = '1px';
+    Object.defineProperty(card, 'offsetWidth', { configurable: true, value: 142 });
+    Object.defineProperty(card, 'offsetHeight', { configurable: true, value: 63 });
+    controller.hostConnected();
+    drain();
+    expect(controller.size.width).toBe(141.6);
+    expect(controller.size.height).toBe(63.4);
+  });
+
+  it('sin overflow-clip-margin, con decimales, resta los cuatro bordes de la caja exterior', () => {
+    card.style.boxSizing = 'border-box';
+    card.style.width = '141.6px';
+    card.style.height = '63.4px';
+    card.style.borderLeftWidth = '1px';
+    card.style.borderRightWidth = '1px';
+    card.style.borderTopWidth = '1px';
+    card.style.borderBottomWidth = '1px';
+    card.style.borderTopLeftRadius = '26px';
+    controller.hostConnected();
+    drain();
+    expect(controller.size.width).toBeCloseTo(139.6, 5);
+    expect(controller.size.height).toBeCloseTo(61.4, 5);
+    expect(controller.size.radius).toBe(25);
+  });
+
+  it('si el estilo no da una medida utilizable (content-box, sin layout), usa offset/client', () => {
+    vi.stubGlobal('CSS', { supports: () => true });
+    card.style.boxSizing = 'content-box';
+    card.style.width = '100px';
+    Object.defineProperty(card, 'offsetWidth', { configurable: true, value: 250 });
+    Object.defineProperty(card, 'offsetHeight', { configurable: true, value: 70 });
+    controller.hostConnected();
+    drain();
+    expect(controller.size.width).toBe(250);
+    expect(controller.size.height).toBe(70);
+  });
+
   it('el radio del aro es el exterior menos el borde, y nunca baja de 0', () => {
     setBox(card, 198, 61, '18px', '2px');
     controller.hostConnected();

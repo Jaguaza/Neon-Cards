@@ -126,10 +126,9 @@ export class RingSizeController implements ReactiveController {
     // Medir siempre la exterior lo desplazaba y lo cortaba por abajo y a la
     // derecha, dejando el borde del cristal a la vista.
     const outer = supportsClipMargin();
-    const width = outer ? target.offsetWidth : target.clientWidth;
-    const height = outer ? target.offsetHeight : target.clientHeight;
-    if (width < MIN_SIDE || height < MIN_SIDE) return;
     const style = getComputedStyle(target);
+    const { width, height } = layoutBox(target, style, outer);
+    if (width < MIN_SIDE || height < MIN_SIDE) return;
     const border = outer ? 0 : parseFloat(style.borderTopWidth) || 0;
     const radius = Math.max(0, (parseFloat(style.borderTopLeftRadius) || DEFAULT_RADIUS) - border);
     const { size } = this;
@@ -137,4 +136,25 @@ export class RingSizeController implements ReactiveController {
     this.size = { width, height, radius };
     this._host.requestUpdate();
   }
+}
+
+/**
+ * Ancho y alto de la caja donde se pinta el aro. Se leen del estilo calculado
+ * (con decimales y sin transformaciones) cuando `ha-card` es `border-box`, que
+ * es lo habitual: `offsetWidth/Height` redondean al entero y la rejilla de HA
+ * reparte anchos con decimales, así que el aro se quedaba hasta medio píxel
+ * corto por la derecha y por abajo y asomaba el borde del tema. Si el estilo
+ * no da una medida utilizable, se usa la de `offset*` (caja exterior) o
+ * `client*` (caja interior).
+ */
+function layoutBox(target: HTMLElement, style: CSSStyleDeclaration, outer: boolean): { width: number; height: number } {
+  const w = parseFloat(style.width);
+  const h = parseFloat(style.height);
+  if (style.boxSizing !== 'border-box' || !(w > 0) || !(h > 0)) {
+    return outer
+      ? { width: target.offsetWidth, height: target.offsetHeight }
+      : { width: target.clientWidth, height: target.clientHeight };
+  }
+  const edge = (side: string): number => (outer ? 0 : parseFloat(style.getPropertyValue(`border-${side}-width`)) || 0);
+  return { width: w - edge('left') - edge('right'), height: h - edge('top') - edge('bottom') };
 }
