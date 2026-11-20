@@ -90,27 +90,47 @@ describe('NEON_HALO_STYLES: icono encendido en tema claro', () => {
   });
 });
 
-describe('NEON_RING_SPLIT_STYLES: borde del tema con el halo activo', () => {
+describe('NEON_RING_SPLIT_STYLES: aro a ras de la tarjeta con borde del tema', () => {
   const css = NEON_RING_SPLIT_STYLES.cssText.replace(/\s+/g, ' ');
-  const rule = (selector: string): string => {
-    const start = css.indexOf(`${selector} {`);
-    if (start < 0) throw new Error(`Sin regla para ${selector}`);
-    return css.slice(start, css.indexOf('}', start));
+  const block = (header: string): string => {
+    const start = css.indexOf(header);
+    if (start < 0) throw new Error(`Sin bloque ${header}`);
+    let depth = 0;
+    for (let i = css.indexOf('{', start); i < css.length; i++) {
+      if (css[i] === '{') depth++;
+      if (css[i] === '}' && --depth === 0) return css.slice(start, i + 1);
+    }
+    throw new Error(`Bloque sin cerrar ${header}`);
   };
 
-  it('con el halo activo el borde es transparente y el fondo se recorta a la caja interior', () => {
-    const r = rule('.neon-ring-host.neon-halo-active');
-    expect(r).toContain('border-color: transparent');
-    expect(r).toContain('background-clip: padding-box');
+  it('con overflow-clip-margin el recorte llega al borde del tema y el SVG sube esa distancia', () => {
+    const b = block('@supports (overflow-clip-margin: 1px)');
+    expect(b).toContain('overflow: clip');
+    expect(b).toContain('overflow-clip-margin: var(--ha-card-border-width, 1px)');
+    expect(b).toContain('.neon-ring-host .neon-ring-svg');
+    expect(b).toContain('top: calc(-1 * var(--ha-card-border-width, 1px))');
+    expect(b).toContain('left: calc(-1 * var(--ha-card-border-width, 1px))');
   });
 
-  it('el borde vuelve al apagar solo cuando el trazo ya se ha retirado (900 ms), y se oculta al instante al encender', () => {
-    expect(rule('.neon-ring-host')).toContain('border-color 0s linear 900ms');
-    expect(rule('.neon-ring-host.neon-halo-active')).toContain('border-color 0s');
+  it('sin overflow-clip-margin el borde se oculta con el halo activo y el fondo se recorta a la caja interior', () => {
+    const b = block('@supports not (overflow-clip-margin: 1px)');
+    expect(b).toContain('border-color: transparent');
+    expect(b).toContain('background-clip: padding-box');
   });
 
-  it('conserva la transición de transform de las tarjetas', () => {
-    expect(rule('.neon-ring-host')).toContain('transform 150ms ease');
-    expect(rule('.neon-ring-host.neon-halo-active')).toContain('transform 150ms ease');
+  it('la alternativa devuelve el borde al apagar solo cuando el trazo ya se ha retirado (900 ms)', () => {
+    const b = block('@supports not (overflow-clip-margin: 1px)');
+    expect(b).toContain('border-color 0s linear 900ms');
+    expect(b).toContain('border-color 0s;');
+  });
+
+  it('la alternativa conserva la transición de transform de las tarjetas', () => {
+    expect(block('@supports not (overflow-clip-margin: 1px)')).toContain('transform 150ms ease');
+  });
+
+  it('con soporte no se toca el borde ni la transición de las tarjetas', () => {
+    const b = block('@supports (overflow-clip-margin: 1px)');
+    expect(b).not.toContain('border-color');
+    expect(b).not.toContain('transition');
   });
 });

@@ -1,8 +1,9 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 
 /** Medidas de `ha-card` que necesita el aro partido (ver `glow.ts`): las de
-    su caja interior (sin el borde del tema), que es donde se pinta el SVG
-    del aro, con el radio ya ajustado a esa caja. */
+    la caja donde se pinta el SVG del aro, con el radio ya ajustado a ella.
+    Es la caja exterior (con el borde del tema) si el navegador admite
+    `overflow-clip-margin` y la interior si no. */
 export interface RingSize {
   width: number;
   height: number;
@@ -13,6 +14,13 @@ const DEFAULT_RADIUS = 12;
 /** Descarta lecturas degeneradas (0×0 o casi): un frame intermedio antes de
     que el elemento tenga layout, o una tarjeta oculta con `display: none`. */
 const MIN_SIDE = 4;
+
+/** `true` si el navegador admite `overflow-clip-margin` (Chrome, Firefox...);
+    Safari no. Decide en qué caja de `ha-card` se pinta el aro (ver `glow.ts`). */
+function supportsClipMargin(): boolean {
+  return typeof CSS !== 'undefined' && typeof CSS.supports === 'function' && CSS.supports('overflow-clip-margin', '1px');
+}
+
 /** Fotogramas tras conectar en los que se mide además del observer
     (~0,5 s a 60 Hz). Cubre la ventana en la que el editor de HA crea o
     mueve la tarjeta y el layout aún se está asentando. Después, nada
@@ -112,16 +120,17 @@ export class RingSizeController implements ReactiveController {
   private _measure(): void {
     const target = this._target();
     if (!target) return;
-    // El SVG del aro es hijo absoluto de `ha-card` (`inset: 0`) y su `overflow`
-    // lo recorta: ocupa la caja interior, no la exterior. Medir con
-    // `offsetWidth/Height` (que incluyen el borde del tema) desplazaba el aro y
-    // lo cortaba por abajo y a la derecha, dejando el borde del cristal a la
-    // vista. Con el radio pasa igual: el interior es el exterior menos el borde.
-    const width = target.clientWidth;
-    const height = target.clientHeight;
+    // Con `overflow-clip-margin` (ver `glow.ts`) el aro se pinta en la caja
+    // exterior de `ha-card`; sin él, el `overflow` lo recorta en la interior
+    // (sin el borde del tema) y hay que medir esa y restar el borde al radio.
+    // Medir siempre la exterior lo desplazaba y lo cortaba por abajo y a la
+    // derecha, dejando el borde del cristal a la vista.
+    const outer = supportsClipMargin();
+    const width = outer ? target.offsetWidth : target.clientWidth;
+    const height = outer ? target.offsetHeight : target.clientHeight;
     if (width < MIN_SIDE || height < MIN_SIDE) return;
     const style = getComputedStyle(target);
-    const border = parseFloat(style.borderTopWidth) || 0;
+    const border = outer ? 0 : parseFloat(style.borderTopWidth) || 0;
     const radius = Math.max(0, (parseFloat(style.borderTopLeftRadius) || DEFAULT_RADIUS) - border);
     const { size } = this;
     if (width === size.width && height === size.height && radius === size.radius) return;

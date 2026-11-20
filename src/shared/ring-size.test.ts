@@ -74,6 +74,8 @@ describe('RingSizeController', () => {
     nextId = 1;
     updates = 0;
     vi.stubGlobal('ResizeObserver', FakeResizeObserver);
+    // Por defecto, sin overflow-clip-margin (jsdom lo da por válido): se mide la caja interior.
+    vi.stubGlobal('CSS', { supports: () => false });
     vi.stubGlobal('requestAnimationFrame', (cb: () => void) => {
       const id = nextId++;
       rafQueue.push({ id, cb });
@@ -150,7 +152,7 @@ describe('RingSizeController', () => {
     expect(controller.size.radius).toBe(28);
   });
 
-  it('mide la caja interior: el borde del tema no entra en el ancho ni en el alto del aro', () => {
+  it('sin overflow-clip-margin mide la caja interior: el borde del tema no entra en el ancho ni en el alto del aro', () => {
     // 200×63 por fuera con borde de 1 px = 198×61 por dentro (clientWidth/Height).
     setBox(card, 198, 61, '18px', '1px');
     Object.defineProperty(card, 'offsetWidth', { configurable: true, value: 200 });
@@ -159,6 +161,16 @@ describe('RingSizeController', () => {
     drain();
     expect(controller.size.width).toBe(198);
     expect(controller.size.height).toBe(61);
+  });
+
+  it('con overflow-clip-margin mide la caja exterior y deja el radio como está', () => {
+    vi.stubGlobal('CSS', { supports: () => true });
+    setBox(card, 198, 61, '18px', '1px');
+    Object.defineProperty(card, 'offsetWidth', { configurable: true, value: 200 });
+    Object.defineProperty(card, 'offsetHeight', { configurable: true, value: 63 });
+    controller.hostConnected();
+    drain();
+    expect(controller.size).toEqual({ width: 200, height: 63, radius: 18 });
   });
 
   it('el radio del aro es el exterior menos el borde, y nunca baja de 0', () => {

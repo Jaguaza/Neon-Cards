@@ -98,20 +98,40 @@ export const NEON_HALO_STYLES = css`
 export const NEON_RING_SPLIT_STYLES = css`
   .neon-ring-host {
     position: relative;
-    /* Repite el \`transform\` de las tarjetas (\`transition\` no se puede
-       ampliar) para añadir la salida del borde: al apagar espera lo que
-       tarda el trazo en retirarse (900 ms) antes de recuperar el color. */
-    transition: transform 150ms ease, border-color 0s linear 900ms;
   }
-  /* El aro se pinta dentro del borde de \`ha-card\` (el \`overflow\` lo recorta
-     a la caja interior). Con el halo activo el borde del tema (en claro, el
-     filo blanco del cristal) quedaba a la vista por fuera del aro: se hace
-     transparente y el fondo se recorta a la caja interior, así el aro es lo
-     último que se ve y queda a ras de la tarjeta. */
-  .neon-ring-host.neon-halo-active {
-    border-color: transparent;
-    background-clip: padding-box;
-    transition: transform 150ms ease, border-color 0s;
+  /* El SVG del aro es hijo absoluto de \`ha-card\`, que lo recorta con su
+     \`overflow\` en la caja interior: un borde del tema (en claro, el filo
+     blanco del cristal) quedaba a la vista por fuera del aro y el aro no
+     quedaba a ras de la tarjeta. Con \`overflow: clip\` y
+     \`overflow-clip-margin\` igual al ancho del borde el recorte llega al
+     borde exterior, y el SVG se sube esa misma distancia para pintarse en la
+     caja exterior: el aro tapa el borde. El ancho es el que HA usa en
+     \`ha-card\` (\`--ha-card-border-width\`, 1 px por defecto). */
+  @supports (overflow-clip-margin: 1px) {
+    .neon-ring-host {
+      overflow: clip;
+      overflow-clip-margin: var(--ha-card-border-width, 1px);
+    }
+    .neon-ring-host .neon-ring-svg {
+      top: calc(-1 * var(--ha-card-border-width, 1px));
+      left: calc(-1 * var(--ha-card-border-width, 1px));
+    }
+  }
+  /* Sin \`overflow-clip-margin\` (Safari) el aro no puede salir de la caja
+     interior; para que el borde del tema no quede a la vista por fuera, con
+     el halo activo se hace transparente y el fondo se recorta a esa caja. Al
+     apagar, el borde vuelve cuando el trazo ya se ha retirado (900 ms). Se
+     repite el \`transform\` de las tarjetas porque \`transition\` no se puede
+     ampliar. */
+  @supports not (overflow-clip-margin: 1px) {
+    .neon-ring-host {
+      transition: transform 150ms ease, border-color 0s linear 900ms;
+    }
+    .neon-ring-host.neon-halo-active {
+      border-color: transparent;
+      background-clip: padding-box;
+      transition: transform 150ms ease, border-color 0s;
+    }
   }
   .neon-ring-svg {
     position: absolute;
