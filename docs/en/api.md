@@ -794,7 +794,12 @@ attribute doesn't support `%` or `calc()`).
 
 - **Description:** computes the two path (`d`) strings for the ring's
   halves for a rounded rectangle, inset by `inset` px from the actual
-  edge (so the stroke sits centered on the border).
+  edge (so the stroke sits centered on the border). The halves meet at the
+  45° point of the top-left and bottom-right corners and each one runs 1.5 px
+  past that point along the arc: with the halves exactly end to end, the
+  antialiasing of the two ends left a gap. Since both use the same gradient,
+  the overlap is not visible. With no radius (under 1 px) there is no arc to
+  run past and both start at the same point.
 - **Parameters:**
   - `width: number`, `height: number` — the card's real measured size
     in pixels.
@@ -830,14 +835,17 @@ to the inner box: a theme border (in the light theme, the glass's white edge)
 showed outside the ring. With `overflow-clip-margin`, `.neon-ring-host` clips
 with `overflow: clip` out to the outer edge (`overflow-clip-margin:
 var(--ha-card-border-width, 1px)`) and the SVG moves up by that same distance,
-so the ring is painted over the border and sits flush with the card; the
-theme's border and shadow are left alone. Without `overflow-clip-margin`
-(Safari) the ring stays in the inner box and, with the halo active, the border
-becomes transparent and the background is clipped to that box
-(`background-clip: padding-box`); the border comes back when switched off once
-the stroke has retracted (900 ms). That fallback repeats the cards'
-`transition: transform 150ms ease`, because `transition` cannot be extended
-from another rule.
+so the ring is painted over the border and sits flush with the card. Without
+`overflow-clip-margin` (Safari) the ring stays in the inner box. Either way,
+with the halo active `.neon-ring-host.neon-halo-active` makes the theme's
+border transparent and clips the background to the inner box
+(`background-clip: padding-box`): without support, so the border does not show
+outside the ring; with support, so the ring's outer pixel (antialiasing)
+blends with the background and not with the glass's light border. The border
+disappears instantly when switched on and comes back when switched off once
+the stroke has retracted (900 ms). These rules repeat the cards' `transition:
+transform 150ms ease`, because `transition` cannot be extended from another
+rule. The theme's shadow is left alone.
 
 At rest the stroke is hidden completely (`opacity: 0`), not just undrawn: with a
 high screen scale (2x) the end of the stroke left a few stray pixels in the
@@ -922,7 +930,7 @@ aliases of `CardSize`. The Light Card only uses `CARD_GRID.large`: its two sizes
 
 #### `RingSizeController`
 
-- **Description:** Lit reactive controller that keeps the real size of `ha-card` (width, height and border radius, those of the box where the ring's SVG is painted: the **outer** one if the browser supports `overflow-clip-margin`, and the **inner** one, with the radius minus the border width, if not) up to date, which `neonRingSplitTemplate` needs because a `<path>`'s `d` attribute does not accept percentages. It replaces the continuous `requestAnimationFrame` loop Button and Thermostat used (60 callbacks per second per card, even at rest). It only measures when something may have changed:
+- **Description:** Lit reactive controller that keeps the real size of `ha-card` (width, height and border radius, those of the box where the ring's SVG is painted: the **outer** one if the browser supports `overflow-clip-margin`, and the **inner** one, with the radius minus the border width, if not; read from the computed style, with decimals, because `offsetWidth/Height` round and HA's grid hands out fractional widths) up to date, which `neonRingSplitTemplate` needs because a `<path>`'s `d` attribute does not accept percentages. It replaces the continuous `requestAnimationFrame` loop Button and Thermostat used (60 callbacks per second per card, even at rest). It only measures when something may have changed:
   1. `ResizeObserver` on the **current** `ha-card`: if Lit replaces it (e.g. going from "entity unavailable" to the normal view), the new one is observed again, because an observer bound to a discarded node never notifies again.
   2. A measurement after each render, coalesced into a single frame, which picks up what the observer cannot see (the theme's border radius).
   3. A short burst of measurements on connect (30 frames, ~0.5 s) for the layout race when the HA editor creates or moves the card.

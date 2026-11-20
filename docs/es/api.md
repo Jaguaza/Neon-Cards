@@ -795,7 +795,12 @@ coordenadas en unidades reales (el atributo `d` no admite `%` ni
 
 - **Descripción:** calcula los dos trazados (`d`) de las mitades del
   aro para un rectángulo redondeado, separado `inset` px del borde real
-  (para que el trazo quede centrado sobre el borde).
+  (para que el trazo quede centrado sobre el borde). Las mitades se
+  encuentran en el punto medio (45°) de las esquinas superior-izquierda e
+  inferior-derecha y cada una rebasa ese punto 1,5 px sobre el arco: con las
+  mitades justo a tope, el antialiasing de los dos extremos dejaba una
+  rendija. Como ambas llevan el mismo degradado, el solape no se ve. Sin
+  radio (menos de 1 px) no hay arco que rebasar y arrancan en el mismo punto.
 - **Parámetros:**
   - `width: number`, `height: number` — tamaño real medido de la
     tarjeta en píxeles.
@@ -832,12 +837,16 @@ quedaba a la vista por fuera del aro. Con `overflow-clip-margin`,
 `.neon-ring-host` recorta con `overflow: clip` hasta el borde exterior
 (`overflow-clip-margin: var(--ha-card-border-width, 1px)`) y el SVG sube esa
 misma distancia, así que el aro se pinta encima del borde y queda a ras de la
-tarjeta; el borde y la sombra del tema no se tocan. Sin `overflow-clip-margin`
-(Safari) el aro se queda en la caja interior y, con el halo activo, el borde
-se hace transparente y el fondo se recorta a esa caja (`background-clip:
-padding-box`); el borde vuelve al apagar cuando el trazo ya se ha retirado
-(900 ms). Esa alternativa repite el `transition: transform 150ms ease` de las
-tarjetas, porque `transition` no se puede ampliar desde otra regla.
+tarjeta. Sin `overflow-clip-margin` (Safari) el aro se queda en la caja
+interior. En ambos casos, con el halo activo `.neon-ring-host.neon-halo-active`
+hace transparente el borde del tema y recorta el fondo a la caja interior
+(`background-clip: padding-box`): sin soporte, para que el borde no quede a
+la vista por fuera del aro; con soporte, para que el píxel exterior del aro
+(antialiasing) se mezcle con el fondo y no con el borde claro del cristal. El
+borde desaparece al instante al encender y vuelve al apagar cuando el trazo ya
+se ha retirado (900 ms). Estas reglas repiten el `transition: transform 150ms
+ease` de las tarjetas, porque `transition` no se puede ampliar desde otra
+regla. La sombra del tema no se toca.
 
 En reposo el trazo queda oculto del todo (`opacity: 0`), no solo sin dibujar:
 con un escalado de pantalla alto (2x) el extremo del trazo dejaba unos píxeles
@@ -924,7 +933,7 @@ propias.
 
 #### `RingSizeController`
 
-- **Descripción:** controlador reactivo de Lit que mantiene al día el tamaño real de `ha-card` (ancho, alto y radio de borde, los de la caja donde se pinta el SVG del aro: la **exterior** si el navegador admite `overflow-clip-margin` y la **interior**, con el radio menos el ancho del borde, si no), que `neonRingSplitTemplate` necesita porque el atributo `d` de un `<path>` no admite porcentajes. Sustituye al bucle `requestAnimationFrame` continuo que usaban Button y Thermostat (60 callbacks por segundo y tarjeta, también en reposo). Mide solo cuando puede haber cambiado algo:
+- **Descripción:** controlador reactivo de Lit que mantiene al día el tamaño real de `ha-card` (ancho, alto y radio de borde, los de la caja donde se pinta el SVG del aro: la **exterior** si el navegador admite `overflow-clip-margin` y la **interior**, con el radio menos el ancho del borde, si no; se leen del estilo calculado, con decimales, porque `offsetWidth/Height` redondean y la rejilla de HA reparte anchos fraccionarios), que `neonRingSplitTemplate` necesita porque el atributo `d` de un `<path>` no admite porcentajes. Sustituye al bucle `requestAnimationFrame` continuo que usaban Button y Thermostat (60 callbacks por segundo y tarjeta, también en reposo). Mide solo cuando puede haber cambiado algo:
   1. `ResizeObserver` sobre el `ha-card` **actual**: si Lit lo sustituye (p. ej. al pasar de «entidad no disponible» a la vista normal), se vuelve a observar el nuevo, porque un observer atado a un nodo descartado no avisa más.
   2. Una medida tras cada renderizado, fusionada en un único frame, que recoge lo que el observer no ve (el radio de borde del tema).
   3. Una ráfaga corta de medidas al conectar (30 frames, ~0,5 s) para la carrera de layout cuando el editor de HA crea o mueve la tarjeta.
