@@ -173,14 +173,20 @@ export const NEON_RING_SPLIT_STYLES = css`
   }
 `;
 
+/** Solape, en px de arco, con que cada mitad del aro rebasa los dos puntos de
+    unión. Con las mitades justo a tope, el antialiasing de los dos extremos
+    deja una rendija por la que asoma lo que hay debajo. */
+const JOIN_OVERLAP = 1.5;
+
 /**
  * Calcula los dos trazados (`d`) de las mitades del aro para un
  * rectángulo redondeado de `width`×`height` con radio `radius`,
  * separado `inset` px del borde real de la tarjeta (la mitad del
  * grosor del trazo, para que el aro quede centrado sobre el borde).
- * Ambos arrancan/terminan en el punto medio (45°) de la esquina
- * correspondiente para que el encuentro entre las dos mitades sea
- * exacto, sin solape ni hueco.
+ * Las mitades se encuentran en el punto medio (45°) de las esquinas
+ * superior-izquierda e inferior-derecha, y cada una rebasa ese punto
+ * `JOIN_OVERLAP` px sobre el arco para que no quede rendija; como las dos
+ * llevan el mismo degradado, el solape no se distingue.
  */
 export function neonRingSplitPaths(
   width: number,
@@ -193,37 +199,38 @@ export function neonRingSplitPaths(
   const y0 = inset;
   const x1 = Math.max(x0, width - inset);
   const y1 = Math.max(y0, height - inset);
-  // Punto al 45° del arco de esquina (mitad de cada cuarto de círculo).
-  const k = r * (1 - Math.SQRT1_2);
-  const startX = x0 + k;
-  const startY = y0 + k;
-  const endX = x1 - k;
-  const endY = y1 - k;
+  // Ángulo de solape (rad), limitado a medio cuarto de círculo; sin radio no hay arco.
+  const d = r >= 1 ? Math.min(JOIN_OVERLAP / r, Math.PI / 4) : 0;
+  // Punto del arco de la esquina de centro (cx, cy) al ángulo `a` (rad, y hacia abajo).
+  const pt = (cx: number, cy: number, a: number): string => `${cx + r * Math.cos(a)} ${cy + r * Math.sin(a)}`;
+  const tl = (a: number): string => pt(x0 + r, y0 + r, a);
+  const br = (a: number): string => pt(x1 - r, y1 - r, a);
 
-  // Mitad "superior-derecha": del punto medio de la esquina sup-izq,
-  // termina el arco → borde superior → esquina sup-derecha (completa)
-  // → borde derecho → mitad del arco inferior-derecho.
+  // Mitad "superior-derecha": desde un poco antes del punto medio de la
+  // esquina sup-izq, termina el arco → borde superior → esquina sup-derecha
+  // (completa) → borde derecho → arco inferior-derecho hasta un poco más
+  // allá de su punto medio.
   const top = [
-    `M ${startX} ${startY}`,
+    `M ${tl((5 * Math.PI) / 4 - d)}`,
     `A ${r} ${r} 0 0 1 ${x0 + r} ${y0}`,
     `L ${x1 - r} ${y0}`,
     `A ${r} ${r} 0 0 1 ${x1} ${y0 + r}`,
     `L ${x1} ${y1 - r}`,
-    `A ${r} ${r} 0 0 1 ${endX} ${endY}`,
+    `A ${r} ${r} 0 0 1 ${br(Math.PI / 4 + d)}`,
   ].join(' ');
 
-  // Mitad "inferior-izquierda": mismo punto de partida, sentido
-  // contrario → borde izquierdo → esquina inf-izq (completa) → borde
-  // inferior → mitad del arco inferior-derecho (mismo punto final).
+  // Mitad "inferior-izquierda": sentido contrario, desde un poco después del
+  // mismo punto medio → borde izquierdo → esquina inf-izq (completa) →
+  // borde inferior → arco inferior-derecho hasta un poco antes de su punto
+  // medio.
   const bottom = [
-    `M ${startX} ${startY}`,
+    `M ${tl((5 * Math.PI) / 4 + d)}`,
     `A ${r} ${r} 0 0 0 ${x0} ${y0 + r}`,
     `L ${x0} ${y1 - r}`,
     `A ${r} ${r} 0 0 0 ${x0 + r} ${y1}`,
     `L ${x1 - r} ${y1}`,
-    `A ${r} ${r} 0 0 0 ${endX} ${endY}`,
+    `A ${r} ${r} 0 0 0 ${br(Math.PI / 4 - d)}`,
   ].join(' ');
-
   return { top, bottom };
 }
 
