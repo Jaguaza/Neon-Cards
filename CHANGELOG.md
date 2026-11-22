@@ -12,6 +12,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 ### Added
 
 - `src/shared`: nuevo `arc-dial.ts` (`DIAL_START_ANGLE`, `DIAL_END_ANGLE`, `pointOnDial`, `dialArcPath`, `angleForValue`, `valueForAngle`, `angleFromPoint`, `buildArcModel`, `ArcModel`), la geometría pura del arco de 180° con un punto arrastrable, ahora genérica (valor entre un mínimo y un máximo). Documentado en `docs/es/api.md` y `docs/en/api.md`.
+- `src/ha`: nuevo `cover.ts` (`COVER_FEATURES`, `getCoverState`, `CoverState`, `CoverStateName`), que lee el estado y las capacidades de una entidad `cover` (posición, inclinación, clase de dispositivo y qué puede hacer). Documentado en `docs/es/api.md` y `docs/en/api.md`.
 
 ### Changed
 
@@ -411,6 +412,7 @@ and this project follows [Semantic Versioning](https://semver.org/).
 ### Added
 
 - `src/shared`: new `arc-dial.ts` (`DIAL_START_ANGLE`, `DIAL_END_ANGLE`, `pointOnDial`, `dialArcPath`, `angleForValue`, `valueForAngle`, `angleFromPoint`, `buildArcModel`, `ArcModel`), the pure geometry of the 180° arc with a draggable dot, now generic (value between a minimum and a maximum). Documented in `docs/es/api.md` and `docs/en/api.md`.
+- `src/ha`: new `cover.ts` (`COVER_FEATURES`, `getCoverState`, `CoverState`, `CoverStateName`), which reads the state and capabilities of a `cover` entity (position, tilt, device class and what it can do). Documented in `docs/es/api.md` and `docs/en/api.md`.
 
 ### Changed
 

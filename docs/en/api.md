@@ -19,6 +19,7 @@ See also the [Spanish version](../es/api.md).
 - [`src/ha` — Home Assistant types](#srcha--home-assistant-types)
   - [Sensors (`sensors.ts`)](#sensors-sensorsts)
   - [Climate (`climate.ts`)](#climate-climatets)
+  - [Cover (`cover.ts`)](#cover-coverts)
   - [History (`history.ts`)](#history-historyts)
 - [`src/shared` — Shared neon palette and effects](#srcshared--shared-neon-palette-and-effects)
   - [Palette (`neon-palette.ts`)](#palette-neon-palettets)
@@ -640,6 +641,47 @@ future climate-control card should reuse these instead of re-reading
 | `HVAC_MODES` | `['off', 'heat', 'cool', 'heat_cool', 'auto', 'dry', 'fan_only']`. |
 | `HvacMode` | TypeScript type derived from `HVAC_MODES`. |
 | `HvacAction` | `'off' \| 'idle' \| 'preheating' \| 'heating' \| 'cooling' \| 'drying' \| 'fan'` — what the equipment is doing RIGHT NOW, distinct from the selected mode. |
+
+---
+
+### Cover (`cover.ts`)
+
+Helpers for `cover` entities (agreement nº4: cards never read `hass.states` by hand for this). Used by the Neón Cover Card; any future card that controls shutters, curtains or doors should reuse them.
+
+#### `COVER_FEATURES`
+
+- **Description:** `supported_features` bits of a `cover` entity.
+- **Type:** `{ OPEN: 1, CLOSE: 2, SET_POSITION: 4, STOP: 8, OPEN_TILT: 16, CLOSE_TILT: 32, STOP_TILT: 64, SET_TILT_POSITION: 128 }`.
+
+#### `getCoverState(entityId, hass)`
+
+- **Description:** reads the state and capabilities of a `cover` entity: state, position and tilt (0–100, rounded and clamped), device class and what it can do (open, close, stop, set position, set tilt). Without a numeric `supported_features` it assumes open, close and stop, and that position and tilt can be set if the entity reports them.
+- **Parameters:**
+  - `entityId: string` — must start with `cover.`.
+  - `hass: HomeAssistant`.
+- **Returns:** `CoverState | null` — `null` if `entityId` isn't in the `cover` domain or isn't in `hass.states`.
+  ```ts
+  type CoverStateName = 'open' | 'closed' | 'opening' | 'closing' | 'unavailable';
+
+  interface CoverState {
+    entity: string;
+    state: CoverStateName; // unknown and any other value count as 'unavailable'
+    available: boolean; // false if the state is 'unavailable'
+    position: number | null; // `current_position`: 0 closed, 100 open; null if not reported
+    tiltPosition: number | null; // `current_tilt_position`; null if not reported
+    deviceClass: string | null; // shutter, blind, curtain, awning…
+    canOpen: boolean;
+    canClose: boolean;
+    canStop: boolean;
+    canSetPosition: boolean;
+    canSetTilt: boolean;
+  }
+  ```
+- **Example:**
+  ```ts
+  const c = getCoverState('cover.living_room', hass);
+  // c?.state === 'open', c?.position === 72, c?.canSetTilt === false
+  ```
 
 ---
 
