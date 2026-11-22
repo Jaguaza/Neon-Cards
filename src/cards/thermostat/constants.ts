@@ -42,13 +42,6 @@ export const HVAC_MODE_DEFAULT_COLORS: Record<HvacMode, string> = {
   off: '#9aa0a6',
 };
 
-/** Ángulos (convención reloj: 0° = arriba, crece en sentido horario) de
-    la semicircunferencia del aro/dial — EXACTAMENTE 180° de barrido,
-    diámetro horizontal puro. Compartidos por el dial de la vista grande
-    y el aro de normal/compacta. */
-export const DIAL_START_ANGLE = -90;
-export const DIAL_END_ANGLE = 90;
-
 /** Clave de traducción (`translations/*.ts`) para el nombre visible de
     cada modo HVAC, usada tanto en el header como en el selector único. */
 export const HVAC_MODE_LABEL_KEYS: Record<HvacMode, keyof ThermostatTranslations> = {

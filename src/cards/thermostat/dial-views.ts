@@ -1,7 +1,7 @@
 import { html } from 'lit';
 import type { TemplateResult } from 'lit';
 import type { ClimateState } from '../../ha/climate';
-import { buildArcModel } from './dial-geometry';
+import { buildArcModel } from '../../shared';
 
 export interface PointerHandlers {
   down: (ev: PointerEvent) => void;

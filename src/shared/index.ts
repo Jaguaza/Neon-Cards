@@ -15,6 +15,8 @@ export { isCssColor, toHex6 } from './css-color';
 export { ACTION_PENDING_MS, ActionPendingController } from './action-pending';
 export { CARD_GRID, CARD_SIZES, DEFAULT_CARD_SIZE, resolveCardSize } from './card-size';
 export type { CardSize } from './card-size';
+export { DIAL_END_ANGLE, DIAL_START_ANGLE, angleForValue, angleFromPoint, buildArcModel, dialArcPath, pointOnDial, valueForAngle } from './arc-dial';
+export type { ArcModel } from './arc-dial';
 export { RingSizeController } from './ring-size';
 export type { RingSize } from './ring-size';
 export { CARD_AUTHOR, CARD_VERSION } from './card-identity';

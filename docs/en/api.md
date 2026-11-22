@@ -26,6 +26,7 @@ See also the [Spanish version](../es/api.md).
   - [Split ring (`glow.ts`)](#split-ring-glowts)
   - [Validated CSS colors (`css-color.ts`)](#validated-css-colors-css-colorts)
   - [Ring size (`ring-size.ts`)](#ring-size-ring-sizets)
+  - [Arc dial (`arc-dial.ts`)](#arc-dial-arc-dialts)
   - [Editor: shared shell (`editor-form.styles.ts`)](#editor-shared-shell-editor-formstylests)
   - [Shared translations (`translations/`)](#shared-translations-translations)
 - [Neón Entity Card — YAML configuration](#neón-entity-card--yaml-configuration)
@@ -949,6 +950,58 @@ aliases of `CardSize`. The Light Card only uses `CARD_GRID.large`: its two sizes
     return html`<ha-card>${neonRingSplitTemplate(this._ringUid, width, height, radius)}…</ha-card>`;
   }
   ```
+
+---
+
+### Arc dial (`arc-dial.ts`)
+
+Pure geometry of the 180° arc with a draggable dot (no `this`, `hass` or lit: just trigonometry). Used by the Thermostat Card (temperature) and the Cover Card (opening percentage), each with its own unit. Angle convention: clock, 0° at the top and growing clockwise.
+
+#### `DIAL_START_ANGLE` · `DIAL_END_ANGLE`
+
+- **Description:** angles of the two ends of the arc, `-90` and `90`: a sweep of exactly 180° with a horizontal diameter.
+- **Type:** `number`.
+
+#### `pointOnDial(cx, cy, r, angleDeg)`
+
+- **Description:** point on a circle for a given angle.
+- **Parameters:** center `cx`, `cy`, radius `r` and angle `angleDeg` in degrees.
+- **Returns:** `{ x: number; y: number }`.
+- **Example:** `pointOnDial(50, 50, 40, 0)` → `{ x: 50, y: 10 }`.
+
+#### `dialArcPath(cx, cy, r, startAngle, endAngle)`
+
+- **Description:** SVG path (`d` of a `<path>`) of the arc between two angles. The "large arc" flag is fixed at 0 because the sweep is always 180°.
+- **Returns:** `string`, e.g. `M 10 50 A 40 40 0 0 1 90 50`.
+
+#### `angleForValue(value, min, max)`
+
+- **Description:** dial angle for a value: `DIAL_START_ANGLE` at `min` and `DIAL_END_ANGLE` at `max`.
+- **Returns:** `number`. A value outside [min, max] stays at the end; with an empty or inverted range it returns `DIAL_START_ANGLE`.
+- **Example:** `angleForValue(50, 0, 100)` → `0`.
+
+#### `valueForAngle(angleDeg, min, max)`
+
+- **Description:** inverse of `angleForValue`: the value (not snapped to any step) for an angle. An angle outside the arc stays at the nearest end.
+- **Returns:** `number`.
+- **Example:** `valueForAngle(0, 7, 35)` → `21`.
+
+#### `angleFromPoint(rect, clientX, clientY)`
+
+- **Description:** angle (in degrees, clock convention) of a screen point relative to the center of a box. Used to drag the dial dot with the pointer. It does not clamp to the arc: combine it with `valueForAngle`.
+- **Parameters:** `rect` with `left`, `top`, `width` and `height` (the `getBoundingClientRect()` of the dial `<svg>`) and the pointer coordinates `clientX`, `clientY`.
+- **Returns:** `number`.
+- **Example:**
+  ```ts
+  const angle = angleFromPoint(svg.getBoundingClientRect(), ev.clientX, ev.clientY);
+  const value = valueForAngle(angle, min, max);
+  ```
+
+#### `buildArcModel(idPrefix, id, min, max, value)`
+
+- **Description:** what the dial needs to draw itself in a 100×100 `viewBox` (center 50,50, radius 42): path, dot, gradient ends and the clamped fraction (between 0.08 and 0.92) where the gradient reaches solid color. With `value` at `null` the dot sits at the start end.
+- **Parameters:** `idPrefix` and `id` build the gradient id (`id` without special characters), unique per card; `min`, `max` and `value`.
+- **Returns:** `ArcModel` — `{ fullPath, dot, start, end, dotFraction, gradientId }`.
 
 ---
 

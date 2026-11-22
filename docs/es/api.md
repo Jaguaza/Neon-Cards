@@ -26,6 +26,7 @@ Ver también la versión en [inglés](../en/api.md).
   - [Aro partido (`glow.ts`)](#aro-partido-glowts)
   - [Colores CSS validados (`css-color.ts`)](#colores-css-validados-css-colorts)
   - [Tamaño del aro (`ring-size.ts`)](#tamaño-del-aro-ring-sizets)
+  - [Dial en arco (`arc-dial.ts`)](#dial-en-arco-arc-dialts)
   - [Editor: carcasa común (`editor-form.styles.ts`)](#editor-carcasa-común-editor-formstylests)
   - [Traducciones compartidas (`translations/`)](#traducciones-compartidas-translations)
 - [Neón Entity Card — Configuración YAML](#neón-entity-card--configuración-yaml)
@@ -952,6 +953,58 @@ propias.
     return html`<ha-card>${neonRingSplitTemplate(this._ringUid, width, height, radius)}…</ha-card>`;
   }
   ```
+
+---
+
+### Dial en arco (`arc-dial.ts`)
+
+Geometría pura del arco de 180° con un punto arrastrable (sin `this`, `hass` ni lit: solo trigonometría). La usan la Thermostat Card (temperatura) y la Cover Card (porcentaje de apertura), cada una con su unidad. Convención de ángulos: reloj, 0° arriba y creciendo en sentido horario.
+
+#### `DIAL_START_ANGLE` · `DIAL_END_ANGLE`
+
+- **Descripción:** ángulos de los dos extremos del arco, `-90` y `90`: un barrido de exactamente 180° con el diámetro horizontal.
+- **Tipo:** `number`.
+
+#### `pointOnDial(cx, cy, r, angleDeg)`
+
+- **Descripción:** punto sobre una circunferencia para un ángulo dado.
+- **Parámetros:** centro `cx`, `cy`, radio `r` y ángulo `angleDeg` en grados.
+- **Devuelve:** `{ x: number; y: number }`.
+- **Ejemplo:** `pointOnDial(50, 50, 40, 0)` → `{ x: 50, y: 10 }`.
+
+#### `dialArcPath(cx, cy, r, startAngle, endAngle)`
+
+- **Descripción:** trazo SVG (`d` de un `<path>`) del arco entre dos ángulos. El flag de «arco grande» queda fijo en 0 porque el barrido es siempre de 180°.
+- **Devuelve:** `string`, p. ej. `M 10 50 A 40 40 0 0 1 90 50`.
+
+#### `angleForValue(value, min, max)`
+
+- **Descripción:** ángulo del dial que corresponde a un valor: `DIAL_START_ANGLE` en `min` y `DIAL_END_ANGLE` en `max`.
+- **Devuelve:** `number`. Un valor fuera de [min, max] se queda en el extremo; con un rango nulo o invertido devuelve `DIAL_START_ANGLE`.
+- **Ejemplo:** `angleForValue(50, 0, 100)` → `0`.
+
+#### `valueForAngle(angleDeg, min, max)`
+
+- **Descripción:** inversa de `angleForValue`: valor (sin ajustar a ningún paso) de un ángulo. Un ángulo fuera del arco se queda en el extremo más cercano.
+- **Devuelve:** `number`.
+- **Ejemplo:** `valueForAngle(0, 7, 35)` → `21`.
+
+#### `angleFromPoint(rect, clientX, clientY)`
+
+- **Descripción:** ángulo (en grados, convención reloj) de un punto de la pantalla respecto al centro de una caja. Sirve para arrastrar el punto del dial con el puntero. No acota al arco: se combina con `valueForAngle`.
+- **Parámetros:** `rect` con `left`, `top`, `width` y `height` (el `getBoundingClientRect()` del `<svg>` del dial) y las coordenadas `clientX`, `clientY` del puntero.
+- **Devuelve:** `number`.
+- **Ejemplo:**
+  ```ts
+  const angle = angleFromPoint(svg.getBoundingClientRect(), ev.clientX, ev.clientY);
+  const value = valueForAngle(angle, min, max);
+  ```
+
+#### `buildArcModel(idPrefix, id, min, max, value)`
+
+- **Descripción:** lo que necesita el dial para dibujarse en un `viewBox` de 100×100 (centro 50,50 y radio 42): trazo, punto, extremos del degradado y fracción acotada (entre 0,08 y 0,92) donde el degradado llega a color sólido. Con `value` a `null` el punto queda en el extremo inicial.
+- **Parámetros:** `idPrefix` e `id` forman el id del degradado (`id` sin caracteres especiales), único por tarjeta; `min`, `max` y `value`.
+- **Devuelve:** `ArcModel` — `{ fullPath, dot, start, end, dotFraction, gradientId }`.
 
 ---
 

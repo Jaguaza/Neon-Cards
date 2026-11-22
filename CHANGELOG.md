@@ -9,6 +9,14 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- `src/shared`: nuevo `arc-dial.ts` (`DIAL_START_ANGLE`, `DIAL_END_ANGLE`, `pointOnDial`, `dialArcPath`, `angleForValue`, `valueForAngle`, `angleFromPoint`, `buildArcModel`, `ArcModel`), la geometría pura del arco de 180° con un punto arrastrable, ahora genérica (valor entre un mínimo y un máximo). Documentado en `docs/es/api.md` y `docs/en/api.md`.
+
+### Changed
+
+- Thermostat Card: su dial usa la geometría del arco de `src/shared` en lugar de una copia propia (`dial-geometry.ts` desaparece). Sin cambios visibles: el DOM y el CSS pintados son idénticos antes y después (comprobado en 12 casos: tres tamaños, cuatro estados cada uno).
+
 ## [1.5.1] - 2026-11-21
 
 ### Fixed
@@ -399,6 +407,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+### Added
+
+- `src/shared`: new `arc-dial.ts` (`DIAL_START_ANGLE`, `DIAL_END_ANGLE`, `pointOnDial`, `dialArcPath`, `angleForValue`, `valueForAngle`, `angleFromPoint`, `buildArcModel`, `ArcModel`), the pure geometry of the 180° arc with a draggable dot, now generic (value between a minimum and a maximum). Documented in `docs/es/api.md` and `docs/en/api.md`.
+
+### Changed
+
+- Thermostat Card: its dial uses the arc geometry from `src/shared` instead of its own copy (`dial-geometry.ts` is removed). No visible changes: the rendered DOM and CSS are identical before and after (checked in 12 cases: three sizes, four states each).
 
 ## [1.5.1] - 2026-11-21
 

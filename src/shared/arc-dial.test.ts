@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { angleForTemp, buildArcModel, dialArcPath, pointOnDial, tempForAngle } from './dial-geometry';
-import { DIAL_END_ANGLE, DIAL_START_ANGLE } from './constants';
+import { DIAL_END_ANGLE, DIAL_START_ANGLE, angleForValue, angleFromPoint, buildArcModel, dialArcPath, pointOnDial, valueForAngle } from './arc-dial';
 
 describe('pointOnDial', () => {
   it('0° está arriba y el ángulo crece en sentido horario', () => {
@@ -28,45 +27,45 @@ describe('dialArcPath', () => {
   });
 });
 
-describe('angleForTemp', () => {
-  it('reparte el rango de temperaturas a lo largo de los 180° del dial', () => {
-    expect(angleForTemp(7, 7, 35)).toBe(DIAL_START_ANGLE);
-    expect(angleForTemp(35, 7, 35)).toBe(DIAL_END_ANGLE);
-    expect(angleForTemp(21, 7, 35)).toBeCloseTo(0);
+describe('angleForValue', () => {
+  it('reparte el rango de valores a lo largo de los 180° del dial', () => {
+    expect(angleForValue(7, 7, 35)).toBe(DIAL_START_ANGLE);
+    expect(angleForValue(35, 7, 35)).toBe(DIAL_END_ANGLE);
+    expect(angleForValue(21, 7, 35)).toBeCloseTo(0);
   });
 
-  it('una temperatura fuera de rango se queda en el extremo', () => {
-    expect(angleForTemp(-5, 7, 35)).toBe(DIAL_START_ANGLE);
-    expect(angleForTemp(99, 7, 35)).toBe(DIAL_END_ANGLE);
+  it('un valor fuera de rango se queda en el extremo', () => {
+    expect(angleForValue(-5, 7, 35)).toBe(DIAL_START_ANGLE);
+    expect(angleForValue(99, 7, 35)).toBe(DIAL_END_ANGLE);
   });
 
   it('con un rango nulo o invertido devuelve el ángulo inicial', () => {
-    expect(angleForTemp(20, 20, 20)).toBe(DIAL_START_ANGLE);
-    expect(angleForTemp(20, 30, 10)).toBe(DIAL_START_ANGLE);
+    expect(angleForValue(20, 20, 20)).toBe(DIAL_START_ANGLE);
+    expect(angleForValue(20, 30, 10)).toBe(DIAL_START_ANGLE);
   });
 });
 
-describe('tempForAngle', () => {
-  it('es la inversa de angleForTemp dentro del arco', () => {
+describe('valueForAngle', () => {
+  it('es la inversa de angleForValue dentro del arco', () => {
     for (const t of [7, 12.5, 21, 30, 35]) {
-      expect(tempForAngle(angleForTemp(t, 7, 35), 7, 35)).toBeCloseTo(t);
+      expect(valueForAngle(angleForValue(t, 7, 35), 7, 35)).toBeCloseTo(t);
     }
   });
 
   it('un ángulo fuera del arco se queda en el extremo más cercano', () => {
-    expect(tempForAngle(-170, 7, 35)).toBe(7);
-    expect(tempForAngle(170, 7, 35)).toBe(35);
+    expect(valueForAngle(-170, 7, 35)).toBe(7);
+    expect(valueForAngle(170, 7, 35)).toBe(35);
   });
 });
 
 describe('buildArcModel', () => {
-  it('coloca el punto en el extremo inicial si no hay consigna', () => {
+  it('coloca el punto en el extremo inicial si no hay valor', () => {
     const arc = buildArcModel('dial-grad', 'climate.salon', 7, 35, null);
     expect(arc.dot.x).toBeCloseTo(arc.start.x);
     expect(arc.dot.y).toBeCloseTo(arc.start.y);
   });
 
-  it('coloca el punto sobre el arco según la consigna', () => {
+  it('coloca el punto sobre el arco según el valor', () => {
     const arc = buildArcModel('dial-grad', 'climate.salon', 7, 35, 21);
     expect(arc.dot.x).toBeCloseTo(50);
     expect(arc.dot.y).toBeCloseTo(8);
@@ -88,5 +87,19 @@ describe('buildArcModel', () => {
   it('el trazo coincide con dialArcPath del mismo arco', () => {
     const arc = buildArcModel('dial-grad', 'climate.x', 7, 35, 21);
     expect(arc.fullPath).toBe(dialArcPath(50, 50, 42, DIAL_START_ANGLE, DIAL_END_ANGLE));
+  });
+});
+
+describe('angleFromPoint', () => {
+  const rect = { left: 100, top: 200, width: 100, height: 100 };
+
+  it('un punto justo encima del centro es 0°, a la derecha 90° y a la izquierda -90°', () => {
+    expect(angleFromPoint(rect, 150, 200)).toBeCloseTo(0);
+    expect(angleFromPoint(rect, 200, 250)).toBeCloseTo(90);
+    expect(angleFromPoint(rect, 100, 250)).toBeCloseTo(-90);
+  });
+
+  it('no acota al arco: un punto bajo el centro supera los 90°', () => {
+    expect(angleFromPoint(rect, 200, 300)).toBeGreaterThan(90);
   });
 });

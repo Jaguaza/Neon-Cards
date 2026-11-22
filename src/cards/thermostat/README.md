@@ -193,7 +193,6 @@ footer:
 | `header.ts` · `footer.ts` | Cabecera con accesos «más información» y pie de sensores |
 | `target-pill.ts` · `selector-pill.ts` | Píldora −/+ de consigna y píldora-selector (modo, preset, ventilador) |
 | `combined-climate.ts` | Estado mostrado y reparto de modos con 1 o 2 entidades |
-| `dial-geometry.ts` | Geometría pura del arco (ángulos, puntos, trazo SVG) |
 | `*-styles.ts` | Estilos por zona (tarjeta, dial, aro, píldora de consigna, modo y pie) |
 | `neon-thermostat-card-editor.ts` | Editor visual |
 | `constants.ts` · `types.ts` · `translations/` | Constantes, tipos y textos (es/en) |
@@ -405,7 +404,6 @@ footer:
 | `header.ts` · `footer.ts` | Header with "more info" buttons and the sensor footer |
 | `target-pill.ts` · `selector-pill.ts` | −/+ target pill and selector pill (mode, preset, fan) |
 | `combined-climate.ts` | Displayed state and mode ownership with 1 or 2 entities |
-| `dial-geometry.ts` | Pure arc geometry (angles, points, SVG path) |
 | `*-styles.ts` | Styles per area (card, dial, ring, target pill, mode and footer) |
 | `neon-thermostat-card-editor.ts` | Visual editor |
 | `constants.ts` · `types.ts` · `translations/` | Constants, types and texts (es/en) |

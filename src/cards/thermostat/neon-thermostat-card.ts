@@ -10,7 +10,9 @@ import {
   neonHaloVars,
   neonRingSplitTemplate,
   RingSizeController,
+  angleFromPoint,
   resolveGradientColors,
+  valueForAngle,
 } from '../../shared';
 import {
   DEFAULT_SIZE,
@@ -28,7 +30,6 @@ import { THERMOSTAT_RING_STYLES } from './ring-styles';
 import { THERMOSTAT_MODE_FOOTER_STYLES } from './mode-footer-styles';
 import { THERMOSTAT_TRANSLATIONS } from './translations';
 import type { NeonThermostatCardConfig, ThermostatSize } from './types';
-import { tempForAngle } from './dial-geometry';
 import { renderLargeBody, renderRingBody, renderCompactBody } from './dial-views';
 import { renderFooter } from './footer';
 import { renderHeader, renderCompactHeader, renderHeaderActions } from './header';
@@ -256,10 +257,8 @@ export class NeonThermostatCard extends BaseNeonCard {
 
   private _updateDragFromPointer(ev: PointerEvent, climate: ClimateState): void {
     const rect = (ev.currentTarget as Element).getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const angle = Math.atan2(ev.clientX - cx, -(ev.clientY - cy)) * (180 / Math.PI);
-    const rawTemp = tempForAngle(angle, climate.minTemp, climate.maxTemp);
+    const angle = angleFromPoint(rect, ev.clientX, ev.clientY);
+    const rawTemp = valueForAngle(angle, climate.minTemp, climate.maxTemp);
     this._dragTemp = clampToStep(rawTemp, climate.minTemp, climate.maxTemp, this._step);
   }
 
