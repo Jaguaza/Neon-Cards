@@ -58,9 +58,76 @@ export const NEON_COVER_GLYPH_STYLES = css`
     transition: transform 500ms ease;
   }
 
+  /* La cortina: cada panel se recoge hacia su lado (0,78 de su ancho menos al
+     abrirse del todo) y sus pliegues se juntan con él. */
+  .g-panel {
+    transform-box: fill-box;
+    transform: scaleX(calc(1 - var(--open, 0) * 0.78));
+    transition: transform 500ms ease;
+  }
+
+  .g-panel-left {
+    transform-origin: 0% 50%;
+  }
+
+  .g-panel-right {
+    transform-origin: 100% 50%;
+  }
+
+  /* Opaco: cerrada, la cortina tapa la ventana y el alféizar de detrás. */
+  .g-fabric {
+    fill: color-mix(in srgb, var(--cover-color) 30%, var(--card-background-color, #1c1c1c));
+    stroke: var(--glyph-line);
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .g-fold {
+    stroke: color-mix(in srgb, var(--glyph-line) 70%, transparent);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .g-rod {
+    stroke: var(--glyph-line);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .g-finial {
+    fill: var(--glyph-line);
+  }
+
+  /* El toldo: la lona crece hacia abajo desde el cajón y el volante baja con su borde. */
+  .g-stripes {
+    transform-box: fill-box;
+    transform-origin: 50% 0%;
+    transform: scaleY(calc(var(--rolled, 0.14) + var(--open, 0) * (1 - var(--rolled, 0.14))));
+    transition: transform 500ms ease;
+  }
+
+  .g-stripe {
+    fill: var(--glyph-fill);
+  }
+
+  .g-stripe-alt {
+    fill: color-mix(in srgb, var(--cover-color) 12%, transparent);
+  }
+
+  .g-valance {
+    fill: var(--glyph-fill);
+    stroke: var(--glyph-line);
+    stroke-width: 1.2;
+    transform: translateY(calc(var(--open, 0) * var(--travel, 48px)));
+    transition: transform 500ms ease;
+  }
+
   /* Al arrastrar, el dibujo sigue al dedo sin retraso. */
   .dragging .g-curtain,
-  .dragging .g-blind-slat {
+  .dragging .g-blind-slat,
+  .dragging .g-panel,
+  .dragging .g-stripes,
+  .dragging .g-valance {
     transition: none;
   }
 
@@ -77,7 +144,10 @@ export const NEON_COVER_GLYPH_STYLES = css`
 
   @media (prefers-reduced-motion: reduce) {
     .g-curtain,
-    .g-blind-slat {
+    .g-blind-slat,
+    .g-panel,
+    .g-stripes,
+    .g-valance {
       transition: none;
     }
   }

@@ -53,8 +53,13 @@ describe('coverGlyph', () => {
     expect(coverGlyph(cover('open', 'blind'))).toBe('blind');
   });
 
-  it('cortinas, toldos, puertas… no tienen dibujo propio', () => {
-    for (const deviceClass of ['curtain', 'awning', 'garage', 'gate', 'door', 'window', 'shade', 'damper', 'rara']) {
+  it('curtain es la cortina y awning, el toldo', () => {
+    expect(coverGlyph(cover('open', 'curtain'))).toBe('curtain');
+    expect(coverGlyph(cover('open', 'awning'))).toBe('awning');
+  });
+
+  it('garaje, puerta, ventana… no tienen dibujo propio', () => {
+    for (const deviceClass of ['garage', 'gate', 'door', 'window', 'shade', 'damper', 'rara']) {
       expect(coverGlyph(cover('open', deviceClass))).toBeNull();
     }
   });

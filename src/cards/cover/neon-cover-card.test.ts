@@ -31,12 +31,13 @@ describe('cabecera y estado', () => {
     expect(qa(el, '.control').map((b) => b.textContent?.trim())).toEqual(['Close', 'Stop', 'Open']);
   });
 
-  it('un cover que no es persiana usa el icono de Home Assistant según device_class y estado', async () => {
-    const open = await mount({}, hassWith('open', { attributes: { device_class: 'curtain' } }));
-    expect((q(open, '.hero-mdi') as unknown as { icon: string }).icon).toBe('mdi:curtains');
+  it('un cover sin dibujo propio usa el icono de Home Assistant según device_class y estado', async () => {
+    const open = await mount({}, hassWith('open', { attributes: { device_class: 'garage' } }));
+    expect((q(open, '.hero-mdi') as unknown as { icon: string }).icon).toBe('mdi:garage-open');
+    expect(q(open, '.cover-glyph')).toBeNull();
     document.body.innerHTML = '';
-    const closed = await mount({}, hassWith('closed', { attributes: { device_class: 'curtain', current_position: 0 } }));
-    expect((q(closed, '.hero-mdi') as unknown as { icon: string }).icon).toBe('mdi:curtains-closed');
+    const closed = await mount({}, hassWith('closed', { attributes: { device_class: 'garage', current_position: 0 } }));
+    expect((q(closed, '.hero-mdi') as unknown as { icon: string }).icon).toBe('mdi:garage');
   });
 
   it('el halo está encendido con la persiana abierta o en movimiento y apagado cerrada', async () => {
@@ -98,6 +99,28 @@ describe('icono grande', () => {
     await el.updateComplete;
     expect(style(el)).toContain('--open: 0.72');
     expect(q(el, '.hero-icon')!.classList.contains('dragging')).toBe(false);
+  });
+
+  it('la cortina tiene dos paneles que se recogen con el porcentaje', async () => {
+    const el = await mount({}, hassWith('open', { attributes: { device_class: 'curtain', current_position: 60 } }));
+    expect(q(el, '.cover-glyph')?.getAttribute('data-glyph')).toBe('curtain');
+    expect(qa(el, '.g-panel')).toHaveLength(2);
+    expect(qa(el, '.g-fold')).toHaveLength(6);
+    expect(style(el)).toContain('--open: 0.6');
+  });
+
+  it('el toldo se despliega con el porcentaje: lona de rayas y volante', async () => {
+    const el = await mount({}, hassWith('open', { attributes: { device_class: 'awning', current_position: 80 } }));
+    expect(q(el, '.cover-glyph')?.getAttribute('data-glyph')).toBe('awning');
+    expect(qa(el, '.g-stripe')).toHaveLength(6);
+    expect(qa(el, '.g-stripe-alt')).toHaveLength(3);
+    expect(q(el, '.g-valance')).not.toBeNull();
+    expect(style(el)).toContain('--open: 0.8');
+    const slider = q(el, '.slider') as HTMLInputElement;
+    slider.value = '10';
+    slider.dispatchEvent(new Event('input'));
+    await el.updateComplete;
+    expect(style(el)).toContain('--open: 0.1');
   });
 
   it('la veneciana gira las lamas con la inclinación, también arrastrándola', async () => {

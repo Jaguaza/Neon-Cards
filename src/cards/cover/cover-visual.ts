@@ -12,18 +12,26 @@ export function coverIcon(cover: CoverState): string {
   return cover.state === 'open' || cover.state === 'opening' || cover.state === 'closing' ? pair.open : pair.closed;
 }
 
-/** Dibujos propios de la tarjeta: persiana enrollable y veneciana. */
-export type CoverGlyph = 'shutter' | 'blind';
+/** Dibujos propios de la tarjeta: persiana enrollable, veneciana, cortina y toldo. */
+export type CoverGlyph = 'shutter' | 'blind' | 'curtain' | 'awning';
+
+const GLYPH_BY_DEVICE_CLASS: Record<string, CoverGlyph> = {
+  shutter: 'shutter',
+  blind: 'blind',
+  curtain: 'curtain',
+  awning: 'awning',
+};
 
 /**
- * Qué dibujo animado lleva el cover: la veneciana (`blind`) o la persiana
- * enrollable (`shutter`, y también un cover sin `device_class`, que en esta
- * tarjeta es una persiana). Cortinas, toldos, puertas… (`null`) usan el icono
- * `mdi` de Home Assistant, sin animar.
+ * Qué dibujo animado lleva el cover según su `device_class`: persiana
+ * enrollable (`shutter`, y también un cover sin clase, que en esta tarjeta es
+ * una persiana), veneciana (`blind`), cortina (`curtain`) o toldo (`awning`).
+ * Los demás tipos (`null`: garaje, puerta, ventana…) usan el icono `mdi` de
+ * Home Assistant, sin animar.
  */
 export function coverGlyph(cover: CoverState): CoverGlyph | null {
-  if (cover.deviceClass === null || cover.deviceClass === 'shutter') return 'shutter';
-  return cover.deviceClass === 'blind' ? 'blind' : null;
+  if (cover.deviceClass === null) return 'shutter';
+  return GLYPH_BY_DEVICE_CLASS[cover.deviceClass] ?? null;
 }
 
 /** Apertura de 0 a 1: el porcentaje que se muestra o, sin él, abierta del todo o cerrada según el estado. */

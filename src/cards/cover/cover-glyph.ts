@@ -67,6 +67,75 @@ function blindGlyph(o: GlyphOptions): TemplateResult {
   `;
 }
 
+/** Los pliegues de cada panel de la cortina, a estas distancias del borde del panel. */
+const CURTAIN_FOLDS = [9, 18, 27] as const;
+const CURTAIN_PANEL = { y: 18, width: 36, height: 82 } as const;
+
+/** Un panel de la cortina con sus pliegues; `x` es su borde izquierdo en el dibujo. */
+function curtainPanel(side: 'left' | 'right', x: number): TemplateResult {
+  return svg`
+    <g class="g-panel g-panel-${side}">
+      <rect class="g-fabric" x=${x} y=${CURTAIN_PANEL.y} width=${CURTAIN_PANEL.width} height=${CURTAIN_PANEL.height} rx="3"></rect>
+      ${CURTAIN_FOLDS.map((dx) => svg`<line class="g-fold" x1=${x + dx} y1=${CURTAIN_PANEL.y + 3} x2=${x + dx} y2=${CURTAIN_PANEL.y + CURTAIN_PANEL.height - 3}></line>`)}
+    </g>
+  `;
+}
+
+/**
+ * Cortina: la barra arriba y dos paneles con pliegues que, al abrirse
+ * (`--open`), se recogen cada uno hacia su lado y dejan ver la ventana.
+ */
+function curtainGlyph(o: GlyphOptions): TemplateResult {
+  return svg`
+    <svg class="cover-glyph" data-glyph="curtain" viewBox="0 0 100 110" aria-hidden="true" style="--open: ${o.open}">
+      <rect class="g-glass" x="22" y="34" width="56" height="52" rx="2"></rect>
+      <line class="g-sill" x1="16" y1="90" x2="84" y2="90"></line>
+      ${curtainPanel('left', 14)}
+      ${curtainPanel('right', 50)}
+      <line class="g-rod" x1="8" y1="12" x2="92" y2="12"></line>
+      <circle class="g-finial" cx="8" cy="12" r="2.5"></circle>
+      <circle class="g-finial" cx="92" cy="12" r="2.5"></circle>
+    </svg>
+  `;
+}
+
+const AWNING = { x: 14, y: 22, width: 72, height: 56, stripes: 6, rolled: 8, scallop: 6 } as const;
+
+/** Volante festoneado: una fila de semicírculos colgando de su borde superior (y = 0). */
+function awningValanceTop(): string {
+  const arcs = Array.from({ length: AWNING.stripes }, () => `a${AWNING.scallop} ${AWNING.scallop} 0 0 0 ${AWNING.scallop * 2} 0`).join(' ');
+  return `M${AWNING.x} ${AWNING.y + AWNING.rolled} ${arcs} Z`;
+}
+
+/**
+ * Toldo: el cajón arriba y la lona de rayas, que al abrirse (`--open`) se
+ * despliega hacia abajo con su volante festoneado; recogido solo asoma un
+ * palmo de lona.
+ */
+function awningGlyph(o: GlyphOptions): TemplateResult {
+  const travel = AWNING.height - AWNING.rolled;
+  return svg`
+    <svg class="cover-glyph" data-glyph="awning" viewBox="0 0 100 110" aria-hidden="true" style="--open: ${o.open}; --travel: ${travel}px; --rolled: ${AWNING.rolled / AWNING.height}">
+      <rect class="g-glass" x="18" y="40" width="64" height="58" rx="2"></rect>
+      <line class="g-sill" x1="6" y1="102" x2="94" y2="102"></line>
+      <g class="g-stripes">
+        ${Array.from({ length: AWNING.stripes }, (_, i) => svg`<rect class=${i % 2 ? 'g-stripe g-stripe-alt' : 'g-stripe'} x=${AWNING.x + (i * AWNING.width) / AWNING.stripes} y=${AWNING.y} width=${AWNING.width / AWNING.stripes} height=${AWNING.height}></rect>`)}
+      </g>
+      <path class="g-valance" d=${awningValanceTop()}></path>
+      <rect class="g-box" x="8" y="8" width="84" height="14" rx="4"></rect>
+    </svg>
+  `;
+}
+
 export function renderGlyph(o: GlyphOptions): TemplateResult {
-  return o.glyph === 'blind' ? blindGlyph(o) : shutterGlyph(o);
+  switch (o.glyph) {
+    case 'blind':
+      return blindGlyph(o);
+    case 'curtain':
+      return curtainGlyph(o);
+    case 'awning':
+      return awningGlyph(o);
+    default:
+      return shutterGlyph(o);
+  }
 }
