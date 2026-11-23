@@ -1763,6 +1763,7 @@ disponible» (y en desarrollo avisa por consola). Especificación completa en
 |---|---|---|---|
 | `entity` | `string` | — (requerida) | Entidad `cover.*`. |
 | `name` | `string` | `friendly_name` de la entidad | Nombre mostrado. |
+| `cover_type` | `'shutter' \| 'blind' \| 'curtain' \| 'awning'` | según el `device_class` | Tipo de cover, es decir, el dibujo del icono: persiana enrollable, veneciana, cortina o toldo. Sin él se deduce del `device_class` de la entidad (`shutter`, `blind`, `curtain`, `awning`) y, si no lo tiene o es otro (garaje, puerta, ventana…), es una persiana. Un valor que no sea uno de los cuatro se ignora. |
 | `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta del halo. Su color 1 es también el del icono, el porcentaje, el dial, los deslizadores y los botones mientras la persiana no está cerrada. |
 | `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | según paleta | Colores con `neon_palette: custom`. |
 
@@ -1789,5 +1790,6 @@ ahora solo existe el tamaño grande.
 type: custom:neon-cover-card
 entity: cover.persiana_salon
 name: Persiana Salón
+cover_type: shutter
 neon_palette: electric
 ```

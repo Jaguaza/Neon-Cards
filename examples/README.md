@@ -547,6 +547,15 @@ name: Persiana Salón
 neon_palette: electric
 ```
 
+Toldo de la terraza, aunque la entidad no tenga `device_class: awning`:
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.toldo_terraza
+name: Toldo terraza
+cover_type: awning
+```
+
 Con la paleta personalizada (los tres colores del degradado del halo):
 
 ```yaml
@@ -567,7 +576,8 @@ cortinas, toldos… El icono es grande y se mueve con la persiana: con
 según el porcentaje de apertura, con `blind` una veneciana cuyas lamas se
 recogen y giran con la inclinación, con `curtain` una cortina cuyos paneles se
 recogen a los lados y con `awning` un toldo que despliega la lona (un cover con otra clase se
-dibuja como persiana). Muestra la posición actual con un dial en arco y un deslizador fino
+dibuja como persiana). Con `cover_type` eliges el tipo a mano (`shutter`, `blind`, `curtain` o
+`awning`), también desde el editor visual; sin él, se deduce del `device_class`. Muestra la posición actual con un dial en arco y un deslizador fino
 de 0 a 100 % que también la fijan (la orden sale al soltar). Si la
 entidad soporta la inclinación de las lamas, como una veneciana, sale un segundo
 deslizador debajo para fijarla. En el pie, los botones Cerrar, Parar y Abrir
@@ -1128,6 +1138,15 @@ name: Living room shutter
 neon_palette: electric
 ```
 
+Terrace awning, even if the entity has no `device_class: awning`:
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.terrace_awning
+name: Terrace awning
+cover_type: awning
+```
+
 With the custom palette (the three colors of the halo gradient):
 
 ```yaml
@@ -1148,7 +1167,9 @@ awnings… The icon is large and moves with the cover: with
 down with the opening percentage, and with `blind` a venetian blind whose slats
 gather and turn with the tilt, with `curtain` a curtain whose panels gather at
 the sides and with `awning` an awning that unrolls its canvas (a cover with another
-class is drawn as a shutter). It
+class is drawn as a shutter). With `cover_type` you choose the type by hand (`shutter`, `blind`,
+`curtain` or `awning`), also from the visual editor; without it, it is taken from the
+`device_class`. It
 shows the current position with an arc dial and a thin 0 to 100 % slider that
 also set it (the command is sent on release).
 If the entity supports slat tilt, like a venetian blind, a second slider below
