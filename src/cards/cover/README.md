@@ -34,7 +34,9 @@ el porcentaje y la inclinación (también mientras los arrastras):
 |---|---|
 | `shutter` o ninguna | **Persiana enrollable.** Cajón arriba, guías a los lados y el cortinaje de lamas, que sube hacia el cajón al abrirse: cerrada tapa toda la ventana y abierta del todo solo asoma el último tramo. |
 | `blind` | **Veneciana.** Las lamas se recogen contra el cabezal al abrirse y giran hasta quedar de canto con la inclinación (`current_tilt_position`). |
-| cualquier otra | El icono `mdi` de Home Assistant, abierto o cerrado, sin animar: `curtain`, `shade`, `awning`, `garage`, `gate`, `door`, `window`, `damper`; sin una de esas, `mdi:window-open` / `mdi:window-closed`. |
+| `curtain` | **Cortina.** La barra arriba y dos paneles con pliegues que, al abrirse, se recogen cada uno hacia su lado y dejan ver la ventana. |
+| `awning` | **Toldo.** El cajón arriba y la lona de rayas, que se despliega hacia abajo con su volante festoneado al abrirse; recogido solo asoma un palmo de lona. |
+| cualquier otra | El icono `mdi` de Home Assistant, abierto o cerrado, sin animar: `shade`, `garage`, `gate`, `door`, `window`, `damper`; sin una de esas, `mdi:window-open` / `mdi:window-closed`. |
 
 Sin `current_position`, el dibujo se ve abierto del todo o cerrado según el
 estado. Con `prefers-reduced-motion` el dibujo cambia sin animación.
@@ -90,7 +92,7 @@ interacción.
 |---|---|
 | `neon-cover-card.ts` | La tarjeta: lee el cover, arrastre del dial y órdenes |
 | `header-view.ts`, `position-view.ts`, `controls-view.ts` | Cabecera, posición con sus deslizadores y pie de botones |
-| `cover-glyph.ts` | Los dibujos de la persiana enrollable y de la veneciana |
+| `cover-glyph.ts` | Los dibujos de la persiana enrollable, la veneciana, la cortina y el toldo |
 | `cover-visual.ts` | Qué dibujo o icono lleva el cover, apertura, grupo de estado y halo |
 | `constants.ts`, `types.ts` | Iconos, colores del punto de estado y configuración |
 | `*.styles.ts` | Estilos divididos (carcasa y cabecera, dibujo, cuerpo, pie de botones) |
@@ -134,7 +136,9 @@ the percentage and the tilt (also while you drag them):
 |---|---|
 | `shutter` or none | **Rolling shutter.** Box on top, guides at the sides and the slatted curtain, which rises into the box as it opens: closed it covers the whole window and fully open only its last stretch shows. |
 | `blind` | **Venetian blind.** The slats gather against the head rail as it opens and turn edge-on with the tilt (`current_tilt_position`). |
-| any other | Home Assistant's `mdi` icon, open or closed, not animated: `curtain`, `shade`, `awning`, `garage`, `gate`, `door`, `window`, `damper`; without one of those, `mdi:window-open` / `mdi:window-closed`. |
+| `curtain` | **Curtain.** The rod on top and two pleated panels that, as it opens, gather toward their own side and reveal the window. |
+| `awning` | **Awning.** The box on top and the striped canvas, which unrolls downward with its scalloped valance as it opens; retracted, only a hand's width of canvas shows. |
+| any other | Home Assistant's `mdi` icon, open or closed, not animated: `shade`, `garage`, `gate`, `door`, `window`, `damper`; without one of those, `mdi:window-open` / `mdi:window-closed`. |
 
 Without `current_position` the drawing shows fully open or closed depending on
 the state. With `prefers-reduced-motion` the drawing changes without animation.
@@ -191,7 +195,7 @@ interaction.
 |---|---|
 | `neon-cover-card.ts` | The card: reads the cover, dial dragging and commands |
 | `header-view.ts`, `position-view.ts`, `controls-view.ts` | Header, position with its sliders, and button footer |
-| `cover-glyph.ts` | The rolling shutter and venetian blind drawings |
+| `cover-glyph.ts` | The rolling shutter, venetian blind, curtain and awning drawings |
 | `cover-visual.ts` | Which drawing or icon the cover gets, opening, state group and halo |
 | `constants.ts`, `types.ts` | Icons, state dot colors and configuration |
 | `*.styles.ts` | Split styles (shell and header, drawing, body, button footer) |
