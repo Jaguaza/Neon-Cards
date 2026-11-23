@@ -4,12 +4,22 @@
  */
 export type StatusGroup = 'open' | 'moving' | 'closed' | 'alert';
 
+/** Tipo de cover: el dibujo que lleva la tarjeta. */
+export type CoverType = 'shutter' | 'blind' | 'curtain' | 'awning';
+
 export interface NeonCoverCardConfig {
   type?: string;
   /** Entidad `cover` (persiana, veneciana, cortina, toldo…). */
   entity?: string;
   /** Nombre; sin él se usa el `friendly_name` de la entidad. */
   name?: string;
+  /**
+   * Tipo de cover, es decir, el dibujo: persiana enrollable (`shutter`),
+   * veneciana (`blind`), cortina (`curtain`) o toldo (`awning`). Sin él se
+   * deduce del `device_class` de la entidad y, si no lo tiene o no es uno de
+   * estos, es una persiana.
+   */
+  cover_type?: CoverType;
   /**
    * Paleta neón del halo perimetral de la tarjeta. Mismos campos que el
    * resto de tarjetas (`NeonPaletteConfig` en `src/shared/neon-palette.ts`).

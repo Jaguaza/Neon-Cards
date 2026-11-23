@@ -15,8 +15,8 @@ import {
   RingSizeController,
   valueForAngle,
 } from '../../shared';
-import { POSITION_MAX, POSITION_MIN } from './constants';
-import { coverGlyph, isHaloOn, openFraction, statusGroup } from './cover-visual';
+import { COVER_TYPES, POSITION_MAX, POSITION_MIN } from './constants';
+import { isHaloOn, openFraction, resolveCoverType, statusGroup } from './cover-visual';
 import { renderGlyph } from './cover-glyph';
 import { NEON_COVER_GLYPH_STYLES } from './cover-glyph.styles';
 import { NEON_COVER_BODY_STYLES } from './cover-body.styles';
@@ -82,6 +82,9 @@ export class NeonCoverCard extends BaseNeonCard {
         console.warn('[neon-cover-card] falta `entity:` — la tarjeta se muestra como «no disponible».');
       } else if (!config.entity.startsWith('cover.')) {
         console.warn(`[neon-cover-card] entity ("${config.entity}") no es del dominio cover — se muestra como «no disponible».`);
+      }
+      if (config.cover_type !== undefined && !COVER_TYPES.includes(config.cover_type)) {
+        console.warn(`[neon-cover-card] cover_type ("${String(config.cover_type)}") no es shutter, blind, curtain ni awning — se deduce del device_class.`);
       }
     }
   }
@@ -195,7 +198,7 @@ export class NeonCoverCard extends BaseNeonCard {
   private _renderHeroIcon(cover: CoverState): TemplateResult {
     const dragging = this._dragPosition !== null || this._dragTilt !== null;
     const glyph = renderGlyph({
-      glyph: coverGlyph(cover),
+      glyph: resolveCoverType(cover, this._config?.cover_type),
       open: openFraction(cover, this._shownPosition(cover)),
       tilt: (this._dragTilt ?? cover.tiltPosition ?? 0) / 100,
       uid: this._ringUid,

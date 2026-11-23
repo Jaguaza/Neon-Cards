@@ -16,6 +16,12 @@ export const en: CoverTranslations = {
   section_main: 'Main configuration',
   entity_label: 'Entity (cover)',
   name_label: 'Name',
+  type_label: 'Cover type',
+  type_auto: 'Automatic',
+  type_shutter: 'Shutter',
+  type_blind: 'Venetian blind',
+  type_curtain: 'Curtain',
+  type_awning: 'Awning',
   section_halo: 'Halo appearance',
   palette_label: 'Halo palette',
 };

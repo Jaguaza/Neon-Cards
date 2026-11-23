@@ -16,6 +16,12 @@ export const es: CoverTranslations = {
   section_main: 'Configuración Principal',
   entity_label: 'Entidad (persiana)',
   name_label: 'Nombre',
+  type_label: 'Tipo de persiana',
+  type_auto: 'Automático',
+  type_shutter: 'Persiana',
+  type_blind: 'Veneciana',
+  type_curtain: 'Cortina',
+  type_awning: 'Toldo',
   section_halo: 'Apariencia del halo',
   palette_label: 'Paleta del halo',
 };

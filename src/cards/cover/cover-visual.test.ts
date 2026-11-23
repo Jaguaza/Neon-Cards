@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CoverState, CoverStateName } from '../../ha/cover';
-import { coverGlyph, isHaloOn, openFraction, statusGroup } from './cover-visual';
+import { isHaloOn, openFraction, resolveCoverType, statusGroup } from './cover-visual';
 
 function cover(state: CoverStateName, deviceClass: string | null = 'shutter'): CoverState {
   return { entity: 'cover.salon', state, available: state !== 'unavailable', position: 50, tiltPosition: null, deviceClass, canOpen: true, canClose: true, canStop: true, canSetPosition: true, canSetTilt: false };
@@ -24,23 +24,31 @@ describe('statusGroup e isHaloOn', () => {
   });
 });
 
-describe('coverGlyph', () => {
-  it('shutter y sin clase son la persiana enrollable; blind, la veneciana', () => {
-    expect(coverGlyph(cover('open', 'shutter'))).toBe('shutter');
-    expect(coverGlyph(cover('open', null))).toBe('shutter');
-    expect(coverGlyph(cover('open', 'blind'))).toBe('blind');
+describe('resolveCoverType', () => {
+  it('sin cover_type, se deduce del device_class', () => {
+    expect(resolveCoverType(cover('open', 'shutter'))).toBe('shutter');
+    expect(resolveCoverType(cover('open', 'blind'))).toBe('blind');
+    expect(resolveCoverType(cover('open', 'curtain'))).toBe('curtain');
+    expect(resolveCoverType(cover('open', 'awning'))).toBe('awning');
   });
 
-  it('curtain es la cortina y awning, el toldo', () => {
-    expect(coverGlyph(cover('open', 'curtain'))).toBe('curtain');
-    expect(coverGlyph(cover('open', 'awning'))).toBe('awning');
-  });
-
-  it('sin clase o con una que la tarjeta no contempla se dibuja como persiana', () => {
-    expect(coverGlyph(cover('open', null))).toBe('shutter');
+  it('sin clase o con una que la tarjeta no contempla es una persiana', () => {
+    expect(resolveCoverType(cover('open', null))).toBe('shutter');
     for (const deviceClass of ['garage', 'gate', 'door', 'window', 'shade', 'damper', 'rara']) {
-      expect(coverGlyph(cover('open', deviceClass))).toBe('shutter');
+      expect(resolveCoverType(cover('open', deviceClass))).toBe('shutter');
     }
+  });
+
+  it('el cover_type de la configuración manda sobre el device_class', () => {
+    expect(resolveCoverType(cover('open', 'shutter'), 'awning')).toBe('awning');
+    expect(resolveCoverType(cover('open', null), 'curtain')).toBe('curtain');
+    expect(resolveCoverType(cover('open', 'curtain'), 'blind')).toBe('blind');
+  });
+
+  it('un cover_type que no es uno de los cuatro se ignora', () => {
+    expect(resolveCoverType(cover('open', 'blind'), 'garage')).toBe('blind');
+    expect(resolveCoverType(cover('open', null), 7)).toBe('shutter');
+    expect(resolveCoverType(cover('open', 'awning'), '')).toBe('awning');
   });
 });
 

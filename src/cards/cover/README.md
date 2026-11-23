@@ -41,6 +41,17 @@ el porcentaje y la inclinación (también mientras los arrastras):
 Sin `current_position`, el dibujo se ve abierto del todo o cerrado según el
 estado. Con `prefers-reduced-motion` el dibujo cambia sin animación.
 
+**Elegir el tipo a mano.** `cover_type` (`shutter`, `blind`, `curtain` o
+`awning`) fija el dibujo sea cual sea el `device_class`; en el editor visual es
+el selector «Tipo de persiana», con una ficha por dibujo y «Automático», que
+deja que lo decida el `device_class` y es el valor por defecto.
+
+**Tema claro.** Con el tema de Home Assistant claro y la persiana abierta, el
+color neón apenas contrasta con el fondo y el resplandor difuminaría el trazo
+fino del dibujo: igual que el resto de iconos de la colección, conserva el color
+y se define con un contorno fino oscuro del mismo tono. En el tema oscuro no
+cambia nada.
+
 ### Colores según el estado
 
 - **Halo, icono, porcentaje, dial, deslizadores y botones** usan el color 1 de
@@ -97,7 +108,7 @@ interacción.
 | `constants.ts`, `types.ts` | Iconos, colores del punto de estado y configuración |
 | `*.styles.ts` | Estilos divididos (carcasa y cabecera, dibujo, cuerpo, pie de botones) |
 | `translations/` | Textos en español e inglés |
-| `neon-cover-card-editor.ts` | Editor visual: entidad, nombre y halo |
+| `neon-cover-card-editor.ts` | Editor visual: entidad, nombre, tipo de cover y halo |
 
 ---
 
@@ -142,6 +153,17 @@ the percentage and the tilt (also while you drag them):
 
 Without `current_position` the drawing shows fully open or closed depending on
 the state. With `prefers-reduced-motion` the drawing changes without animation.
+
+**Choosing the type by hand.** `cover_type` (`shutter`, `blind`, `curtain` or
+`awning`) sets the drawing whatever the `device_class` is; in the visual editor
+it is the "Cover type" selector, with one tile per drawing and "Automatic",
+which lets the `device_class` decide and is the default.
+
+**Light theme.** With a light Home Assistant theme and the cover open, the neon
+color barely contrasts with the background and the glow would blur the thin
+lines of the drawing: like the rest of the icons in the collection, it keeps the
+color and is defined by a thin dark outline of the same tone. In the dark theme
+nothing changes.
 
 ### Colors by state
 
@@ -200,4 +222,4 @@ interaction.
 | `constants.ts`, `types.ts` | Icons, state dot colors and configuration |
 | `*.styles.ts` | Split styles (shell and header, drawing, body, button footer) |
 | `translations/` | Spanish and English texts |
-| `neon-cover-card-editor.ts` | Visual editor: entity, name and halo |
+| `neon-cover-card-editor.ts` | Visual editor: entity, name, cover type and halo |

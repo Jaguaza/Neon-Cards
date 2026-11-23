@@ -50,6 +50,41 @@ describe('NeonCoverCardEditor', () => {
     expect('name' in last()).toBe(false);
   });
 
+  it('el selector de tipo tiene Automático y los cuatro tipos, con Automático marcado por defecto', async () => {
+    const { el } = await mount({ entity: 'cover.salon' });
+    const tiles = Array.from(el.shadowRoot!.querySelectorAll('.type-tile')) as HTMLElement[];
+    expect(tiles.map((t) => t.dataset.type)).toEqual(['auto', 'shutter', 'blind', 'curtain', 'awning']);
+    expect(tiles.map((t) => t.textContent?.trim())).toEqual(['Automático', 'Persiana', 'Veneciana', 'Cortina', 'Toldo']);
+    expect(tiles.map((t) => t.getAttribute('aria-checked'))).toEqual(['true', 'false', 'false', 'false', 'false']);
+    expect(el.shadowRoot!.querySelectorAll('.type-tile svg.cover-glyph')).toHaveLength(4);
+  });
+
+  it('elegir un tipo lo guarda como cover_type y Automático lo quita', async () => {
+    const { el, last } = await mount({ entity: 'cover.salon' });
+    const tile = (type: string) => el.shadowRoot!.querySelector(`.type-tile[data-type="${type}"]`) as HTMLButtonElement;
+    tile('awning').click();
+    expect(last().cover_type).toBe('awning');
+    await el.updateComplete;
+    expect(tile('awning').getAttribute('aria-checked')).toBe('true');
+    expect(tile('auto').getAttribute('aria-checked')).toBe('false');
+    tile('auto').click();
+    expect('cover_type' in last()).toBe(false);
+  });
+
+  it('un cover_type guardado sale marcado; uno inválido cuenta como Automático', async () => {
+    const { el } = await mount({ entity: 'cover.salon', cover_type: 'curtain' });
+    expect(el.shadowRoot!.querySelector('.type-tile[data-type="curtain"]')!.getAttribute('aria-checked')).toBe('true');
+    document.body.innerHTML = '';
+    const invalid = await mount({ entity: 'cover.salon', cover_type: 'garage' });
+    expect(invalid.el.shadowRoot!.querySelector('.type-tile[data-type="auto"]')!.getAttribute('aria-checked')).toBe('true');
+  });
+
+  it('en inglés las fichas salen en inglés', async () => {
+    const { el } = await mount({ entity: 'cover.salon' }, 'en');
+    const names = Array.from(el.shadowRoot!.querySelectorAll('.type-tile')).map((t) => t.textContent?.trim());
+    expect(names).toEqual(['Automatic', 'Shutter', 'Venetian blind', 'Curtain', 'Awning']);
+  });
+
   it('la paleta del halo se guarda y la personalizada muestra los tres colores', async () => {
     const { el, last } = await mount({ entity: 'cover.salon' });
     const select = q(el, '#palette') as HTMLSelectElement;

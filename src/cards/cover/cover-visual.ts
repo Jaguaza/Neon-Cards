@@ -1,10 +1,8 @@
 import type { CoverState } from '../../ha/cover';
-import type { StatusGroup } from './types';
+import { COVER_TYPES } from './constants';
+import type { CoverType, StatusGroup } from './types';
 
-/** Los cuatro dibujos de la tarjeta: persiana enrollable, veneciana, cortina y toldo. */
-export type CoverGlyph = 'shutter' | 'blind' | 'curtain' | 'awning';
-
-const GLYPH_BY_DEVICE_CLASS: Record<string, CoverGlyph> = {
+const TYPE_BY_DEVICE_CLASS: Record<string, CoverType> = {
   shutter: 'shutter',
   blind: 'blind',
   curtain: 'curtain',
@@ -12,14 +10,16 @@ const GLYPH_BY_DEVICE_CLASS: Record<string, CoverGlyph> = {
 };
 
 /**
- * Qué dibujo animado lleva el cover según su `device_class`: persiana
- * enrollable (`shutter`), veneciana (`blind`), cortina (`curtain`) o toldo
- * (`awning`). Un cover sin clase, o con una que esta tarjeta no contempla
- * (garaje, puerta, ventana…), se dibuja como persiana enrollable, que es el
- * dibujo por defecto.
+ * Tipo de cover (el dibujo) que lleva la tarjeta: el que se pide en la
+ * configuración (`cover_type`) y, si no hay o no es uno de los cuatro, el que
+ * corresponde al `device_class` de la entidad: persiana enrollable
+ * (`shutter`), veneciana (`blind`), cortina (`curtain`) o toldo (`awning`).
+ * Un cover sin clase, o con una que esta tarjeta no contempla (garaje, puerta,
+ * ventana…), es una persiana enrollable, el tipo por defecto.
  */
-export function coverGlyph(cover: CoverState): CoverGlyph {
-  return (cover.deviceClass && GLYPH_BY_DEVICE_CLASS[cover.deviceClass]) || 'shutter';
+export function resolveCoverType(cover: CoverState, configured?: unknown): CoverType {
+  if (COVER_TYPES.includes(configured as CoverType)) return configured as CoverType;
+  return (cover.deviceClass && TYPE_BY_DEVICE_CLASS[cover.deviceClass]) || 'shutter';
 }
 
 /** Apertura de 0 a 1: el porcentaje que se muestra o, sin él, abierta del todo o cerrada según el estado. */

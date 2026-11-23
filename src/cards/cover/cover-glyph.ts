@@ -1,9 +1,9 @@
 import { svg } from 'lit';
 import type { TemplateResult } from 'lit';
-import type { CoverGlyph } from './cover-visual';
+import type { CoverType } from './types';
 
 export interface GlyphOptions {
-  glyph: CoverGlyph;
+  glyph: CoverType;
   /** Apertura de 0 (cerrada) a 1 (abierta del todo). */
   open: number;
   /** Inclinación de las lamas de 0 (cerradas) a 1 (abiertas); solo la veneciana la usa. */

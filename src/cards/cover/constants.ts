@@ -1,4 +1,4 @@
-import type { StatusGroup } from './types';
+import type { CoverType, StatusGroup } from './types';
 
 /** Color del punto de estado: verde abierta, ámbar en movimiento, gris cerrada y rojo no disponible. */
 export const STATUS_DOT_COLORS: Record<StatusGroup, string> = {
@@ -18,3 +18,6 @@ export const CONTROL_ICONS = {
 /** Extremos del porcentaje de apertura (0 = cerrada, 100 = abierta del todo). */
 export const POSITION_MIN = 0;
 export const POSITION_MAX = 100;
+
+/** Los tipos de cover que la tarjeta sabe dibujar, en el orden del editor. */
+export const COVER_TYPES: readonly CoverType[] = ['shutter', 'blind', 'curtain', 'awning'];

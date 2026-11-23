@@ -14,6 +14,12 @@ export interface CoverTranslations {
   section_main: string;
   entity_label: string;
   name_label: string;
+  type_label: string;
+  type_auto: string;
+  type_shutter: string;
+  type_blind: string;
+  type_curtain: string;
+  type_awning: string;
   section_halo: string;
   palette_label: string;
 }

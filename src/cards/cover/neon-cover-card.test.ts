@@ -97,6 +97,19 @@ describe('icono grande', () => {
     expect(q(el, '.hero-icon')!.classList.contains('dragging')).toBe(false);
   });
 
+  it('cover_type elige el dibujo aunque la entidad sea de otra clase', async () => {
+    const el = await mount({ cover_type: 'awning' }, hassWith('open', { attributes: { device_class: 'blind' } }));
+    expect(q(el, '.cover-glyph')?.getAttribute('data-glyph')).toBe('awning');
+    document.body.innerHTML = '';
+    const curtain = await mount({ cover_type: 'curtain' }, hassWith('open', { attributes: { device_class: undefined } }));
+    expect(q(curtain, '.cover-glyph')?.getAttribute('data-glyph')).toBe('curtain');
+  });
+
+  it('un cover_type inválido se ignora y manda el device_class', async () => {
+    const el = await mount({ cover_type: 'garage' }, hassWith('open', { attributes: { device_class: 'blind' } }));
+    expect(q(el, '.cover-glyph')?.getAttribute('data-glyph')).toBe('blind');
+  });
+
   it('la cortina tiene dos paneles que se recogen con el porcentaje', async () => {
     const el = await mount({}, hassWith('open', { attributes: { device_class: 'curtain', current_position: 60 } }));
     expect(q(el, '.cover-glyph')?.getAttribute('data-glyph')).toBe('curtain');
