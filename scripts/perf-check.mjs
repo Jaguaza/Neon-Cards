@@ -17,7 +17,7 @@
  * script de benchmark (acuerdo nº4: reutilizable, no se copia).
  *
  * Uso: node scripts/perf-check.mjs [card] [numCards] [numUpdates]
- *   card: 'entity' | 'button' | 'thermostat' | 'sensor' | 'lock' | 'alarm' | 'light' | 'all'
+ *   card: 'entity' | 'button' | 'thermostat' | 'sensor' | 'lock' | 'alarm' | 'light' | 'cover' | 'all'
  *   (por defecto 'all')
  */
 
@@ -357,6 +357,37 @@ const CARD_PROFILES = {
         states[`binary_sensor.${base}_puerta`] = stateOf(`binary_sensor.${base}_puerta`, open ? 'on' : 'off', { device_class: 'door' });
         states[`sensor.${base}_bateria`] = stateOf(`sensor.${base}_bateria`, String(90 - (tick % 10)), { unit_of_measurement: '%', device_class: 'battery' });
         states[`sensor.${base}_acceso`] = stateOf(`sensor.${base}_acceso`, open ? 'Esther' : 'Jorge');
+      }
+      return { states, callService: async () => {} };
+    },
+  },
+  cover: {
+    elementName: 'neon-cover-card',
+    // Un Home Assistant real tiene miles de entidades que no son de la tarjeta
+    // y reenvía `hass` con cada cambio de cualquiera de ellas: la tarjeta no
+    // puede recorrerlas en cada actualización (por eso `unrelatedStates`
+    // mete 1500 entidades de relleno).
+    entry: 'src/cards/cover/neon-cover-card.ts',
+    exportName: 'NeonCoverCard',
+    entityDomain: 'cover',
+    makeConfig: (entityId) => ({ entity: entityId, name: 'Persiana de prueba' }),
+    makeHass: (entityIds, tick) => {
+      // La persiana cambia de estado cada 25 ticks, no en cada uno: una
+      // persiana real no conmuta miles de veces, y un cambio por tick deja
+      // pendientes la transición del halo y falsea la medida de memoria
+      // (mismo criterio que la cerradura, la alarma y la luz).
+      const open = Math.floor(tick / 25) % 2 === 1;
+      const states = { ...unrelatedStates(1500) };
+      for (const id of entityIds) {
+        states[id] = stateOf(id, open ? 'open' : 'closed', {
+          friendly_name: `Persiana de prueba ${id}`,
+          device_class: 'blind',
+          current_position: open ? 72 : 0,
+          current_tilt_position: 40,
+          // Abrir, cerrar, fijar posición, parar y fijar inclinación: el
+          // render más completo de la tarjeta.
+          supported_features: 1 | 2 | 4 | 8 | 128,
+        });
       }
       return { states, callService: async () => {} };
     },

@@ -18,6 +18,7 @@ const EXPECTED_NAMES: Record<string, string> = {
   'neon-lock-card': 'Neón Lock Card',
   'neon-alarm-card': 'Neón Alarm Card',
   'neon-light-card': 'Neón Light Card',
+  'neon-cover-card': 'Neón Cover Card',
 };
 
 async function registered(): Promise<RegisteredCard[]> {

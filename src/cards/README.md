@@ -38,6 +38,11 @@ Una tarjeta:
   el brillo y con el color de la luz, halo neón y, en el tamaño grande, un pie
   con brillo, temperatura de color, color, colores favoritos y efectos. Dos
   tamaños. Ver [ejemplo](../../examples/README.md).
+- [`cover`](./cover) — `custom:neon-cover-card`, tarjeta para entidades
+  `cover` (persianas, venecianas, cortinas…) con icono según el tipo, dial y
+  deslizador de posición, deslizador de inclinación si la entidad lo soporta,
+  botones abrir, parar y cerrar y halo neón. Tamaño grande. Ver
+  [ejemplo](../../examples/README.md).
 
 ---
 
@@ -83,3 +88,8 @@ A card:
   to the brightness and in the light's color, a neon halo and, in the large
   size, a footer with brightness, color temperature, color, favorite colors and
   effects. Two sizes. See the [example](../../examples/README.md).
+- [`cover`](./cover) — `custom:neon-cover-card`, a card for `cover` entities
+  (shutters, venetian blinds, curtains…) with a type-based icon, a position dial
+  and slider, a tilt slider if the entity supports it, open, stop and close
+  buttons and a neon halo. Large size. See the
+  [example](../../examples/README.md).
