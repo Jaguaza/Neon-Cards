@@ -566,8 +566,8 @@ cortinas, toldos… El icono es grande y se mueve con la persiana: con
 `device_class: shutter` (o sin clase) es una persiana enrollable que sube y baja
 según el porcentaje de apertura, con `blind` una veneciana cuyas lamas se
 recogen y giran con la inclinación, con `curtain` una cortina cuyos paneles se
-recogen a los lados y con `awning` un toldo que despliega la lona; los demás
-tipos usan el icono de Home Assistant. Muestra la posición actual con un dial en arco y un deslizador fino
+recogen a los lados y con `awning` un toldo que despliega la lona (un cover con otra clase se
+dibuja como persiana). Muestra la posición actual con un dial en arco y un deslizador fino
 de 0 a 100 % que también la fijan (la orden sale al soltar). Si la
 entidad soporta la inclinación de las lamas, como una veneciana, sale un segundo
 deslizador debajo para fijarla. En el pie, los botones Cerrar, Parar y Abrir
@@ -1147,8 +1147,8 @@ awnings… The icon is large and moves with the cover: with
 `device_class: shutter` (or no class) it is a rolling shutter that goes up and
 down with the opening percentage, and with `blind` a venetian blind whose slats
 gather and turn with the tilt, with `curtain` a curtain whose panels gather at
-the sides and with `awning` an awning that unrolls its canvas; the other types
-use Home Assistant's icon. It
+the sides and with `awning` an awning that unrolls its canvas (a cover with another
+class is drawn as a shutter). It
 shows the current position with an arc dial and a thin 0 to 100 % slider that
 also set it (the command is sent on release).
 If the entity supports slat tilt, like a venetian blind, a second slider below

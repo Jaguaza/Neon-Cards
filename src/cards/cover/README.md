@@ -36,7 +36,7 @@ el porcentaje y la inclinación (también mientras los arrastras):
 | `blind` | **Veneciana.** Las lamas se recogen contra el cabezal al abrirse y giran hasta quedar de canto con la inclinación (`current_tilt_position`). |
 | `curtain` | **Cortina.** La barra arriba y dos paneles con pliegues que, al abrirse, se recogen cada uno hacia su lado y dejan ver la ventana. |
 | `awning` | **Toldo.** El cajón arriba y la lona de rayas, que se despliega hacia abajo con su volante festoneado al abrirse; recogido solo asoma un palmo de lona. |
-| cualquier otra | El icono `mdi` de Home Assistant, abierto o cerrado, sin animar: `shade`, `garage`, `gate`, `door`, `window`, `damper`; sin una de esas, `mdi:window-open` / `mdi:window-closed`. |
+| cualquier otra | Esta tarjeta es solo para persianas, venecianas, cortinas y toldos: un cover con otra clase (garaje, puerta, ventana…) se dibuja como persiana enrollable. |
 
 Sin `current_position`, el dibujo se ve abierto del todo o cerrado según el
 estado. Con `prefers-reduced-motion` el dibujo cambia sin animación.
@@ -138,7 +138,7 @@ the percentage and the tilt (also while you drag them):
 | `blind` | **Venetian blind.** The slats gather against the head rail as it opens and turn edge-on with the tilt (`current_tilt_position`). |
 | `curtain` | **Curtain.** The rod on top and two pleated panels that, as it opens, gather toward their own side and reveal the window. |
 | `awning` | **Awning.** The box on top and the striped canvas, which unrolls downward with its scalloped valance as it opens; retracted, only a hand's width of canvas shows. |
-| any other | Home Assistant's `mdi` icon, open or closed, not animated: `shade`, `garage`, `gate`, `door`, `window`, `damper`; without one of those, `mdi:window-open` / `mdi:window-closed`. |
+| any other | This card is only for shutters, venetian blinds, curtains and awnings: a cover with another class (garage, door, window…) is drawn as a rolling shutter. |
 
 Without `current_position` the drawing shows fully open or closed depending on
 the state. With `prefers-reduced-motion` the drawing changes without animation.
