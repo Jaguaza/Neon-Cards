@@ -37,6 +37,7 @@ Ver también la versión en [inglés](../en/api.md).
 - [Neón Lock Card — Configuración YAML](#neón-lock-card--configuración-yaml)
 - [Neón Alarm Card — Configuración YAML](#neón-alarm-card--configuración-yaml)
 - [Neón Light Card — Configuración YAML](#neón-light-card--configuración-yaml)
+- [Neón Cover Card — Configuración YAML](#neón-cover-card--configuración-yaml)
 
 ---
 
@@ -1744,4 +1745,49 @@ tap_action:
   action: toggle
 hold_action:
   action: more-info
+```
+
+---
+
+## Neón Cover Card — Configuración YAML
+
+Todas las claves de `NeonCoverCardConfig` (`src/cards/cover/types.ts`). Solo
+admite entidades del dominio `cover` (persianas, venecianas, cortinas, toldos…);
+sin `entity` o con otro dominio la tarjeta se muestra como «Persiana no
+disponible» (y en desarrollo avisa por consola). Especificación completa en
+[`src/cards/cover/README.md`](../../src/cards/cover/README.md) y ejemplos en
+[`examples/`](../../examples/README.md). Usa `getCoverState` de `src/ha`
+([Cover](#cover-coverts)) y la geometría de [Dial en arco](#dial-en-arco-arc-dialts).
+
+| Clave | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `entity` | `string` | — (requerida) | Entidad `cover.*`. |
+| `name` | `string` | `friendly_name` de la entidad | Nombre mostrado. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta del halo. Su color 1 es también el del icono, el porcentaje, el dial, los deslizadores y los botones mientras la persiana no está cerrada. |
+| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | según paleta | Colores con `neon_palette: custom`. |
+
+La tarjeta no tiene `tap_action`, `hold_action` ni `double_tap_action`: se usa
+con los botones Cerrar, Parar y Abrir (`cover.close_cover`, `cover.stop_cover` y
+`cover.open_cover`), el dial y el deslizador de posición
+(`cover.set_cover_position`), el deslizador de inclinación
+(`cover.set_cover_tilt_position`, solo con entidades que lo soporten) y los tres
+puntos, que abren «más información».
+
+### `getGridOptions()` — alto automático
+
+El alto es automático (`rows: 'auto'`) y las columnas de inicio son las de
+`CARD_GRID.large` (`src/shared/card-size.ts`). `getCardSize()` devuelve `5`. Por
+ahora solo existe el tamaño grande.
+
+| Tamaño | `columns` | `min_columns` |
+|---|---|---|
+| Grande | `12` | `4` |
+
+### Ejemplo completo
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.persiana_salon
+name: Persiana Salón
+neon_palette: electric
 ```

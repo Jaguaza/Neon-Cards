@@ -37,6 +37,7 @@ See also the [Spanish version](../es/api.md).
 - [Neón Lock Card — YAML configuration](#neón-lock-card--yaml-configuration)
 - [Neón Alarm Card — YAML configuration](#neón-alarm-card--yaml-configuration)
 - [Neón Light Card — YAML configuration](#neón-light-card--yaml-configuration)
+- [Neón Cover Card — YAML configuration](#neón-cover-card--yaml-configuration)
 
 ---
 
@@ -1740,4 +1741,48 @@ tap_action:
   action: toggle
 hold_action:
   action: more-info
+```
+
+---
+
+## Neón Cover Card — YAML configuration
+
+All the keys of `NeonCoverCardConfig` (`src/cards/cover/types.ts`). It only
+accepts entities of the `cover` domain (shutters, venetian blinds, curtains,
+awnings…); without `entity` or with another domain the card shows "Cover not
+available" (and warns in the console in development). Full specification in
+[`src/cards/cover/README.md`](../../src/cards/cover/README.md) and examples in
+[`examples/`](../../examples/README.md). It uses `getCoverState` from `src/ha`
+([Cover](#cover-coverts)) and the geometry of [Arc dial](#arc-dial-arc-dialts).
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `entity` | `string` | — (required) | `cover.*` entity. |
+| `name` | `string` | entity `friendly_name` | Displayed name. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Halo palette. Its color 1 is also the color of the icon, the percentage, the dial, the sliders and the buttons while the cover is not closed. |
+| `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | per palette | Colors with `neon_palette: custom`. |
+
+The card has no `tap_action`, `hold_action` or `double_tap_action`: it is used
+with the Close, Stop and Open buttons (`cover.close_cover`, `cover.stop_cover`
+and `cover.open_cover`), the dial and the position slider
+(`cover.set_cover_position`), the tilt slider (`cover.set_cover_tilt_position`,
+only with entities that support it) and the three dots, which open "more info".
+
+### `getGridOptions()` — automatic height
+
+The height is automatic (`rows: 'auto'`) and the starting columns are those of
+`CARD_GRID.large` (`src/shared/card-size.ts`). `getCardSize()` returns `5`. For
+now only the large size exists.
+
+| Size | `columns` | `min_columns` |
+|---|---|---|
+| Large | `12` | `4` |
+
+### Full example
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.living_room_shutter
+name: Living room shutter
+neon_palette: electric
 ```

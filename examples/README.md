@@ -527,6 +527,54 @@ una fila con el icono, el nombre y el subtítulo, sin pie, y se ajusta de 6 a 3
 columnas; con la grande, empieza a 12 y se reduce hasta 4. Los huecos de inicio
 de la rejilla son 12 y 6 columnas, con alto automático.
 
+## Neón Cover Card (`custom:neon-cover-card`)
+
+### YAML mínimo
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.persiana_salon
+```
+
+### YAML avanzado
+
+Persiana del salón con nombre y paleta propios:
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.persiana_salon
+name: Persiana Salón
+neon_palette: electric
+```
+
+Con la paleta personalizada (los tres colores del degradado del halo):
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.veneciana_despacho
+name: Veneciana Despacho
+neon_palette: custom
+neon_color1: "#00e5ff"
+neon_color2: "#3d5afe"
+neon_color3: "#d500f9"
+```
+
+### Explicación
+
+Neón Cover Card controla una entidad `cover`: persianas, persianas venecianas,
+cortinas, toldos… El icono es el que Home Assistant usa para el `device_class`
+de la entidad (`shutter`, `blind`, `curtain`…) y se ve abierto o cerrado según
+el estado. Muestra la posición actual en grande, con un dial en arco y un
+deslizador de 0 a 100 % que también la fijan (la orden sale al soltar). Si la
+entidad soporta la inclinación de las lamas, como una veneciana, sale un segundo
+deslizador debajo para fijarla. Los botones Cerrar, Parar y Abrir llaman a
+`cover.close_cover`, `cover.stop_cover` y `cover.open_cover`, y solo salen los
+que la entidad soporta; el que corresponde al estado se resalta. El halo y el
+color de la tarjeta usan la paleta que elijas mientras la persiana no está
+cerrada. Los tres puntos abren «más información». La tarjeta no cambia de alto
+al abrirse o cerrarse la persiana. Por ahora solo existe el tamaño grande (12
+columnas de inicio, hasta 4 como mínimo, con alto automático).
+
 ---
 
 <a id="examples-english"></a>
@@ -1055,3 +1103,52 @@ arrow that slides the rest one at a time. With `size: compact` the card is a
 row with the icon, the name and the subtitle, without a footer, and adjusts from
 6 to 3 columns; the large one starts at 12 and shrinks down to 4. The starting
 grid slots are 12 and 6 columns, with automatic height.
+
+---
+## Neón Cover Card (`custom:neon-cover-card`)
+
+### Minimal YAML
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.living_room_shutter
+```
+
+### Advanced YAML
+
+Living room shutter with its own name and palette:
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.living_room_shutter
+name: Living room shutter
+neon_palette: electric
+```
+
+With the custom palette (the three colors of the halo gradient):
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.office_blind
+name: Office blind
+neon_palette: custom
+neon_color1: "#00e5ff"
+neon_color2: "#3d5afe"
+neon_color3: "#d500f9"
+```
+
+### Explanation
+
+Neón Cover Card controls a `cover` entity: shutters, venetian blinds, curtains,
+awnings… The icon is the one Home Assistant uses for the entity's
+`device_class` (`shutter`, `blind`, `curtain`…) and looks open or closed
+depending on the state. It shows the current position in large type, with an arc
+dial and a 0 to 100 % slider that also set it (the command is sent on release).
+If the entity supports slat tilt, like a venetian blind, a second slider below
+it sets that. The Close, Stop and Open buttons call `cover.close_cover`,
+`cover.stop_cover` and `cover.open_cover`, and only the ones the entity supports
+are shown; the one matching the state is highlighted. The halo and the color of
+the card use the palette you choose while the cover is not closed. The three
+dots open "more info". The card does not change height when the cover opens or
+closes. For now only the large size exists (12 starting columns, down to 4
+minimum, with automatic height).
