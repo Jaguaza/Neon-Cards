@@ -29,15 +29,19 @@ function buildControls(o: ControlsOptions): Control[] {
   return controls;
 }
 
-/** Fila de botones Cerrar, Parar y Abrir; sin ninguno soportado no se pinta nada. */
+/**
+ * Pie de la tarjeta con los botones Cerrar, Parar y Abrir: columnas iguales
+ * con un divisor vertical entre ellas, como el pie de sensores de la
+ * Thermostat. Sin ninguno soportado no se pinta nada.
+ */
 export function renderControls(o: ControlsOptions): TemplateResult {
   const controls = buildControls(o);
   if (controls.length === 0) return html``;
   return html`
     <div class="controls" style="--count: ${controls.length}">
       ${controls.map(
-        (c) => html`
-          <button type="button" class="control" data-control=${c.key} data-active=${c.active ? 'true' : 'false'} ?disabled=${!o.cover.available} @click=${c.onPress}>
+        (c, i) => html`
+          <button type="button" class="control ${i > 0 ? 'control--divided' : ''}" data-control=${c.key} data-active=${c.active ? 'true' : 'false'} ?disabled=${!o.cover.available} @click=${c.onPress}>
             <ha-icon icon=${CONTROL_ICONS[c.key]}></ha-icon>
             <span>${c.label}</span>
           </button>

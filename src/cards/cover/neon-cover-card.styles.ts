@@ -8,6 +8,9 @@ import { css } from 'lit';
 export const NEON_COVER_CARD_STYLES = css`
   :host {
     display: block;
+    /* Contenedor de consultas: la tarjeta se adapta al ancho que le da la
+       rejilla de Home Assistant, no al de la ventana. */
+    container-type: inline-size;
   }
 
   ha-card {
@@ -15,7 +18,7 @@ export const NEON_COVER_CARD_STYLES = css`
     padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
     /* En el editor de Lovelace HA puede fijar a la tarjeta una altura menor
        que la de su contenido: sin recorte, el sobrante invadiría a la
        tarjeta vecina. */
@@ -37,39 +40,33 @@ export const NEON_COVER_CARD_STYLES = css`
     color: var(--secondary-text-color);
   }
 
-  .header {
+  /* Zona principal: el icono grande a la izquierda y, a su derecha, el
+     nombre con el estado y la posición con su dial. */
+  .hero {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
     min-width: 0;
   }
 
-  /* Icono dentro de una caja redondeada que brilla con el color de la
-     tarjeta mientras la persiana no está cerrada. */
-  .icon-box {
-    display: inline-flex;
+  .hero-icon {
     flex: 0 0 auto;
-    padding: 10px;
-    border-radius: 16px;
-    border: 1.5px solid color-mix(in srgb, var(--primary-text-color) 22%, transparent);
-    transition: border-color 300ms ease-out, box-shadow 300ms ease-out;
+    width: 128px;
   }
 
-  .icon-box.neon-halo-active {
-    border-color: var(--neon-c1);
-    box-shadow: 0 0 10px color-mix(in srgb, var(--neon-c1) 55%, transparent);
+  .hero-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
   }
 
-  .header-icon {
-    --mdc-icon-size: 40px;
-    color: var(--state-icon-color, var(--secondary-text-color));
-  }
-
-  /* El centro del icono queda blanco y solo brilla el contorno, como el
-     resto de la colección (ver la Thermostat). */
-  .icon-box.neon-halo-active .header-icon.neon-halo-icon {
-    color: var(--primary-text-color);
-    filter: drop-shadow(0 0 2px var(--neon-c1)) drop-shadow(0 0 6px var(--neon-c1));
+  .header {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    min-width: 0;
   }
 
   .header-text {
@@ -78,6 +75,16 @@ export const NEON_COVER_CARD_STYLES = css`
     gap: 4px;
     min-width: 0;
     flex: 1;
+  }
+
+  @container (max-width: 380px) {
+    .hero {
+      gap: 12px;
+    }
+
+    .hero-icon {
+      width: 92px;
+    }
   }
 
   .name {
@@ -123,7 +130,6 @@ export const NEON_COVER_CARD_STYLES = css`
     align-items: center;
     justify-content: center;
     flex: 0 0 auto;
-    align-self: flex-start;
     width: 32px;
     height: 32px;
     margin: -6px -8px 0 0;

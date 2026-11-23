@@ -16,7 +16,9 @@ import {
   valueForAngle,
 } from '../../shared';
 import { POSITION_MAX, POSITION_MIN } from './constants';
-import { coverIcon, isHaloOn, statusGroup } from './cover-visual';
+import { coverGlyph, coverIcon, isHaloOn, openFraction, statusGroup } from './cover-visual';
+import { renderGlyph } from './cover-glyph';
+import { NEON_COVER_GLYPH_STYLES } from './cover-glyph.styles';
 import { NEON_COVER_BODY_STYLES } from './cover-body.styles';
 import { NEON_COVER_CONTROLS_STYLES } from './cover-controls.styles';
 import { NEON_COVER_CARD_STYLES } from './neon-cover-card.styles';
@@ -34,10 +36,10 @@ import type { NeonCoverCardConfig } from './types';
  * Creador: Jaguaza
  *
  * Tarjeta para entidades `cover` de Home Assistant (persianas, venecianas,
- * cortinas…): el icono sigue al tipo de cover y a su estado, el porcentaje de
- * apertura se ve y se fija con un dial y un deslizador, la inclinación de las
- * lamas tiene el suyo si la entidad la soporta, y los botones abren, paran y
- * cierran. Ver `README.md` de esta carpeta para la especificación.
+ * cortinas…): el icono, grande, se dibuja según el tipo de cover y sube o gira
+ * con el porcentaje de apertura y la inclinación; el porcentaje se ve y se
+ * fija con un dial y un deslizador, la inclinación de las lamas tiene el suyo
+ * si la entidad la soporta, y el pie tiene los botones abrir, parar y cerrar. Ver `README.md` de esta carpeta para la especificación.
  */
 export class NeonCoverCard extends BaseNeonCard {
   static properties = {
@@ -57,7 +59,7 @@ export class NeonCoverCard extends BaseNeonCard {
   private readonly _ringUid = Math.random().toString(36).slice(2);
   private readonly _ring = new RingSizeController(this);
 
-  static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_COVER_CARD_STYLES, NEON_COVER_BODY_STYLES, NEON_COVER_CONTROLS_STYLES];
+  static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_COVER_CARD_STYLES, NEON_COVER_GLYPH_STYLES, NEON_COVER_BODY_STYLES, NEON_COVER_CONTROLS_STYLES];
 
   static getConfigElement(): HTMLElement {
     return document.createElement('neon-cover-card-editor');
@@ -150,16 +152,26 @@ export class NeonCoverCard extends BaseNeonCard {
     this._dragTilt = null;
   }
 
-  /** Dial, deslizador de posición y, si la entidad la soporta, el de inclinación. */
-  private _renderBody(cover: CoverState): TemplateResult | typeof nothing {
-    const parts: Array<TemplateResult> = [];
-    if (cover.position !== null) {
-      const value = this._dragPosition ?? cover.position;
+  /** Porcentaje mostrado: el que se arrastra o, si no, el real. */
+  private _shownPosition(cover: CoverState): number | null {
+    return this._dragPosition ?? cover.position;
+  }
+
+  /** Posición actual en grande y su dial; sin `current_position` no hay nada que mostrar. */
+  private _renderPositionRow(cover: CoverState): TemplateResult | typeof nothing {
+    const value = this._shownPosition(cover);
+    if (value === null) return nothing;
+    const canSet = cover.canSetPosition && cover.available;
+    return renderPositionRow({ entity: cover.entity, value, label: this._t('position_label'), pointer: this._pointerHandlers(canSet) });
+  }
+
+  /** Deslizador de posición con su escala y, si la entidad la soporta, el de inclinación. */
+  private _renderSliders(cover: CoverState): TemplateResult | typeof nothing {
+    const parts: TemplateResult[] = [];
+    const value = this._shownPosition(cover);
+    if (value !== null) {
       const disabled = !cover.canSetPosition || !cover.available;
-      parts.push(
-        renderPositionRow({ entity: cover.entity, value, label: this._t('position_label'), pointer: this._pointerHandlers(!disabled) }),
-        html`${renderSlider({ value, label: this._t('position_label'), disabled, onInput: (v) => (this._dragPosition = v), onChange: (v) => this._commitPosition(v) })}${renderScale()}`
-      );
+      parts.push(html`${renderSlider({ value, label: this._t('position_label'), disabled, onInput: (v) => (this._dragPosition = v), onChange: (v) => this._commitPosition(v) })}${renderScale()}`);
     }
     if (cover.canSetTilt && cover.tiltPosition !== null) {
       parts.push(
@@ -176,6 +188,20 @@ export class NeonCoverCard extends BaseNeonCard {
     return parts.length ? html`${parts}` : nothing;
   }
 
+  /**
+   * Icono grande: el dibujo de persiana o de veneciana, que sube y gira con
+   * el porcentaje y la inclinación (también mientras se arrastran), o el
+   * icono `mdi` de Home Assistant para los demás tipos de cover.
+   */
+  private _renderHeroIcon(cover: CoverState): TemplateResult {
+    const glyph = coverGlyph(cover);
+    const dragging = this._dragPosition !== null || this._dragTilt !== null;
+    const content = glyph
+      ? renderGlyph({ glyph, open: openFraction(cover, this._shownPosition(cover)), tilt: (this._dragTilt ?? cover.tiltPosition ?? 0) / 100, uid: this._ringUid })
+      : html`<ha-icon class="hero-mdi" .icon=${coverIcon(cover)}></ha-icon>`;
+    return html`<div class="hero-icon ${dragging ? 'dragging' : ''}">${content}</div>`;
+  }
+
   render(): TemplateResult {
     const cover = this._cover;
     if (!cover) {
@@ -188,16 +214,20 @@ export class NeonCoverCard extends BaseNeonCard {
     return html`
       <ha-card class="neon-ring-host ${active ? 'neon-halo-active' : ''}" style=${neonHaloVars(colors)}>
         ${neonRingSplitTemplate(this._ringUid, this._ring.size.width, this._ring.size.height, this._ring.size.radius)}
-        ${renderHeader({
-          name: this._name(cover),
-          icon: coverIcon(cover),
-          statusText: this._t(`state_${cover.state}`),
-          group,
-          active,
-          menuLabel: this._t('more_info'),
-          onMenu: () => openMoreInfo(this, cover.entity),
-        })}
-        ${this._renderBody(cover)}
+        <div class="hero">
+          ${this._renderHeroIcon(cover)}
+          <div class="hero-body">
+            ${renderHeader({
+              name: this._name(cover),
+              statusText: this._t(`state_${cover.state}`),
+              group,
+              menuLabel: this._t('more_info'),
+              onMenu: () => openMoreInfo(this, cover.entity),
+            })}
+            ${this._renderPositionRow(cover)}
+          </div>
+        </div>
+        ${this._renderSliders(cover)}
         ${renderControls({
           cover,
           labels: { open: this._t('action_open'), close: this._t('action_close'), stop: this._t('action_stop') },

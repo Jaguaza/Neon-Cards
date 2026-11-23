@@ -17,7 +17,7 @@ export const NEON_COVER_BODY_STYLES = css`
   }
 
   .position-label {
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -25,7 +25,7 @@ export const NEON_COVER_BODY_STYLES = css`
   }
 
   .position-value {
-    font-size: 56px;
+    font-size: 36px;
     font-weight: 600;
     line-height: 1.05;
     color: var(--cover-color);
@@ -33,7 +33,7 @@ export const NEON_COVER_BODY_STYLES = css`
   }
 
   .position-value .unit {
-    font-size: 26px;
+    font-size: 18px;
     margin-left: 2px;
   }
 
@@ -43,16 +43,16 @@ export const NEON_COVER_BODY_STYLES = css`
   .dial-wrap {
     position: relative;
     flex: 0 0 auto;
-    width: 170px;
-    height: 100px;
+    width: 112px;
+    height: 66px;
   }
 
   .dial-svg {
     position: absolute;
     top: 0;
     left: 0;
-    width: 170px;
-    height: 170px;
+    width: 112px;
+    height: 112px;
     overflow: visible;
     touch-action: none;
     /* Solo el arco y el punto (más abajo) capturan el puntero: el resto del
@@ -89,7 +89,7 @@ export const NEON_COVER_BODY_STYLES = css`
   .dial-hit {
     fill: none;
     stroke: transparent;
-    stroke-width: 34;
+    stroke-width: 30;
     stroke-linecap: butt;
     pointer-events: stroke;
     cursor: pointer;
@@ -106,7 +106,7 @@ export const NEON_COVER_BODY_STYLES = css`
     -webkit-appearance: none;
     appearance: none;
     width: 100%;
-    height: 22px;
+    height: 18px;
     margin: 0;
     background: transparent;
     cursor: pointer;
@@ -119,33 +119,33 @@ export const NEON_COVER_BODY_STYLES = css`
   }
 
   .slider::-webkit-slider-runnable-track {
-    height: 8px;
-    border-radius: 4px;
+    height: 5px;
+    border-radius: 3px;
     background: linear-gradient(90deg, var(--neon-c2) 0, var(--cover-color) var(--pct), color-mix(in srgb, var(--primary-text-color) 14%, transparent) var(--pct));
   }
 
   .slider::-moz-range-track {
-    height: 8px;
-    border-radius: 4px;
+    height: 5px;
+    border-radius: 3px;
     background: linear-gradient(90deg, var(--neon-c2) 0, var(--cover-color) var(--pct), color-mix(in srgb, var(--primary-text-color) 14%, transparent) var(--pct));
   }
 
   .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 22px;
-    height: 22px;
-    margin-top: -7px;
+    width: 16px;
+    height: 16px;
+    margin-top: -5.5px;
     border-radius: 50%;
-    border: 3px solid var(--cover-color);
+    border: 2.5px solid var(--cover-color);
     background: var(--card-background-color, #1c1c1c);
     box-shadow: 0 0 8px color-mix(in srgb, var(--cover-color) 80%, transparent);
   }
 
   .slider::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
-    border: 3px solid var(--cover-color);
+    border: 2.5px solid var(--cover-color);
     background: var(--card-background-color, #1c1c1c);
     box-shadow: 0 0 8px color-mix(in srgb, var(--cover-color) 80%, transparent);
   }
@@ -161,8 +161,8 @@ export const NEON_COVER_BODY_STYLES = css`
   .scale {
     display: flex;
     justify-content: space-between;
-    margin: -4px 0 2px;
-    font-size: 13px;
+    margin: -4px 0 0;
+    font-size: 12px;
     color: var(--secondary-text-color);
   }
 
@@ -170,11 +170,11 @@ export const NEON_COVER_BODY_STYLES = css`
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    margin: 6px 0 -8px;
+    margin: 2px 0 -6px;
   }
 
   .tilt-label {
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -182,8 +182,24 @@ export const NEON_COVER_BODY_STYLES = css`
   }
 
   .tilt-value {
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--cover-color);
+  }
+
+  @container (max-width: 380px) {
+    .dial-wrap {
+      width: 88px;
+      height: 52px;
+    }
+
+    .dial-svg {
+      width: 88px;
+      height: 88px;
+    }
+
+    .position-value {
+      font-size: 30px;
+    }
   }
 `;

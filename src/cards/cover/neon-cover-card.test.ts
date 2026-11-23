@@ -31,12 +31,12 @@ describe('cabecera y estado', () => {
     expect(qa(el, '.control').map((b) => b.textContent?.trim())).toEqual(['Close', 'Stop', 'Open']);
   });
 
-  it('el icono sigue al device_class y al estado', async () => {
-    const open = await mount({}, hassWith('open', { attributes: { device_class: 'blind' } }));
-    expect((q(open, '.header-icon') as unknown as { icon: string }).icon).toBe('mdi:blinds-horizontal');
+  it('un cover que no es persiana usa el icono de Home Assistant según device_class y estado', async () => {
+    const open = await mount({}, hassWith('open', { attributes: { device_class: 'curtain' } }));
+    expect((q(open, '.hero-mdi') as unknown as { icon: string }).icon).toBe('mdi:curtains');
     document.body.innerHTML = '';
-    const closed = await mount({}, hassWith('closed', { attributes: { device_class: 'blind', current_position: 0 } }));
-    expect((q(closed, '.header-icon') as unknown as { icon: string }).icon).toBe('mdi:blinds-horizontal-closed');
+    const closed = await mount({}, hassWith('closed', { attributes: { device_class: 'curtain', current_position: 0 } }));
+    expect((q(closed, '.hero-mdi') as unknown as { icon: string }).icon).toBe('mdi:curtains-closed');
   });
 
   it('el halo está encendido con la persiana abierta o en movimiento y apagado cerrada', async () => {
@@ -62,6 +62,57 @@ describe('cabecera y estado', () => {
   });
 });
 
+describe('icono grande', () => {
+  const style = (el: Card) => q(el, '.cover-glyph')!.getAttribute('style') ?? '';
+
+  it('shutter y sin device_class dibujan la persiana enrollable; blind, la veneciana', async () => {
+    expect(q(await mount({}, hassWith('open')), '.cover-glyph')?.getAttribute('data-glyph')).toBe('shutter');
+    document.body.innerHTML = '';
+    expect(q(await mount({}, hassWith('open', { attributes: { device_class: undefined } })), '.cover-glyph')?.getAttribute('data-glyph')).toBe('shutter');
+    document.body.innerHTML = '';
+    expect(q(await mount({}, hassWith('open', { attributes: { device_class: 'blind' } })), '.cover-glyph')?.getAttribute('data-glyph')).toBe('blind');
+  });
+
+  it('la apertura del dibujo sigue al porcentaje', async () => {
+    const el = await mount({}, hassWith('open'));
+    expect(style(el)).toContain('--open: 0.72');
+    expect(qa(el, '.g-slat')).toHaveLength(9);
+  });
+
+  it('sin porcentaje, abierta del todo o cerrada según el estado', async () => {
+    const attrs = { current_position: undefined, supported_features: 1 | 2 | 8 };
+    expect(style(await mount({}, hassWith('open', { attributes: attrs })))).toContain('--open: 1');
+    document.body.innerHTML = '';
+    expect(style(await mount({}, hassWith('closed', { attributes: attrs })))).toContain('--open: 0');
+  });
+
+  it('el dibujo se mueve en directo mientras se arrastra el deslizador', async () => {
+    const el = await mount({}, hassWith('open'));
+    const slider = q(el, '.slider') as HTMLInputElement;
+    slider.value = '20';
+    slider.dispatchEvent(new Event('input'));
+    await el.updateComplete;
+    expect(style(el)).toContain('--open: 0.2');
+    expect(q(el, '.hero-icon')!.classList.contains('dragging')).toBe(true);
+    slider.dispatchEvent(new Event('change'));
+    await el.updateComplete;
+    expect(style(el)).toContain('--open: 0.72');
+    expect(q(el, '.hero-icon')!.classList.contains('dragging')).toBe(false);
+  });
+
+  it('la veneciana gira las lamas con la inclinación, también arrastrándola', async () => {
+    const attrs = { device_class: 'blind', supported_features: TILT_FEATURES, current_tilt_position: 40 };
+    const el = await mount({}, hassWith('open', { attributes: attrs }));
+    expect(qa(el, '.g-blind-slat')).toHaveLength(8);
+    expect(style(el)).toContain('--tilt: 0.4');
+    const tilt = qa(el, '.slider')[1] as HTMLInputElement;
+    tilt.value = '90';
+    tilt.dispatchEvent(new Event('input'));
+    await el.updateComplete;
+    expect(style(el)).toContain('--tilt: 0.9');
+  });
+});
+
 describe('botones', () => {
   it('Cerrar, Parar y Abrir llaman a su servicio con la entidad', async () => {
     const calls: unknown[][] = [];
@@ -78,6 +129,7 @@ describe('botones', () => {
     const el = await mount({}, hassWith('open', { attributes: { supported_features: 1 | 2 } }));
     expect(qa(el, '.control').map((b) => (b as HTMLElement).dataset.control)).toEqual(['close', 'open']);
     expect(text(el, '.controls')).not.toContain('Parar');
+    expect(qa(el, '.control--divided')).toHaveLength(1);
   });
 
   it('resalta Abrir con la persiana abierta y Cerrar con ella cerrada', async () => {
