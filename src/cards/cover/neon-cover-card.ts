@@ -16,7 +16,7 @@ import {
   valueForAngle,
 } from '../../shared';
 import { POSITION_MAX, POSITION_MIN } from './constants';
-import { coverGlyph, coverIcon, isHaloOn, openFraction, statusGroup } from './cover-visual';
+import { coverGlyph, isHaloOn, openFraction, statusGroup } from './cover-visual';
 import { renderGlyph } from './cover-glyph';
 import { NEON_COVER_GLYPH_STYLES } from './cover-glyph.styles';
 import { NEON_COVER_BODY_STYLES } from './cover-body.styles';
@@ -35,9 +35,9 @@ import type { NeonCoverCardConfig } from './types';
  * ------------------------------------------------------------
  * Creador: Jaguaza
  *
- * Tarjeta para entidades `cover` de Home Assistant (persianas, venecianas,
- * cortinas…): el icono, grande, se dibuja según el tipo de cover y sube o gira
- * con el porcentaje de apertura y la inclinación; el porcentaje se ve y se
+ * Tarjeta para entidades `cover` de Home Assistant: persianas, venecianas,
+ * cortinas y toldos. El icono, grande, se dibuja según el tipo de cover y sube,
+ * gira o se despliega con el porcentaje de apertura y la inclinación; el porcentaje se ve y se
  * fija con un dial y un deslizador, la inclinación de las lamas tiene el suyo
  * si la entidad la soporta, y el pie tiene los botones abrir, parar y cerrar. Ver `README.md` de esta carpeta para la especificación.
  */
@@ -189,17 +189,18 @@ export class NeonCoverCard extends BaseNeonCard {
   }
 
   /**
-   * Icono grande: el dibujo de persiana o de veneciana, que sube y gira con
-   * el porcentaje y la inclinación (también mientras se arrastran), o el
-   * icono `mdi` de Home Assistant para los demás tipos de cover.
+   * Icono grande: el dibujo de persiana, veneciana, cortina o toldo, que se
+   * mueve con el porcentaje y la inclinación (también mientras se arrastran).
    */
   private _renderHeroIcon(cover: CoverState): TemplateResult {
-    const glyph = coverGlyph(cover);
     const dragging = this._dragPosition !== null || this._dragTilt !== null;
-    const content = glyph
-      ? renderGlyph({ glyph, open: openFraction(cover, this._shownPosition(cover)), tilt: (this._dragTilt ?? cover.tiltPosition ?? 0) / 100, uid: this._ringUid })
-      : html`<ha-icon class="hero-mdi" .icon=${coverIcon(cover)}></ha-icon>`;
-    return html`<div class="hero-icon ${dragging ? 'dragging' : ''}">${content}</div>`;
+    const glyph = renderGlyph({
+      glyph: coverGlyph(cover),
+      open: openFraction(cover, this._shownPosition(cover)),
+      tilt: (this._dragTilt ?? cover.tiltPosition ?? 0) / 100,
+      uid: this._ringUid,
+    });
+    return html`<div class="hero-icon ${dragging ? 'dragging' : ''}">${glyph}</div>`;
   }
 
   render(): TemplateResult {

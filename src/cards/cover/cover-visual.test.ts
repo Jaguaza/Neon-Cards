@@ -1,32 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { CoverState, CoverStateName } from '../../ha/cover';
-import { coverGlyph, coverIcon, isHaloOn, openFraction, statusGroup } from './cover-visual';
+import { coverGlyph, isHaloOn, openFraction, statusGroup } from './cover-visual';
 
 function cover(state: CoverStateName, deviceClass: string | null = 'shutter'): CoverState {
   return { entity: 'cover.salon', state, available: state !== 'unavailable', position: 50, tiltPosition: null, deviceClass, canOpen: true, canClose: true, canStop: true, canSetPosition: true, canSetTilt: false };
 }
-
-describe('coverIcon', () => {
-  it('usa el icono de Home Assistant para cada device_class, abierto o cerrado', () => {
-    expect(coverIcon(cover('open', 'shutter'))).toBe('mdi:window-shutter-open');
-    expect(coverIcon(cover('closed', 'shutter'))).toBe('mdi:window-shutter');
-    expect(coverIcon(cover('open', 'blind'))).toBe('mdi:blinds-horizontal');
-    expect(coverIcon(cover('closed', 'blind'))).toBe('mdi:blinds-horizontal-closed');
-    expect(coverIcon(cover('open', 'curtain'))).toBe('mdi:curtains');
-    expect(coverIcon(cover('closed', 'curtain'))).toBe('mdi:curtains-closed');
-  });
-
-  it('abriéndose o cerrándose se ve abierto; no disponible, cerrado', () => {
-    expect(coverIcon(cover('opening'))).toBe('mdi:window-shutter-open');
-    expect(coverIcon(cover('closing'))).toBe('mdi:window-shutter-open');
-    expect(coverIcon(cover('unavailable'))).toBe('mdi:window-shutter');
-  });
-
-  it('sin device_class o con una desconocida usa el icono de ventana', () => {
-    expect(coverIcon(cover('open', null))).toBe('mdi:window-open');
-    expect(coverIcon(cover('closed', 'rara'))).toBe('mdi:window-closed');
-  });
-});
 
 describe('statusGroup e isHaloOn', () => {
   it('agrupa los estados', () => {
@@ -58,9 +36,10 @@ describe('coverGlyph', () => {
     expect(coverGlyph(cover('open', 'awning'))).toBe('awning');
   });
 
-  it('garaje, puerta, ventana… no tienen dibujo propio', () => {
+  it('sin clase o con una que la tarjeta no contempla se dibuja como persiana', () => {
+    expect(coverGlyph(cover('open', null))).toBe('shutter');
     for (const deviceClass of ['garage', 'gate', 'door', 'window', 'shade', 'damper', 'rara']) {
-      expect(coverGlyph(cover('open', deviceClass))).toBeNull();
+      expect(coverGlyph(cover('open', deviceClass))).toBe('shutter');
     }
   });
 });

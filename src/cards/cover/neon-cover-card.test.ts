@@ -31,13 +31,9 @@ describe('cabecera y estado', () => {
     expect(qa(el, '.control').map((b) => b.textContent?.trim())).toEqual(['Close', 'Stop', 'Open']);
   });
 
-  it('un cover sin dibujo propio usa el icono de Home Assistant según device_class y estado', async () => {
-    const open = await mount({}, hassWith('open', { attributes: { device_class: 'garage' } }));
-    expect((q(open, '.hero-mdi') as unknown as { icon: string }).icon).toBe('mdi:garage-open');
-    expect(q(open, '.cover-glyph')).toBeNull();
-    document.body.innerHTML = '';
-    const closed = await mount({}, hassWith('closed', { attributes: { device_class: 'garage', current_position: 0 } }));
-    expect((q(closed, '.hero-mdi') as unknown as { icon: string }).icon).toBe('mdi:garage');
+  it('un cover de otra clase (garaje, puerta…) se dibuja como persiana', async () => {
+    const el = await mount({}, hassWith('open', { attributes: { device_class: 'garage' } }));
+    expect(q(el, '.cover-glyph')?.getAttribute('data-glyph')).toBe('shutter');
   });
 
   it('el halo está encendido con la persiana abierta o en movimiento y apagado cerrada', async () => {

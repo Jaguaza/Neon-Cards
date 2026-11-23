@@ -1,18 +1,7 @@
 import type { CoverState } from '../../ha/cover';
-import { COVER_ICONS, DEFAULT_COVER_ICONS } from './constants';
 import type { StatusGroup } from './types';
 
-/**
- * Icono del cover: el de Home Assistant para su `device_class`, abierto
- * mientras la persiana está abierta o en movimiento y cerrado cuando llega a
- * cerrada (o no está disponible).
- */
-export function coverIcon(cover: CoverState): string {
-  const pair = (cover.deviceClass && COVER_ICONS[cover.deviceClass]) || DEFAULT_COVER_ICONS;
-  return cover.state === 'open' || cover.state === 'opening' || cover.state === 'closing' ? pair.open : pair.closed;
-}
-
-/** Dibujos propios de la tarjeta: persiana enrollable, veneciana, cortina y toldo. */
+/** Los cuatro dibujos de la tarjeta: persiana enrollable, veneciana, cortina y toldo. */
 export type CoverGlyph = 'shutter' | 'blind' | 'curtain' | 'awning';
 
 const GLYPH_BY_DEVICE_CLASS: Record<string, CoverGlyph> = {
@@ -24,14 +13,13 @@ const GLYPH_BY_DEVICE_CLASS: Record<string, CoverGlyph> = {
 
 /**
  * Qué dibujo animado lleva el cover según su `device_class`: persiana
- * enrollable (`shutter`, y también un cover sin clase, que en esta tarjeta es
- * una persiana), veneciana (`blind`), cortina (`curtain`) o toldo (`awning`).
- * Los demás tipos (`null`: garaje, puerta, ventana…) usan el icono `mdi` de
- * Home Assistant, sin animar.
+ * enrollable (`shutter`), veneciana (`blind`), cortina (`curtain`) o toldo
+ * (`awning`). Un cover sin clase, o con una que esta tarjeta no contempla
+ * (garaje, puerta, ventana…), se dibuja como persiana enrollable, que es el
+ * dibujo por defecto.
  */
-export function coverGlyph(cover: CoverState): CoverGlyph | null {
-  if (cover.deviceClass === null) return 'shutter';
-  return GLYPH_BY_DEVICE_CLASS[cover.deviceClass] ?? null;
+export function coverGlyph(cover: CoverState): CoverGlyph {
+  return (cover.deviceClass && GLYPH_BY_DEVICE_CLASS[cover.deviceClass]) || 'shutter';
 }
 
 /** Apertura de 0 a 1: el porcentaje que se muestra o, sin él, abierta del todo o cerrada según el estado. */

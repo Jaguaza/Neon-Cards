@@ -131,17 +131,6 @@ export const NEON_COVER_GLYPH_STYLES = css`
     transition: none;
   }
 
-  .hero-mdi {
-    --mdc-icon-size: 96px;
-    display: block;
-    color: var(--cover-color);
-    transition: color 300ms ease-out;
-  }
-
-  ha-card.neon-halo-active .hero-mdi {
-    filter: drop-shadow(0 0 5px color-mix(in srgb, var(--cover-color) 65%, transparent));
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .g-curtain,
     .g-blind-slat,
