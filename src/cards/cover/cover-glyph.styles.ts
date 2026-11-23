@@ -19,6 +19,17 @@ export const NEON_COVER_GLYPH_STYLES = css`
     filter: drop-shadow(0 0 5px color-mix(in srgb, var(--cover-color) 65%, transparent));
   }
 
+  /* Tema claro (\`BaseNeonCard\` pone \`data-neon-light\` en el host): el color neón
+     apenas contrasta con un fondo claro y el resplandor difuminaba el trazo
+     fino del dibujo. Igual que el resto de iconos de la colección
+     (\`NEON_HALO_STYLES\`), se conserva el color y se cambia el resplandor por
+     un contorno fino del mismo tono oscurecido. En oscuro no cambia nada. */
+  :host([data-neon-light]) ha-card.neon-halo-active .cover-glyph {
+    filter: drop-shadow(0 0 0.6px color-mix(in srgb, var(--neon-c1) 40%, #000))
+      drop-shadow(0 0 1px color-mix(in srgb, var(--neon-c1) 40%, #000))
+      drop-shadow(0 0 3px color-mix(in srgb, var(--neon-c1) 40%, transparent));
+  }
+
   .g-glass {
     fill: color-mix(in srgb, var(--cover-color) 7%, transparent);
     stroke: color-mix(in srgb, var(--primary-text-color) 22%, transparent);
