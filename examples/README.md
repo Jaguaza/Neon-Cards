@@ -562,14 +562,16 @@ neon_color3: "#d500f9"
 ### Explicación
 
 Neón Cover Card controla una entidad `cover`: persianas, persianas venecianas,
-cortinas, toldos… El icono es el que Home Assistant usa para el `device_class`
-de la entidad (`shutter`, `blind`, `curtain`…) y se ve abierto o cerrado según
-el estado. Muestra la posición actual en grande, con un dial en arco y un
-deslizador de 0 a 100 % que también la fijan (la orden sale al soltar). Si la
+cortinas, toldos… El icono es grande y se mueve con la persiana: con
+`device_class: shutter` (o sin clase) es una persiana enrollable que sube y baja
+según el porcentaje de apertura, y con `blind` una veneciana cuyas lamas se
+recogen y giran con la inclinación; los demás tipos usan el icono de Home
+Assistant. Muestra la posición actual con un dial en arco y un deslizador fino
+de 0 a 100 % que también la fijan (la orden sale al soltar). Si la
 entidad soporta la inclinación de las lamas, como una veneciana, sale un segundo
-deslizador debajo para fijarla. Los botones Cerrar, Parar y Abrir llaman a
-`cover.close_cover`, `cover.stop_cover` y `cover.open_cover`, y solo salen los
-que la entidad soporta; el que corresponde al estado se resalta. El halo y el
+deslizador debajo para fijarla. En el pie, los botones Cerrar, Parar y Abrir
+llaman a `cover.close_cover`, `cover.stop_cover` y `cover.open_cover`, y solo
+salen los que la entidad soporta; el que corresponde al estado se enciende. El halo y el
 color de la tarjeta usan la paleta que elijas mientras la persiana no está
 cerrada. Los tres puntos abren «más información». La tarjeta no cambia de alto
 al abrirse o cerrarse la persiana. Por ahora solo existe el tamaño grande (12
@@ -1140,14 +1142,16 @@ neon_color3: "#d500f9"
 ### Explanation
 
 Neón Cover Card controls a `cover` entity: shutters, venetian blinds, curtains,
-awnings… The icon is the one Home Assistant uses for the entity's
-`device_class` (`shutter`, `blind`, `curtain`…) and looks open or closed
-depending on the state. It shows the current position in large type, with an arc
-dial and a 0 to 100 % slider that also set it (the command is sent on release).
+awnings… The icon is large and moves with the cover: with
+`device_class: shutter` (or no class) it is a rolling shutter that goes up and
+down with the opening percentage, and with `blind` a venetian blind whose slats
+gather and turn with the tilt; the other types use Home Assistant's icon. It
+shows the current position with an arc dial and a thin 0 to 100 % slider that
+also set it (the command is sent on release).
 If the entity supports slat tilt, like a venetian blind, a second slider below
-it sets that. The Close, Stop and Open buttons call `cover.close_cover`,
-`cover.stop_cover` and `cover.open_cover`, and only the ones the entity supports
-are shown; the one matching the state is highlighted. The halo and the color of
+it sets that. In the footer, the Close, Stop and Open buttons call
+`cover.close_cover`, `cover.stop_cover` and `cover.open_cover`, and only the
+ones the entity supports are shown; the one matching the state lights up. The halo and the color of
 the card use the palette you choose while the cover is not closed. The three
 dots open "more info". The card does not change height when the cover opens or
 closes. For now only the large size exists (12 starting columns, down to 4

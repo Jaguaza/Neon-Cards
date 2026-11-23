@@ -4,43 +4,40 @@
 
 `custom:neon-cover-card` — tarjeta para entidades `cover` de Home Assistant:
 persianas, persianas venecianas, cortinas, toldos… El **icono** sigue al tipo de
-cover y a su estado, el **porcentaje de apertura** se ve y se fija con un dial
-en arco y un deslizador, las **venecianas** tienen un segundo deslizador para la
-inclinación de las lamas y tres botones **abren, paran y cierran**. Lleva el
-halo neón de la familia Neón Cards y, como la Thermostat, no tiene pie de
-sensores.
+cover es **grande y se mueve con la persiana**: sube y baja según el porcentaje de
+apertura y, en una veneciana, gira las lamas con la inclinación. El
+**porcentaje** se ve y se fija con un dial en arco y un deslizador, las
+**venecianas** tienen un segundo deslizador para la inclinación de las lamas y
+el pie tiene tres botones que **abren, paran y cierran**. Lleva el halo neón de
+la familia Neón Cards.
 
 Por ahora solo existe el **tamaño grande**.
 
 ## Diseño
 
-- **Cabecera:** el icono en una caja redondeada, el nombre, el estado con un
-  punto de color y, a la derecha, los tres puntos que abren «más información».
-- **Posición:** «Posición actual» con el porcentaje en grande y, a su derecha,
-  el dial en arco con su punto. Debajo, el deslizador de 0 a 100 %.
+- **Zona principal:** a la izquierda, el icono grande. A su derecha, el nombre,
+  el estado con un punto de color y los tres puntos que abren «más
+  información», y debajo «Posición actual» con el porcentaje y el dial en arco
+  con su punto.
+- **Posición:** el deslizador de 0 a 100 %, fino, con sus extremos.
 - **Inclinación** (solo si la entidad la soporta): otro deslizador bajo el de
   posición, con su título y su porcentaje.
-- **Botones:** una línea de neón y los botones Cerrar, Parar y Abrir.
+- **Pie:** los botones Cerrar, Parar y Abrir en columnas iguales con un
+  divisor vertical entre ellas, como el pie de sensores de la Thermostat.
 
 ### El icono
 
-Es el que Home Assistant usa para cada `device_class`, abierto mientras la
-persiana está abierta o en movimiento y cerrado cuando llega a cerrada o no está
-disponible:
+Es un dibujo propio que se mueve con la entidad, con las mismas variables que
+el porcentaje y la inclinación (también mientras los arrastras):
 
-| `device_class` | Abierta | Cerrada |
-|---|---|---|
-| `shutter` | `mdi:window-shutter-open` | `mdi:window-shutter` |
-| `blind` | `mdi:blinds-horizontal` | `mdi:blinds-horizontal-closed` |
-| `curtain` | `mdi:curtains` | `mdi:curtains-closed` |
-| `shade` | `mdi:roller-shade` | `mdi:roller-shade-closed` |
-| `awning` | `mdi:awning-outline` | `mdi:awning-outline` |
-| `garage` | `mdi:garage-open` | `mdi:garage` |
-| `gate` | `mdi:gate-open` | `mdi:gate` |
-| `door` | `mdi:door-open` | `mdi:door-closed` |
-| `window` | `mdi:window-open` | `mdi:window-closed` |
-| `damper` | `mdi:valve-open` | `mdi:valve-closed` |
-| otro o ninguno | `mdi:window-open` | `mdi:window-closed` |
+| `device_class` | Icono |
+|---|---|
+| `shutter` o ninguna | **Persiana enrollable.** Cajón arriba, guías a los lados y el cortinaje de lamas, que sube hacia el cajón al abrirse: cerrada tapa toda la ventana y abierta del todo solo asoma el último tramo. |
+| `blind` | **Veneciana.** Las lamas se recogen contra el cabezal al abrirse y giran hasta quedar de canto con la inclinación (`current_tilt_position`). |
+| cualquier otra | El icono `mdi` de Home Assistant, abierto o cerrado, sin animar: `curtain`, `shade`, `awning`, `garage`, `gate`, `door`, `window`, `damper`; sin una de esas, `mdi:window-open` / `mdi:window-closed`. |
+
+Sin `current_position`, el dibujo se ve abierto del todo o cerrado según el
+estado. Con `prefers-reduced-motion` el dibujo cambia sin animación.
 
 ### Colores según el estado
 
@@ -49,8 +46,8 @@ disponible:
   cerrándose; con la persiana cerrada se ven en blanco y sin halo.
 - **El punto de estado** es verde con la persiana abierta, ámbar (y parpadea)
   mientras se mueve, gris cerrada y rojo no disponible.
-- Un botón se resalta cuando la persiana está ahí o va hacia ahí: **Abrir**
-  abierta o abriéndose, **Cerrar** cerrada o cerrándose.
+- Un botón se enciende (color e icono con brillo) cuando la persiana está ahí o
+  va hacia ahí: **Abrir** abierta o abriéndose, **Cerrar** cerrada o cerrándose.
 
 ### Lo que sale según la entidad
 
@@ -92,10 +89,11 @@ interacción.
 | Archivo | Qué hace |
 |---|---|
 | `neon-cover-card.ts` | La tarjeta: lee el cover, arrastre del dial y órdenes |
-| `header-view.ts`, `position-view.ts`, `controls-view.ts` | Cabecera, posición con sus deslizadores y botones |
-| `cover-visual.ts` | Icono, grupo de estado y halo según el cover |
+| `header-view.ts`, `position-view.ts`, `controls-view.ts` | Cabecera, posición con sus deslizadores y pie de botones |
+| `cover-glyph.ts` | Los dibujos de la persiana enrollable y de la veneciana |
+| `cover-visual.ts` | Qué dibujo o icono lleva el cover, apertura, grupo de estado y halo |
 | `constants.ts`, `types.ts` | Iconos, colores del punto de estado y configuración |
-| `*.styles.ts` | Estilos divididos (carcasa y cabecera, cuerpo, botones, editor) |
+| `*.styles.ts` | Estilos divididos (carcasa y cabecera, dibujo, cuerpo, pie de botones) |
 | `translations/` | Textos en español e inglés |
 | `neon-cover-card-editor.ts` | Editor visual: entidad, nombre y halo |
 
@@ -118,32 +116,28 @@ For now only the **large size** exists.
 
 ## Design
 
-- **Header:** the icon in a rounded box, the name, the state with a colored dot
-  and, on the right, the three dots that open "more info".
-- **Position:** "Current position" with the big percentage and, on its right,
-  the arc dial with its dot. Below it, the 0 to 100 % slider.
+- **Main area:** on the left, the large icon. On its right, the name, the state
+  with a colored dot and the three dots that open "more info", and below them
+  "Current position" with the percentage and the arc dial with its dot.
+- **Position:** the thin 0 to 100 % slider, with its ends.
 - **Tilt** (only if the entity supports it): another slider under the position
   one, with its title and its percentage.
-- **Buttons:** a neon line and the Close, Stop and Open buttons.
+- **Footer:** the Close, Stop and Open buttons in equal columns with a vertical
+  divider between them, like the Thermostat's sensor footer.
 
 ### The icon
 
-It is the one Home Assistant uses for each `device_class`, open while the cover
-is open or moving and closed once it is closed or unavailable:
+It is a custom drawing that moves with the entity, driven by the same values as
+the percentage and the tilt (also while you drag them):
 
-| `device_class` | Open | Closed |
-|---|---|---|
-| `shutter` | `mdi:window-shutter-open` | `mdi:window-shutter` |
-| `blind` | `mdi:blinds-horizontal` | `mdi:blinds-horizontal-closed` |
-| `curtain` | `mdi:curtains` | `mdi:curtains-closed` |
-| `shade` | `mdi:roller-shade` | `mdi:roller-shade-closed` |
-| `awning` | `mdi:awning-outline` | `mdi:awning-outline` |
-| `garage` | `mdi:garage-open` | `mdi:garage` |
-| `gate` | `mdi:gate-open` | `mdi:gate` |
-| `door` | `mdi:door-open` | `mdi:door-closed` |
-| `window` | `mdi:window-open` | `mdi:window-closed` |
-| `damper` | `mdi:valve-open` | `mdi:valve-closed` |
-| other or none | `mdi:window-open` | `mdi:window-closed` |
+| `device_class` | Icon |
+|---|---|
+| `shutter` or none | **Rolling shutter.** Box on top, guides at the sides and the slatted curtain, which rises into the box as it opens: closed it covers the whole window and fully open only its last stretch shows. |
+| `blind` | **Venetian blind.** The slats gather against the head rail as it opens and turn edge-on with the tilt (`current_tilt_position`). |
+| any other | Home Assistant's `mdi` icon, open or closed, not animated: `curtain`, `shade`, `awning`, `garage`, `gate`, `door`, `window`, `damper`; without one of those, `mdi:window-open` / `mdi:window-closed`. |
+
+Without `current_position` the drawing shows fully open or closed depending on
+the state. With `prefers-reduced-motion` the drawing changes without animation.
 
 ### Colors by state
 
@@ -152,8 +146,9 @@ is open or moving and closed once it is closed or unavailable:
   they are white and there is no halo.
 - **The state dot** is green when open, amber (and blinking) while moving, grey
   when closed and red when unavailable.
-- A button is highlighted when the cover is there or heading there: **Open**
-  when open or opening, **Close** when closed or closing.
+- A button lights up (color and glowing icon) when the cover is there or
+  heading there: **Open** when open or opening, **Close** when closed or
+  closing.
 
 ### What shows up depending on the entity
 
@@ -195,9 +190,10 @@ interaction.
 | File | What it does |
 |---|---|
 | `neon-cover-card.ts` | The card: reads the cover, dial dragging and commands |
-| `header-view.ts`, `position-view.ts`, `controls-view.ts` | Header, position with its sliders, and buttons |
-| `cover-visual.ts` | Icon, state group and halo from the cover |
+| `header-view.ts`, `position-view.ts`, `controls-view.ts` | Header, position with its sliders, and button footer |
+| `cover-glyph.ts` | The rolling shutter and venetian blind drawings |
+| `cover-visual.ts` | Which drawing or icon the cover gets, opening, state group and halo |
 | `constants.ts`, `types.ts` | Icons, state dot colors and configuration |
-| `*.styles.ts` | Split styles (shell and header, body, buttons, editor) |
+| `*.styles.ts` | Split styles (shell and header, drawing, body, button footer) |
 | `translations/` | Spanish and English texts |
 | `neon-cover-card-editor.ts` | Visual editor: entity, name and halo |
