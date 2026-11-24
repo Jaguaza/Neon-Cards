@@ -158,6 +158,64 @@ function awningGlyph(o: GlyphOptions): TemplateResult {
   `;
 }
 
+const SCREEN = { x: 10, y: 22, width: 80, height: 62, rolled: 6 } as const;
+
+/** Triángulo de «play» centrado en (cx, cy): lo que se proyecta cuando la pantalla o la TV están abiertas. */
+function playTriangle(cx: number, cy: number): string {
+  return `M${cx - 5} ${cy - 7} L${cx - 5} ${cy + 7} L${cx + 8} ${cy} Z`;
+}
+
+/**
+ * Pantalla de proyector: el cajón cilíndrico arriba y el lienzo, que baja
+ * desde él (`--open`) con su barra de abajo; abierta del todo se proyecta un
+ * «play». Binaria: solo abierta o cerrada.
+ */
+function projectorGlyph(o: GlyphOptions): TemplateResult {
+  const travel = SCREEN.height - SCREEN.rolled;
+  return svg`
+    <svg class="cover-glyph" data-glyph="projector" viewBox="0 0 100 110" aria-hidden="true" style="--open: ${o.open}; --travel: ${travel}px; --rolled: ${SCREEN.rolled / SCREEN.height}">
+      <rect class="g-canvas g-screen" x=${SCREEN.x} y=${SCREEN.y} width=${SCREEN.width} height=${SCREEN.height}></rect>
+      <path class="g-play" d=${playTriangle(50, SCREEN.y + SCREEN.height / 2)}></path>
+      <rect class="g-bar g-screen-bar" x="8" y=${SCREEN.y + SCREEN.rolled} width="84" height="4" rx="2"></rect>
+      <rect class="g-box" x="6" y="10" width="88" height="12" rx="6"></rect>
+    </svg>
+  `;
+}
+
+const TV_LIFT = { cabinetTop: 76, tvTop: 16, travel: 62 } as const;
+
+/**
+ * TV en mueble: un mueble bajo con dos puertas y, dentro, una TV que sube
+ * (`--open`) por su columna y asoma sobre el mueble; cerrada, queda escondida
+ * (recortada al borde superior del mueble). Abierta del todo se proyecta un
+ * «play». Binaria: solo abierta o cerrada.
+ */
+function tvGlyph(o: GlyphOptions): TemplateResult {
+  const clipId = `cover-tv-${o.uid}`;
+  return svg`
+    <svg class="cover-glyph" data-glyph="tv" viewBox="0 0 100 110" aria-hidden="true" style="--open: ${o.open}; --travel: ${TV_LIFT.travel}px">
+      <defs>
+        <clipPath id=${clipId}><rect x="0" y="0" width="100" height=${TV_LIFT.cabinetTop}></rect></clipPath>
+      </defs>
+      <g clip-path="url(#${clipId})">
+        <g class="g-tv">
+          <rect class="g-tv-neck" x="46" y="58" width="8" height="14"></rect>
+          <rect class="g-tv-neck" x="34" y="70" width="32" height="3" rx="1.5"></rect>
+          <rect class="g-tv-body" x="14" y=${TV_LIFT.tvTop} width="72" height="42" rx="3"></rect>
+          <rect class="g-tv-screen" x="18" y="20" width="64" height="34" rx="1.5"></rect>
+          <path class="g-play" d=${playTriangle(50, 37)}></path>
+        </g>
+      </g>
+      <rect class="g-cabinet" x="8" y=${TV_LIFT.cabinetTop} width="84" height="24" rx="3"></rect>
+      <line class="g-cabinet-line" x1="50" y1=${TV_LIFT.cabinetTop + 3} x2="50" y2="97"></line>
+      <circle class="g-handle" cx="45" cy="88" r="1.4"></circle>
+      <circle class="g-handle" cx="55" cy="88" r="1.4"></circle>
+      <rect class="g-cabinet" x="14" y="100" width="6" height="5" rx="1"></rect>
+      <rect class="g-cabinet" x="80" y="100" width="6" height="5" rx="1"></rect>
+    </svg>
+  `;
+}
+
 export function renderGlyph(o: GlyphOptions): TemplateResult {
   switch (o.glyph) {
     case 'blind':
@@ -166,6 +224,10 @@ export function renderGlyph(o: GlyphOptions): TemplateResult {
       return curtainGlyph(o);
     case 'awning':
       return awningGlyph(o);
+    case 'projector':
+      return projectorGlyph(o);
+    case 'tv':
+      return tvGlyph(o);
     default:
       return shutterGlyph(o);
   }

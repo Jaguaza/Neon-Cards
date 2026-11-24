@@ -166,6 +166,61 @@ describe('icono grande', () => {
   });
 });
 
+describe('tipos binarios: pantalla de proyector y TV en mueble', () => {
+  const style = (el: Card) => q(el, '.cover-glyph')!.getAttribute('style') ?? '';
+  const full = { current_tilt_position: 40, supported_features: TILT_FEATURES };
+
+  it.each(['projector', 'tv'])('%s dibuja su icono y no tiene porcentaje, dial ni deslizadores', async (cover_type) => {
+    const el = await mount({ cover_type }, hassWith('open', { attributes: full }));
+    expect(q(el, '.cover-glyph')?.getAttribute('data-glyph')).toBe(cover_type);
+    for (const sel of ['.position-row', '.position-value', '.dial-svg', '.slider', '.scale', '.tilt-row']) expect(q(el, sel)).toBeNull();
+    expect(qa(el, '.control').map((b) => (b as HTMLElement).dataset.control)).toEqual(['close', 'stop', 'open']);
+    expect(text(el, '.name')).toBe('Persiana Salón');
+    expect(text(el, '.status-text')).toBe('Abierta');
+  });
+
+  it.each(['projector', 'tv'])('%s sin porcentaje se anima a abierta o cerrada según el estado', async (cover_type) => {
+    const attrs = { current_position: undefined, supported_features: 1 | 2 | 8 };
+    expect(style(await mount({ cover_type }, hassWith('open', { attributes: attrs })))).toContain('--open: 1');
+    document.body.innerHTML = '';
+    expect(style(await mount({ cover_type }, hassWith('closed', { attributes: attrs })))).toContain('--open: 0');
+    document.body.innerHTML = '';
+    expect(style(await mount({ cover_type }, hassWith('opening', { attributes: attrs })))).toContain('--open: 1');
+    document.body.innerHTML = '';
+    expect(style(await mount({ cover_type }, hassWith('closing', { attributes: attrs })))).toContain('--open: 0');
+  });
+
+  it('con porcentaje del cover el dibujo lo sigue, pero sin mostrarlo', async () => {
+    const el = await mount({ cover_type: 'tv' }, hassWith('opening', { attributes: { current_position: 40 } }));
+    expect(style(el)).toContain('--open: 0.4');
+    expect(q(el, '.position-value')).toBeNull();
+  });
+
+  it('los botones abren y cierran como en los demás tipos', async () => {
+    const calls: unknown[][] = [];
+    const el = await mount({ cover_type: 'projector' }, hassWith('closed', { calls, attributes: { current_position: 0 } }));
+    (q(el, '[data-control="open"]') as HTMLButtonElement).click();
+    expect(calls).toEqual([['cover', 'open_cover', { entity_id: 'cover.salon' }]]);
+  });
+
+  it('la pantalla tiene lienzo y barra; la TV, mueble y una TV que sube de su interior', async () => {
+    const screen = await mount({ cover_type: 'projector' });
+    expect(q(screen, '.g-canvas')).not.toBeNull();
+    expect(q(screen, '.g-screen-bar')).not.toBeNull();
+    expect(q(screen, '.g-play')).not.toBeNull();
+    document.body.innerHTML = '';
+    const tv = await mount({ cover_type: 'tv' });
+    expect(q(tv, '.g-tv')).not.toBeNull();
+    expect(qa(tv, '.g-cabinet').length).toBeGreaterThanOrEqual(1);
+    expect(q(tv, 'clipPath')).not.toBeNull();
+  });
+
+  it('un cover_type inválido sigue sin ser binario: lleva porcentaje', async () => {
+    const el = await mount({ cover_type: 'television' });
+    expect(q(el, '.position-value')).not.toBeNull();
+  });
+});
+
 describe('botones', () => {
   it('Cerrar, Parar y Abrir llaman a su servicio con la entidad', async () => {
     const calls: unknown[][] = [];

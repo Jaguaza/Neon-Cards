@@ -20,4 +20,7 @@ export const POSITION_MIN = 0;
 export const POSITION_MAX = 100;
 
 /** Los tipos de cover que la tarjeta sabe dibujar, en el orden del editor. */
-export const COVER_TYPES: readonly CoverType[] = ['shutter', 'blind', 'curtain', 'awning'];
+export const COVER_TYPES: readonly CoverType[] = ['shutter', 'blind', 'curtain', 'awning', 'projector', 'tv'];
+
+/** Los tipos binarios: solo abiertos o cerrados, sin porcentaje, dial ni deslizadores. */
+export const BINARY_COVER_TYPES: readonly CoverType[] = ['projector', 'tv'];

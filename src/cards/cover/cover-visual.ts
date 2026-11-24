@@ -1,5 +1,5 @@
 import type { CoverState } from '../../ha/cover';
-import { COVER_TYPES } from './constants';
+import { BINARY_COVER_TYPES, COVER_TYPES } from './constants';
 import type { CoverType, StatusGroup } from './types';
 
 const TYPE_BY_DEVICE_CLASS: Record<string, CoverType> = {
@@ -22,10 +22,19 @@ export function resolveCoverType(cover: CoverState, configured?: unknown): Cover
   return (cover.deviceClass && TYPE_BY_DEVICE_CLASS[cover.deviceClass]) || 'shutter';
 }
 
-/** Apertura de 0 a 1: el porcentaje que se muestra o, sin él, abierta del todo o cerrada según el estado. */
+/** Los tipos binarios (pantalla de proyector y TV) solo se abren o se cierran: sin porcentaje, dial ni deslizadores. */
+export function isBinaryCoverType(type: CoverType): boolean {
+  return BINARY_COVER_TYPES.includes(type);
+}
+
+/**
+ * Apertura de 0 a 1: el porcentaje que se muestra o, sin él, el estado de
+ * destino: abierta del todo si está abierta o abriéndose y cerrada si está
+ * cerrada, cerrándose o no disponible.
+ */
 export function openFraction(cover: CoverState, position: number | null): number {
   if (position !== null) return position / 100;
-  return cover.state === 'open' || cover.state === 'opening' || cover.state === 'closing' ? 1 : 0;
+  return cover.state === 'open' || cover.state === 'opening' ? 1 : 0;
 }
 
 export function statusGroup(cover: CoverState): StatusGroup {

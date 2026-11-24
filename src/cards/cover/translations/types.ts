@@ -20,6 +20,8 @@ export interface CoverTranslations {
   type_blind: string;
   type_curtain: string;
   type_awning: string;
+  type_projector: string;
+  type_tv: string;
   section_halo: string;
   palette_label: string;
 }

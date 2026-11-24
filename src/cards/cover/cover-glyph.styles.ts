@@ -134,7 +134,8 @@ export const NEON_COVER_GLYPH_STYLES = css`
   }
 
   /* El toldo: la lona crece hacia abajo desde el cajón y el volante baja con su borde. */
-  .g-stripes {
+  .g-stripes,
+  .g-screen {
     transform-box: fill-box;
     transform-origin: 50% 0%;
     transform: scaleY(calc(var(--rolled, 0.14) + var(--open, 0) * (1 - var(--rolled, 0.14))));
@@ -150,12 +151,69 @@ export const NEON_COVER_GLYPH_STYLES = css`
     fill: color-mix(in srgb, var(--cover-color) 14%, var(--card-background-color, #1c1c1c));
   }
 
-  .g-valance {
+  .g-valance,
+  .g-screen-bar {
     fill: color-mix(in srgb, var(--cover-color) 32%, var(--card-background-color, #1c1c1c));
     stroke: var(--glyph-line);
     stroke-width: 1.2;
     transform: translateY(calc(var(--open, 0) * var(--travel, 48px)));
     transition: transform 500ms ease;
+  }
+
+  /* La pantalla de proyector: lienzo claro, como una pantalla de verdad. */
+  .g-canvas {
+    fill: color-mix(in srgb, var(--primary-text-color) 16%, var(--card-background-color, #1c1c1c));
+    stroke: var(--glyph-line);
+    stroke-width: 1.2;
+  }
+
+  .g-screen-bar {
+    stroke: var(--glyph-line);
+    stroke-width: 1.2;
+  }
+
+  /* El «play» aparece cuando están abiertas del todo. */
+  .g-play {
+    fill: var(--glyph-line);
+    opacity: clamp(0, calc(var(--open, 0) * 5 - 4), 1);
+    transition: opacity 500ms ease;
+  }
+
+  /* La TV en mueble: la TV sube desde dentro del mueble (recortada a su borde). */
+  .g-tv {
+    transform: translateY(calc((1 - var(--open, 0)) * var(--travel, 62px)));
+    transition: transform 500ms ease;
+  }
+
+  .g-tv-body {
+    fill: color-mix(in srgb, var(--primary-text-color) 8%, var(--card-background-color, #1c1c1c));
+    stroke: var(--glyph-line);
+    stroke-width: 1.4;
+  }
+
+  .g-tv-screen {
+    fill: color-mix(in srgb, var(--cover-color) 16%, var(--card-background-color, #1c1c1c));
+  }
+
+  .g-tv-neck {
+    fill: var(--glyph-fill);
+    stroke: var(--glyph-line);
+    stroke-width: 1;
+  }
+
+  .g-cabinet {
+    fill: color-mix(in srgb, var(--cover-color) 24%, var(--card-background-color, #1c1c1c));
+    stroke: var(--glyph-line);
+    stroke-width: 1.4;
+  }
+
+  .g-cabinet-line {
+    stroke: color-mix(in srgb, var(--glyph-line) 70%, transparent);
+    stroke-width: 1.2;
+  }
+
+  .g-handle {
+    fill: var(--glyph-line);
   }
 
   /* Al arrastrar, el dibujo sigue al dedo sin retraso. */
@@ -164,7 +222,11 @@ export const NEON_COVER_GLYPH_STYLES = css`
   .dragging .g-pleat,
   .dragging .g-tie,
   .dragging .g-stripes,
-  .dragging .g-valance {
+  .dragging .g-valance,
+  .dragging .g-screen,
+  .dragging .g-screen-bar,
+  .dragging .g-tv,
+  .dragging .g-play {
     transition: none;
   }
 
@@ -174,7 +236,11 @@ export const NEON_COVER_GLYPH_STYLES = css`
     .g-pleat,
     .g-tie,
     .g-stripes,
-    .g-valance {
+    .g-valance,
+    .g-screen,
+    .g-screen-bar,
+    .g-tv,
+    .g-play {
       transition: none;
     }
   }

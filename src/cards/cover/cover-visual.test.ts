@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CoverState, CoverStateName } from '../../ha/cover';
-import { isHaloOn, openFraction, resolveCoverType, statusGroup } from './cover-visual';
+import { isBinaryCoverType, isHaloOn, openFraction, resolveCoverType, statusGroup } from './cover-visual';
 
 function cover(state: CoverStateName, deviceClass: string | null = 'shutter'): CoverState {
   return { entity: 'cover.salon', state, available: state !== 'unavailable', position: 50, tiltPosition: null, deviceClass, canOpen: true, canClose: true, canStop: true, canSetPosition: true, canSetTilt: false };
@@ -45,7 +45,13 @@ describe('resolveCoverType', () => {
     expect(resolveCoverType(cover('open', 'curtain'), 'blind')).toBe('blind');
   });
 
-  it('un cover_type que no es uno de los cuatro se ignora', () => {
+  it('projector y tv solo se eligen con cover_type, nunca por device_class', () => {
+    expect(resolveCoverType(cover('open', null), 'projector')).toBe('projector');
+    expect(resolveCoverType(cover('open', 'blind'), 'tv')).toBe('tv');
+    expect(resolveCoverType(cover('open', 'projector'))).toBe('shutter');
+  });
+
+  it('un cover_type que no es uno de los seis se ignora', () => {
     expect(resolveCoverType(cover('open', 'blind'), 'garage')).toBe('blind');
     expect(resolveCoverType(cover('open', null), 7)).toBe('shutter');
     expect(resolveCoverType(cover('open', 'awning'), '')).toBe('awning');
@@ -58,11 +64,19 @@ describe('openFraction', () => {
     expect(openFraction(cover('closed'), 0)).toBe(0);
   });
 
-  it('sin porcentaje, abierta del todo o cerrada según el estado', () => {
+  it('sin porcentaje, va al estado de destino: abierta o abriéndose, 1; cerrada, cerrándose o no disponible, 0', () => {
     expect(openFraction(cover('open'), null)).toBe(1);
     expect(openFraction(cover('opening'), null)).toBe(1);
-    expect(openFraction(cover('closing'), null)).toBe(1);
+    expect(openFraction(cover('closing'), null)).toBe(0);
     expect(openFraction(cover('closed'), null)).toBe(0);
     expect(openFraction(cover('unavailable'), null)).toBe(0);
+  });
+});
+
+describe('isBinaryCoverType', () => {
+  it('solo la pantalla de proyector y la TV son binarias', () => {
+    expect(isBinaryCoverType('projector')).toBe(true);
+    expect(isBinaryCoverType('tv')).toBe(true);
+    for (const type of ['shutter', 'blind', 'curtain', 'awning'] as const) expect(isBinaryCoverType(type)).toBe(false);
   });
 });

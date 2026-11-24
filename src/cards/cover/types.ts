@@ -5,7 +5,7 @@
 export type StatusGroup = 'open' | 'moving' | 'closed' | 'alert';
 
 /** Tipo de cover: el dibujo que lleva la tarjeta. */
-export type CoverType = 'shutter' | 'blind' | 'curtain' | 'awning';
+export type CoverType = 'shutter' | 'blind' | 'curtain' | 'awning' | 'projector' | 'tv';
 
 export interface NeonCoverCardConfig {
   type?: string;
@@ -15,9 +15,12 @@ export interface NeonCoverCardConfig {
   name?: string;
   /**
    * Tipo de cover, es decir, el dibujo: persiana enrollable (`shutter`),
-   * veneciana (`blind`), cortina (`curtain`) o toldo (`awning`). Sin él se
-   * deduce del `device_class` de la entidad y, si no lo tiene o no es uno de
-   * estos, es una persiana.
+   * veneciana (`blind`), cortina (`curtain`), toldo (`awning`), pantalla de
+   * proyector (`projector`) o TV en mueble (`tv`). Sin él se deduce del
+   * `device_class` de la entidad (los dos últimos solo se eligen a mano) y, si
+   * no lo tiene o no es uno de los cuatro primeros, es una persiana. La
+   * pantalla de proyector y la TV son binarias: solo abiertas o cerradas, sin
+   * porcentaje, dial ni deslizadores.
    */
   cover_type?: CoverType;
   /**

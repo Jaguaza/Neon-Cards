@@ -22,6 +22,8 @@ export const es: CoverTranslations = {
   type_blind: 'Veneciana',
   type_curtain: 'Cortina',
   type_awning: 'Toldo',
+  type_projector: 'Pantalla de proyector',
+  type_tv: 'TV en mueble',
   section_halo: 'Apariencia del halo',
   palette_label: 'Paleta del halo',
 };

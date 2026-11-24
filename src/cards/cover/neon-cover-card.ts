@@ -16,7 +16,7 @@ import {
   valueForAngle,
 } from '../../shared';
 import { COVER_TYPES, POSITION_MAX, POSITION_MIN } from './constants';
-import { isHaloOn, openFraction, resolveCoverType, statusGroup } from './cover-visual';
+import { isBinaryCoverType, isHaloOn, openFraction, resolveCoverType, statusGroup } from './cover-visual';
 import { renderGlyph } from './cover-glyph';
 import { NEON_COVER_GLYPH_STYLES } from './cover-glyph.styles';
 import { NEON_COVER_BODY_STYLES } from './cover-body.styles';
@@ -28,7 +28,7 @@ import { renderPositionRow, renderScale, renderSlider, renderTilt } from './posi
 import type { PointerHandlers } from './position-view';
 import { COVER_TRANSLATIONS } from './translations';
 import type { CoverTranslations } from './translations';
-import type { NeonCoverCardConfig } from './types';
+import type { CoverType, NeonCoverCardConfig } from './types';
 
 /**
  * Neón Cover Card
@@ -36,7 +36,7 @@ import type { NeonCoverCardConfig } from './types';
  * Creador: Jaguaza
  *
  * Tarjeta para entidades `cover` de Home Assistant: persianas, venecianas,
- * cortinas y toldos. El icono, grande, se dibuja según el tipo de cover y sube,
+ * cortinas, toldos, pantallas de proyector y TV en mueble. El icono, grande, se dibuja según el tipo de cover y sube,
  * gira o se despliega con el porcentaje de apertura y la inclinación; el porcentaje se ve y se
  * fija con un dial y un deslizador, la inclinación de las lamas tiene el suyo
  * si la entidad la soporta, y el pie tiene los botones abrir, parar y cerrar. Ver `README.md` de esta carpeta para la especificación.
@@ -161,15 +161,16 @@ export class NeonCoverCard extends BaseNeonCard {
   }
 
   /** Posición actual en grande y su dial; sin `current_position` no hay nada que mostrar. */
-  private _renderPositionRow(cover: CoverState): TemplateResult | typeof nothing {
+  private _renderPositionRow(cover: CoverState, type: CoverType): TemplateResult | typeof nothing {
     const value = this._shownPosition(cover);
-    if (value === null) return nothing;
+    if (value === null || isBinaryCoverType(type)) return nothing;
     const canSet = cover.canSetPosition && cover.available;
     return renderPositionRow({ entity: cover.entity, value, label: this._t('position_label'), pointer: this._pointerHandlers(canSet) });
   }
 
   /** Deslizador de posición con su escala y, si la entidad la soporta, el de inclinación. */
-  private _renderSliders(cover: CoverState): TemplateResult | typeof nothing {
+  private _renderSliders(cover: CoverState, type: CoverType): TemplateResult | typeof nothing {
+    if (isBinaryCoverType(type)) return nothing;
     const parts: TemplateResult[] = [];
     const value = this._shownPosition(cover);
     if (value !== null) {
@@ -192,13 +193,14 @@ export class NeonCoverCard extends BaseNeonCard {
   }
 
   /**
-   * Icono grande: el dibujo de persiana, veneciana, cortina o toldo, que se
-   * mueve con el porcentaje y la inclinación (también mientras se arrastran).
+   * Icono grande: el dibujo del tipo de cover, que se mueve con el porcentaje
+   * y la inclinación (también mientras se arrastran) o, sin porcentaje, con el
+   * estado.
    */
-  private _renderHeroIcon(cover: CoverState): TemplateResult {
+  private _renderHeroIcon(cover: CoverState, type: CoverType): TemplateResult {
     const dragging = this._dragPosition !== null || this._dragTilt !== null;
     const glyph = renderGlyph({
-      glyph: resolveCoverType(cover, this._config?.cover_type),
+      glyph: type,
       open: openFraction(cover, this._shownPosition(cover)),
       tilt: (this._dragTilt ?? cover.tiltPosition ?? 0) / 100,
       uid: this._ringUid,
@@ -214,12 +216,13 @@ export class NeonCoverCard extends BaseNeonCard {
     const active = isHaloOn(cover);
     const group = statusGroup(cover);
     const colors = resolveGradientColors(this._config);
+    const type = resolveCoverType(cover, this._config?.cover_type);
 
     return html`
       <ha-card class="neon-ring-host ${active ? 'neon-halo-active' : ''}" style=${neonHaloVars(colors)}>
         ${neonRingSplitTemplate(this._ringUid, this._ring.size.width, this._ring.size.height, this._ring.size.radius)}
         <div class="hero">
-          ${this._renderHeroIcon(cover)}
+          ${this._renderHeroIcon(cover, type)}
           <div class="hero-body">
             ${renderHeader({
               name: this._name(cover),
@@ -228,10 +231,10 @@ export class NeonCoverCard extends BaseNeonCard {
               menuLabel: this._t('more_info'),
               onMenu: () => openMoreInfo(this, cover.entity),
             })}
-            ${this._renderPositionRow(cover)}
+            ${this._renderPositionRow(cover, type)}
           </div>
         </div>
-        ${this._renderSliders(cover)}
+        ${this._renderSliders(cover, type)}
         ${renderControls({
           cover,
           labels: { open: this._t('action_open'), close: this._t('action_close'), stop: this._t('action_stop') },
