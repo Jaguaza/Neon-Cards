@@ -24,7 +24,7 @@ export const NEON_COVER_CONTROLS_STYLES = css`
     justify-self: stretch;
     gap: 6px;
     min-width: 0;
-    padding: 8px;
+    padding: 4px 8px;
     border: 0;
     border-radius: 10px;
     background: transparent;
