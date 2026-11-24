@@ -34,12 +34,13 @@ el porcentaje y la inclinación (también mientras los arrastras):
 |---|---|
 | `shutter` o ninguna | **Persiana enrollable.** Cajón arriba, guías a los lados y el cortinaje de lamas, que sube hacia el cajón al abrirse: cerrada tapa toda la ventana y abierta del todo solo asoma el último tramo. |
 | `blind` | **Veneciana.** Las lamas se recogen contra el cabezal al abrirse y giran hasta quedar de canto con la inclinación (`current_tilt_position`). |
-| `curtain` | **Cortina.** La barra arriba y dos paneles con pliegues que, al abrirse, se recogen cada uno hacia su lado y dejan ver la ventana. |
-| `awning` | **Toldo.** El cajón arriba y la lona de rayas, que se despliega hacia abajo con su volante festoneado al abrirse; recogido solo asoma un palmo de lona. |
+| `curtain` | **Cortina.** La barra con remates arriba y dos paneles de cuatro pliegues colgados de anillas. Al abrirse, los pliegues de cada panel se estrechan y se recogen hacia su lado, amontonados, y aparece la alzapaño que los ata; cerrada, los dos paneles se juntan en el centro y tapan la ventana. |
+| `awning` | **Toldo.** El cajón arriba y la lona de rayas, opaca, que se despliega hacia abajo con su volante festoneado al abrirse y tapa la ventana de detrás; recogido solo asoma un palmo de lona. |
 | cualquier otra | Esta tarjeta es solo para persianas, venecianas, cortinas y toldos: un cover con otra clase (garaje, puerta, ventana…) se dibuja como persiana enrollable. |
 
-Sin `current_position`, el dibujo se ve abierto del todo o cerrado según el
-estado. Con `prefers-reduced-motion` el dibujo cambia sin animación.
+La ventana que queda a la vista al abrirse se dibuja como tal, con marco,
+cristal y crucetas, en los cuatro tipos. Sin `current_position`, el dibujo se ve
+abierto del todo o cerrado según el estado. Con `prefers-reduced-motion` el dibujo cambia sin animación.
 
 **Elegir el tipo a mano.** `cover_type` (`shutter`, `blind`, `curtain` o
 `awning`) fija el dibujo sea cual sea el `device_class`; en el editor visual es
@@ -147,12 +148,13 @@ the percentage and the tilt (also while you drag them):
 |---|---|
 | `shutter` or none | **Rolling shutter.** Box on top, guides at the sides and the slatted curtain, which rises into the box as it opens: closed it covers the whole window and fully open only its last stretch shows. |
 | `blind` | **Venetian blind.** The slats gather against the head rail as it opens and turn edge-on with the tilt (`current_tilt_position`). |
-| `curtain` | **Curtain.** The rod on top and two pleated panels that, as it opens, gather toward their own side and reveal the window. |
-| `awning` | **Awning.** The box on top and the striped canvas, which unrolls downward with its scalloped valance as it opens; retracted, only a hand's width of canvas shows. |
+| `curtain` | **Curtain.** The rod with finials on top and two panels of four pleats hung from rings. As it opens, the pleats of each panel narrow and gather toward their own side, bunched up, and the tieback that holds them appears; closed, the two panels meet in the middle and cover the window. |
+| `awning` | **Awning.** The box on top and the striped canvas, opaque, which unrolls downward with its scalloped valance as it opens and covers the window behind it; retracted, only a hand's width of canvas shows. |
 | any other | This card is only for shutters, venetian blinds, curtains and awnings: a cover with another class (garage, door, window…) is drawn as a rolling shutter. |
 
-Without `current_position` the drawing shows fully open or closed depending on
-the state. With `prefers-reduced-motion` the drawing changes without animation.
+The window that shows when it opens is drawn as a real one, with frame, glass
+and mullions, in the four types. Without `current_position` the drawing shows
+fully open or closed depending on the state. With `prefers-reduced-motion` the drawing changes without animation.
 
 **Choosing the type by hand.** `cover_type` (`shutter`, `blind`, `curtain` or
 `awning`) sets the drawing whatever the `device_class` is; in the visual editor
