@@ -20,6 +20,7 @@ import { isBinaryCoverType, isHaloOn, openFraction, resolveCoverType, statusGrou
 import { renderGlyph } from './cover-glyph';
 import { NEON_COVER_GLYPH_STYLES } from './cover-glyph.styles';
 import { NEON_COVER_BODY_STYLES } from './cover-body.styles';
+import { NEON_COVER_BLIND_STYLES } from './cover-blind.styles';
 import { NEON_COVER_CONTROLS_STYLES } from './cover-controls.styles';
 import { NEON_COVER_CARD_STYLES } from './neon-cover-card.styles';
 import { renderControls } from './controls-view';
@@ -59,7 +60,7 @@ export class NeonCoverCard extends BaseNeonCard {
   private readonly _ringUid = Math.random().toString(36).slice(2);
   private readonly _ring = new RingSizeController(this);
 
-  static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_COVER_CARD_STYLES, NEON_COVER_GLYPH_STYLES, NEON_COVER_BODY_STYLES, NEON_COVER_CONTROLS_STYLES];
+  static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_COVER_CARD_STYLES, NEON_COVER_GLYPH_STYLES, NEON_COVER_BODY_STYLES, NEON_COVER_CONTROLS_STYLES, NEON_COVER_BLIND_STYLES];
 
   static getConfigElement(): HTMLElement {
     return document.createElement('neon-cover-card-editor');
@@ -219,7 +220,7 @@ export class NeonCoverCard extends BaseNeonCard {
     const type = resolveCoverType(cover, this._config?.cover_type);
 
     return html`
-      <ha-card class="neon-ring-host ${active ? 'neon-halo-active' : ''}" style=${neonHaloVars(colors)}>
+      <ha-card class="neon-ring-host ${active ? 'neon-halo-active' : ''}" data-cover-type=${type} style=${neonHaloVars(colors)}>
         ${neonRingSplitTemplate(this._ringUid, this._ring.size.width, this._ring.size.height, this._ring.size.radius)}
         <div class="hero">
           ${this._renderHeroIcon(cover, type)}
