@@ -8,6 +8,20 @@ export const STATUS_DOT_COLORS: Record<StatusGroup, string> = {
   alert: '#ff5c5c',
 };
 
+/** Clave de la config con el color del punto de cada grupo de estado. */
+export const STATUS_COLOR_KEYS = {
+  open: 'status_color_open',
+  moving: 'status_color_moving',
+  closed: 'status_color_closed',
+  alert: 'status_color_alert',
+} as const satisfies Record<StatusGroup, string>;
+
+/** Los grupos de estado cuyo color se puede cambiar, en el orden del editor. */
+export const STATUS_COLOR_GROUPS: readonly StatusGroup[] = ['open', 'moving', 'closed', 'alert'];
+
+/** Clave de la config con el color del icono grande; sin ella el icono sigue al halo. */
+export const ICON_COLOR_KEY = 'icon_color';
+
 /** Iconos de los tres botones de la tarjeta. */
 export const CONTROL_ICONS = {
   close: 'mdi:arrow-collapse-down',

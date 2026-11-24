@@ -16,11 +16,11 @@ export interface NeonCoverCardConfig {
   /**
    * Tipo de cover, es decir, el dibujo: persiana enrollable (`shutter`),
    * veneciana (`blind`), cortina (`curtain`), toldo (`awning`), pantalla de
-   * proyector (`projector`) o TV en mueble (`tv`). Sin él se deduce del
-   * `device_class` de la entidad (los dos últimos solo se eligen a mano) y, si
-   * no lo tiene o no es uno de los cuatro primeros, es una persiana. La
-   * pantalla de proyector y la TV son binarias: solo abiertas o cerradas, sin
-   * porcentaje, dial ni deslizadores.
+   * proyector (`projector`) o TV en mueble (`tv`). Siempre se elige a mano: ya
+   * no se deduce del `device_class` de la entidad. Sin él, o con un valor que
+   * no sea uno de los seis, es una persiana enrollable. La pantalla de
+   * proyector y la TV son binarias: solo abiertas o cerradas, sin porcentaje,
+   * dial ni deslizadores.
    */
   cover_type?: CoverType;
   /**
@@ -33,6 +33,24 @@ export interface NeonCoverCardConfig {
   neon_color1?: string;
   neon_color2?: string;
   neon_color3?: string;
+  /**
+   * Color del icono grande (hex, `rgb()`/`hsl()`, nombre o `var(--x)`). Sin él
+   * (o con uno inválido) el icono sigue al halo: color de la paleta mientras
+   * la persiana no está cerrada y color de texto cuando lo está.
+   */
+  icon_color?: string;
+  /**
+   * Color del punto junto al estado, uno por grupo de estados; cualquier color
+   * CSS válido. Si falta o no es válido vale el color por defecto del grupo.
+   * `status_color_open`: abierta (verde).
+   * `status_color_moving`: abriéndose o cerrándose (ámbar).
+   * `status_color_closed`: cerrada (gris).
+   * `status_color_alert`: no disponible (rojo).
+   */
+  status_color_open?: string;
+  status_color_moving?: string;
+  status_color_closed?: string;
+  status_color_alert?: string;
   /**
    * Escape hatch deliberado, mismo motivo y mismo alcance que en
    * `cards/button/types.ts`: sin este índice, `_configChanged(key: string,

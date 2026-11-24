@@ -16,7 +16,7 @@ import {
   valueForAngle,
 } from '../../shared';
 import { COVER_TYPES, POSITION_MAX, POSITION_MIN } from './constants';
-import { isBinaryCoverType, isHaloOn, openFraction, resolveCoverType, statusGroup } from './cover-visual';
+import { iconColor, isBinaryCoverType, isHaloOn, openFraction, resolveCoverType, statusDotColor, statusGroup } from './cover-visual';
 import { renderGlyph } from './cover-glyph';
 import { NEON_COVER_GLYPH_STYLES } from './cover-glyph.styles';
 import { NEON_COVER_BODY_STYLES } from './cover-body.styles';
@@ -85,7 +85,7 @@ export class NeonCoverCard extends BaseNeonCard {
         console.warn(`[neon-cover-card] entity ("${config.entity}") no es del dominio cover — se muestra como «no disponible».`);
       }
       if (config.cover_type !== undefined && !COVER_TYPES.includes(config.cover_type)) {
-        console.warn(`[neon-cover-card] cover_type ("${String(config.cover_type)}") no es shutter, blind, curtain ni awning — se deduce del device_class.`);
+        console.warn(`[neon-cover-card] cover_type ("${String(config.cover_type)}") no es uno de los seis tipos — se dibuja una persiana.`);
       }
     }
   }
@@ -206,7 +206,9 @@ export class NeonCoverCard extends BaseNeonCard {
       tilt: (this._dragTilt ?? cover.tiltPosition ?? 0) / 100,
       uid: this._ringUid,
     });
-    return html`<div class="hero-icon ${dragging ? 'dragging' : ''}">${glyph}</div>`;
+    // Color del icono elegido en la config; sin él, el icono hereda el del halo.
+    const color = iconColor(this._config);
+    return html`<div class="hero-icon ${dragging ? 'dragging' : ''}" style=${color ? `--cover-color: ${color}` : nothing}>${glyph}</div>`;
   }
 
   render(): TemplateResult {
@@ -217,7 +219,7 @@ export class NeonCoverCard extends BaseNeonCard {
     const active = isHaloOn(cover);
     const group = statusGroup(cover);
     const colors = resolveGradientColors(this._config);
-    const type = resolveCoverType(cover, this._config?.cover_type);
+    const type = resolveCoverType(this._config?.cover_type);
 
     return html`
       <ha-card class="neon-ring-host ${active ? 'neon-halo-active' : ''}" data-cover-type=${type} style=${neonHaloVars(colors)}>
@@ -229,6 +231,7 @@ export class NeonCoverCard extends BaseNeonCard {
               name: this._name(cover),
               statusText: this._t(`state_${cover.state}`),
               group,
+              dotColor: statusDotColor(this._config, group),
               menuLabel: this._t('more_info'),
               onMenu: () => openMoreInfo(this, cover.entity),
             })}

@@ -32,25 +32,25 @@ Por ahora solo existe el **tamaño grande**.
 Es un dibujo propio que se mueve con la entidad, con las mismas variables que
 el porcentaje y la inclinación (también mientras los arrastras):
 
-| `device_class` | Icono |
+| `cover_type` | Icono |
 |---|---|
-| `shutter` o ninguna | **Persiana enrollable.** Cajón arriba, guías a los lados y el cortinaje de lamas, que sube hacia el cajón al abrirse: cerrada tapa toda la ventana y abierta del todo solo asoma el último tramo. |
+| `shutter` (por defecto) | **Persiana enrollable.** Cajón arriba, guías a los lados y el cortinaje de lamas, que sube hacia el cajón al abrirse: cerrada tapa toda la ventana y abierta del todo solo asoma el último tramo. |
 | `blind` | **Veneciana.** Las lamas se recogen contra el cabezal al abrirse y giran hasta quedar de canto con la inclinación (`current_tilt_position`). |
 | `curtain` | **Cortina.** La barra con remates arriba y dos paneles de cuatro pliegues colgados de anillas. Al abrirse, los pliegues de cada panel se estrechan y se recogen hacia su lado, amontonados, y aparece la alzapaño que los ata; cerrada, los dos paneles se juntan en el centro y tapan la ventana. |
 | `awning` | **Toldo.** El cajón arriba y la lona de rayas, opaca, que se despliega hacia abajo con su volante festoneado al abrirse y tapa la ventana de detrás; recogido solo asoma un palmo de lona. |
-| `projector` (solo con `cover_type`) | **Pantalla de proyector.** El cajón arriba, bajo y de esquinas casi rectas, y el lienzo claro, que baja desde él con su barra de abajo; abierta del todo se proyecta un «play». **Binaria:** solo abierta o cerrada. |
-| `tv` (solo con `cover_type`) | **TV en mueble.** Un mueble bajo con dos puertas y, dentro, una pantalla de TV, sin peana ni soporte, que sube desde el interior y asoma sobre el mueble; cerrada queda escondida. Abierta del todo se proyecta un «play». **Binaria:** solo abierta o cerrada. |
-| cualquier otra | Esta tarjeta es solo para persianas, venecianas, cortinas y toldos: un cover con otra clase (garaje, puerta, ventana…) se dibuja como persiana enrollable. |
+| `projector` | **Pantalla de proyector.** El cajón arriba, bajo y de esquinas casi rectas, y el lienzo claro, que baja desde él con su barra de abajo; abierta del todo se proyecta un «play». **Binaria:** solo abierta o cerrada. |
+| `tv` | **TV en mueble.** Un mueble bajo con dos puertas y, dentro, una pantalla de TV, sin peana ni soporte, que sube desde el interior y asoma sobre el mueble; cerrada queda escondida. Abierta del todo se proyecta un «play». **Binaria:** solo abierta o cerrada. |
+| sin `cover_type` o con otro valor | Persiana enrollable. El dibujo **no se deduce** del `device_class` de la entidad: se elige siempre a mano. |
 
 La ventana que queda a la vista al abrirse se dibuja como tal, con marco,
 cristal y crucetas, en los cuatro tipos. Sin `current_position`, el dibujo se ve
 abierto del todo o cerrado según el estado. Con `prefers-reduced-motion` el dibujo cambia sin animación.
 
-**Elegir el tipo a mano.** `cover_type` (`shutter`, `blind`, `curtain`,
-`awning`, `projector` o `tv`) fija el dibujo sea cual sea el `device_class`; la
-pantalla de proyector y la TV no tienen `device_class` y solo se eligen así; en el editor visual es
-el selector «Tipo de persiana», con una ficha por dibujo y «Automático», que
-deja que lo decida el `device_class` y es el valor por defecto.
+**Elegir el tipo.** `cover_type` (`shutter`, `blind`, `curtain`, `awning`,
+`projector` o `tv`) fija el dibujo, sea cual sea el `device_class` de la
+entidad; sin él es una persiana enrollable (`shutter`). En el editor visual es
+el selector «Tipo de persiana», con una ficha por dibujo y sin opción
+automática; la persiana viene marcada por defecto y no se guarda en la config.
 
 **Tema claro.** Con el tema de Home Assistant claro y la persiana abierta, el
 color neón apenas contrasta con el fondo y el resplandor difuminaría el trazo
@@ -60,13 +60,23 @@ cambia nada.
 
 ### Colores según el estado
 
-- **Halo, icono, porcentaje, dial, deslizadores y botones** usan el color 1 de
-  la paleta (`neon_palette`) mientras la persiana está abierta, abriéndose o
+- **Halo, icono, porcentaje, dial y deslizadores** usan el color 1 de la
+  paleta (`neon_palette`) mientras la persiana está abierta, abriéndose o
   cerrándose; con la persiana cerrada se ven en blanco y sin halo.
 - **El punto de estado** es verde con la persiana abierta, ámbar (y parpadea)
-  mientras se mueve, gris cerrada y rojo no disponible.
-- Un botón se enciende (color e icono con brillo) cuando la persiana está ahí o
-  va hacia ahí: **Abrir** abierta o abriéndose, **Cerrar** cerrada o cerrándose.
+  mientras se mueve, gris cerrada y rojo no disponible. Cada grupo se puede
+  cambiar con `status_color_open`, `status_color_moving`, `status_color_closed`
+  y `status_color_alert` (cualquier color CSS: hex, `rgb()`/`hsl()`, nombre o
+  `var(--x)`); uno inválido se ignora.
+- **El icono grande** sigue al halo, como hasta ahora, salvo que se fije
+  `icon_color`: entonces es siempre de ese color, también con la persiana
+  cerrada. Solo cambia el icono; el porcentaje, el dial y los deslizadores
+  siguen con el color del halo.
+- Los botones del pie **se iluminan solo mientras se pulsan** (fondo y brillo en
+  el icono) y se apagan al soltar; no guardan ningún resaltado según el estado.
+
+En el editor visual, la sección «Colores» tiene un selector para el icono y uno
+por estado, y «Restablecer colores» los quita todos de una vez.
 
 ### Lo que sale según la entidad
 
@@ -117,11 +127,11 @@ interacción.
 | `neon-cover-card.ts` | La tarjeta: lee el cover, arrastre del dial y órdenes |
 | `header-view.ts`, `position-view.ts`, `controls-view.ts` | Cabecera, posición con sus deslizadores y pie de botones |
 | `cover-glyph.ts` | Los dibujos de la persiana enrollable, la veneciana, la cortina, el toldo, la pantalla de proyector y la TV en mueble |
-| `cover-visual.ts` | Qué dibujo o icono lleva el cover, apertura, grupo de estado y halo |
+| `cover-visual.ts` | Qué dibujo lleva el cover, apertura, grupo de estado, halo y colores elegidos |
 | `constants.ts`, `types.ts` | Iconos, colores del punto de estado y configuración |
 | `*.styles.ts` | Estilos divididos (carcasa y cabecera, dibujo, cuerpo, pie de botones) |
 | `translations/` | Textos en español e inglés |
-| `neon-cover-card-editor.ts` | Editor visual: entidad, nombre, tipo de cover y halo |
+| `neon-cover-card-editor.ts` | Editor visual: entidad, nombre, tipo de cover, colores y halo |
 
 ---
 
@@ -156,26 +166,25 @@ For now only the **large size** exists.
 It is a custom drawing that moves with the entity, driven by the same values as
 the percentage and the tilt (also while you drag them):
 
-| `device_class` | Icon |
+| `cover_type` | Icon |
 |---|---|
-| `shutter` or none | **Rolling shutter.** Box on top, guides at the sides and the slatted curtain, which rises into the box as it opens: closed it covers the whole window and fully open only its last stretch shows. |
+| `shutter` (default) | **Rolling shutter.** Box on top, guides at the sides and the slatted curtain, which rises into the box as it opens: closed it covers the whole window and fully open only its last stretch shows. |
 | `blind` | **Venetian blind.** The slats gather against the head rail as it opens and turn edge-on with the tilt (`current_tilt_position`). |
 | `curtain` | **Curtain.** The rod with finials on top and two panels of four pleats hung from rings. As it opens, the pleats of each panel narrow and gather toward their own side, bunched up, and the tieback that holds them appears; closed, the two panels meet in the middle and cover the window. |
 | `awning` | **Awning.** The box on top and the striped canvas, opaque, which unrolls downward with its scalloped valance as it opens and covers the window behind it; retracted, only a hand's width of canvas shows. |
-| `projector` (only with `cover_type`) | **Projector screen.** The case on top, low and with almost square corners, and the light canvas, which lowers from it with its bottom bar; fully open, a \"play\" is projected. **Binary:** only open or closed. |
-| `tv` (only with `cover_type`) | **TV cabinet.** A low cabinet with two doors and, inside it, a TV screen, with no base or stand, that rises from the inside and shows above the cabinet; closed, it is hidden. Fully open, a \"play\" is projected. **Binary:** only open or closed. |
-| any other | This card is only for shutters, venetian blinds, curtains and awnings: a cover with another class (garage, door, window…) is drawn as a rolling shutter. |
+| `projector` | **Projector screen.** The case on top, low and with almost square corners, and the light canvas, which lowers from it with its bottom bar; fully open, a \"play\" is projected. **Binary:** only open or closed. |
+| `tv` | **TV cabinet.** A low cabinet with two doors and, inside it, a TV screen, with no base or stand, that rises from the inside and shows above the cabinet; closed, it is hidden. Fully open, a \"play\" is projected. **Binary:** only open or closed. |
+| no `cover_type`, or another value | Rolling shutter. The drawing is **not deduced** from the entity's `device_class`: it is always chosen by hand. |
 
 The window that shows when it opens is drawn as a real one, with frame, glass
 and mullions, in the four types. Without `current_position` the drawing shows
 fully open or closed depending on the state. With `prefers-reduced-motion` the drawing changes without animation.
 
-**Choosing the type by hand.** `cover_type` (`shutter`, `blind`, `curtain`,
-`awning`, `projector` or `tv`) sets the drawing whatever the `device_class` is;
-the projector screen and the TV have no `device_class` and can only be chosen
-this way; in the visual editor
-it is the "Cover type" selector, with one tile per drawing and "Automatic",
-which lets the `device_class` decide and is the default.
+**Choosing the type.** `cover_type` (`shutter`, `blind`, `curtain`, `awning`,
+`projector` or `tv`) sets the drawing, whatever the entity's `device_class` is;
+without it the card draws a rolling shutter (`shutter`). In the visual editor
+it is the "Cover type" selector, with one tile per drawing and no automatic
+option; the shutter comes selected by default and is not saved in the config.
 
 **Light theme.** With a light Home Assistant theme and the cover open, the neon
 color barely contrasts with the background and the glow would blur the thin
@@ -185,14 +194,23 @@ nothing changes.
 
 ### Colors by state
 
-- **Halo, icon, percentage, dial, sliders and buttons** use color 1 of the
-  palette (`neon_palette`) while the cover is open, opening or closing; closed,
-  they are white and there is no halo.
+- **Halo, icon, percentage, dial and sliders** use color 1 of the palette
+  (`neon_palette`) while the cover is open, opening or closing; closed, they
+  are white and there is no halo.
 - **The state dot** is green when open, amber (and blinking) while moving, grey
-  when closed and red when unavailable.
-- A button lights up (color and glowing icon) when the cover is there or
-  heading there: **Open** when open or opening, **Close** when closed or
-  closing.
+  when closed and red when unavailable. Each group can be changed with
+  `status_color_open`, `status_color_moving`, `status_color_closed` and
+  `status_color_alert` (any CSS color: hex, `rgb()`/`hsl()`, a name or
+  `var(--x)`); an invalid one is ignored.
+- **The large icon** follows the halo, as before, unless `icon_color` is set:
+  then it is always that color, also when the cover is closed. Only the icon
+  changes; the percentage, the dial and the sliders keep the halo color.
+- The footer buttons **light up only while they are pressed** (background and a
+  glow on the icon) and go off on release; they keep no highlight depending on
+  the state.
+
+In the visual editor, the "Colors" section has one picker for the icon and one
+per state, and "Reset colors" removes them all at once.
 
 ### What shows up depending on the entity
 
@@ -243,8 +261,8 @@ interaction.
 | `neon-cover-card.ts` | The card: reads the cover, dial dragging and commands |
 | `header-view.ts`, `position-view.ts`, `controls-view.ts` | Header, position with its sliders, and button footer |
 | `cover-glyph.ts` | The rolling shutter, venetian blind, curtain, awning, projector screen and TV cabinet drawings |
-| `cover-visual.ts` | Which drawing or icon the cover gets, opening, state group and halo |
+| `cover-visual.ts` | Which drawing the cover gets, opening, state group, halo and chosen colors |
 | `constants.ts`, `types.ts` | Icons, state dot colors and configuration |
 | `*.styles.ts` | Split styles (shell and header, drawing, body, button footer) |
 | `translations/` | Spanish and English texts |
-| `neon-cover-card-editor.ts` | Visual editor: entity, name, cover type and halo |
+| `neon-cover-card-editor.ts` | Visual editor: entity, name, cover type, colors and halo |

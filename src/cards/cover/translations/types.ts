@@ -15,13 +15,22 @@ export interface CoverTranslations {
   entity_label: string;
   name_label: string;
   type_label: string;
-  type_auto: string;
   type_shutter: string;
   type_blind: string;
   type_curtain: string;
   type_awning: string;
   type_projector: string;
   type_tv: string;
+  section_colors: string;
+  icon_color_label: string;
+  icon_color_hint: string;
+  status_color_label: string;
+  status_color_hint: string;
+  status_color_open: string;
+  status_color_moving: string;
+  status_color_closed: string;
+  status_color_alert: string;
+  colors_reset: string;
   section_halo: string;
   palette_label: string;
 }

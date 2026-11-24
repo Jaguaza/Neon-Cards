@@ -62,12 +62,12 @@ describe('cabecera y estado', () => {
 describe('icono grande', () => {
   const style = (el: Card) => q(el, '.cover-glyph')!.getAttribute('style') ?? '';
 
-  it('shutter y sin device_class dibujan la persiana enrollable; blind, la veneciana', async () => {
-    expect(q(await mount({}, hassWith('open')), '.cover-glyph')?.getAttribute('data-glyph')).toBe('shutter');
-    document.body.innerHTML = '';
-    expect(q(await mount({}, hassWith('open', { attributes: { device_class: undefined } })), '.cover-glyph')?.getAttribute('data-glyph')).toBe('shutter');
-    document.body.innerHTML = '';
-    expect(q(await mount({}, hassWith('open', { attributes: { device_class: 'blind' } })), '.cover-glyph')?.getAttribute('data-glyph')).toBe('blind');
+  it('por defecto se dibuja la persiana enrollable, sea cual sea el device_class de la entidad', async () => {
+    for (const device_class of ['shutter', undefined, 'blind', 'curtain', 'awning', 'garage']) {
+      document.body.innerHTML = '';
+      const el = await mount({}, hassWith('open', { attributes: { device_class } }));
+      expect(q(el, '.cover-glyph')?.getAttribute('data-glyph')).toBe('shutter');
+    }
   });
 
   it('la apertura del dibujo sigue al porcentaje', async () => {
@@ -105,13 +105,13 @@ describe('icono grande', () => {
     expect(q(curtain, '.cover-glyph')?.getAttribute('data-glyph')).toBe('curtain');
   });
 
-  it('un cover_type inválido se ignora y manda el device_class', async () => {
+  it('un cover_type inválido se ignora y se dibuja la persiana', async () => {
     const el = await mount({ cover_type: 'garage' }, hassWith('open', { attributes: { device_class: 'blind' } }));
-    expect(q(el, '.cover-glyph')?.getAttribute('data-glyph')).toBe('blind');
+    expect(q(el, '.cover-glyph')?.getAttribute('data-glyph')).toBe('shutter');
   });
 
   it('la cortina tiene dos paneles de cuatro pliegues con su anilla, y una alzapaño por lado', async () => {
-    const el = await mount({}, hassWith('open', { attributes: { device_class: 'curtain', current_position: 60 } }));
+    const el = await mount({ cover_type: 'curtain' }, hassWith('open', { attributes: { current_position: 60 } }));
     expect(q(el, '.cover-glyph')?.getAttribute('data-glyph')).toBe('curtain');
     expect(qa(el, '.g-pleat')).toHaveLength(8);
     expect(qa(el, '.g-ring')).toHaveLength(8);
@@ -120,7 +120,7 @@ describe('icono grande', () => {
   });
 
   it('los pliegues de cada lado se recogen hacia su lado: el exterior no se mueve y los de dentro, sí', async () => {
-    const el = await mount({}, hassWith('open', { attributes: { device_class: 'curtain' } }));
+    const el = await mount({ cover_type: 'curtain' }, hassWith('open'));
     const shifts = qa(el, '.g-pleat').map((p) => parseFloat((p.getAttribute('style') ?? '').replace('--k:', '')));
     // Izquierda de dentro afuera (-19,5, -13, -6,5, 0) y derecha (+19,5, +13, +6,5, 0).
     expect(shifts.filter((k) => k < 0).sort((a, b) => a - b)).toEqual([-19.5, -13, -6.5]);
@@ -140,7 +140,7 @@ describe('icono grande', () => {
   });
 
   it('el toldo se despliega con el porcentaje: lona de rayas y volante', async () => {
-    const el = await mount({}, hassWith('open', { attributes: { device_class: 'awning', current_position: 80 } }));
+    const el = await mount({ cover_type: 'awning' }, hassWith('open', { attributes: { current_position: 80 } }));
     expect(q(el, '.cover-glyph')?.getAttribute('data-glyph')).toBe('awning');
     expect(qa(el, '.g-stripe')).toHaveLength(6);
     expect(qa(el, '.g-stripe-alt')).toHaveLength(3);
@@ -154,8 +154,8 @@ describe('icono grande', () => {
   });
 
   it('la veneciana gira las lamas con la inclinación, también arrastrándola', async () => {
-    const attrs = { device_class: 'blind', supported_features: TILT_FEATURES, current_tilt_position: 40 };
-    const el = await mount({}, hassWith('open', { attributes: attrs }));
+    const attrs = { supported_features: TILT_FEATURES, current_tilt_position: 40 };
+    const el = await mount({ cover_type: 'blind' }, hassWith('open', { attributes: attrs }));
     expect(qa(el, '.g-blind-slat')).toHaveLength(8);
     expect(style(el)).toContain('--tilt: 0.4');
     const tilt = qa(el, '.slider')[1] as HTMLInputElement;
@@ -315,7 +315,7 @@ describe('posición', () => {
 });
 
 describe('inclinación', () => {
-  const tilted = (calls: unknown[][] = []) => hassWith('open', { calls, attributes: { supported_features: TILT_FEATURES, current_tilt_position: 40, device_class: 'blind' } });
+  const tilted = (calls: unknown[][] = []) => hassWith('open', { calls, attributes: { supported_features: TILT_FEATURES, current_tilt_position: 40 } });
 
   it('con SET_TILT_POSITION sale un segundo deslizador bajo el de posición', async () => {
     const el = await mount({}, tilted());

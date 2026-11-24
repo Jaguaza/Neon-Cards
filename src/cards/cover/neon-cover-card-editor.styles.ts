@@ -57,4 +57,29 @@ export const NEON_COVER_EDITOR_STYLES = css`
   .type-tile.selected ha-icon {
     color: var(--primary-color);
   }
+
+  .color-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  .data-hint {
+    font-size: 12px;
+    color: var(--secondary-text-color);
+  }
+
+  .reset-colors {
+    align-self: flex-start;
+    margin-top: 4px;
+    padding: 4px 0;
+    border: 0;
+    background: transparent;
+    color: var(--primary-color);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+  }
 `;

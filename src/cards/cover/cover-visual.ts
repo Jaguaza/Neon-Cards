@@ -1,25 +1,16 @@
 import type { CoverState } from '../../ha/cover';
-import { BINARY_COVER_TYPES, COVER_TYPES } from './constants';
-import type { CoverType, StatusGroup } from './types';
-
-const TYPE_BY_DEVICE_CLASS: Record<string, CoverType> = {
-  shutter: 'shutter',
-  blind: 'blind',
-  curtain: 'curtain',
-  awning: 'awning',
-};
+import { isCssColor } from '../../shared';
+import { BINARY_COVER_TYPES, COVER_TYPES, ICON_COLOR_KEY, STATUS_COLOR_KEYS } from './constants';
+import type { CoverType, NeonCoverCardConfig, StatusGroup } from './types';
 
 /**
- * Tipo de cover (el dibujo) que lleva la tarjeta: el que se pide en la
- * configuración (`cover_type`) y, si no hay o no es uno de los cuatro, el que
- * corresponde al `device_class` de la entidad: persiana enrollable
- * (`shutter`), veneciana (`blind`), cortina (`curtain`) o toldo (`awning`).
- * Un cover sin clase, o con una que esta tarjeta no contempla (garaje, puerta,
- * ventana…), es una persiana enrollable, el tipo por defecto.
+ * Tipo de cover (el dibujo) que lleva la tarjeta: el de `cover_type` si es
+ * uno de los seis y, si no hay o no es válido, una persiana enrollable
+ * (`shutter`), el tipo por defecto. El tipo ya no se deduce del
+ * `device_class` de la entidad: se elige siempre a mano.
  */
-export function resolveCoverType(cover: CoverState, configured?: unknown): CoverType {
-  if (COVER_TYPES.includes(configured as CoverType)) return configured as CoverType;
-  return (cover.deviceClass && TYPE_BY_DEVICE_CLASS[cover.deviceClass]) || 'shutter';
+export function resolveCoverType(configured?: unknown): CoverType {
+  return COVER_TYPES.includes(configured as CoverType) ? (configured as CoverType) : 'shutter';
 }
 
 /** Los tipos binarios (pantalla de proyector y TV) solo se abren o se cierran: sin porcentaje, dial ni deslizadores. */
@@ -54,4 +45,16 @@ export function statusGroup(cover: CoverState): StatusGroup {
 /** El halo de la tarjeta está encendido mientras la persiana no está cerrada (ni la entidad caída). */
 export function isHaloOn(cover: CoverState): boolean {
   return cover.state === 'open' || cover.state === 'opening' || cover.state === 'closing';
+}
+
+/** Color elegido en la config para el punto de este grupo de estado; `undefined` si no hay o no es válido (vale el de por defecto). */
+export function statusDotColor(config: NeonCoverCardConfig | undefined, group: StatusGroup): string | undefined {
+  const value = config?.[STATUS_COLOR_KEYS[group]];
+  return isCssColor(value) ? value.trim() : undefined;
+}
+
+/** Color elegido para el icono grande; `undefined` si no hay o no es válido (el icono sigue al halo). */
+export function iconColor(config: NeonCoverCardConfig | undefined): string | undefined {
+  const value = config?.[ICON_COLOR_KEY];
+  return isCssColor(value) ? value.trim() : undefined;
 }

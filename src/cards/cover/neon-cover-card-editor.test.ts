@@ -50,16 +50,16 @@ describe('NeonCoverCardEditor', () => {
     expect('name' in last()).toBe(false);
   });
 
-  it('el selector de tipo tiene Automático y los cuatro tipos, con Automático marcado por defecto', async () => {
+  it('el selector de tipo tiene los seis tipos, con Persiana marcada por defecto y sin Automático', async () => {
     const { el } = await mount({ entity: 'cover.salon' });
     const tiles = Array.from(el.shadowRoot!.querySelectorAll('.type-tile')) as HTMLElement[];
-    expect(tiles.map((t) => t.dataset.type)).toEqual(['auto', 'shutter', 'blind', 'curtain', 'awning', 'projector', 'tv']);
-    expect(tiles.map((t) => t.textContent?.trim())).toEqual(['Automático', 'Persiana', 'Veneciana', 'Cortina', 'Toldo', 'Pantalla de proyector', 'TV en mueble']);
-    expect(tiles.map((t) => t.getAttribute('aria-checked'))).toEqual(['true', 'false', 'false', 'false', 'false', 'false', 'false']);
+    expect(tiles.map((t) => t.dataset.type)).toEqual(['shutter', 'blind', 'curtain', 'awning', 'projector', 'tv']);
+    expect(tiles.map((t) => t.textContent?.trim())).toEqual(['Persiana', 'Veneciana', 'Cortina', 'Toldo', 'Pantalla de proyector', 'TV en mueble']);
+    expect(tiles.map((t) => t.getAttribute('aria-checked'))).toEqual(['true', 'false', 'false', 'false', 'false', 'false']);
     expect(el.shadowRoot!.querySelectorAll('.type-tile svg.cover-glyph')).toHaveLength(6);
   });
 
-  it('elegir un tipo lo guarda como cover_type y Automático lo quita', async () => {
+  it('elegir un tipo lo guarda como cover_type y Persiana (el de por defecto) lo quita', async () => {
     const { el, last } = await mount({ entity: 'cover.salon' });
     const tile = (type: string) => el.shadowRoot!.querySelector(`.type-tile[data-type="${type}"]`) as HTMLButtonElement;
     tile('awning').click();
@@ -71,38 +71,39 @@ describe('NeonCoverCardEditor', () => {
     await el.updateComplete;
     expect(tile('tv').getAttribute('aria-checked')).toBe('true');
     expect(tile('awning').getAttribute('aria-checked')).toBe('false');
-    expect(tile('auto').getAttribute('aria-checked')).toBe('false');
-    tile('auto').click();
+    expect(tile('shutter').getAttribute('aria-checked')).toBe('false');
+    tile('shutter').click();
     expect('cover_type' in last()).toBe(false);
   });
 
-  it('un cover_type guardado sale marcado; uno inválido cuenta como Automático', async () => {
+  it('un cover_type guardado sale marcado; uno inválido cuenta como Persiana', async () => {
     const { el } = await mount({ entity: 'cover.salon', cover_type: 'curtain' });
     expect(el.shadowRoot!.querySelector('.type-tile[data-type="curtain"]')!.getAttribute('aria-checked')).toBe('true');
     document.body.innerHTML = '';
     const invalid = await mount({ entity: 'cover.salon', cover_type: 'garage' });
-    expect(invalid.el.shadowRoot!.querySelector('.type-tile[data-type="auto"]')!.getAttribute('aria-checked')).toBe('true');
+    expect(invalid.el.shadowRoot!.querySelector('.type-tile[data-type="shutter"]')!.getAttribute('aria-checked')).toBe('true');
   });
 
   it('en inglés las fichas salen en inglés', async () => {
     const { el } = await mount({ entity: 'cover.salon' }, 'en');
     const names = Array.from(el.shadowRoot!.querySelectorAll('.type-tile')).map((t) => t.textContent?.trim());
-    expect(names).toEqual(['Automatic', 'Shutter', 'Venetian blind', 'Curtain', 'Awning', 'Projector screen', 'TV cabinet']);
+    expect(names).toEqual(['Shutter', 'Venetian blind', 'Curtain', 'Awning', 'Projector screen', 'TV cabinet']);
   });
 
   it('la paleta del halo se guarda y la personalizada muestra los tres colores', async () => {
     const { el, last } = await mount({ entity: 'cover.salon' });
+    const haloColors = () => el.shadowRoot!.querySelectorAll('input[type="color"]:not([data-color])');
     const select = q(el, '#palette') as HTMLSelectElement;
     select.value = 'sunset';
     select.dispatchEvent(new Event('change'));
     expect(last().neon_palette).toBe('sunset');
     await el.updateComplete;
-    expect(el.shadowRoot!.querySelectorAll('input[type="color"]')).toHaveLength(0);
+    expect(haloColors()).toHaveLength(0);
     const custom = q(el, '#palette') as HTMLSelectElement;
     custom.value = 'custom';
     custom.dispatchEvent(new Event('change'));
     await el.updateComplete;
-    expect(el.shadowRoot!.querySelectorAll('input[type="color"]')).toHaveLength(3);
+    expect(haloColors()).toHaveLength(3);
   });
 
   it('los textos salen en el idioma de Home Assistant', async () => {

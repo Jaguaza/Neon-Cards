@@ -7,6 +7,8 @@ export interface HeaderOptions {
   name: string;
   statusText: string;
   group: StatusGroup;
+  /** Color del punto elegido en la config (ya validado); sin él, el de por defecto del grupo. */
+  dotColor?: string;
   menuLabel: string;
   onMenu: () => void;
 }
@@ -17,7 +19,7 @@ export function renderHeader(o: HeaderOptions): TemplateResult {
     <div class="header">
       <div class="header-text">
         <span class="name">${o.name}</span>
-        <span class="status" data-group=${o.group} style="--dot-color: ${STATUS_DOT_COLORS[o.group]}">
+        <span class="status" data-group=${o.group} style="--dot-color: ${o.dotColor ?? STATUS_DOT_COLORS[o.group]}">
           <span class="status-dot"></span><span class="status-text">${o.statusText}</span>
         </span>
       </div>

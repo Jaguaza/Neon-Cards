@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CoverState, CoverStateName } from '../../ha/cover';
-import { isBinaryCoverType, isHaloOn, openFraction, resolveCoverType, statusGroup } from './cover-visual';
+import { iconColor, isBinaryCoverType, isHaloOn, openFraction, resolveCoverType, statusDotColor, statusGroup } from './cover-visual';
 
 function cover(state: CoverStateName, deviceClass: string | null = 'shutter'): CoverState {
   return { entity: 'cover.salon', state, available: state !== 'unavailable', position: 50, tiltPosition: null, deviceClass, canOpen: true, canClose: true, canStop: true, canSetPosition: true, canSetTilt: false };
@@ -25,39 +25,49 @@ describe('statusGroup e isHaloOn', () => {
 });
 
 describe('resolveCoverType', () => {
-  it('sin cover_type, se deduce del device_class', () => {
-    expect(resolveCoverType(cover('open', 'shutter'))).toBe('shutter');
-    expect(resolveCoverType(cover('open', 'blind'))).toBe('blind');
-    expect(resolveCoverType(cover('open', 'curtain'))).toBe('curtain');
-    expect(resolveCoverType(cover('open', 'awning'))).toBe('awning');
+  it('sin cover_type es una persiana enrollable', () => {
+    expect(resolveCoverType()).toBe('shutter');
+    expect(resolveCoverType(undefined)).toBe('shutter');
   });
 
-  it('sin clase o con una que la tarjeta no contempla es una persiana', () => {
-    expect(resolveCoverType(cover('open', null))).toBe('shutter');
-    for (const deviceClass of ['garage', 'gate', 'door', 'window', 'shade', 'damper', 'rara']) {
-      expect(resolveCoverType(cover('open', deviceClass))).toBe('shutter');
-    }
-  });
-
-  it('el cover_type de la configuración manda sobre el device_class', () => {
-    expect(resolveCoverType(cover('open', 'shutter'), 'awning')).toBe('awning');
-    expect(resolveCoverType(cover('open', null), 'curtain')).toBe('curtain');
-    expect(resolveCoverType(cover('open', 'curtain'), 'blind')).toBe('blind');
-  });
-
-  it('projector y tv solo se eligen con cover_type, nunca por device_class', () => {
-    expect(resolveCoverType(cover('open', null), 'projector')).toBe('projector');
-    expect(resolveCoverType(cover('open', 'blind'), 'tv')).toBe('tv');
-    expect(resolveCoverType(cover('open', 'projector'))).toBe('shutter');
+  it('el cover_type de la configuración elige el dibujo', () => {
+    for (const type of ['shutter', 'blind', 'curtain', 'awning', 'projector', 'tv'] as const) expect(resolveCoverType(type)).toBe(type);
   });
 
   it('un cover_type que no es uno de los seis se ignora', () => {
-    expect(resolveCoverType(cover('open', 'blind'), 'garage')).toBe('blind');
-    expect(resolveCoverType(cover('open', null), 7)).toBe('shutter');
-    expect(resolveCoverType(cover('open', 'awning'), '')).toBe('awning');
+    for (const bad of ['garage', '', 7, null, 'auto']) expect(resolveCoverType(bad)).toBe('shutter');
   });
 });
 
+describe('statusDotColor', () => {
+  it('devuelve el color de cada grupo si es válido', () => {
+    const config = { status_color_open: '#112233', status_color_moving: ' rgb(1, 2, 3) ', status_color_closed: 'red', status_color_alert: 'var(--error-color)' };
+    expect(statusDotColor(config, 'open')).toBe('#112233');
+    expect(statusDotColor(config, 'moving')).toBe('rgb(1, 2, 3)');
+    expect(statusDotColor(config, 'closed')).toBe('red');
+    expect(statusDotColor(config, 'alert')).toBe('var(--error-color)');
+  });
+
+  it('sin color, con uno inválido o sin config es undefined', () => {
+    expect(statusDotColor({}, 'open')).toBeUndefined();
+    expect(statusDotColor({ status_color_open: 'rojo;color:red' }, 'open')).toBeUndefined();
+    expect(statusDotColor({ status_color_open: 5 }, 'open')).toBeUndefined();
+    expect(statusDotColor(undefined, 'closed')).toBeUndefined();
+  });
+});
+
+describe('iconColor', () => {
+  it('devuelve el color del icono si es válido', () => {
+    expect(iconColor({ icon_color: '#ff8800' })).toBe('#ff8800');
+    expect(iconColor({ icon_color: ' hsl(10, 50%, 50%) ' })).toBe('hsl(10, 50%, 50%)');
+  });
+
+  it('sin color o con uno inválido es undefined: el icono sigue al halo', () => {
+    expect(iconColor({})).toBeUndefined();
+    expect(iconColor({ icon_color: 'rojo;color:red' })).toBeUndefined();
+    expect(iconColor(undefined)).toBeUndefined();
+  });
+});
 describe('openFraction', () => {
   it('usa el porcentaje si lo hay', () => {
     expect(openFraction(cover('open'), 72)).toBe(0.72);
