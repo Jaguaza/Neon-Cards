@@ -13,7 +13,7 @@ export const NEON_COVER_CONTROLS_STYLES = css`
     align-items: center;
     width: 100%;
     min-width: 0;
-    padding-top: 8px;
+    padding-top: 4px;
     border-top: 1px solid var(--divider-color, rgba(255, 255, 255, 0.1));
   }
 

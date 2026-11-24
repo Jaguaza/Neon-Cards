@@ -15,10 +15,10 @@ export const NEON_COVER_CARD_STYLES = css`
 
   ha-card {
     box-sizing: border-box;
-    padding: 16px;
+    padding: 12px 16px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 6px;
     /* En el editor de Lovelace HA puede fijar a la tarjeta una altura menor
        que la de su contenido: sin recorte, el sobrante invadiría a la
        tarjeta vecina. */
@@ -57,7 +57,7 @@ export const NEON_COVER_CARD_STYLES = css`
   .hero-body {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
     flex: 1;
     min-width: 0;
   }
@@ -72,7 +72,7 @@ export const NEON_COVER_CARD_STYLES = css`
   .header-text {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
     min-width: 0;
     flex: 1;
   }
