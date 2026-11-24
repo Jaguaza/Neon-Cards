@@ -19,8 +19,8 @@ export interface PositionOptions {
 
 /**
  * Posición actual: la etiqueta y el porcentaje grande a la izquierda y, a la
- * derecha, el dial en arco con su punto. Sobre una pista tenue de todo el
- * recorrido, el arco de color va de transparente en los dos extremos a color
+ * derecha, el dial en arco con su punto, con el mismo tamaño y aspecto que el
+ * del termostato. El arco va de transparente en los dos extremos a color
  * sólido en el punto; el color lo pone `--cover-color` de la tarjeta.
  */
 export function renderPositionRow(o: PositionOptions): TemplateResult {
@@ -48,7 +48,6 @@ export function renderPositionRow(o: PositionOptions): TemplateResult {
               <stop offset="100%" style="stop-color: var(--cover-color); stop-opacity: 0"></stop>
             </linearGradient>
           </defs>
-          <path class="dial-track" d=${arc.fullPath}></path>
           <path class="dial-arc" d=${arc.fullPath} stroke="url(#${arc.gradientId})"></path>
           <circle class="dial-dot" cx=${arc.dot.x} cy=${arc.dot.y} r="4.5"></circle>
           <path class="dial-hit" d=${arc.fullPath}></path>

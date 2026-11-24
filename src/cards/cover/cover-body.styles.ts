@@ -43,28 +43,20 @@ export const NEON_COVER_BODY_STYLES = css`
   .dial-wrap {
     position: relative;
     flex: 0 0 auto;
-    width: 112px;
-    height: 66px;
+    width: 150px;
+    height: 88px;
   }
 
   .dial-svg {
     position: absolute;
     top: 0;
     left: 0;
-    width: 112px;
-    height: 112px;
+    width: 150px;
+    height: 150px;
     overflow: visible;
     touch-action: none;
     /* Solo el arco y el punto (más abajo) capturan el puntero: el resto del
        cuadrado desbordado taparía los controles de debajo. */
-    pointer-events: none;
-  }
-
-  .dial-track {
-    fill: none;
-    stroke: color-mix(in srgb, var(--primary-text-color) 12%, transparent);
-    stroke-width: 3.5;
-    stroke-linecap: round;
     pointer-events: none;
   }
 
@@ -89,7 +81,7 @@ export const NEON_COVER_BODY_STYLES = css`
   .dial-hit {
     fill: none;
     stroke: transparent;
-    stroke-width: 30;
+    stroke-width: 34;
     stroke-linecap: butt;
     pointer-events: stroke;
     cursor: pointer;
@@ -188,16 +180,6 @@ export const NEON_COVER_BODY_STYLES = css`
   }
 
   @container (max-width: 380px) {
-    .dial-wrap {
-      width: 88px;
-      height: 52px;
-    }
-
-    .dial-svg {
-      width: 88px;
-      height: 88px;
-    }
-
     .position-value {
       font-size: 30px;
     }
