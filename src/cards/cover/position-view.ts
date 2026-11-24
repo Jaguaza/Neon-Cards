@@ -51,7 +51,7 @@ export function renderPositionRow(o: PositionOptions): TemplateResult {
           <path class="dial-arc" d=${arc.fullPath} stroke="url(#${arc.gradientId})"></path>
           <circle class="dial-dot" cx=${arc.dot.x} cy=${arc.dot.y} r="4.5"></circle>
           <path class="dial-hit" d=${arc.fullPath}></path>
-          <ellipse class="dial-hit-dot" cx=${arc.dot.x} cy=${arc.dot.y} rx="11" ry="7"></ellipse>
+          <ellipse class="dial-hit-dot" cx=${arc.dot.x} cy=${arc.dot.y} rx="14" ry="10"></ellipse>
         </svg>
       </div>
     </div>
