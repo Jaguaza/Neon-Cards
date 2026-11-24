@@ -556,6 +556,22 @@ name: Toldo terraza
 cover_type: awning
 ```
 
+Pantalla de proyector y TV en un mueble (tipos binarios: sin porcentaje, solo abrir y cerrar):
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.pantalla_proyector
+name: Pantalla del salón
+cover_type: projector
+```
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.tv_mueble
+name: TV del salón
+cover_type: tv
+```
+
 Con la paleta personalizada (los tres colores del degradado del halo):
 
 ```yaml
@@ -576,8 +592,11 @@ cortinas, toldos… El icono es grande y se mueve con la persiana: con
 según el porcentaje de apertura, con `blind` una veneciana cuyas lamas se
 recogen y giran con la inclinación, con `curtain` una cortina cuyos paneles se
 recogen a los lados y con `awning` un toldo que despliega la lona (un cover con otra clase se
-dibuja como persiana). Con `cover_type` eliges el tipo a mano (`shutter`, `blind`, `curtain` o
-`awning`), también desde el editor visual; sin él, se deduce del `device_class`. Muestra la posición actual con un dial en arco y un deslizador fino
+dibuja como persiana). Con `cover_type` eliges el tipo a mano (`shutter`, `blind`, `curtain`,
+`awning`, `projector` o `tv`), también desde el editor visual; sin él, se deduce
+del `device_class`. La pantalla de proyector y la TV en mueble son binarias: el
+icono se anima entre abierto y cerrado y solo hay botones, sin porcentaje, dial
+ni deslizadores. Muestra la posición actual con un dial en arco y un deslizador fino
 de 0 a 100 % que también la fijan (la orden sale al soltar). Si la
 entidad soporta la inclinación de las lamas, como una veneciana, sale un segundo
 deslizador debajo para fijarla. En el pie, los botones Cerrar, Parar y Abrir
@@ -1147,6 +1166,22 @@ name: Terrace awning
 cover_type: awning
 ```
 
+Projector screen and TV in a cabinet (binary types: no percentage, just open and close):
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.projector_screen
+name: Living room screen
+cover_type: projector
+```
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.cabinet_tv
+name: Living room TV
+cover_type: tv
+```
+
 With the custom palette (the three colors of the halo gradient):
 
 ```yaml
@@ -1168,8 +1203,10 @@ down with the opening percentage, and with `blind` a venetian blind whose slats
 gather and turn with the tilt, with `curtain` a curtain whose panels gather at
 the sides and with `awning` an awning that unrolls its canvas (a cover with another
 class is drawn as a shutter). With `cover_type` you choose the type by hand (`shutter`, `blind`,
-`curtain` or `awning`), also from the visual editor; without it, it is taken from the
-`device_class`. It
+`curtain`, `awning`, `projector` or `tv`), also from the visual editor; without it,
+it is taken from the `device_class`. The projector screen and the TV cabinet are
+binary: the icon animates between open and closed and there are only buttons, no
+percentage, dial or sliders. It
 shows the current position with an arc dial and a thin 0 to 100 % slider that
 also set it (the command is sent on release).
 If the entity supports slat tilt, like a venetian blind, a second slider below

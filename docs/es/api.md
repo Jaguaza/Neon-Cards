@@ -1763,7 +1763,7 @@ disponible» (y en desarrollo avisa por consola). Especificación completa en
 |---|---|---|---|
 | `entity` | `string` | — (requerida) | Entidad `cover.*`. |
 | `name` | `string` | `friendly_name` de la entidad | Nombre mostrado. |
-| `cover_type` | `'shutter' \| 'blind' \| 'curtain' \| 'awning'` | según el `device_class` | Tipo de cover, es decir, el dibujo del icono: persiana enrollable, veneciana, cortina o toldo. Sin él se deduce del `device_class` de la entidad (`shutter`, `blind`, `curtain`, `awning`) y, si no lo tiene o es otro (garaje, puerta, ventana…), es una persiana. Un valor que no sea uno de los cuatro se ignora. |
+| `cover_type` | `'shutter' \| 'blind' \| 'curtain' \| 'awning' \| 'projector' \| 'tv'` | según el `device_class` | Tipo de cover, es decir, el dibujo del icono: persiana enrollable, veneciana, cortina, toldo, pantalla de proyector o TV en mueble. Sin él se deduce del `device_class` de la entidad (`shutter`, `blind`, `curtain`, `awning`) y, si no lo tiene o es otro (garaje, puerta, ventana…), es una persiana. `projector` y `tv` no tienen `device_class` y solo se eligen aquí; son **binarios**: sin porcentaje, dial ni deslizadores, solo el icono animado y los botones. Un valor que no sea uno de los seis se ignora. |
 | `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta del halo. Su color 1 es también el del icono, el porcentaje, el dial, los deslizadores y los botones mientras la persiana no está cerrada. |
 | `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | según paleta | Colores con `neon_palette: custom`. |
 

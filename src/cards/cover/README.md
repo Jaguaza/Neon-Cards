@@ -8,7 +8,9 @@ cover es **grande y se mueve con la persiana**: sube y baja según el porcentaje
 apertura y, en una veneciana, gira las lamas con la inclinación. El
 **porcentaje** se ve y se fija con un dial en arco y un deslizador, las
 **venecianas** tienen un segundo deslizador para la inclinación de las lamas y
-el pie tiene tres botones que **abren, paran y cierran**. Lleva el halo neón de
+el pie tiene tres botones que **abren, paran y cierran**. Hay dos tipos más,
+**binarios**, para una pantalla de proyector y una TV en un mueble: solo abiertos
+o cerrados, sin porcentaje. Lleva el halo neón de
 la familia Neón Cards.
 
 Por ahora solo existe el **tamaño grande**.
@@ -36,14 +38,17 @@ el porcentaje y la inclinación (también mientras los arrastras):
 | `blind` | **Veneciana.** Las lamas se recogen contra el cabezal al abrirse y giran hasta quedar de canto con la inclinación (`current_tilt_position`). |
 | `curtain` | **Cortina.** La barra con remates arriba y dos paneles de cuatro pliegues colgados de anillas. Al abrirse, los pliegues de cada panel se estrechan y se recogen hacia su lado, amontonados, y aparece la alzapaño que los ata; cerrada, los dos paneles se juntan en el centro y tapan la ventana. |
 | `awning` | **Toldo.** El cajón arriba y la lona de rayas, opaca, que se despliega hacia abajo con su volante festoneado al abrirse y tapa la ventana de detrás; recogido solo asoma un palmo de lona. |
+| `projector` (solo con `cover_type`) | **Pantalla de proyector.** El cajón cilíndrico arriba y el lienzo claro, que baja desde él con su barra de abajo; abierta del todo se proyecta un «play». **Binaria:** solo abierta o cerrada. |
+| `tv` (solo con `cover_type`) | **TV en mueble.** Un mueble bajo con dos puertas y, dentro, una TV que sube por su columna y asoma sobre el mueble; cerrada queda escondida. Abierta del todo se proyecta un «play». **Binaria:** solo abierta o cerrada. |
 | cualquier otra | Esta tarjeta es solo para persianas, venecianas, cortinas y toldos: un cover con otra clase (garaje, puerta, ventana…) se dibuja como persiana enrollable. |
 
 La ventana que queda a la vista al abrirse se dibuja como tal, con marco,
 cristal y crucetas, en los cuatro tipos. Sin `current_position`, el dibujo se ve
 abierto del todo o cerrado según el estado. Con `prefers-reduced-motion` el dibujo cambia sin animación.
 
-**Elegir el tipo a mano.** `cover_type` (`shutter`, `blind`, `curtain` o
-`awning`) fija el dibujo sea cual sea el `device_class`; en el editor visual es
+**Elegir el tipo a mano.** `cover_type` (`shutter`, `blind`, `curtain`,
+`awning`, `projector` o `tv`) fija el dibujo sea cual sea el `device_class`; la
+pantalla de proyector y la TV no tienen `device_class` y solo se eligen así; en el editor visual es
 el selector «Tipo de persiana», con una ficha por dibujo y «Automático», que
 deja que lo decida el `device_class` y es el valor por defecto.
 
@@ -75,6 +80,13 @@ La tarjeta lee `supported_features` y `current_position` (con
 | …y se pueden mover | además soporta fijar posición; si no, se ven pero desactivados |
 | Deslizador de inclinación | soporta fijar inclinación y informa de `current_tilt_position` |
 
+**Tipos binarios.** Con `cover_type: projector` o `tv` la tarjeta no pinta el
+porcentaje, el dial ni los deslizadores (aunque la entidad informe de
+`current_position` o de inclinación): solo el icono, el nombre con el estado y
+el pie de botones. El icono se anima entre cerrado y abierto: sigue a
+`current_position` si la entidad lo informa y, si no, va al estado de destino
+(abierta o abriéndose, abierto; cerrada o cerrándose, cerrado).
+
 Con la entidad no disponible, los botones y los deslizadores se desactivan.
 Estos elementos dependen de la entidad y no de su estado: **la tarjeta no
 cambia de alto** al abrirse, cerrarse o moverse la persiana.
@@ -104,7 +116,7 @@ interacción.
 |---|---|
 | `neon-cover-card.ts` | La tarjeta: lee el cover, arrastre del dial y órdenes |
 | `header-view.ts`, `position-view.ts`, `controls-view.ts` | Cabecera, posición con sus deslizadores y pie de botones |
-| `cover-glyph.ts` | Los dibujos de la persiana enrollable, la veneciana, la cortina y el toldo |
+| `cover-glyph.ts` | Los dibujos de la persiana enrollable, la veneciana, la cortina, el toldo, la pantalla de proyector y la TV en mueble |
 | `cover-visual.ts` | Qué dibujo o icono lleva el cover, apertura, grupo de estado y halo |
 | `constants.ts`, `types.ts` | Iconos, colores del punto de estado y configuración |
 | `*.styles.ts` | Estilos divididos (carcasa y cabecera, dibujo, cuerpo, pie de botones) |
@@ -150,14 +162,18 @@ the percentage and the tilt (also while you drag them):
 | `blind` | **Venetian blind.** The slats gather against the head rail as it opens and turn edge-on with the tilt (`current_tilt_position`). |
 | `curtain` | **Curtain.** The rod with finials on top and two panels of four pleats hung from rings. As it opens, the pleats of each panel narrow and gather toward their own side, bunched up, and the tieback that holds them appears; closed, the two panels meet in the middle and cover the window. |
 | `awning` | **Awning.** The box on top and the striped canvas, opaque, which unrolls downward with its scalloped valance as it opens and covers the window behind it; retracted, only a hand's width of canvas shows. |
+| `projector` (only with `cover_type`) | **Projector screen.** The cylindrical case on top and the light canvas, which lowers from it with its bottom bar; fully open, a \"play\" is projected. **Binary:** only open or closed. |
+| `tv` (only with `cover_type`) | **TV cabinet.** A low cabinet with two doors and, inside it, a TV that rises along its column and shows above the cabinet; closed, it is hidden. Fully open, a \"play\" is projected. **Binary:** only open or closed. |
 | any other | This card is only for shutters, venetian blinds, curtains and awnings: a cover with another class (garage, door, window…) is drawn as a rolling shutter. |
 
 The window that shows when it opens is drawn as a real one, with frame, glass
 and mullions, in the four types. Without `current_position` the drawing shows
 fully open or closed depending on the state. With `prefers-reduced-motion` the drawing changes without animation.
 
-**Choosing the type by hand.** `cover_type` (`shutter`, `blind`, `curtain` or
-`awning`) sets the drawing whatever the `device_class` is; in the visual editor
+**Choosing the type by hand.** `cover_type` (`shutter`, `blind`, `curtain`,
+`awning`, `projector` or `tv`) sets the drawing whatever the `device_class` is;
+the projector screen and the TV have no `device_class` and can only be chosen
+this way; in the visual editor
 it is the "Cover type" selector, with one tile per drawing and "Automatic",
 which lets the `device_class` decide and is the default.
 
@@ -190,6 +206,13 @@ The card reads `supported_features` and `current_position` (with
 | …and they can be moved | it also supports setting the position; otherwise they are shown but disabled |
 | Tilt slider | it supports setting the tilt and reports `current_tilt_position` |
 
+**Binary types.** With `cover_type: projector` or `tv` the card draws no
+percentage, dial or sliders (even if the entity reports `current_position` or
+tilt): just the icon, the name with the state and the button footer. The icon
+animates between closed and open: it follows `current_position` if the entity
+reports it and otherwise heads to the target state (open or opening, open;
+closed or closing, closed).
+
 With the entity unavailable, the buttons and sliders are disabled. These
 elements depend on the entity and not on its state: **the card does not change
 height** when the cover opens, closes or moves.
@@ -219,7 +242,7 @@ interaction.
 |---|---|
 | `neon-cover-card.ts` | The card: reads the cover, dial dragging and commands |
 | `header-view.ts`, `position-view.ts`, `controls-view.ts` | Header, position with its sliders, and button footer |
-| `cover-glyph.ts` | The rolling shutter, venetian blind, curtain and awning drawings |
+| `cover-glyph.ts` | The rolling shutter, venetian blind, curtain, awning, projector screen and TV cabinet drawings |
 | `cover-visual.ts` | Which drawing or icon the cover gets, opening, state group and halo |
 | `constants.ts`, `types.ts` | Icons, state dot colors and configuration |
 | `*.styles.ts` | Split styles (shell and header, drawing, body, button footer) |

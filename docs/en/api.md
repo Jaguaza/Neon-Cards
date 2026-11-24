@@ -1759,7 +1759,7 @@ available" (and warns in the console in development). Full specification in
 |---|---|---|---|
 | `entity` | `string` | — (required) | `cover.*` entity. |
 | `name` | `string` | entity `friendly_name` | Displayed name. |
-| `cover_type` | `'shutter' \| 'blind' \| 'curtain' \| 'awning'` | per `device_class` | Cover type, i.e. the icon drawing: rolling shutter, venetian blind, curtain or awning. Without it, it is taken from the entity's `device_class` (`shutter`, `blind`, `curtain`, `awning`) and, if it has none or another one (garage, door, window…), it is a shutter. A value that is not one of the four is ignored. |
+| `cover_type` | `'shutter' \| 'blind' \| 'curtain' \| 'awning' \| 'projector' \| 'tv'` | per `device_class` | Cover type, i.e. the icon drawing: rolling shutter, venetian blind, curtain, awning, projector screen or TV cabinet. Without it, it is taken from the entity's `device_class` (`shutter`, `blind`, `curtain`, `awning`) and, if it has none or another one (garage, door, window…), it is a shutter. `projector` and `tv` have no `device_class` and can only be chosen here; they are **binary**: no percentage, dial or sliders, just the animated icon and the buttons. A value that is not one of the six is ignored. |
 | `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Halo palette. Its color 1 is also the color of the icon, the percentage, the dial, the sliders and the buttons while the cover is not closed. |
 | `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | per palette | Colors with `neon_palette: custom`. |
 
