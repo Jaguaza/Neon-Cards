@@ -38,8 +38,8 @@ el porcentaje y la inclinación (también mientras los arrastras):
 | `blind` | **Veneciana.** Las lamas se recogen contra el cabezal al abrirse y giran hasta quedar de canto con la inclinación (`current_tilt_position`). |
 | `curtain` | **Cortina.** La barra con remates arriba y dos paneles de cuatro pliegues colgados de anillas. Al abrirse, los pliegues de cada panel se estrechan y se recogen hacia su lado, amontonados, y aparece la alzapaño que los ata; cerrada, los dos paneles se juntan en el centro y tapan la ventana. |
 | `awning` | **Toldo.** El cajón arriba y la lona de rayas, opaca, que se despliega hacia abajo con su volante festoneado al abrirse y tapa la ventana de detrás; recogido solo asoma un palmo de lona. |
-| `projector` (solo con `cover_type`) | **Pantalla de proyector.** El cajón cilíndrico arriba y el lienzo claro, que baja desde él con su barra de abajo; abierta del todo se proyecta un «play». **Binaria:** solo abierta o cerrada. |
-| `tv` (solo con `cover_type`) | **TV en mueble.** Un mueble bajo con dos puertas y, dentro, una TV que sube por su columna y asoma sobre el mueble; cerrada queda escondida. Abierta del todo se proyecta un «play». **Binaria:** solo abierta o cerrada. |
+| `projector` (solo con `cover_type`) | **Pantalla de proyector.** El cajón arriba, bajo y de esquinas casi rectas, y el lienzo claro, que baja desde él con su barra de abajo; abierta del todo se proyecta un «play». **Binaria:** solo abierta o cerrada. |
+| `tv` (solo con `cover_type`) | **TV en mueble.** Un mueble bajo con dos puertas y, dentro, una pantalla de TV, sin peana ni soporte, que sube desde el interior y asoma sobre el mueble; cerrada queda escondida. Abierta del todo se proyecta un «play». **Binaria:** solo abierta o cerrada. |
 | cualquier otra | Esta tarjeta es solo para persianas, venecianas, cortinas y toldos: un cover con otra clase (garaje, puerta, ventana…) se dibuja como persiana enrollable. |
 
 La ventana que queda a la vista al abrirse se dibuja como tal, con marco,
@@ -162,8 +162,8 @@ the percentage and the tilt (also while you drag them):
 | `blind` | **Venetian blind.** The slats gather against the head rail as it opens and turn edge-on with the tilt (`current_tilt_position`). |
 | `curtain` | **Curtain.** The rod with finials on top and two panels of four pleats hung from rings. As it opens, the pleats of each panel narrow and gather toward their own side, bunched up, and the tieback that holds them appears; closed, the two panels meet in the middle and cover the window. |
 | `awning` | **Awning.** The box on top and the striped canvas, opaque, which unrolls downward with its scalloped valance as it opens and covers the window behind it; retracted, only a hand's width of canvas shows. |
-| `projector` (only with `cover_type`) | **Projector screen.** The cylindrical case on top and the light canvas, which lowers from it with its bottom bar; fully open, a \"play\" is projected. **Binary:** only open or closed. |
-| `tv` (only with `cover_type`) | **TV cabinet.** A low cabinet with two doors and, inside it, a TV that rises along its column and shows above the cabinet; closed, it is hidden. Fully open, a \"play\" is projected. **Binary:** only open or closed. |
+| `projector` (only with `cover_type`) | **Projector screen.** The case on top, low and with almost square corners, and the light canvas, which lowers from it with its bottom bar; fully open, a \"play\" is projected. **Binary:** only open or closed. |
+| `tv` (only with `cover_type`) | **TV cabinet.** A low cabinet with two doors and, inside it, a TV screen, with no base or stand, that rises from the inside and shows above the cabinet; closed, it is hidden. Fully open, a \"play\" is projected. **Binary:** only open or closed. |
 | any other | This card is only for shutters, venetian blinds, curtains and awnings: a cover with another class (garage, door, window…) is drawn as a rolling shutter. |
 
 The window that shows when it opens is drawn as a real one, with frame, glass
