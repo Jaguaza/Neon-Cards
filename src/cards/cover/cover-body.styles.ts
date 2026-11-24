@@ -93,16 +93,25 @@ export const NEON_COVER_BODY_STYLES = css`
     cursor: pointer;
   }
 
-  /* Deslizadores: pista con el tramo recorrido relleno por --pct. */
+  /* Deslizadores. El alto de la banda (--slider-h) es lo que ocupa en la
+     tarjeta; la zona de toque es mucho mayor (36px) gracias a un margen
+     negativo, porque con el dedo el punto de 16px es muy difícil de acertar.
+     El punto mide 32px (borde transparente de 8px) y solo se ve el disco
+     central de 16px, el mismo que el punto del dial circular. El tramo
+     recorrido (--frac, de 0 a 1) acaba justo en el centro del punto. Sin
+     scroll táctil en la banda: un gesto algo diagonal ya no lo cancela. */
   .slider {
+    --slider-h: 18px;
+    --thumb: 32px;
+    --stop: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--frac, 0));
     -webkit-appearance: none;
     appearance: none;
     width: 100%;
-    height: 18px;
-    margin: 0;
+    height: 36px;
+    margin: calc((var(--slider-h) - 36px) / 2) 0;
     background: transparent;
     cursor: pointer;
-    touch-action: pan-y;
+    touch-action: none;
   }
 
   .slider:disabled {
@@ -113,33 +122,40 @@ export const NEON_COVER_BODY_STYLES = css`
   .slider::-webkit-slider-runnable-track {
     height: 5px;
     border-radius: 3px;
-    background: linear-gradient(90deg, var(--neon-c2) 0, var(--cover-color) var(--pct), color-mix(in srgb, var(--primary-text-color) 14%, transparent) var(--pct));
+    background: linear-gradient(90deg, var(--neon-c2) 0, var(--cover-color) var(--stop), color-mix(in srgb, var(--primary-text-color) 14%, transparent) var(--stop));
   }
 
   .slider::-moz-range-track {
     height: 5px;
     border-radius: 3px;
-    background: linear-gradient(90deg, var(--neon-c2) 0, var(--cover-color) var(--pct), color-mix(in srgb, var(--primary-text-color) 14%, transparent) var(--pct));
+    background: linear-gradient(90deg, var(--neon-c2) 0, var(--cover-color) var(--stop), color-mix(in srgb, var(--primary-text-color) 14%, transparent) var(--stop));
   }
 
+  /* Mismo punto que el del dial: disco de color con aro del fondo y halo. */
   .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    margin-top: -5.5px;
+    box-sizing: border-box;
+    width: 32px;
+    height: 32px;
+    margin-top: -13.5px;
+    border: 8px solid transparent;
     border-radius: 50%;
-    border: 2.5px solid var(--cover-color);
-    background: var(--card-background-color, #1c1c1c);
-    box-shadow: 0 0 8px color-mix(in srgb, var(--cover-color) 80%, transparent);
+    background: var(--cover-color);
+    background-clip: padding-box;
+    box-shadow: inset 0 0 0 2.25px var(--card-background-color, #1c1c1c);
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--cover-color) 90%, transparent));
   }
 
   .slider::-moz-range-thumb {
-    width: 11px;
-    height: 11px;
+    box-sizing: border-box;
+    width: 32px;
+    height: 32px;
+    border: 8px solid transparent;
     border-radius: 50%;
-    border: 2.5px solid var(--cover-color);
-    background: var(--card-background-color, #1c1c1c);
-    box-shadow: 0 0 8px color-mix(in srgb, var(--cover-color) 80%, transparent);
+    background: var(--cover-color);
+    background-clip: padding-box;
+    box-shadow: inset 0 0 0 2.25px var(--card-background-color, #1c1c1c);
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--cover-color) 90%, transparent));
   }
 
   .slider:focus-visible {
@@ -147,7 +163,7 @@ export const NEON_COVER_BODY_STYLES = css`
   }
 
   .slider:focus-visible::-webkit-slider-thumb {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--cover-color) 35%, transparent), 0 0 8px var(--cover-color);
+    filter: drop-shadow(0 0 3px var(--cover-color)) drop-shadow(0 0 8px var(--cover-color));
   }
 
   .scale {

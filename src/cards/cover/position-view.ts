@@ -68,7 +68,7 @@ export interface SliderOptions {
   onChange: (value: number) => void;
 }
 
-/** Deslizador de 0 a 100 con el tramo recorrido relleno (`--pct`). */
+/** Deslizador de 0 a 100 con el tramo recorrido relleno (`--frac`, de 0 a 1). */
 export function renderSlider(o: SliderOptions): TemplateResult {
   const read = (ev: Event) => Number((ev.target as HTMLInputElement).value);
   return html`
@@ -81,7 +81,7 @@ export function renderSlider(o: SliderOptions): TemplateResult {
       aria-label=${o.label}
       ?disabled=${o.disabled}
       .value=${String(o.value)}
-      style="--pct: ${o.value}%"
+      style="--frac: ${o.value / 100}"
       @input=${(ev: Event) => o.onInput(read(ev))}
       @change=${(ev: Event) => o.onChange(read(ev))}
     />
