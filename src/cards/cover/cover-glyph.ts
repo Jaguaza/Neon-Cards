@@ -166,7 +166,7 @@ function playTriangle(cx: number, cy: number): string {
 }
 
 /**
- * Pantalla de proyector: el cajón cilíndrico arriba y el lienzo, que baja
+ * Pantalla de proyector: el cajón (bajo y de esquinas casi rectas) arriba y el lienzo, que baja
  * desde él (`--open`) con su barra de abajo; abierta del todo se proyecta un
  * «play». Binaria: solo abierta o cerrada.
  */
@@ -177,41 +177,41 @@ function projectorGlyph(o: GlyphOptions): TemplateResult {
       <rect class="g-canvas g-screen" x=${SCREEN.x} y=${SCREEN.y} width=${SCREEN.width} height=${SCREEN.height}></rect>
       <path class="g-play" d=${playTriangle(50, SCREEN.y + SCREEN.height / 2)}></path>
       <rect class="g-bar g-screen-bar" x="8" y=${SCREEN.y + SCREEN.rolled} width="84" height="4" rx="2"></rect>
-      <rect class="g-box" x="6" y="10" width="88" height="12" rx="6"></rect>
+      <rect class="g-box" x="8" y="14" width="84" height="8" rx="1.5"></rect>
     </svg>
   `;
 }
 
-const TV_LIFT = { cabinetTop: 76, tvTop: 16, travel: 62 } as const;
+const TV_LIFT = { cabinetTop: 70, tvTop: 22, travel: 48 } as const;
 
 /**
- * TV en mueble: un mueble bajo con dos puertas y, dentro, una TV que sube
- * (`--open`) por su columna y asoma sobre el mueble; cerrada, queda escondida
- * (recortada al borde superior del mueble). Abierta del todo se proyecta un
- * «play». Binaria: solo abierta o cerrada.
+ * TV en mueble: un mueble bajo con dos puertas y, dentro, una pantalla de TV
+ * (sin peana ni soporte) que sube (`--open`) desde el interior y asoma sobre
+ * el mueble; su borde de abajo queda siempre dentro, oculto tras la tapa
+ * (recortada al borde superior del mueble), y cerrada no se ve. Abierta del
+ * todo se proyecta un «play». Binaria: solo abierta o cerrada.
  */
 function tvGlyph(o: GlyphOptions): TemplateResult {
   const clipId = `cover-tv-${o.uid}`;
+  const top = TV_LIFT.cabinetTop;
   return svg`
     <svg class="cover-glyph" data-glyph="tv" viewBox="0 0 100 110" aria-hidden="true" style="--open: ${o.open}; --travel: ${TV_LIFT.travel}px">
       <defs>
-        <clipPath id=${clipId}><rect x="0" y="0" width="100" height=${TV_LIFT.cabinetTop}></rect></clipPath>
+        <clipPath id=${clipId}><rect x="0" y="0" width="100" height=${top}></rect></clipPath>
       </defs>
       <g clip-path="url(#${clipId})">
         <g class="g-tv">
-          <rect class="g-tv-neck" x="46" y="58" width="8" height="14"></rect>
-          <rect class="g-tv-neck" x="34" y="70" width="32" height="3" rx="1.5"></rect>
-          <rect class="g-tv-body" x="14" y=${TV_LIFT.tvTop} width="72" height="42" rx="3"></rect>
-          <rect class="g-tv-screen" x="18" y="20" width="64" height="34" rx="1.5"></rect>
-          <path class="g-play" d=${playTriangle(50, 37)}></path>
+          <rect class="g-tv-body" x="12" y=${TV_LIFT.tvTop} width="76" height="52" rx="3"></rect>
+          <rect class="g-tv-screen" x="16" y=${TV_LIFT.tvTop + 4} width="68" height="40" rx="1.5"></rect>
+          <path class="g-play" d=${playTriangle(50, TV_LIFT.tvTop + 24)}></path>
         </g>
       </g>
-      <rect class="g-cabinet" x="8" y=${TV_LIFT.cabinetTop} width="84" height="24" rx="3"></rect>
-      <line class="g-cabinet-line" x1="50" y1=${TV_LIFT.cabinetTop + 3} x2="50" y2="97"></line>
-      <circle class="g-handle" cx="45" cy="88" r="1.4"></circle>
-      <circle class="g-handle" cx="55" cy="88" r="1.4"></circle>
-      <rect class="g-cabinet" x="14" y="100" width="6" height="5" rx="1"></rect>
-      <rect class="g-cabinet" x="80" y="100" width="6" height="5" rx="1"></rect>
+      <rect class="g-cabinet" x="8" y=${top} width="84" height="24" rx="3"></rect>
+      <line class="g-cabinet-line" x1="50" y1=${top + 3} x2="50" y2=${top + 21}></line>
+      <circle class="g-handle" cx="45" cy=${top + 12} r="1.4"></circle>
+      <circle class="g-handle" cx="55" cy=${top + 12} r="1.4"></circle>
+      <rect class="g-cabinet" x="14" y=${top + 24} width="6" height="5" rx="1"></rect>
+      <rect class="g-cabinet" x="80" y=${top + 24} width="6" height="5" rx="1"></rect>
     </svg>
   `;
 }

@@ -195,12 +195,6 @@ export const NEON_COVER_GLYPH_STYLES = css`
     fill: color-mix(in srgb, var(--cover-color) 16%, var(--card-background-color, #1c1c1c));
   }
 
-  .g-tv-neck {
-    fill: var(--glyph-fill);
-    stroke: var(--glyph-line);
-    stroke-width: 1;
-  }
-
   .g-cabinet {
     fill: color-mix(in srgb, var(--cover-color) 24%, var(--card-background-color, #1c1c1c));
     stroke: var(--glyph-line);

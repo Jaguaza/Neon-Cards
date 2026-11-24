@@ -203,6 +203,14 @@ describe('tipos binarios: pantalla de proyector y TV en mueble', () => {
     expect(calls).toEqual([['cover', 'open_cover', { entity_id: 'cover.salon' }]]);
   });
 
+  it('la TV sale del mueble sin peana ni soporte: solo la pantalla', async () => {
+    const el = await mount({ cover_type: 'tv' });
+    expect(q(el, '.g-tv-body')).not.toBeNull();
+    expect(q(el, '.g-tv-screen')).not.toBeNull();
+    expect(q(el, '.g-tv-neck')).toBeNull();
+    expect(qa(el, '.g-tv *')).toHaveLength(3);
+  });
+
   it('la pantalla tiene lienzo y barra; la TV, mueble y una TV que sube de su interior', async () => {
     const screen = await mount({ cover_type: 'projector' });
     expect(q(screen, '.g-canvas')).not.toBeNull();
