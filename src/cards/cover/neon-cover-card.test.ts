@@ -110,12 +110,33 @@ describe('icono grande', () => {
     expect(q(el, '.cover-glyph')?.getAttribute('data-glyph')).toBe('blind');
   });
 
-  it('la cortina tiene dos paneles que se recogen con el porcentaje', async () => {
+  it('la cortina tiene dos paneles de cuatro pliegues con su anilla, y una alzapaño por lado', async () => {
     const el = await mount({}, hassWith('open', { attributes: { device_class: 'curtain', current_position: 60 } }));
     expect(q(el, '.cover-glyph')?.getAttribute('data-glyph')).toBe('curtain');
-    expect(qa(el, '.g-panel')).toHaveLength(2);
-    expect(qa(el, '.g-fold')).toHaveLength(6);
+    expect(qa(el, '.g-pleat')).toHaveLength(8);
+    expect(qa(el, '.g-ring')).toHaveLength(8);
+    expect(qa(el, '.g-tie')).toHaveLength(2);
     expect(style(el)).toContain('--open: 0.6');
+  });
+
+  it('los pliegues de cada lado se recogen hacia su lado: el exterior no se mueve y los de dentro, sí', async () => {
+    const el = await mount({}, hassWith('open', { attributes: { device_class: 'curtain' } }));
+    const shifts = qa(el, '.g-pleat').map((p) => parseFloat((p.getAttribute('style') ?? '').replace('--k:', '')));
+    // Izquierda de dentro afuera (-19,5, -13, -6,5, 0) y derecha (+19,5, +13, +6,5, 0).
+    expect(shifts.filter((k) => k < 0).sort((a, b) => a - b)).toEqual([-19.5, -13, -6.5]);
+    expect(shifts.filter((k) => k > 0).sort((a, b) => a - b)).toEqual([6.5, 13, 19.5]);
+    expect(shifts.filter((k) => k === 0)).toHaveLength(2);
+  });
+
+  it('todas las ventanas llevan marco, cristal y crucetas', async () => {
+    for (const cover_type of ['shutter', 'blind', 'curtain', 'awning']) {
+      document.body.innerHTML = '';
+      const el = await mount({ cover_type });
+      expect(qa(el, '.g-frame')).toHaveLength(1);
+      expect(qa(el, '.g-glass')).toHaveLength(1);
+      expect(qa(el, '.g-mullion')).toHaveLength(2);
+      expect(qa(el, '.g-sill')).toHaveLength(1);
+    }
   });
 
   it('el toldo se despliega con el porcentaje: lona de rayas y volante', async () => {

@@ -30,10 +30,21 @@ export const NEON_COVER_GLYPH_STYLES = css`
       drop-shadow(0 0 3px color-mix(in srgb, var(--neon-c1) 40%, transparent));
   }
 
+  /* La ventana: marco, cristal y crucetas. */
+  .g-frame {
+    fill: none;
+    stroke: color-mix(in srgb, var(--primary-text-color) 50%, transparent);
+    stroke-width: 1.6;
+  }
+
   .g-glass {
-    fill: color-mix(in srgb, var(--cover-color) 7%, transparent);
-    stroke: color-mix(in srgb, var(--primary-text-color) 22%, transparent);
-    stroke-width: 1;
+    fill: color-mix(in srgb, var(--cover-color) 9%, transparent);
+    stroke: none;
+  }
+
+  .g-mullion {
+    stroke: color-mix(in srgb, var(--primary-text-color) 38%, transparent);
+    stroke-width: 1.4;
   }
 
   .g-box,
@@ -48,10 +59,15 @@ export const NEON_COVER_GLYPH_STYLES = css`
     fill: var(--glyph-line);
   }
 
-  .g-guide,
-  .g-sill {
+  .g-guide {
     stroke: var(--glyph-line);
     stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+
+  .g-sill {
+    stroke: var(--glyph-line);
+    stroke-width: 2;
     stroke-linecap: round;
   }
 
@@ -69,34 +85,42 @@ export const NEON_COVER_GLYPH_STYLES = css`
     transition: transform 500ms ease;
   }
 
-  /* La cortina: cada panel se recoge hacia su lado (0,78 de su ancho menos al
-     abrirse del todo) y sus pliegues se juntan con él. */
-  .g-panel {
+  /* La cortina: cada pliegue se desplaza hacia el lado de su panel (--k, ya
+     con su signo) y se estrecha al abrirse, y el conjunto se amontona. Opaco:
+     cerrada, tapa la ventana. */
+  .g-pleat {
     transform-box: fill-box;
-    transform: scaleX(calc(1 - var(--open, 0) * 0.78));
+    transform-origin: center;
+    transform: translateX(calc(var(--open, 0) * var(--k, 0px))) scaleX(calc(1 - var(--open, 0) * 0.4));
     transition: transform 500ms ease;
   }
 
-  .g-panel-left {
-    transform-origin: 0% 50%;
-  }
-
-  .g-panel-right {
-    transform-origin: 100% 50%;
-  }
-
-  /* Opaco: cerrada, la cortina tapa la ventana y el alféizar de detrás. */
-  .g-fabric {
+  .g-drape {
     fill: color-mix(in srgb, var(--cover-color) 30%, var(--card-background-color, #1c1c1c));
     stroke: var(--glyph-line);
     stroke-width: 1.2;
     vector-effect: non-scaling-stroke;
   }
 
-  .g-fold {
-    stroke: color-mix(in srgb, var(--glyph-line) 70%, transparent);
+  .g-hilite {
+    stroke: color-mix(in srgb, var(--glyph-line) 55%, transparent);
     stroke-width: 1;
+    stroke-linecap: round;
     vector-effect: non-scaling-stroke;
+  }
+
+  .g-ring {
+    fill: none;
+    stroke: var(--glyph-line);
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* La alzapaño aparece al recoger la cortina. */
+  .g-tie {
+    fill: var(--glyph-line);
+    opacity: clamp(0, calc(var(--open, 0) * 3 - 1.5), 1);
+    transition: opacity 500ms ease;
   }
 
   .g-rod {
@@ -117,16 +141,17 @@ export const NEON_COVER_GLYPH_STYLES = css`
     transition: transform 500ms ease;
   }
 
+  /* Opaco: la lona tapa la ventana de detrás. */
   .g-stripe {
-    fill: var(--glyph-fill);
+    fill: color-mix(in srgb, var(--cover-color) 32%, var(--card-background-color, #1c1c1c));
   }
 
   .g-stripe-alt {
-    fill: color-mix(in srgb, var(--cover-color) 12%, transparent);
+    fill: color-mix(in srgb, var(--cover-color) 14%, var(--card-background-color, #1c1c1c));
   }
 
   .g-valance {
-    fill: var(--glyph-fill);
+    fill: color-mix(in srgb, var(--cover-color) 32%, var(--card-background-color, #1c1c1c));
     stroke: var(--glyph-line);
     stroke-width: 1.2;
     transform: translateY(calc(var(--open, 0) * var(--travel, 48px)));
@@ -136,7 +161,8 @@ export const NEON_COVER_GLYPH_STYLES = css`
   /* Al arrastrar, el dibujo sigue al dedo sin retraso. */
   .dragging .g-curtain,
   .dragging .g-blind-slat,
-  .dragging .g-panel,
+  .dragging .g-pleat,
+  .dragging .g-tie,
   .dragging .g-stripes,
   .dragging .g-valance {
     transition: none;
@@ -145,7 +171,8 @@ export const NEON_COVER_GLYPH_STYLES = css`
   @media (prefers-reduced-motion: reduce) {
     .g-curtain,
     .g-blind-slat,
-    .g-panel,
+    .g-pleat,
+    .g-tie,
     .g-stripes,
     .g-valance {
       transition: none;

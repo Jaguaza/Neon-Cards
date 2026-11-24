@@ -19,6 +19,23 @@ const SHUTTER_PITCH = 8;
 /** Lo que sube el cortinaje entero al abrirse del todo; queda a la vista el último tramo. */
 const SHUTTER_TRAVEL = 64;
 
+/**
+ * Una ventana de verdad: marco, cristal y las dos crucetas (cuatro hojas), con
+ * el alféizar debajo. Es lo que queda a la vista cuando la persiana, la
+ * cortina o el toldo se abren.
+ */
+function windowPanes(x: number, y: number, width: number, height: number): TemplateResult {
+  const midX = x + width / 2;
+  const midY = y + height / 2;
+  return svg`
+    <rect class="g-glass" x=${x + 2} y=${y + 2} width=${width - 4} height=${height - 4}></rect>
+    <line class="g-mullion" x1=${midX} y1=${y + 2} x2=${midX} y2=${y + height - 2}></line>
+    <line class="g-mullion" x1=${x + 2} y1=${midY} x2=${x + width - 2} y2=${midY}></line>
+    <rect class="g-frame" x=${x} y=${y} width=${width} height=${height} rx="2"></rect>
+    <line class="g-sill" x1=${x - 4} y1=${y + height + 3} x2=${x + width + 4} y2=${y + height + 3}></line>
+  `;
+}
+
 const BLIND_SLATS = 8;
 const BLIND_PITCH_CLOSED = 9;
 const BLIND_PITCH_STACKED = 2;
@@ -36,7 +53,7 @@ function shutterGlyph(o: GlyphOptions): TemplateResult {
       <defs>
         <clipPath id=${clipId}><rect x=${WINDOW.x} y=${WINDOW.y} width=${WINDOW.width} height=${WINDOW.height}></rect></clipPath>
       </defs>
-      <rect class="g-glass" x=${WINDOW.x} y=${WINDOW.y} width=${WINDOW.width} height=${WINDOW.height} rx="2"></rect>
+      ${windowPanes(WINDOW.x, WINDOW.y, WINDOW.width, WINDOW.height)}
       <g clip-path="url(#${clipId})">
         <g class="g-curtain">
           ${Array.from({ length: SHUTTER_SLATS }, (_, i) => svg`<rect class="g-slat" x=${WINDOW.x} y=${WINDOW.y + i * SHUTTER_PITCH} width=${WINDOW.width} height="6" rx="1.5"></rect>`)}
@@ -46,7 +63,6 @@ function shutterGlyph(o: GlyphOptions): TemplateResult {
       <rect class="g-box" x="8" y="8" width="84" height="18" rx="4"></rect>
       <line class="g-guide" x1=${WINDOW.x} y1=${WINDOW.y} x2=${WINDOW.x} y2=${WINDOW.y + WINDOW.height}></line>
       <line class="g-guide" x1=${WINDOW.x + WINDOW.width} y1=${WINDOW.y} x2=${WINDOW.x + WINDOW.width} y2=${WINDOW.y + WINDOW.height}></line>
-      <line class="g-sill" x1="6" y1="102" x2="94" y2="102"></line>
     </svg>
   `;
 }
@@ -59,42 +75,58 @@ function blindGlyph(o: GlyphOptions): TemplateResult {
   const shift = BLIND_PITCH_STACKED - BLIND_PITCH_CLOSED;
   return svg`
     <svg class="cover-glyph" data-glyph="blind" viewBox="0 0 100 110" aria-hidden="true" style="--open: ${o.open}; --tilt: ${o.tilt}">
-      <rect class="g-glass" x=${WINDOW.x} y="22" width=${WINDOW.width} height="76" rx="2"></rect>
+      ${windowPanes(WINDOW.x, 22, WINDOW.width, 76)}
       ${Array.from({ length: BLIND_SLATS }, (_, i) => svg`<rect class="g-slat g-blind-slat" x="16" y=${BLIND_TOP + i * BLIND_PITCH_CLOSED} width="68" height="6" rx="3" style="--k: ${i * shift}px"></rect>`)}
       <rect class="g-box" x="8" y="8" width="84" height="10" rx="3"></rect>
-      <line class="g-sill" x1="6" y1="102" x2="94" y2="102"></line>
     </svg>
   `;
 }
 
-/** Los pliegues de cada panel de la cortina, a estas distancias del borde del panel. */
-const CURTAIN_FOLDS = [9, 18, 27] as const;
-const CURTAIN_PANEL = { y: 18, width: 36, height: 82 } as const;
+/**
+ * Cortina: cada panel son cuatro pliegues colgados de anillas en la barra. Al
+ * abrirse (`--open`) los pliegues se recogen hacia su lado, se estrechan y se
+ * amontonan, y aparece la alzapaño que los ata; cerrada, los pliegues se
+ * reparten y los dos paneles se juntan en el centro. Cada pliegue lleva su
+ * anilla y se mueve con ella.
+ */
+const CURTAIN = { top: 16, height: 84, pleatWidth: 14, pleats: 4, pitch: 8, gathered: 1.5, left: 12, right: 88 } as const;
 
-/** Un panel de la cortina con sus pliegues; `x` es su borde izquierdo en el dibujo. */
-function curtainPanel(side: 'left' | 'right', x: number): TemplateResult {
+/** Un pliegue: caída con el borde de abajo redondeado, un brillo central y su anilla en la barra. */
+function curtainPleat(x: number, shift: number): TemplateResult {
+  const w = CURTAIN.pleatWidth;
+  const h = CURTAIN.height;
   return svg`
-    <g class="g-panel g-panel-${side}">
-      <rect class="g-fabric" x=${x} y=${CURTAIN_PANEL.y} width=${CURTAIN_PANEL.width} height=${CURTAIN_PANEL.height} rx="3"></rect>
-      ${CURTAIN_FOLDS.map((dx) => svg`<line class="g-fold" x1=${x + dx} y1=${CURTAIN_PANEL.y + 3} x2=${x + dx} y2=${CURTAIN_PANEL.y + CURTAIN_PANEL.height - 3}></line>`)}
+    <g transform="translate(${x} ${CURTAIN.top})">
+      <g class="g-pleat" style="--k: ${shift}px">
+        <path class="g-drape" d="M0 0 H${w} V${h - 6} Q${w} ${h} ${w - 6} ${h} H6 Q0 ${h} 0 ${h - 6} Z"></path>
+        <line class="g-hilite" x1=${w / 2} y1="6" x2=${w / 2} y2=${h - 8}></line>
+        <circle class="g-ring" cx=${w / 2} cy="-4" r="2"></circle>
+      </g>
     </g>
   `;
 }
 
-/**
- * Cortina: la barra arriba y dos paneles con pliegues que, al abrirse
- * (`--open`), se recogen cada uno hacia su lado y dejan ver la ventana.
- */
+/** Los cuatro pliegues de un panel; el de más afuera no se mueve y los de dentro van hacia él. */
+function curtainPanel(side: 'left' | 'right'): TemplateResult[] {
+  const move = CURTAIN.gathered - CURTAIN.pitch;
+  // De dentro afuera, para que el pliegue exterior quede encima al amontonarse.
+  return Array.from({ length: CURTAIN.pleats }, (_, n) => CURTAIN.pleats - 1 - n).map((j) => {
+    const x = side === 'left' ? CURTAIN.left + j * CURTAIN.pitch : CURTAIN.right - CURTAIN.pleatWidth - j * CURTAIN.pitch;
+    return curtainPleat(x, (side === 'left' ? 1 : -1) * j * move);
+  });
+}
+
 function curtainGlyph(o: GlyphOptions): TemplateResult {
   return svg`
     <svg class="cover-glyph" data-glyph="curtain" viewBox="0 0 100 110" aria-hidden="true" style="--open: ${o.open}">
-      <rect class="g-glass" x="22" y="34" width="56" height="52" rx="2"></rect>
-      <line class="g-sill" x1="16" y1="90" x2="84" y2="90"></line>
-      ${curtainPanel('left', 14)}
-      ${curtainPanel('right', 50)}
+      ${windowPanes(28, 34, 44, 54)}
+      ${curtainPanel('left')}
+      ${curtainPanel('right')}
       <line class="g-rod" x1="8" y1="12" x2="92" y2="12"></line>
       <circle class="g-finial" cx="8" cy="12" r="2.5"></circle>
       <circle class="g-finial" cx="92" cy="12" r="2.5"></circle>
+      <rect class="g-tie" x="12.5" y="58" width="14" height="4" rx="2"></rect>
+      <rect class="g-tie" x="73.5" y="58" width="14" height="4" rx="2"></rect>
     </svg>
   `;
 }
@@ -116,8 +148,7 @@ function awningGlyph(o: GlyphOptions): TemplateResult {
   const travel = AWNING.height - AWNING.rolled;
   return svg`
     <svg class="cover-glyph" data-glyph="awning" viewBox="0 0 100 110" aria-hidden="true" style="--open: ${o.open}; --travel: ${travel}px; --rolled: ${AWNING.rolled / AWNING.height}">
-      <rect class="g-glass" x="18" y="40" width="64" height="58" rx="2"></rect>
-      <line class="g-sill" x1="6" y1="102" x2="94" y2="102"></line>
+      ${windowPanes(20, 46, 60, 52)}
       <g class="g-stripes">
         ${Array.from({ length: AWNING.stripes }, (_, i) => svg`<rect class=${i % 2 ? 'g-stripe g-stripe-alt' : 'g-stripe'} x=${AWNING.x + (i * AWNING.width) / AWNING.stripes} y=${AWNING.y} width=${AWNING.width / AWNING.stripes} height=${AWNING.height}></rect>`)}
       </g>
