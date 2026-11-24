@@ -248,12 +248,9 @@ describe('botones', () => {
     expect(qa(el, '.control--divided')).toHaveLength(1);
   });
 
-  it('resalta Abrir con la persiana abierta y Cerrar con ella cerrada', async () => {
-    const open = await mount({}, hassWith('open'));
-    expect(qa(open, '.control').map((b) => (b as HTMLElement).dataset.active)).toEqual(['false', 'false', 'true']);
-    document.body.innerHTML = '';
-    const closing = await mount({}, hassWith('closing'));
-    expect(qa(closing, '.control').map((b) => (b as HTMLElement).dataset.active)).toEqual(['true', 'false', 'false']);
+  it('los botones no guardan resaltado según el estado de la persiana', async () => {
+    const el = await mount({}, hassWith('open'));
+    for (const b of qa(el, '.control')) expect((b as HTMLElement).dataset.active).toBeUndefined();
   });
 
   it('con la entidad no disponible los botones están desactivados', async () => {

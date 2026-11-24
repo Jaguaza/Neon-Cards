@@ -14,8 +14,6 @@ export interface ControlsOptions {
 interface Control {
   key: 'close' | 'stop' | 'open';
   label: string;
-  /** Resaltado: la persiana va hacia ahí o ya está ahí. */
-  active: boolean;
   onPress: () => void;
 }
 
@@ -23,9 +21,9 @@ interface Control {
 function buildControls(o: ControlsOptions): Control[] {
   const { cover } = o;
   const controls: Control[] = [];
-  if (cover.canClose) controls.push({ key: 'close', label: o.labels.close, active: cover.state === 'closed' || cover.state === 'closing', onPress: o.onClose });
-  if (cover.canStop) controls.push({ key: 'stop', label: o.labels.stop, active: false, onPress: o.onStop });
-  if (cover.canOpen) controls.push({ key: 'open', label: o.labels.open, active: cover.state === 'open' || cover.state === 'opening', onPress: o.onOpen });
+  if (cover.canClose) controls.push({ key: 'close', label: o.labels.close, onPress: o.onClose });
+  if (cover.canStop) controls.push({ key: 'stop', label: o.labels.stop, onPress: o.onStop });
+  if (cover.canOpen) controls.push({ key: 'open', label: o.labels.open, onPress: o.onOpen });
   return controls;
 }
 
@@ -41,7 +39,7 @@ export function renderControls(o: ControlsOptions): TemplateResult {
     <div class="controls" style="--count: ${controls.length}">
       ${controls.map(
         (c, i) => html`
-          <button type="button" class="control ${i > 0 ? 'control--divided' : ''}" data-control=${c.key} data-active=${c.active ? 'true' : 'false'} ?disabled=${!o.cover.available} @click=${c.onPress}>
+          <button type="button" class="control ${i > 0 ? 'control--divided' : ''}" data-control=${c.key} ?disabled=${!o.cover.available} @click=${c.onPress}>
             <ha-icon icon=${CONTROL_ICONS[c.key]}></ha-icon>
             <span>${c.label}</span>
           </button>

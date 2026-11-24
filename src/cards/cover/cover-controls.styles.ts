@@ -32,7 +32,8 @@ export const NEON_COVER_CONTROLS_STYLES = css`
     font: inherit;
     font-size: 14px;
     cursor: pointer;
-    transition: color 200ms ease-out, background 200ms ease-out;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 150ms ease-out, background 150ms ease-out;
   }
 
   /* El divisor cae en el borde real de la columna; sin radio para que sea una línea recta. */
@@ -46,20 +47,21 @@ export const NEON_COVER_CONTROLS_STYLES = css`
     --mdc-icon-size: 18px;
   }
 
-  .control:hover,
-  .control:focus-visible {
-    background: color-mix(in srgb, var(--cover-color) 12%, transparent);
-    color: var(--primary-text-color);
-    outline: none;
-  }
-
-  /* La persiana va hacia ahí o ya está ahí. */
-  .control[data-active='true'] {
+  /* Se ilumina solo mientras se pulsa y se apaga al soltar: nada de hover ni
+     de resaltado por estado, que en pantallas táctiles se quedaba encendido. */
+  .control:active:not(:disabled) {
+    background: color-mix(in srgb, var(--cover-color) 18%, transparent);
     color: var(--cover-color);
   }
 
-  .control[data-active='true'] ha-icon {
+  .control:active:not(:disabled) ha-icon {
     filter: drop-shadow(0 0 4px color-mix(in srgb, var(--cover-color) 80%, transparent));
+  }
+
+  /* Foco de teclado: solo un contorno, sin iluminar el botón. */
+  .control:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--cover-color) 55%, transparent);
+    outline-offset: -2px;
   }
 
   .control:disabled {
