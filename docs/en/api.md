@@ -1759,9 +1759,14 @@ available" (and warns in the console in development). Full specification in
 |---|---|---|---|
 | `entity` | `string` | — (required) | `cover.*` entity. |
 | `name` | `string` | entity `friendly_name` | Displayed name. |
-| `cover_type` | `'shutter' \| 'blind' \| 'curtain' \| 'awning' \| 'projector' \| 'tv'` | per `device_class` | Cover type, i.e. the icon drawing: rolling shutter, venetian blind, curtain, awning, projector screen or TV cabinet. Without it, it is taken from the entity's `device_class` (`shutter`, `blind`, `curtain`, `awning`) and, if it has none or another one (garage, door, window…), it is a shutter. `projector` and `tv` have no `device_class` and can only be chosen here; they are **binary**: no percentage, dial or sliders, just the animated icon and the buttons. A value that is not one of the six is ignored. |
-| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Halo palette. Its color 1 is also the color of the icon, the percentage, the dial, the sliders and the buttons while the cover is not closed. |
+| `cover_type` | `'shutter' \| 'blind' \| 'curtain' \| 'awning' \| 'projector' \| 'tv'` | `'shutter'` | Cover type, i.e. the icon drawing: rolling shutter, venetian blind, curtain, awning, projector screen or TV cabinet. Always chosen by hand: it is **not deduced** from the entity's `device_class`. Without it, or with a value that is not one of the six, it is a rolling shutter. `projector` and `tv` are **binary**: no percentage, dial or sliders, just the animated icon and the buttons. |
+| `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Halo palette. Its color 1 is also the color of the icon, the percentage, the dial and the sliders while the cover is not closed. |
 | `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | per palette | Colors with `neon_palette: custom`. |
+| `icon_color` | `string` (CSS color) | the halo's | Color of the large icon: hex, `rgb()`/`hsl()`, a name or `var(--x)`. Without it (or with an invalid one) the icon follows the halo: palette color 1 while the cover is not closed and white when it is. With it, it is always that color. Only the icon changes. |
+| `status_color_open` | `string` (CSS color) | `'#39e07a'` | Color of the dot next to the state when the cover is open. An invalid one is ignored. |
+| `status_color_moving` | `string` (CSS color) | `'#ffb02e'` | Same while opening or closing. |
+| `status_color_closed` | `string` (CSS color) | `'#9aa0a6'` | Same when closed. |
+| `status_color_alert` | `string` (CSS color) | `'#ff5c5c'` | Same when unavailable. |
 
 The card has no `tap_action`, `hold_action` or `double_tap_action`: it is used
 with the Close, Stop and Open buttons (`cover.close_cover`, `cover.stop_cover`
@@ -1785,6 +1790,9 @@ now only the large size exists.
 type: custom:neon-cover-card
 entity: cover.living_room_shutter
 name: Living room shutter
-cover_type: shutter
+cover_type: blind
+icon_color: '#ffd166'
+status_color_open: '#06d6a0'
+status_color_closed: '#ef476f'
 neon_palette: electric
 ```

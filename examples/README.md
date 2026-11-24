@@ -547,7 +547,7 @@ name: Persiana Salón
 neon_palette: electric
 ```
 
-Toldo de la terraza, aunque la entidad no tenga `device_class: awning`:
+Toldo de la terraza (el tipo se elige siempre con `cover_type`; sin él es una persiana):
 
 ```yaml
 type: custom:neon-cover-card
@@ -572,6 +572,20 @@ name: TV del salón
 cover_type: tv
 ```
 
+Colores propios: icono ámbar siempre (también con la persiana cerrada) y un color distinto para el punto de cada estado:
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.veneciana_despacho
+name: Veneciana Despacho
+cover_type: blind
+icon_color: "#ffb02e"
+status_color_open: "#06d6a0"
+status_color_moving: "#ffd166"
+status_color_closed: "#8d99ae"
+status_color_alert: "#ef476f"
+```
+
 Con la paleta personalizada (los tres colores del degradado del halo):
 
 ```yaml
@@ -587,23 +601,25 @@ neon_color3: "#d500f9"
 ### Explicación
 
 Neón Cover Card controla una entidad `cover`: persianas, persianas venecianas,
-cortinas, toldos… El icono es grande y se mueve con la persiana: con
-`device_class: shutter` (o sin clase) es una persiana enrollable que sube y baja
-según el porcentaje de apertura, con `blind` una veneciana cuyas lamas se
-recogen y giran con la inclinación, con `curtain` una cortina cuyos paneles se
-recogen a los lados y con `awning` un toldo que despliega la lona (un cover con otra clase se
-dibuja como persiana). Con `cover_type` eliges el tipo a mano (`shutter`, `blind`, `curtain`,
-`awning`, `projector` o `tv`), también desde el editor visual; sin él, se deduce
-del `device_class`. La pantalla de proyector y la TV en mueble son binarias: el
+cortinas, toldos… El icono es grande y se mueve con la persiana. Su dibujo lo
+eliges siempre tú con `cover_type` (también desde el editor visual): `shutter`
+(por defecto) es una persiana enrollable que sube y baja según el porcentaje de
+apertura, `blind` una veneciana cuyas lamas se recogen y giran con la
+inclinación, `curtain` una cortina cuyos paneles se recogen a los lados y
+`awning` un toldo que despliega la lona; `projector` y `tv` completan los seis
+tipos. El tipo no se deduce del `device_class` de la entidad. La pantalla de proyector y la TV en mueble son binarias: el
 icono se anima entre abierto y cerrado y solo hay botones, sin porcentaje, dial
 ni deslizadores. Muestra la posición actual con un dial en arco y un deslizador fino
 de 0 a 100 % que también la fijan (la orden sale al soltar). Si la
 entidad soporta la inclinación de las lamas, como una veneciana, sale un segundo
 deslizador debajo para fijarla. En el pie, los botones Cerrar, Parar y Abrir
 llaman a `cover.close_cover`, `cover.stop_cover` y `cover.open_cover`, y solo
-salen los que la entidad soporta; el que corresponde al estado se enciende. El halo y el
+salen los que la entidad soporta y se iluminan solo mientras los pulsas. El halo y el
 color de la tarjeta usan la paleta que elijas mientras la persiana no está
-cerrada. Los tres puntos abren «más información». La tarjeta no cambia de alto
+cerrada; el icono sigue al halo salvo que fijes `icon_color`, y el punto del
+estado tiene un color por situación (`status_color_open`, `status_color_moving`,
+`status_color_closed` y `status_color_alert`), todo también desde la sección
+«Colores» del editor. Los tres puntos abren «más información». La tarjeta no cambia de alto
 al abrirse o cerrarse la persiana. Por ahora solo existe el tamaño grande (12
 columnas de inicio, hasta 4 como mínimo, con alto automático).
 
@@ -1157,7 +1173,7 @@ name: Living room shutter
 neon_palette: electric
 ```
 
-Terrace awning, even if the entity has no `device_class: awning`:
+Terrace awning (the type is always chosen with `cover_type`; without it, it is a shutter):
 
 ```yaml
 type: custom:neon-cover-card
@@ -1182,6 +1198,20 @@ name: Living room TV
 cover_type: tv
 ```
 
+Own colors: an amber icon always (also with the cover closed) and a different color for the dot of each state:
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.office_blind
+name: Office blind
+cover_type: blind
+icon_color: "#ffb02e"
+status_color_open: "#06d6a0"
+status_color_moving: "#ffd166"
+status_color_closed: "#8d99ae"
+status_color_alert: "#ef476f"
+```
+
 With the custom palette (the three colors of the halo gradient):
 
 ```yaml
@@ -1197,14 +1227,13 @@ neon_color3: "#d500f9"
 ### Explanation
 
 Neón Cover Card controls a `cover` entity: shutters, venetian blinds, curtains,
-awnings… The icon is large and moves with the cover: with
-`device_class: shutter` (or no class) it is a rolling shutter that goes up and
-down with the opening percentage, and with `blind` a venetian blind whose slats
-gather and turn with the tilt, with `curtain` a curtain whose panels gather at
-the sides and with `awning` an awning that unrolls its canvas (a cover with another
-class is drawn as a shutter). With `cover_type` you choose the type by hand (`shutter`, `blind`,
-`curtain`, `awning`, `projector` or `tv`), also from the visual editor; without it,
-it is taken from the `device_class`. The projector screen and the TV cabinet are
+awnings… The icon is large and moves with the cover. You always choose its
+drawing with `cover_type` (also from the visual editor): `shutter` (the
+default) is a rolling shutter that goes up and down with the opening
+percentage, `blind` a venetian blind whose slats gather and turn with the
+tilt, `curtain` a curtain whose panels gather at the sides and `awning` an
+awning that unrolls its canvas; `projector` and `tv` complete the six types.
+The type is not deduced from the entity's `device_class`. The projector screen and the TV cabinet are
 binary: the icon animates between open and closed and there are only buttons, no
 percentage, dial or sliders. It
 shows the current position with an arc dial and a thin 0 to 100 % slider that
@@ -1212,8 +1241,11 @@ also set it (the command is sent on release).
 If the entity supports slat tilt, like a venetian blind, a second slider below
 it sets that. In the footer, the Close, Stop and Open buttons call
 `cover.close_cover`, `cover.stop_cover` and `cover.open_cover`, and only the
-ones the entity supports are shown; the one matching the state lights up. The halo and the color of
-the card use the palette you choose while the cover is not closed. The three
+ones the entity supports are shown and they light up only while you press them. The halo and the color of
+the card use the palette you choose while the cover is not closed; the icon
+follows the halo unless you set `icon_color`, and the state dot has one color
+per situation (`status_color_open`, `status_color_moving`, `status_color_closed`
+and `status_color_alert`), all also from the "Colors" section of the editor. The three
 dots open "more info". The card does not change height when the cover opens or
 closes. For now only the large size exists (12 starting columns, down to 4
 minimum, with automatic height).
