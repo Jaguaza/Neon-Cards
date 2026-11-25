@@ -35,16 +35,19 @@ Tiene dos tamaños, con `size`: **grande** (`large`, por defecto) y **mediana**
 Es la estructura de la mediana de la Thermostat sin el aro: el icono grande
 ocupa el sitio del dial.
 
-- **Cabecera:** el nombre con el estado y su punto, y los tres puntos de «más
-  información», a todo el ancho.
-- **Zona principal:** a la izquierda, «Posición actual» con el porcentaje y, a
-  la derecha, el icono grande, el mismo dibujo animado que en la grande.
+- **Nombre:** arriba, a todo el ancho, con los tres puntos de «más
+  información».
+- **Zona principal:** a la izquierda, el estado con su punto y, debajo,
+  «Posición actual» con el porcentaje; a la derecha, el icono grande, el mismo
+  dibujo animado que en la grande, **subido hasta la altura del estado** (ni
+  el nombre ni el estado llegan hasta él), con lo que la tarjeta es más baja.
 - **Posición** e **inclinación:** los mismos deslizadores finos que en la
   grande, sin dial.
-- **Pie:** los mismos botones Cerrar, Parar y Abrir.
+- **Pie:** los mismos botones Cerrar, Parar y Abrir, algo más bajos.
 
 Un tipo binario (`projector`, `tv`) o una entidad sin `current_position` no
-tiene porcentaje ni deslizadores: el icono grande ocupa el centro.
+tiene porcentaje ni deslizadores: solo el estado a la izquierda y el icono
+grande a la derecha.
 
 ### El icono
 
@@ -199,16 +202,19 @@ It has two sizes, with `size`: **large** (`large`, the default) and **medium**
 It is the structure of the Thermostat's medium card without the ring: the large
 icon takes the place of the dial.
 
-- **Header:** the name with the state and its dot, and the three dots for "more
-  info", across the full width.
-- **Main area:** on the left, "Current position" with the percentage and, on
-  the right, the large icon, the same animated drawing as in the large size.
+- **Name:** at the top, across the full width, with the three dots for "more
+  info".
+- **Main area:** on the left, the state with its dot and, below it, "Current
+  position" with the percentage; on the right, the large icon, the same
+  animated drawing as in the large size, **raised to the height of the state**
+  (neither the name nor the state reach it), which makes the card lower.
 - **Position** and **tilt:** the same thin sliders as in the large size, with no
   dial.
-- **Footer:** the same Close, Stop and Open buttons.
+- **Footer:** the same Close, Stop and Open buttons, a bit lower.
 
 A binary type (`projector`, `tv`) or an entity without `current_position` has no
-percentage or sliders: the large icon takes the center.
+percentage or sliders: just the state on the left and the large icon on the
+right.
 
 ### The icon
 
