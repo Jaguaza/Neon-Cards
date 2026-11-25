@@ -125,8 +125,8 @@ export class NeonCoverCardEditor extends LitElement {
           <input id="name" type="text" class="native-input" .value=${config.name || ''} @input=${(ev: InputEvent) => this._configChanged('name', (ev.target as HTMLInputElement).value)} />
           ${this._renderTypePicker()}
         </div>
-        ${this._renderColorsSection()}
         ${renderHaloSection(this.hass, config, { section: this._t('section_halo'), palette: this._t('palette_label') }, (key, value) => this._configChanged(key, value))}
+        ${this._renderColorsSection()}
       </div>
     `;
   }

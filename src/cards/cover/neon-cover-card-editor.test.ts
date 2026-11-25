@@ -106,6 +106,16 @@ describe('NeonCoverCardEditor', () => {
     expect(haloColors()).toHaveLength(3);
   });
 
+  it('el halo va encima de los colores del icono y del estado', async () => {
+    const { el } = await mount({ entity: 'cover.salon' });
+    const headers = Array.from(el.shadowRoot!.querySelectorAll('.section-header')).map((h) => h.textContent?.trim());
+    expect(headers).toEqual(['Configuración Principal', 'Apariencia del halo', 'Colores']);
+    const halo = el.shadowRoot!.querySelector('#palette')!;
+    const icon = el.shadowRoot!.querySelector('input[data-color="icon_color"]')!;
+    expect(icon).not.toBeNull();
+    expect(halo.compareDocumentPosition(icon) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it('los textos salen en el idioma de Home Assistant', async () => {
     const { el } = await mount({ entity: 'cover.salon' }, 'en');
     expect(el.shadowRoot!.textContent).toContain('Main configuration');
