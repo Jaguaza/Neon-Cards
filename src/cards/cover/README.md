@@ -76,7 +76,8 @@ cambia nada.
 - Los botones del pie **se iluminan solo mientras se pulsan** (fondo y brillo en
   el icono) y se apagan al soltar; no guardan ningún resaltado según el estado.
 
-En el editor visual, la sección «Colores» tiene un selector para el icono y uno
+En el editor visual, la sección «Colores», que va justo después de «Apariencia
+del halo», tiene un selector para el icono y uno
 por estado, y «Restablecer colores» los quita todos de una vez.
 
 ### Lo que sale según la entidad
@@ -214,7 +215,8 @@ nothing changes.
   glow on the icon) and go off on release; they keep no highlight depending on
   the state.
 
-In the visual editor, the "Colors" section has one picker for the icon and one
+In the visual editor, the "Colors" section, which comes right after "Halo
+appearance", has one picker for the icon and one
 per state, and "Reset colors" removes them all at once.
 
 ### What shows up depending on the entity
