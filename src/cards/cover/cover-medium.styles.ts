@@ -55,13 +55,27 @@ export const NEON_COVER_MEDIUM_STYLES = css`
     grid-row: 2 / span 2;
   }
 
-  /* Huecos mínimos entre icono, deslizadores, escala y pie. */
+  /* Huecos mínimos entre icono, deslizadores, escala y pie, y poco relleno
+     arriba y, sobre todo, debajo de los botones del pie. */
   ha-card[data-cover-size='medium'] {
     gap: 2px;
+    padding-top: 10px;
+    padding-bottom: 5px;
+  }
+
+  /* Los tres puntos no pasan de la altura del nombre (24px). */
+  ha-card[data-cover-size='medium'] .menu {
+    margin-top: -8px;
+  }
+
+  /* Banda del deslizador más baja (el punto de 16px sobresale sin problema; la zona de toque no cambia). */
+  ha-card[data-cover-size='medium'] .slider {
+    --slider-h: 14px;
   }
 
   ha-card[data-cover-size='medium'] .scale {
     margin-top: 0;
+    line-height: 13px;
   }
 
   ha-card[data-cover-size='medium'] .tilt-row {
