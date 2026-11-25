@@ -45,6 +45,27 @@ export const NEON_COVER_CONTROLS_STYLES = css`
 
   .control ha-icon {
     --mdc-icon-size: 18px;
+    flex: 0 0 auto;
+  }
+
+  .control-label {
+    white-space: nowrap;
+  }
+
+  /* Tarjetas estrechas: menos relleno y, si ni así caben icono y texto en
+     cada columna, solo el icono (el nombre sigue en aria-label y title). */
+  @container (max-width: 340px) {
+    .control {
+      gap: 4px;
+      padding-left: 4px;
+      padding-right: 4px;
+    }
+  }
+
+  @container (max-width: 290px) {
+    .control-label {
+      display: none;
+    }
   }
 
   /* Se ilumina solo mientras se pulsa y se apaga al soltar: nada de hover ni

@@ -153,6 +153,14 @@ icono grande, al porcentaje con el dial y al pie de botones. La mediana, sin
 dial, se puede dejar entre 6 y 8 (el ancho de la mediana de la Thermostat).
 `getCardSize()` devuelve `5`.
 
+**En tarjetas estrechas** (pocas columnas o una pantalla pequeña como un móvil)
+la tarjeta se adapta al ancho que le da la rejilla, no al de la ventana: el dial
+de la grande mide 150×88 como el del termostato siempre que cabe y se reduce
+(hasta 80 px de ancho) para no pisar al porcentaje; por debajo de unos 310 px
+de ancho se quita, porque el deslizador de debajo hace lo mismo. En el pie, por
+debajo de unos 340 px los botones usan menos relleno y por debajo de unos
+290 px muestran solo el icono (el nombre sigue en `aria-label` y `title`).
+
 ## Estructura de la carpeta
 
 | Archivo | Qué hace |
@@ -320,6 +328,14 @@ The large one can only be set between 9 and 12 columns: less leaves no room for
 the large icon, the percentage with its dial and the button footer. The medium
 one, with no dial, can be set between 6 and 8 (the width of the Thermostat's
 medium card). `getCardSize()` returns `5`.
+
+**In narrow cards** (few columns or a small screen such as a phone) the card
+adapts to the width the grid gives it, not to the window's: the large size's
+dial is 150×88 like the thermostat's whenever it fits and shrinks (down to 80 px
+wide) so it does not run over the percentage; below about 310 px wide it is
+removed, because the slider below does the same. In the footer, below about
+340 px the buttons use less padding and below about 290 px they show only the
+icon (the name stays in `aria-label` and `title`).
 
 ## Folder layout
 

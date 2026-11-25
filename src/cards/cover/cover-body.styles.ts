@@ -13,7 +13,10 @@ export const NEON_COVER_BODY_STYLES = css`
     display: flex;
     flex-direction: column;
     gap: 2px;
-    min-width: 0;
+    flex: 0 0 auto;
+    /* Tan estrecho como su palabra más larga: la etiqueta «Posición actual»
+       baja a dos líneas en lugar de quitar sitio al dial. */
+    width: min-content;
   }
 
   .position-label {
@@ -42,17 +45,20 @@ export const NEON_COVER_BODY_STYLES = css`
      el <svg> cuadrado desborda por debajo sin reservar espacio. */
   .dial-wrap {
     position: relative;
-    flex: 0 0 auto;
-    width: 150px;
-    height: 88px;
+    /* 150x88 como el del termostato siempre que cabe; en tarjetas estrechas
+       cede ancho (hasta 80px) en lugar de pisar al porcentaje, que nunca se
+       encoge. El alto sale de la proporción. */
+    flex: 0 1 150px;
+    min-width: 80px;
+    aspect-ratio: 150 / 88;
   }
 
   .dial-svg {
     position: absolute;
     top: 0;
     left: 0;
-    width: 150px;
-    height: 150px;
+    width: 100%;
+    aspect-ratio: 1;
     overflow: visible;
     touch-action: none;
     /* Solo el arco y el punto (más abajo) capturan el puntero: el resto del
@@ -198,6 +204,14 @@ export const NEON_COVER_BODY_STYLES = css`
   @container (max-width: 380px) {
     .position-value {
       font-size: 30px;
+    }
+  }
+
+  /* Sin sitio ni para el dial mínimo: se quita (el deslizador de debajo hace
+     lo mismo) y el porcentaje conserva su hueco. */
+  @container (max-width: 309px) {
+    .dial-wrap {
+      display: none;
     }
   }
 `;

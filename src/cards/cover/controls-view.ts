@@ -39,9 +39,9 @@ export function renderControls(o: ControlsOptions): TemplateResult {
     <div class="controls" style="--count: ${controls.length}">
       ${controls.map(
         (c, i) => html`
-          <button type="button" class="control ${i > 0 ? 'control--divided' : ''}" data-control=${c.key} ?disabled=${!o.cover.available} @click=${c.onPress}>
+          <button type="button" class="control ${i > 0 ? 'control--divided' : ''}" data-control=${c.key} aria-label=${c.label} title=${c.label} ?disabled=${!o.cover.available} @click=${c.onPress}>
             <ha-icon icon=${CONTROL_ICONS[c.key]}></ha-icon>
-            <span>${c.label}</span>
+            <span class="control-label">${c.label}</span>
           </button>
         `
       )}

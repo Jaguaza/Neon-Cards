@@ -108,6 +108,7 @@ export const NEON_COVER_CARD_STYLES = css`
   }
 
   .status-dot {
+    flex: 0 0 auto;
     width: 10px;
     height: 10px;
     border-radius: 50%;
