@@ -43,10 +43,11 @@ export const NEON_COVER_MEDIUM_STYLES = css`
     grid-row: 2;
   }
 
+  /* El porcentaje baja hasta la base del icono (que ocupa las filas 2 y 3). */
   ha-card[data-cover-size='medium'] .position-block {
     grid-column: 1;
     grid-row: 3;
-    margin-top: 6px;
+    align-self: end;
   }
 
   ha-card[data-cover-size='medium'] .hero-icon {
@@ -54,21 +55,32 @@ export const NEON_COVER_MEDIUM_STYLES = css`
     grid-row: 2 / span 2;
   }
 
+  /* Huecos mínimos entre icono, deslizadores, escala y pie. */
   ha-card[data-cover-size='medium'] {
-    gap: 8px;
+    gap: 2px;
+  }
+
+  ha-card[data-cover-size='medium'] .scale {
+    margin-top: 0;
+  }
+
+  ha-card[data-cover-size='medium'] .tilt-row {
+    margin-bottom: 0;
   }
 
   ha-card[data-cover-size='medium'] .position-value {
     font-size: 40px;
   }
 
-  /* Pie más bajo: botones y línea superior con menos relleno vertical. */
+  /* Pie justo: los botones miden lo que el icono y el texto, sin relleno
+     vertical, y la línea superior queda pegada. */
   ha-card[data-cover-size='medium'] .controls {
-    padding-top: 2px;
+    margin-top: 2px;
+    padding-top: 3px;
   }
 
   ha-card[data-cover-size='medium'] .control {
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding-top: 0;
+    padding-bottom: 0;
   }
 `;
