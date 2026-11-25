@@ -156,8 +156,10 @@ dial, se puede dejar entre 6 y 8 (el ancho de la mediana de la Thermostat).
 **En tarjetas estrechas** (pocas columnas o una pantalla pequeña como un móvil)
 la tarjeta se adapta al ancho que le da la rejilla, no al de la ventana: el dial
 de la grande mide 150×88 como el del termostato siempre que cabe y se reduce
-(hasta 80 px de ancho) para no pisar al porcentaje; por debajo de unos 310 px
-de ancho se quita, porque el deslizador de debajo hace lo mismo. En el pie, por
+(hasta 52 px de ancho) para no pisar al porcentaje, y en tarjetas muy estrechas
+(menos de unos 310 px) el porcentaje es algo menor y los huecos más pequeños para
+que siga cabiendo; solo por debajo de unos 255 px de ancho se quita, porque el
+deslizador de debajo hace lo mismo. En el pie, por
 debajo de unos 340 px los botones usan menos relleno y por debajo de unos
 290 px muestran solo el icono (el nombre sigue en `aria-label` y `title`).
 
@@ -331,9 +333,11 @@ medium card). `getCardSize()` returns `5`.
 
 **In narrow cards** (few columns or a small screen such as a phone) the card
 adapts to the width the grid gives it, not to the window's: the large size's
-dial is 150×88 like the thermostat's whenever it fits and shrinks (down to 80 px
-wide) so it does not run over the percentage; below about 310 px wide it is
-removed, because the slider below does the same. In the footer, below about
+dial is 150×88 like the thermostat's whenever it fits and shrinks (down to 52 px
+wide) so it does not run over the percentage, and in very narrow cards (under
+about 310 px) the percentage is a bit smaller and the gaps tighter so it still
+fits; only below about 255 px wide is it removed, because the slider below does
+the same. In the footer, below about
 340 px the buttons use less padding and below about 290 px they show only the
 icon (the name stays in `aria-label` and `title`).
 

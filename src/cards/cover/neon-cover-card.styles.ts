@@ -87,6 +87,12 @@ export const NEON_COVER_CARD_STYLES = css`
     }
   }
 
+  @container (max-width: 309px) {
+    .hero {
+      gap: 8px;
+    }
+  }
+
   .name {
     font-size: 20px;
     line-height: 24px;

@@ -46,10 +46,10 @@ export const NEON_COVER_BODY_STYLES = css`
   .dial-wrap {
     position: relative;
     /* 150x88 como el del termostato siempre que cabe; en tarjetas estrechas
-       cede ancho (hasta 80px) en lugar de pisar al porcentaje, que nunca se
+       cede ancho (hasta 52px) en lugar de pisar al porcentaje, que nunca se
        encoge. El alto sale de la proporción. */
     flex: 0 1 150px;
-    min-width: 80px;
+    min-width: 52px;
     aspect-ratio: 150 / 88;
   }
 
@@ -207,9 +207,24 @@ export const NEON_COVER_BODY_STYLES = css`
     }
   }
 
-  /* Sin sitio ni para el dial mínimo: se quita (el deslizador de debajo hace
-     lo mismo) y el porcentaje conserva su hueco. */
+  /* Muy estrecha (9 columnas de la grande en un móvil): menos hueco y el
+     porcentaje algo menor para que el dial siga cabiendo, aunque pequeño. */
   @container (max-width: 309px) {
+    .position-row {
+      gap: 8px;
+    }
+
+    .position-value {
+      font-size: 26px;
+    }
+
+    .position-value .unit {
+      font-size: 15px;
+    }
+  }
+
+  /* Ni así cabe el dial mínimo: se quita (el deslizador de debajo hace lo mismo). */
+  @container (max-width: 255px) {
     .dial-wrap {
       display: none;
     }
