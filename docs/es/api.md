@@ -1766,7 +1766,7 @@ disponible» (y en desarrollo avisa por consola). Especificación completa en
 | `cover_type` | `'shutter' \| 'blind' \| 'curtain' \| 'awning' \| 'projector' \| 'tv'` | `'shutter'` | Tipo de cover, es decir, el dibujo del icono: persiana enrollable, veneciana, cortina, toldo, pantalla de proyector o TV en mueble. Siempre se elige a mano: **no se deduce** del `device_class` de la entidad. Sin él, o con un valor que no sea uno de los seis, es una persiana enrollable. `projector` y `tv` son **binarios**: sin porcentaje, dial ni deslizadores, solo el icono animado y los botones. |
 | `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta del halo. Su color 1 es también el del icono, el porcentaje, el dial y los deslizadores mientras la persiana no está cerrada. |
 | `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | según paleta | Colores con `neon_palette: custom`. |
-| `icon_color` | `string` (color CSS) | el del halo | Color del icono grande: hex, `rgb()`/`hsl()`, nombre o `var(--x)`. Sin él (o con uno inválido) el icono sigue al halo: color 1 de la paleta mientras la persiana no está cerrada y blanco cuando lo está. Con él es siempre de ese color. Solo cambia el icono. |
+| `icon_color` | `string` (color CSS) | el del halo | Color del icono grande: hex, `rgb()`/`hsl()`, nombre o `var(--x)`. Solo se aplica con la tarjeta activa, como el halo (persiana abierta, abriéndose o cerrándose); cerrada o no disponible el icono es blanco. Sin él (o con uno inválido) el icono sigue al halo: color 1 de la paleta. Solo cambia el icono. |
 | `status_color_open` | `string` (color CSS) | `'#39e07a'` | Color del punto junto al estado con la persiana abierta. Uno inválido se ignora. |
 | `status_color_moving` | `string` (color CSS) | `'#ffb02e'` | Ídem abriéndose o cerrándose. |
 | `status_color_closed` | `string` (color CSS) | `'#9aa0a6'` | Ídem cerrada. |
@@ -1781,13 +1781,14 @@ puntos, que abren «más información».
 
 ### `getGridOptions()` — alto automático
 
-El alto es automático (`rows: 'auto'`) y las columnas de inicio son las de
-`CARD_GRID.large` (`src/shared/card-size.ts`). `getCardSize()` devuelve `5`. Por
-ahora solo existe el tamaño grande.
+El alto es automático (`rows: 'auto'`) y el ancho solo se puede dejar entre 9 y
+12 columnas (`COVER_GRID` en `src/cards/cover/constants.ts`); menos no deja sitio
+al icono grande, al porcentaje con el dial y al pie de botones. `getCardSize()`
+devuelve `5`. Por ahora solo existe el tamaño grande.
 
-| Tamaño | `columns` | `min_columns` |
-|---|---|---|
-| Grande | `12` | `4` |
+| Tamaño | `columns` | `min_columns` | `max_columns` |
+|---|---|---|---|
+| Grande | `12` | `9` | `12` |
 
 ### Ejemplo completo
 

@@ -1762,7 +1762,7 @@ available" (and warns in the console in development). Full specification in
 | `cover_type` | `'shutter' \| 'blind' \| 'curtain' \| 'awning' \| 'projector' \| 'tv'` | `'shutter'` | Cover type, i.e. the icon drawing: rolling shutter, venetian blind, curtain, awning, projector screen or TV cabinet. Always chosen by hand: it is **not deduced** from the entity's `device_class`. Without it, or with a value that is not one of the six, it is a rolling shutter. `projector` and `tv` are **binary**: no percentage, dial or sliders, just the animated icon and the buttons. |
 | `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Halo palette. Its color 1 is also the color of the icon, the percentage, the dial and the sliders while the cover is not closed. |
 | `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | per palette | Colors with `neon_palette: custom`. |
-| `icon_color` | `string` (CSS color) | the halo's | Color of the large icon: hex, `rgb()`/`hsl()`, a name or `var(--x)`. Without it (or with an invalid one) the icon follows the halo: palette color 1 while the cover is not closed and white when it is. With it, it is always that color. Only the icon changes. |
+| `icon_color` | `string` (CSS color) | the halo's | Color of the large icon: hex, `rgb()`/`hsl()`, a name or `var(--x)`. Only applied while the card is active, like the halo (cover open, opening or closing); closed or unavailable, the icon is white. Without it (or with an invalid one) the icon follows the halo: palette color 1. Only the icon changes. |
 | `status_color_open` | `string` (CSS color) | `'#39e07a'` | Color of the dot next to the state when the cover is open. An invalid one is ignored. |
 | `status_color_moving` | `string` (CSS color) | `'#ffb02e'` | Same while opening or closing. |
 | `status_color_closed` | `string` (CSS color) | `'#9aa0a6'` | Same when closed. |
@@ -1776,13 +1776,14 @@ only with entities that support it) and the three dots, which open "more info".
 
 ### `getGridOptions()` — automatic height
 
-The height is automatic (`rows: 'auto'`) and the starting columns are those of
-`CARD_GRID.large` (`src/shared/card-size.ts`). `getCardSize()` returns `5`. For
-now only the large size exists.
+The height is automatic (`rows: 'auto'`) and the width can only be set between 9
+and 12 columns (`COVER_GRID` in `src/cards/cover/constants.ts`); less leaves no
+room for the large icon, the percentage with its dial and the button footer.
+`getCardSize()` returns `5`. For now only the large size exists.
 
-| Size | `columns` | `min_columns` |
-|---|---|---|
-| Large | `12` | `4` |
+| Size | `columns` | `min_columns` | `max_columns` |
+|---|---|---|---|
+| Large | `12` | `9` | `12` |
 
 ### Full example
 

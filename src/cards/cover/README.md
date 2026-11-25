@@ -68,10 +68,11 @@ cambia nada.
   cambiar con `status_color_open`, `status_color_moving`, `status_color_closed`
   y `status_color_alert` (cualquier color CSS: hex, `rgb()`/`hsl()`, nombre o
   `var(--x)`); uno inválido se ignora.
-- **El icono grande** sigue al halo, como hasta ahora, salvo que se fije
-  `icon_color`: entonces es siempre de ese color, también con la persiana
-  cerrada. Solo cambia el icono; el porcentaje, el dial y los deslizadores
-  siguen con el color del halo.
+- **El icono grande** sigue al halo salvo que se fije `icon_color`: entonces es
+  de ese color, pero solo con la tarjeta activa, igual que el halo (persiana
+  abierta, abriéndose o cerrándose); con la persiana cerrada o la entidad no
+  disponible el icono vuelve al color de texto. Solo cambia el icono; el
+  porcentaje, el dial y los deslizadores siguen con el color del halo.
 - Los botones del pie **se iluminan solo mientras se pulsan** (fondo y brillo en
   el icono) y se apagan al soltar; no guardan ningún resaltado según el estado.
 
@@ -117,7 +118,9 @@ interacción.
 
 ## Tamaño en la rejilla
 
-`getGridOptions()` devuelve alto automático y 12 columnas de inicio (mínimo 4).
+`getGridOptions()` devuelve alto automático y un ancho de 12 columnas que solo se
+puede dejar entre 9 y 12 (`min_columns: 9`, `max_columns: 12`): menos no deja
+sitio al icono grande, al porcentaje con el dial y al pie de botones.
 `getCardSize()` devuelve `5`.
 
 ## Estructura de la carpeta
@@ -202,9 +205,11 @@ nothing changes.
   `status_color_open`, `status_color_moving`, `status_color_closed` and
   `status_color_alert` (any CSS color: hex, `rgb()`/`hsl()`, a name or
   `var(--x)`); an invalid one is ignored.
-- **The large icon** follows the halo, as before, unless `icon_color` is set:
-  then it is always that color, also when the cover is closed. Only the icon
-  changes; the percentage, the dial and the sliders keep the halo color.
+- **The large icon** follows the halo unless `icon_color` is set: then it is
+  that color, but only while the card is active, like the halo (cover open,
+  opening or closing); with the cover closed or the entity unavailable the icon
+  goes back to the text color. Only the icon changes; the percentage, the dial
+  and the sliders keep the halo color.
 - The footer buttons **light up only while they are pressed** (background and a
   glow on the icon) and go off on release; they keep no highlight depending on
   the state.
@@ -251,8 +256,10 @@ interaction.
 
 ## Size in the grid
 
-`getGridOptions()` returns automatic height and 12 starting columns (minimum
-4). `getCardSize()` returns `5`.
+`getGridOptions()` returns automatic height and a width of 12 columns that can
+only be set between 9 and 12 (`min_columns: 9`, `max_columns: 12`): less leaves
+no room for the large icon, the percentage with its dial and the button footer.
+`getCardSize()` returns `5`.
 
 ## Folder layout
 

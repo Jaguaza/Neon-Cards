@@ -616,12 +616,13 @@ deslizador debajo para fijarla. En el pie, los botones Cerrar, Parar y Abrir
 llaman a `cover.close_cover`, `cover.stop_cover` y `cover.open_cover`, y solo
 salen los que la entidad soporta y se iluminan solo mientras los pulsas. El halo y el
 color de la tarjeta usan la paleta que elijas mientras la persiana no está
-cerrada; el icono sigue al halo salvo que fijes `icon_color`, y el punto del
+cerrada; el icono sigue al halo salvo que fijes `icon_color` (que, como el halo, solo se
+aplica con la tarjeta activa), y el punto del
 estado tiene un color por situación (`status_color_open`, `status_color_moving`,
 `status_color_closed` y `status_color_alert`), todo también desde la sección
 «Colores» del editor. Los tres puntos abren «más información». La tarjeta no cambia de alto
 al abrirse o cerrarse la persiana. Por ahora solo existe el tamaño grande (12
-columnas de inicio, hasta 4 como mínimo, con alto automático).
+columnas, que se pueden dejar entre 9 y 12, con alto automático).
 
 ---
 
@@ -1243,9 +1244,10 @@ it sets that. In the footer, the Close, Stop and Open buttons call
 `cover.close_cover`, `cover.stop_cover` and `cover.open_cover`, and only the
 ones the entity supports are shown and they light up only while you press them. The halo and the color of
 the card use the palette you choose while the cover is not closed; the icon
-follows the halo unless you set `icon_color`, and the state dot has one color
+follows the halo unless you set `icon_color` (which, like the halo, only applies while the
+card is active), and the state dot has one color
 per situation (`status_color_open`, `status_color_moving`, `status_color_closed`
 and `status_color_alert`), all also from the "Colors" section of the editor. The three
 dots open "more info". The card does not change height when the cover opens or
-closes. For now only the large size exists (12 starting columns, down to 4
-minimum, with automatic height).
+closes. For now only the large size exists (12 columns, which can be set between 9
+and 12, with automatic height).
