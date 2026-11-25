@@ -348,7 +348,7 @@ describe('inclinación', () => {
 describe('registro', () => {
   it('getGridOptions: doce columnas y alto automático', async () => {
     const el = (await mount()) as unknown as { getGridOptions(): unknown };
-    expect(el.getGridOptions()).toEqual({ rows: 'auto', columns: 12, min_columns: 4 });
+    expect(el.getGridOptions()).toEqual({ rows: 'auto', columns: 12, min_columns: 9, max_columns: 12 });
   });
 
   it('getStubConfig elige un cover de los candidatos, luego de hass y, si no, uno de ejemplo', async () => {

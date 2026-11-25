@@ -38,3 +38,10 @@ export const COVER_TYPES: readonly CoverType[] = ['shutter', 'blind', 'curtain',
 
 /** Los tipos binarios: solo abiertos o cerrados, sin porcentaje, dial ni deslizadores. */
 export const BINARY_COVER_TYPES: readonly CoverType[] = ['projector', 'tv'];
+
+/**
+ * Ancho de la tarjeta en la rejilla de secciones de Home Assistant: empieza a
+ * 12 columnas (todo el ancho) y solo se puede dejar entre 9 y 12. Menos de 9
+ * no deja sitio al icono grande, al porcentaje con el dial y al pie de botones.
+ */
+export const COVER_GRID = { columns: 12, min_columns: 9, max_columns: 12 } as const;
