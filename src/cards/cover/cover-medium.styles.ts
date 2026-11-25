@@ -24,9 +24,12 @@ export const NEON_COVER_MEDIUM_STYLES = css`
     display: contents;
   }
 
+  /* El nombre ocupa las dos columnas (el icono va por debajo) y solo deja
+     sitio a la derecha para los tres puntos. */
   ha-card[data-cover-size='medium'] .name {
-    grid-column: 1;
+    grid-column: 1 / -1;
     grid-row: 1;
+    padding-right: 28px;
   }
 
   ha-card[data-cover-size='medium'] .menu {
