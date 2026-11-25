@@ -13,9 +13,12 @@ el pie tiene tres botones que **abren, paran y cierran**. Hay dos tipos más,
 o cerrados, sin porcentaje. Lleva el halo neón de
 la familia Neón Cards.
 
-Por ahora solo existe el **tamaño grande**.
+Tiene dos tamaños, con `size`: **grande** (`large`, por defecto) y **mediana**
+(`medium`).
 
 ## Diseño
+
+### Tamaño grande
 
 - **Zona principal:** a la izquierda, el icono grande. A su derecha, el nombre,
   el estado con un punto de color y los tres puntos que abren «más
@@ -26,6 +29,22 @@ Por ahora solo existe el **tamaño grande**.
   posición, con su título y su porcentaje.
 - **Pie:** los botones Cerrar, Parar y Abrir en columnas iguales con un
   divisor vertical entre ellas, como el pie de sensores de la Thermostat.
+
+### Tamaño mediano
+
+Es la estructura de la mediana de la Thermostat sin el aro: el icono grande
+ocupa el sitio del dial.
+
+- **Cabecera:** el nombre con el estado y su punto, y los tres puntos de «más
+  información», a todo el ancho.
+- **Zona principal:** a la izquierda, «Posición actual» con el porcentaje y, a
+  la derecha, el icono grande, el mismo dibujo animado que en la grande.
+- **Posición** e **inclinación:** los mismos deslizadores finos que en la
+  grande, sin dial.
+- **Pie:** los mismos botones Cerrar, Parar y Abrir.
+
+Un tipo binario (`projector`, `tv`) o una entidad sin `current_position` no
+tiene porcentaje ni deslizadores: el icono grande ocupa el centro.
 
 ### El icono
 
@@ -119,9 +138,16 @@ interacción.
 
 ## Tamaño en la rejilla
 
-`getGridOptions()` devuelve alto automático y un ancho de 12 columnas que solo se
-puede dejar entre 9 y 12 (`min_columns: 9`, `max_columns: 12`): menos no deja
-sitio al icono grande, al porcentaje con el dial y al pie de botones.
+`getGridOptions()` devuelve alto automático y un ancho que depende del tamaño:
+
+| `size` | `columns` | `min_columns` | `max_columns` |
+|---|---|---|---|
+| `large` (por defecto) | `12` | `9` | `12` |
+| `medium` | `8` | `6` | `8` |
+
+La grande solo se puede dejar entre 9 y 12 columnas: menos no deja sitio al
+icono grande, al porcentaje con el dial y al pie de botones. La mediana, sin
+dial, se puede dejar entre 6 y 8 (el ancho de la mediana de la Thermostat).
 `getCardSize()` devuelve `5`.
 
 ## Estructura de la carpeta
@@ -152,9 +178,12 @@ and a slider, **venetian blinds** get a second slider for the slat tilt, and
 three buttons **open, stop and close**. It has the neon halo of the Neón Cards
 family and, like the Thermostat, no sensor footer.
 
-For now only the **large size** exists.
+It has two sizes, with `size`: **large** (`large`, the default) and **medium**
+(`medium`).
 
 ## Design
+
+### Large size
 
 - **Main area:** on the left, the large icon. On its right, the name, the state
   with a colored dot and the three dots that open "more info", and below them
@@ -164,6 +193,22 @@ For now only the **large size** exists.
   one, with its title and its percentage.
 - **Footer:** the Close, Stop and Open buttons in equal columns with a vertical
   divider between them, like the Thermostat's sensor footer.
+
+### Medium size
+
+It is the structure of the Thermostat's medium card without the ring: the large
+icon takes the place of the dial.
+
+- **Header:** the name with the state and its dot, and the three dots for "more
+  info", across the full width.
+- **Main area:** on the left, "Current position" with the percentage and, on
+  the right, the large icon, the same animated drawing as in the large size.
+- **Position** and **tilt:** the same thin sliders as in the large size, with no
+  dial.
+- **Footer:** the same Close, Stop and Open buttons.
+
+A binary type (`projector`, `tv`) or an entity without `current_position` has no
+percentage or sliders: the large icon takes the center.
 
 ### The icon
 
@@ -258,10 +303,17 @@ interaction.
 
 ## Size in the grid
 
-`getGridOptions()` returns automatic height and a width of 12 columns that can
-only be set between 9 and 12 (`min_columns: 9`, `max_columns: 12`): less leaves
-no room for the large icon, the percentage with its dial and the button footer.
-`getCardSize()` returns `5`.
+`getGridOptions()` returns automatic height and a width that depends on the size:
+
+| `size` | `columns` | `min_columns` | `max_columns` |
+|---|---|---|---|
+| `large` (default) | `12` | `9` | `12` |
+| `medium` | `8` | `6` | `8` |
+
+The large one can only be set between 9 and 12 columns: less leaves no room for
+the large icon, the percentage with its dial and the button footer. The medium
+one, with no dial, can be set between 6 and 8 (the width of the Thermostat's
+medium card). `getCardSize()` returns `5`.
 
 ## Folder layout
 

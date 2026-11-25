@@ -556,6 +556,15 @@ name: Toldo terraza
 cover_type: awning
 ```
 
+Tamaño mediano (icono grande a la derecha, sin dial):
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.persiana_salon
+name: Persiana Salón
+size: medium
+```
+
 Pantalla de proyector y TV en un mueble (tipos binarios: sin porcentaje, solo abrir y cerrar):
 
 ```yaml
@@ -621,8 +630,10 @@ aplica con la tarjeta activa), y el punto del
 estado tiene un color por situación (`status_color_open`, `status_color_moving`,
 `status_color_closed` y `status_color_alert`), todo también desde la sección
 «Colores» del editor. Los tres puntos abren «más información». La tarjeta no cambia de alto
-al abrirse o cerrarse la persiana. Por ahora solo existe el tamaño grande (12
-columnas, que se pueden dejar entre 9 y 12, con alto automático).
+al abrirse o cerrarse la persiana. Tiene dos tamaños con `size`: la grande (por defecto, 12
+columnas que se pueden dejar entre 9 y 12) y la mediana (`size: medium`, sin dial: el
+porcentaje a la izquierda y el icono grande a la derecha, con los mismos deslizadores
+y pie; 8 columnas que se pueden dejar entre 6 y 8). El alto es automático.
 
 ---
 
@@ -1183,6 +1194,15 @@ name: Terrace awning
 cover_type: awning
 ```
 
+Medium size (large icon on the right, no dial):
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.living_room_shutter
+name: Living room shutter
+size: medium
+```
+
 Projector screen and TV in a cabinet (binary types: no percentage, just open and close):
 
 ```yaml
@@ -1249,5 +1269,7 @@ card is active), and the state dot has one color
 per situation (`status_color_open`, `status_color_moving`, `status_color_closed`
 and `status_color_alert`), all also from the "Colors" section of the editor. The three
 dots open "more info". The card does not change height when the cover opens or
-closes. For now only the large size exists (12 columns, which can be set between 9
-and 12, with automatic height).
+closes. It has two sizes with `size`: the large one (the default, 12 columns that can be set
+between 9 and 12) and the medium one (`size: medium`, no dial: the percentage on the
+left and the large icon on the right, with the same sliders and footer; 8 columns that
+can be set between 6 and 8). The height is automatic.

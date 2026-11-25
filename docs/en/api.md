@@ -1759,6 +1759,7 @@ available" (and warns in the console in development). Full specification in
 |---|---|---|---|
 | `entity` | `string` | — (required) | `cover.*` entity. |
 | `name` | `string` | entity `friendly_name` | Displayed name. |
+| `size` | `'large' \| 'medium'` | `'large'` | Card size. The large one has the icon on the left with the dial; the medium one, the large icon on the right instead of the dial and the percentage on the left (same sliders and footer). A value that is not one of the two is ignored. |
 | `cover_type` | `'shutter' \| 'blind' \| 'curtain' \| 'awning' \| 'projector' \| 'tv'` | `'shutter'` | Cover type, i.e. the icon drawing: rolling shutter, venetian blind, curtain, awning, projector screen or TV cabinet. Always chosen by hand: it is **not deduced** from the entity's `device_class`. Without it, or with a value that is not one of the six, it is a rolling shutter. `projector` and `tv` are **binary**: no percentage, dial or sliders, just the animated icon and the buttons. |
 | `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Halo palette. Its color 1 is also the color of the icon, the percentage, the dial and the sliders while the cover is not closed. |
 | `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | per palette | Colors with `neon_palette: custom`. |
@@ -1776,14 +1777,17 @@ only with entities that support it) and the three dots, which open "more info".
 
 ### `getGridOptions()` — automatic height
 
-The height is automatic (`rows: 'auto'`) and the width can only be set between 9
-and 12 columns (`COVER_GRID` in `src/cards/cover/constants.ts`); less leaves no
-room for the large icon, the percentage with its dial and the button footer.
-`getCardSize()` returns `5`. For now only the large size exists.
+The height is automatic (`rows: 'auto'`) and the width depends on the size
+(`COVER_GRID` in `src/cards/cover/constants.ts`): the large one can only be set
+between 9 and 12 columns (less leaves no room for the large icon, the
+percentage with its dial and the button footer) and the medium one, with no dial,
+between 6 and 8, the width of the Thermostat's medium card. `getCardSize()`
+returns `5`.
 
 | Size | `columns` | `min_columns` | `max_columns` |
 |---|---|---|---|
-| Large | `12` | `9` | `12` |
+| Large (`large`) | `12` | `9` | `12` |
+| Medium (`medium`) | `8` | `6` | `8` |
 
 ### Full example
 

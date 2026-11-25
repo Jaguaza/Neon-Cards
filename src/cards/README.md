@@ -42,7 +42,7 @@ Una tarjeta:
   `cover` (persianas, venecianas, cortinas, toldos, pantallas de proyector y TV
   en mueble) con icono animado según el tipo, dial y deslizador de posición
   (salvo los tipos binarios), deslizador de inclinación si la entidad lo
-  soporta, botones abrir, parar y cerrar y halo neón. Tamaño grande. Ver
+  soporta, botones abrir, parar y cerrar y halo neón. Tamaños grande y mediano. Ver
   [ejemplo](../../examples/README.md).
 
 ---
@@ -93,5 +93,5 @@ A card:
   (shutters, venetian blinds, curtains, awnings, projector screens and TV
   cabinets) with an animated type-based icon, a position dial and slider (except
   for the binary types), a tilt slider if the entity supports it, open, stop and
-  close buttons and a neon halo. Large size. See the
+  close buttons and a neon halo. Large and medium sizes. See the
   [example](../../examples/README.md).
