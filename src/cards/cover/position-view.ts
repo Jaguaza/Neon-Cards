@@ -17,6 +17,21 @@ export interface PositionOptions {
   pointer: PointerHandlers;
 }
 
+export interface PositionBlockOptions {
+  label: string;
+  value: number;
+}
+
+/** La etiqueta «Posición actual» con el porcentaje en grande; lo usan la grande (con el dial) y la mediana (sin él). */
+export function renderPositionBlock(o: PositionBlockOptions): TemplateResult {
+  return html`
+    <div class="position-block">
+      <span class="position-label">${o.label}</span>
+      <span class="position-value">${o.value}<span class="unit">%</span></span>
+    </div>
+  `;
+}
+
 /**
  * Posición actual: la etiqueta y el porcentaje grande a la izquierda y, a la
  * derecha, el dial en arco con su punto, con el mismo tamaño y aspecto que el
@@ -27,10 +42,7 @@ export function renderPositionRow(o: PositionOptions): TemplateResult {
   const arc = buildArcModel('cover-dial', o.entity, POSITION_MIN, POSITION_MAX, o.value);
   return html`
     <div class="position-row">
-      <div class="position-block">
-        <span class="position-label">${o.label}</span>
-        <span class="position-value">${o.value}<span class="unit">%</span></span>
-      </div>
+      ${renderPositionBlock({ label: o.label, value: o.value })}
       <div class="dial-wrap">
         <svg
           class="dial-svg"

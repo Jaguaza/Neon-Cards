@@ -1,4 +1,4 @@
-import type { CoverType, StatusGroup } from './types';
+import type { CoverSize, CoverType, StatusGroup } from './types';
 
 /** Color del punto de estado: verde abierta, ámbar en movimiento, gris cerrada y rojo no disponible. */
 export const STATUS_DOT_COLORS: Record<StatusGroup, string> = {
@@ -39,9 +39,19 @@ export const COVER_TYPES: readonly CoverType[] = ['shutter', 'blind', 'curtain',
 /** Los tipos binarios: solo abiertos o cerrados, sin porcentaje, dial ni deslizadores. */
 export const BINARY_COVER_TYPES: readonly CoverType[] = ['projector', 'tv'];
 
+/** Los tamaños de la tarjeta, en el orden del editor. */
+export const COVER_SIZES: readonly CoverSize[] = ['large', 'medium'];
+export const DEFAULT_COVER_SIZE: CoverSize = 'large';
+
 /**
- * Ancho de la tarjeta en la rejilla de secciones de Home Assistant: empieza a
- * 12 columnas (todo el ancho) y solo se puede dejar entre 9 y 12. Menos de 9
- * no deja sitio al icono grande, al porcentaje con el dial y al pie de botones.
+ * Ancho de la tarjeta en la rejilla de secciones de Home Assistant. La grande
+ * empieza a 12 columnas (todo el ancho) y solo se puede dejar entre 9 y 12:
+ * con menos no hay sitio para el icono grande, el porcentaje con el dial y el
+ * pie de botones. La mediana empieza a 8 columnas y se puede dejar entre 6 y 8
+ * (el ancho de la mediana del termostato); sin dial necesita menos, pero no
+ * menos de 6 para el % con el icono grande al lado.
  */
-export const COVER_GRID = { columns: 12, min_columns: 9, max_columns: 12 } as const;
+export const COVER_GRID: Record<CoverSize, { columns: number; min_columns: number; max_columns: number }> = {
+  large: { columns: 12, min_columns: 9, max_columns: 12 },
+  medium: { columns: 8, min_columns: 6, max_columns: 8 },
+};

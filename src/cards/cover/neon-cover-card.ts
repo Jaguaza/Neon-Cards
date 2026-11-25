@@ -15,16 +15,17 @@ import {
   valueForAngle,
 } from '../../shared';
 import { COVER_GRID, COVER_TYPES, POSITION_MAX, POSITION_MIN } from './constants';
-import { iconColor, isBinaryCoverType, isHaloOn, openFraction, resolveCoverType, statusDotColor, statusGroup } from './cover-visual';
+import { iconColor, isBinaryCoverType, isHaloOn, openFraction, resolveCoverSize, resolveCoverType, statusDotColor, statusGroup } from './cover-visual';
 import { renderGlyph } from './cover-glyph';
 import { NEON_COVER_GLYPH_STYLES } from './cover-glyph.styles';
 import { NEON_COVER_BODY_STYLES } from './cover-body.styles';
 import { NEON_COVER_BLIND_STYLES } from './cover-blind.styles';
 import { NEON_COVER_CONTROLS_STYLES } from './cover-controls.styles';
+import { NEON_COVER_MEDIUM_STYLES } from './cover-medium.styles';
 import { NEON_COVER_CARD_STYLES } from './neon-cover-card.styles';
 import { renderControls } from './controls-view';
 import { renderHeader } from './header-view';
-import { renderPositionRow, renderScale, renderSlider, renderTilt } from './position-view';
+import { renderPositionBlock, renderPositionRow, renderScale, renderSlider, renderTilt } from './position-view';
 import type { PointerHandlers } from './position-view';
 import { COVER_TRANSLATIONS } from './translations';
 import type { CoverTranslations } from './translations';
@@ -59,7 +60,7 @@ export class NeonCoverCard extends BaseNeonCard {
   private readonly _ringUid = Math.random().toString(36).slice(2);
   private readonly _ring = new RingSizeController(this);
 
-  static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_COVER_CARD_STYLES, NEON_COVER_GLYPH_STYLES, NEON_COVER_BODY_STYLES, NEON_COVER_CONTROLS_STYLES, NEON_COVER_BLIND_STYLES];
+  static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_COVER_CARD_STYLES, NEON_COVER_GLYPH_STYLES, NEON_COVER_BODY_STYLES, NEON_COVER_CONTROLS_STYLES, NEON_COVER_BLIND_STYLES, NEON_COVER_MEDIUM_STYLES];
 
   static getConfigElement(): HTMLElement {
     return document.createElement('neon-cover-card-editor');
@@ -93,9 +94,9 @@ export class NeonCoverCard extends BaseNeonCard {
     return 5;
   }
 
-  /** Doce columnas de inicio y alto automático (con o sin inclinación). */
+  /** Alto automático y ancho según el tamaño: la grande, entre 9 y 12 columnas; la mediana, entre 6 y 8. */
   getGridOptions(): { rows: 'auto'; columns: number; min_columns: number; max_columns: number } {
-    return { rows: 'auto', ...COVER_GRID };
+    return { rows: 'auto', ...COVER_GRID[resolveCoverSize(this._config?.size)] };
   }
 
   private get _cover(): CoverState | null {
@@ -211,33 +212,58 @@ export class NeonCoverCard extends BaseNeonCard {
     return html`<div class="hero-icon ${dragging ? 'dragging' : ''}" style=${color ? `--cover-color: ${color}` : nothing}>${glyph}</div>`;
   }
 
+  /** Cabecera: nombre, estado con su punto y los tres puntos de «más información». */
+  private _renderHeader(cover: CoverState): TemplateResult {
+    const group = statusGroup(cover);
+    return renderHeader({
+      name: this._name(cover),
+      statusText: this._t(`state_${cover.state}`),
+      group,
+      dotColor: statusDotColor(this._config, group),
+      menuLabel: this._t('more_info'),
+      onMenu: () => openMoreInfo(this, cover.entity),
+    });
+  }
+
+  /** Grande: el icono a la izquierda y, a su derecha, la cabecera y la posición con su dial. */
+  private _renderLargeMain(cover: CoverState, type: CoverType, active: boolean): TemplateResult {
+    return html`
+      <div class="hero">
+        ${this._renderHeroIcon(cover, type, active)}
+        <div class="hero-body">${this._renderHeader(cover)} ${this._renderPositionRow(cover, type)}</div>
+      </div>
+    `;
+  }
+
+  /**
+   * Mediana: la cabecera a todo el ancho y, debajo, el porcentaje a la
+   * izquierda y el icono grande a la derecha (el sitio del dial de la grande).
+   * Un tipo binario o sin `current_position` no tiene porcentaje: el icono
+   * ocupa el centro.
+   */
+  private _renderMediumMain(cover: CoverState, type: CoverType, active: boolean): TemplateResult {
+    const value = this._shownPosition(cover);
+    const block = value === null || isBinaryCoverType(type) ? nothing : renderPositionBlock({ label: this._t('position_label'), value });
+    return html`
+      ${this._renderHeader(cover)}
+      <div class="medium-main ${block === nothing ? 'medium-main--binary' : ''}">${block} ${this._renderHeroIcon(cover, type, active)}</div>
+    `;
+  }
+
   render(): TemplateResult {
     const cover = this._cover;
     if (!cover) {
       return html`<ha-card><div class="unavailable">${this._t('entity_missing')}</div></ha-card>`;
     }
     const active = isHaloOn(cover);
-    const group = statusGroup(cover);
     const colors = resolveGradientColors(this._config);
     const type = resolveCoverType(this._config?.cover_type);
+    const size = resolveCoverSize(this._config?.size);
 
     return html`
-      <ha-card class="neon-ring-host ${active ? 'neon-halo-active' : ''}" data-cover-type=${type} style=${neonHaloVars(colors)}>
+      <ha-card class="neon-ring-host ${active ? 'neon-halo-active' : ''}" data-cover-type=${type} data-cover-size=${size} style=${neonHaloVars(colors)}>
         ${neonRingSplitTemplate(this._ringUid, this._ring.size.width, this._ring.size.height, this._ring.size.radius)}
-        <div class="hero">
-          ${this._renderHeroIcon(cover, type, active)}
-          <div class="hero-body">
-            ${renderHeader({
-              name: this._name(cover),
-              statusText: this._t(`state_${cover.state}`),
-              group,
-              dotColor: statusDotColor(this._config, group),
-              menuLabel: this._t('more_info'),
-              onMenu: () => openMoreInfo(this, cover.entity),
-            })}
-            ${this._renderPositionRow(cover, type)}
-          </div>
-        </div>
+        ${size === 'medium' ? this._renderMediumMain(cover, type, active) : this._renderLargeMain(cover, type, active)}
         ${this._renderSliders(cover, type)}
         ${renderControls({
           cover,

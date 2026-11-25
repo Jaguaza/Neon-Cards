@@ -7,12 +7,22 @@ export type StatusGroup = 'open' | 'moving' | 'closed' | 'alert';
 /** Tipo de cover: el dibujo que lleva la tarjeta. */
 export type CoverType = 'shutter' | 'blind' | 'curtain' | 'awning' | 'projector' | 'tv';
 
+/** Tamaño de la tarjeta: grande (icono a la izquierda, con dial) o mediana (icono grande a la derecha, sin dial). */
+export type CoverSize = 'large' | 'medium';
+
 export interface NeonCoverCardConfig {
   type?: string;
   /** Entidad `cover` (persiana, veneciana, cortina, toldo…). */
   entity?: string;
   /** Nombre; sin él se usa el `friendly_name` de la entidad. */
   name?: string;
+  /**
+   * Tamaño de la tarjeta: `large` (por defecto) o `medium`. La mediana lleva
+   * el icono grande a la derecha en lugar del dial y el porcentaje a la
+   * izquierda; el resto (deslizadores y pie de botones) es igual que en la
+   * grande. Un valor que no sea uno de los dos se ignora.
+   */
+  size?: CoverSize;
   /**
    * Tipo de cover, es decir, el dibujo: persiana enrollable (`shutter`),
    * veneciana (`blind`), cortina (`curtain`), toldo (`awning`), pantalla de

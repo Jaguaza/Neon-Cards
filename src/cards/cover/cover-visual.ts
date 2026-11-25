@@ -1,7 +1,7 @@
 import type { CoverState } from '../../ha/cover';
 import { isCssColor } from '../../shared';
-import { BINARY_COVER_TYPES, COVER_TYPES, ICON_COLOR_KEY, STATUS_COLOR_KEYS } from './constants';
-import type { CoverType, NeonCoverCardConfig, StatusGroup } from './types';
+import { BINARY_COVER_TYPES, COVER_SIZES, COVER_TYPES, DEFAULT_COVER_SIZE, ICON_COLOR_KEY, STATUS_COLOR_KEYS } from './constants';
+import type { CoverSize, CoverType, NeonCoverCardConfig, StatusGroup } from './types';
 
 /**
  * Tipo de cover (el dibujo) que lleva la tarjeta: el de `cover_type` si es
@@ -11,6 +11,11 @@ import type { CoverType, NeonCoverCardConfig, StatusGroup } from './types';
  */
 export function resolveCoverType(configured?: unknown): CoverType {
   return COVER_TYPES.includes(configured as CoverType) ? (configured as CoverType) : 'shutter';
+}
+
+/** Tamaño de la tarjeta: el de `size` si es `large` o `medium` y, si no, grande. */
+export function resolveCoverSize(configured?: unknown): CoverSize {
+  return COVER_SIZES.includes(configured as CoverSize) ? (configured as CoverSize) : DEFAULT_COVER_SIZE;
 }
 
 /** Los tipos binarios (pantalla de proyector y TV) solo se abren o se cierran: sin porcentaje, dial ni deslizadores. */

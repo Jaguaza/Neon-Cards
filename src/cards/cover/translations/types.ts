@@ -14,6 +14,9 @@ export interface CoverTranslations {
   section_main: string;
   entity_label: string;
   name_label: string;
+  size_label: string;
+  size_large: string;
+  size_medium: string;
   type_label: string;
   type_shutter: string;
   type_blind: string;

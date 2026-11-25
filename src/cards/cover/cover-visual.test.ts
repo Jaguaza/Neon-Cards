@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CoverState, CoverStateName } from '../../ha/cover';
-import { iconColor, isBinaryCoverType, isHaloOn, openFraction, resolveCoverType, statusDotColor, statusGroup } from './cover-visual';
+import { iconColor, isBinaryCoverType, isHaloOn, openFraction, resolveCoverSize, resolveCoverType, statusDotColor, statusGroup } from './cover-visual';
 
 function cover(state: CoverStateName, deviceClass: string | null = 'shutter'): CoverState {
   return { entity: 'cover.salon', state, available: state !== 'unavailable', position: 50, tiltPosition: null, deviceClass, canOpen: true, canClose: true, canStop: true, canSetPosition: true, canSetTilt: false };
@@ -88,5 +88,16 @@ describe('isBinaryCoverType', () => {
     expect(isBinaryCoverType('projector')).toBe(true);
     expect(isBinaryCoverType('tv')).toBe(true);
     for (const type of ['shutter', 'blind', 'curtain', 'awning'] as const) expect(isBinaryCoverType(type)).toBe(false);
+  });
+});
+
+describe('resolveCoverSize', () => {
+  it('large o medium, tal cual', () => {
+    expect(resolveCoverSize('large')).toBe('large');
+    expect(resolveCoverSize('medium')).toBe('medium');
+  });
+
+  it('sin valor, o con uno que no es uno de los dos, es la grande', () => {
+    for (const value of [undefined, '', 'compact', 'normal', 3, null]) expect(resolveCoverSize(value)).toBe('large');
   });
 });

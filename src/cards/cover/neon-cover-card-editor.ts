@@ -3,14 +3,14 @@ import type { TemplateResult } from 'lit';
 import type { HomeAssistant, ValueChangedEvent } from '../../ha/types';
 import { localize } from '../../core';
 import { isCssColor, NEON_EDITOR_FORM_STYLES, renderHaloSection, resolveGradientColors, toHex6 } from '../../shared';
-import { COVER_TYPES, ICON_COLOR_KEY, STATUS_COLOR_GROUPS, STATUS_COLOR_KEYS, STATUS_DOT_COLORS } from './constants';
-import { resolveCoverType } from './cover-visual';
+import { COVER_SIZES, COVER_TYPES, DEFAULT_COVER_SIZE, ICON_COLOR_KEY, STATUS_COLOR_GROUPS, STATUS_COLOR_KEYS, STATUS_DOT_COLORS } from './constants';
+import { resolveCoverSize, resolveCoverType } from './cover-visual';
 import { renderGlyph } from './cover-glyph';
 import { NEON_COVER_GLYPH_STYLES } from './cover-glyph.styles';
 import { NEON_COVER_EDITOR_STYLES } from './neon-cover-card-editor.styles';
 import { COVER_TRANSLATIONS } from './translations';
 import type { CoverTranslations } from './translations';
-import type { CoverType, NeonCoverCardConfig } from './types';
+import type { CoverSize, CoverType, NeonCoverCardConfig } from './types';
 
 /** Editor visual de la Neón Cover Card: entidad, nombre, tipo de cover, colores y halo. */
 export class NeonCoverCardEditor extends LitElement {
@@ -46,6 +46,26 @@ export class NeonCoverCardEditor extends LitElement {
    * persiana enrollable es el valor por defecto, por eso no se guarda en la
    * config. Es un grupo de radio accesible.
    */
+  /** Selector de tamaño: grande (por defecto, no se guarda) o mediana. */
+  private _renderSizeSelect(): TemplateResult {
+    const size = resolveCoverSize(this._config?.size);
+    return html`
+      <label class="native-select-label" for="size">${this._t('size_label')}</label>
+      <select
+        id="size"
+        class="native-select"
+        .value=${size}
+        @change=${(ev: Event) => {
+          const value = (ev.target as HTMLSelectElement).value as CoverSize;
+          if (!value || value === resolveCoverSize(this._config?.size)) return;
+          this._configChanged('size', value === DEFAULT_COVER_SIZE ? undefined : value);
+        }}
+      >
+        ${COVER_SIZES.map((opt) => html`<option value=${opt} ?selected=${opt === size}>${this._t(`size_${opt}`)}</option>`)}
+      </select>
+    `;
+  }
+
   private _renderTypePicker(): TemplateResult {
     const selected = resolveCoverType(this._config?.cover_type);
     const tile = (type: CoverType) => html`
@@ -123,6 +143,7 @@ export class NeonCoverCardEditor extends LitElement {
           ></ha-entity-picker>
           <label class="native-select-label" for="name">${this._t('name_label')}</label>
           <input id="name" type="text" class="native-input" .value=${config.name || ''} @input=${(ev: InputEvent) => this._configChanged('name', (ev.target as HTMLInputElement).value)} />
+          ${this._renderSizeSelect()}
           ${this._renderTypePicker()}
         </div>
         ${renderHaloSection(this.hass, config, { section: this._t('section_halo'), palette: this._t('palette_label') }, (key, value) => this._configChanged(key, value))}

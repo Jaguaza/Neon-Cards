@@ -116,6 +116,40 @@ describe('NeonCoverCardEditor', () => {
     expect(halo.compareDocumentPosition(icon) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
+  it('el selector de tamaño tiene Grande y Mediana, con Grande por defecto', async () => {
+    const { el } = await mount({ entity: 'cover.salon' });
+    const select = el.shadowRoot!.querySelector('#size') as HTMLSelectElement;
+    expect(Array.from(select.options).map((o) => o.value)).toEqual(['large', 'medium']);
+    expect(select.value).toBe('large');
+  });
+
+  it('elegir Mediana guarda size: medium y volver a Grande lo quita', async () => {
+    const { el, last } = await mount({ entity: 'cover.salon' });
+    const select = () => el.shadowRoot!.querySelector('#size') as HTMLSelectElement;
+    select().value = 'medium';
+    select().dispatchEvent(new Event('change'));
+    expect(last().size).toBe('medium');
+    await el.updateComplete;
+    expect(select().value).toBe('medium');
+    select().value = 'large';
+    select().dispatchEvent(new Event('change'));
+    expect('size' in last()).toBe(false);
+  });
+
+  it('un size guardado sale elegido y uno inválido cuenta como Grande', async () => {
+    const medium = await mount({ entity: 'cover.salon', size: 'medium' });
+    expect((medium.el.shadowRoot!.querySelector('#size') as HTMLSelectElement).value).toBe('medium');
+    document.body.innerHTML = '';
+    const invalid = await mount({ entity: 'cover.salon', size: 'compact' });
+    expect((invalid.el.shadowRoot!.querySelector('#size') as HTMLSelectElement).value).toBe('large');
+  });
+
+  it('los textos del tamaño salen en el idioma de Home Assistant', async () => {
+    const { el } = await mount({ entity: 'cover.salon' }, 'en');
+    const select = el.shadowRoot!.querySelector('#size') as HTMLSelectElement;
+    expect(Array.from(select.options).map((o) => o.textContent?.trim())).toEqual(['Large', 'Medium (large icon on the right, no dial)']);
+  });
+
   it('los textos salen en el idioma de Home Assistant', async () => {
     const { el } = await mount({ entity: 'cover.salon' }, 'en');
     expect(el.shadowRoot!.textContent).toContain('Main configuration');
