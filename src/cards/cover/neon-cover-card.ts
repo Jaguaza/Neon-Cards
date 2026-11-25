@@ -236,18 +236,15 @@ export class NeonCoverCard extends BaseNeonCard {
   }
 
   /**
-   * Mediana: la cabecera a todo el ancho y, debajo, el porcentaje a la
-   * izquierda y el icono grande a la derecha (el sitio del dial de la grande).
-   * Un tipo binario o sin `current_position` no tiene porcentaje: el icono
-   * ocupa el centro.
+   * Mediana: el nombre arriba (con los tres puntos) y, debajo, a la izquierda
+   * el estado y el porcentaje y a la derecha el icono grande, que sube hasta
+   * la altura del estado (el nombre y el estado nunca llegan hasta él). Un tipo
+   * binario o sin `current_position` no tiene porcentaje.
    */
   private _renderMediumMain(cover: CoverState, type: CoverType, active: boolean): TemplateResult {
     const value = this._shownPosition(cover);
     const block = value === null || isBinaryCoverType(type) ? nothing : renderPositionBlock({ label: this._t('position_label'), value });
-    return html`
-      ${this._renderHeader(cover)}
-      <div class="medium-main ${block === nothing ? 'medium-main--binary' : ''}">${block} ${this._renderHeroIcon(cover, type, active)}</div>
-    `;
+    return html`<div class="medium-main">${this._renderHeader(cover)} ${block} ${this._renderHeroIcon(cover, type, active)}</div>`;
   }
 
   render(): TemplateResult {

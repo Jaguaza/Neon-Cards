@@ -26,16 +26,16 @@ describe('tarjeta mediana', () => {
     for (const sel of ['.dial-svg', '.dial-wrap', '.hero', '.hero-body']) expect(q(el, sel)).toBeNull();
   });
 
-  it('el porcentaje va a la izquierda y el icono a la derecha', async () => {
+  it('la cabecera, el porcentaje y el icono comparten la misma rejilla, con el icono el último', async () => {
     const el = await mount({ size: 'medium' });
     const main = q(el, '.medium-main')!;
-    expect(Array.from(main.children).map((c) => (c.getAttribute('class') ?? '').split(' ')[0])).toEqual(['position-block', 'hero-icon']);
+    expect(Array.from(main.children).map((c) => (c.getAttribute('class') ?? '').split(' ')[0])).toEqual(['header', 'position-block', 'hero-icon']);
+    expect(q(el, '.medium-main .header .name')).not.toBeNull();
+    expect(q(el, '.medium-main .header .status')).not.toBeNull();
   });
 
-  it('la cabecera va encima, a todo el ancho, con los tres puntos', async () => {
+  it('los tres puntos siguen abriendo «más información»', async () => {
     const el = await mount({ size: 'medium' });
-    const children = Array.from(card(el).children).map((c) => (c.getAttribute('class') ?? '').split(' ')[0]);
-    expect(children.indexOf('header')).toBeLessThan(children.indexOf('medium-main'));
     let entityId = '';
     el.addEventListener('hass-more-info', (ev) => (entityId = (ev as CustomEvent).detail.entityId));
     (q(el, '.menu') as HTMLButtonElement).click();
@@ -62,11 +62,10 @@ describe('tarjeta mediana', () => {
     expect(text(el, '.tilt-value')).toBe('40%');
   });
 
-  it('un tipo binario no lleva porcentaje ni deslizadores y el icono ocupa el centro', async () => {
+  it('un tipo binario no lleva porcentaje ni deslizadores', async () => {
     const calls: unknown[][] = [];
     const el = await mount({ size: 'medium', cover_type: 'tv' }, hassWith('closed', { calls, attributes: { current_position: 0 } }));
     for (const sel of ['.position-block', '.position-value', '.slider', '.scale', '.dial-svg']) expect(q(el, sel)).toBeNull();
-    expect(q(el, '.medium-main')!.classList.contains('medium-main--binary')).toBe(true);
     expect(q(el, '.cover-glyph')?.getAttribute('data-glyph')).toBe('tv');
     (q(el, '[data-control="open"]') as HTMLButtonElement).click();
     expect(calls).toEqual([['cover', 'open_cover', { entity_id: 'cover.salon' }]]);
@@ -76,7 +75,7 @@ describe('tarjeta mediana', () => {
     const el = await mount({ size: 'medium' }, hassWith('open', { attributes: { current_position: undefined, supported_features: 1 | 2 | 8 } }));
     expect(q(el, '.position-block')).toBeNull();
     expect(q(el, '.slider')).toBeNull();
-    expect(q(el, '.medium-main--binary')).not.toBeNull();
+    expect(q(el, '.medium-main .hero-icon')).not.toBeNull();
     expect(qa(el, '.control')).toHaveLength(3);
   });
 
