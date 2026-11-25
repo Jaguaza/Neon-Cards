@@ -25,9 +25,9 @@ export const NEON_COVER_GLYPH_STYLES = css`
      (\`NEON_HALO_STYLES\`), se conserva el color y se cambia el resplandor por
      un contorno fino del mismo tono oscurecido. En oscuro no cambia nada. */
   :host([data-neon-light]) ha-card.neon-halo-active .cover-glyph {
-    filter: drop-shadow(0 0 0.6px color-mix(in srgb, var(--neon-c1) 40%, #000))
-      drop-shadow(0 0 1px color-mix(in srgb, var(--neon-c1) 40%, #000))
-      drop-shadow(0 0 3px color-mix(in srgb, var(--neon-c1) 40%, transparent));
+    filter: drop-shadow(0 0 0.6px color-mix(in srgb, var(--cover-color) 40%, #000))
+      drop-shadow(0 0 1px color-mix(in srgb, var(--cover-color) 40%, #000))
+      drop-shadow(0 0 3px color-mix(in srgb, var(--cover-color) 40%, transparent));
   }
 
   /* La ventana: marco, cristal y crucetas. */

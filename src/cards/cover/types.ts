@@ -34,9 +34,10 @@ export interface NeonCoverCardConfig {
   neon_color2?: string;
   neon_color3?: string;
   /**
-   * Color del icono grande (hex, `rgb()`/`hsl()`, nombre o `var(--x)`). Sin él
-   * (o con uno inválido) el icono sigue al halo: color de la paleta mientras
-   * la persiana no está cerrada y color de texto cuando lo está.
+   * Color del icono grande (hex, `rgb()`/`hsl()`, nombre o `var(--x)`). Solo
+   * se aplica con la tarjeta activa, como el halo (persiana abierta, abriéndose
+   * o cerrándose); cerrada o no disponible el icono es del color de texto. Sin
+   * él (o con uno inválido) el icono sigue al halo: color de la paleta.
    */
   icon_color?: string;
   /**

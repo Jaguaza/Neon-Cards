@@ -25,7 +25,7 @@ export const en: CoverTranslations = {
   type_tv: 'TV cabinet',
   section_colors: 'Colours',
   icon_color_label: 'Icon colour',
-  icon_color_hint: 'By default it follows the halo: palette colour while the cover is not closed.',
+  icon_color_hint: 'Only applied while the card is active, like the halo (cover not closed). By default it uses the palette colour.',
   status_color_label: 'State colour',
   status_color_hint: 'Colour of the dot next to the state, depending on the cover situation.',
   status_color_open: 'Open',

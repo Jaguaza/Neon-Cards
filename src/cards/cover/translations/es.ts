@@ -25,7 +25,7 @@ export const es: CoverTranslations = {
   type_tv: 'TV en mueble',
   section_colors: 'Colores',
   icon_color_label: 'Color del icono',
-  icon_color_hint: 'Por defecto sigue al halo: color de la paleta mientras la persiana no está cerrada.',
+  icon_color_hint: 'Solo se aplica con la tarjeta activa, como el halo (persiana no cerrada). Por defecto usa el color de la paleta.',
   status_color_label: 'Color del estado',
   status_color_hint: 'Color del punto junto al estado, según la situación de la persiana.',
   status_color_open: 'Abierta',

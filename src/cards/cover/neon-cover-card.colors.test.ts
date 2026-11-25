@@ -44,10 +44,18 @@ describe('color del icono', () => {
     expect(heroStyle(await mount({}, hassWith('closed')))).toBe('');
   });
 
-  it('icon_color fija el color del icono, también con la persiana cerrada', async () => {
-    expect(heroStyle(await mount({ icon_color: '#ff8800' }, hassWith('open')))).toBe('#ff8800');
-    document.body.innerHTML = '';
-    expect(heroStyle(await mount({ icon_color: '#ff8800' }, hassWith('closed')))).toBe('#ff8800');
+  it('icon_color solo se aplica con la tarjeta activa, como el halo: abierta, abriéndose o cerrándose', async () => {
+    for (const state of ['open', 'opening', 'closing']) {
+      document.body.innerHTML = '';
+      expect(heroStyle(await mount({ icon_color: '#ff8800' }, hassWith(state)))).toBe('#ff8800');
+    }
+  });
+
+  it('con la persiana cerrada o la entidad no disponible, el icono no lleva icon_color', async () => {
+    for (const state of ['closed', 'unavailable']) {
+      document.body.innerHTML = '';
+      expect(heroStyle(await mount({ icon_color: '#ff8800' }, hassWith(state)))).toBe('');
+    }
   });
 
   it('un icon_color inválido se ignora y el icono sigue al halo', async () => {

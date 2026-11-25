@@ -6,7 +6,6 @@ import type { CoverState } from '../../ha/cover';
 import { BaseNeonCard, localize, openMoreInfo } from '../../core';
 import {
   angleFromPoint,
-  CARD_GRID,
   neonHaloVars,
   neonRingSplitTemplate,
   NEON_HALO_STYLES,
@@ -15,7 +14,7 @@ import {
   RingSizeController,
   valueForAngle,
 } from '../../shared';
-import { COVER_TYPES, POSITION_MAX, POSITION_MIN } from './constants';
+import { COVER_GRID, COVER_TYPES, POSITION_MAX, POSITION_MIN } from './constants';
 import { iconColor, isBinaryCoverType, isHaloOn, openFraction, resolveCoverType, statusDotColor, statusGroup } from './cover-visual';
 import { renderGlyph } from './cover-glyph';
 import { NEON_COVER_GLYPH_STYLES } from './cover-glyph.styles';
@@ -95,8 +94,8 @@ export class NeonCoverCard extends BaseNeonCard {
   }
 
   /** Doce columnas de inicio y alto automático (con o sin inclinación). */
-  getGridOptions(): { rows: 'auto'; columns: number; min_columns: number } {
-    return { rows: 'auto', ...CARD_GRID.large };
+  getGridOptions(): { rows: 'auto'; columns: number; min_columns: number; max_columns: number } {
+    return { rows: 'auto', ...COVER_GRID };
   }
 
   private get _cover(): CoverState | null {
@@ -198,7 +197,7 @@ export class NeonCoverCard extends BaseNeonCard {
    * y la inclinación (también mientras se arrastran) o, sin porcentaje, con el
    * estado.
    */
-  private _renderHeroIcon(cover: CoverState, type: CoverType): TemplateResult {
+  private _renderHeroIcon(cover: CoverState, type: CoverType, active: boolean): TemplateResult {
     const dragging = this._dragPosition !== null || this._dragTilt !== null;
     const glyph = renderGlyph({
       glyph: type,
@@ -206,8 +205,9 @@ export class NeonCoverCard extends BaseNeonCard {
       tilt: (this._dragTilt ?? cover.tiltPosition ?? 0) / 100,
       uid: this._ringUid,
     });
-    // Color del icono elegido en la config; sin él, el icono hereda el del halo.
-    const color = iconColor(this._config);
+    // Color del icono elegido en la config: solo con la tarjeta activa, como el
+    // halo; cerrada (o caída) el icono vuelve al color de texto.
+    const color = active ? iconColor(this._config) : undefined;
     return html`<div class="hero-icon ${dragging ? 'dragging' : ''}" style=${color ? `--cover-color: ${color}` : nothing}>${glyph}</div>`;
   }
 
@@ -225,7 +225,7 @@ export class NeonCoverCard extends BaseNeonCard {
       <ha-card class="neon-ring-host ${active ? 'neon-halo-active' : ''}" data-cover-type=${type} style=${neonHaloVars(colors)}>
         ${neonRingSplitTemplate(this._ringUid, this._ring.size.width, this._ring.size.height, this._ring.size.radius)}
         <div class="hero">
-          ${this._renderHeroIcon(cover, type)}
+          ${this._renderHeroIcon(cover, type, active)}
           <div class="hero-body">
             ${renderHeader({
               name: this._name(cover),
