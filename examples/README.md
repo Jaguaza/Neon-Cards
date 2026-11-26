@@ -619,8 +619,8 @@ inclinación, `curtain` una cortina cuyos paneles se recogen a los lados y
 tipos. El tipo no se deduce del `device_class` de la entidad. La pantalla de proyector y la TV en mueble son binarias: el
 icono se anima entre abierto y cerrado y solo hay botones: sin dial ni deslizadores y con
 el porcentaje solo como indicador (0 % o 100 %). Las flechas de Cerrar y Abrir dibujan el
-movimiento de cada tipo: la cortina, dos flechas hacia dentro para cerrar y hacia fuera para
-abrir; el toldo y la pantalla de proyector, hacia arriba para cerrar y hacia abajo para abrir. Muestra la posición actual con un dial en arco y un deslizador fino
+movimiento de cada tipo: la cortina, dos flechas hacia dentro para cerrar y el mismo icono con las flechas hacia fuera
+para abrir; el toldo y la pantalla de proyector, hacia arriba para cerrar y hacia abajo para abrir. Muestra la posición actual con un dial en arco y un deslizador fino
 de 0 a 100 % que también la fijan (la orden sale al soltar). Si la
 entidad soporta la inclinación de las lamas, como una veneciana, sale un segundo
 deslizador debajo para fijarla. En el pie, los botones Cerrar, Parar y Abrir
@@ -1259,7 +1259,7 @@ awning that unrolls its canvas; `projector` and `tv` complete the six types.
 The type is not deduced from the entity's `device_class`. The projector screen and the TV cabinet are
 binary: the icon animates between open and closed and there are only buttons: no dial or sliders,
 and the percentage is only an indicator (0 % or 100 %). The Close and Open arrows draw each
-type's movement: the curtain, two arrows pointing in to close and out to open; the awning and
+type's movement: the curtain, two arrows pointing in to close and the same icon with the arrows pointing out to open; the awning and
 the projector screen, up to close and down to open. It
 shows the current position with an arc dial and a thin 0 to 100 % slider that
 also set it (the command is sent on release).
