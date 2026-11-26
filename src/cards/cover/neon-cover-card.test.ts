@@ -170,10 +170,12 @@ describe('tipos binarios: pantalla de proyector y TV en mueble', () => {
   const style = (el: Card) => q(el, '.cover-glyph')!.getAttribute('style') ?? '';
   const full = { current_tilt_position: 40, supported_features: TILT_FEATURES };
 
-  it.each(['projector', 'tv'])('%s dibuja su icono y no tiene porcentaje, dial ni deslizadores', async (cover_type) => {
+  it.each(['projector', 'tv'])('%s dibuja su icono y muestra el porcentaje, sin dial ni deslizadores', async (cover_type) => {
     const el = await mount({ cover_type }, hassWith('open', { attributes: full }));
     expect(q(el, '.cover-glyph')?.getAttribute('data-glyph')).toBe(cover_type);
-    for (const sel of ['.position-row', '.position-value', '.dial-svg', '.slider', '.scale', '.tilt-row']) expect(q(el, sel)).toBeNull();
+    expect(text(el, '.position-label')).toBe('Posición actual');
+    expect(text(el, '.position-value')).toBe('72%');
+    for (const sel of ['.position-row', '.dial-svg', '.slider', '.scale', '.tilt-row']) expect(q(el, sel)).toBeNull();
     expect(qa(el, '.control').map((b) => (b as HTMLElement).dataset.control)).toEqual(['close', 'stop', 'open']);
     expect(text(el, '.name')).toBe('Persiana Salón');
     expect(text(el, '.status-text')).toBe('Abierta');
@@ -190,10 +192,23 @@ describe('tipos binarios: pantalla de proyector y TV en mueble', () => {
     expect(style(await mount({ cover_type }, hassWith('closing', { attributes: attrs })))).toContain('--open: 0');
   });
 
-  it('con porcentaje del cover el dibujo lo sigue, pero sin mostrarlo', async () => {
+  it('con porcentaje del cover el dibujo y el % lo siguen', async () => {
     const el = await mount({ cover_type: 'tv' }, hassWith('opening', { attributes: { current_position: 40 } }));
     expect(style(el)).toContain('--open: 0.4');
-    expect(q(el, '.position-value')).toBeNull();
+    expect(text(el, '.position-value')).toBe('40%');
+  });
+
+  it.each(['projector', 'tv'])('%s sin porcentaje muestra 0 % cerrado y 100 % abierto', async (cover_type) => {
+    const attrs = { current_position: undefined, supported_features: 1 | 2 | 8 };
+    expect(text(await mount({ cover_type }, hassWith('closed', { attributes: attrs })), '.position-value')).toBe('0%');
+    document.body.innerHTML = '';
+    expect(text(await mount({ cover_type }, hassWith('open', { attributes: attrs })), '.position-value')).toBe('100%');
+  });
+
+  it('el porcentaje de un tipo binario no se puede elegir: ni dial ni deslizador ni punto de toque', async () => {
+    const calls: unknown[][] = [];
+    const el = await mount({ cover_type: 'projector' }, hassWith('open', { calls }));
+    for (const sel of ['.dial-hit', '.dial-hit-dot', 'input[type="range"]']) expect(q(el, sel)).toBeNull();
   });
 
   it('los botones abren y cierran como en los demás tipos', async () => {
@@ -226,6 +241,36 @@ describe('tipos binarios: pantalla de proyector y TV en mueble', () => {
   it('un cover_type inválido sigue sin ser binario: lleva porcentaje', async () => {
     const el = await mount({ cover_type: 'television' });
     expect(q(el, '.position-value')).not.toBeNull();
+  });
+});
+
+describe('flechas del pie según el tipo', () => {
+  const icons = (el: Card) => Object.fromEntries(qa(el, '.control').map((b) => [(b as HTMLElement).dataset.control, b.querySelector('ha-icon')!.getAttribute('icon')]));
+
+  it('persiana, veneciana y TV: cerrar baja y abrir sube', async () => {
+    for (const cover_type of ['shutter', 'blind', 'tv']) {
+      document.body.innerHTML = '';
+      expect(icons(await mount({ cover_type }))).toEqual({ close: 'mdi:arrow-collapse-down', stop: 'mdi:pause', open: 'mdi:arrow-collapse-up' });
+    }
+  });
+
+  it('toldo y pantalla de proyector: cerrar sube (recogidos arriba) y abrir baja', async () => {
+    for (const cover_type of ['awning', 'projector']) {
+      document.body.innerHTML = '';
+      expect(icons(await mount({ cover_type }))).toEqual({ close: 'mdi:arrow-collapse-up', stop: 'mdi:pause', open: 'mdi:arrow-collapse-down' });
+    }
+  });
+
+  it('cortina: cerrar con dos flechas hacia dentro y abrir con dos hacia fuera', async () => {
+    expect(icons(await mount({ cover_type: 'curtain' }))).toEqual({ close: 'mdi:arrow-collapse-horizontal', stop: 'mdi:pause', open: 'mdi:arrow-expand-horizontal' });
+  });
+
+  it('también en la mediana y sin cover_type (persiana)', async () => {
+    expect(icons(await mount({ size: 'medium', cover_type: 'curtain' })).close).toBe('mdi:arrow-collapse-horizontal');
+    document.body.innerHTML = '';
+    expect(icons(await mount({ size: 'medium', cover_type: 'awning' })).open).toBe('mdi:arrow-collapse-down');
+    document.body.innerHTML = '';
+    expect(icons(await mount({})).close).toBe('mdi:arrow-collapse-down');
   });
 });
 

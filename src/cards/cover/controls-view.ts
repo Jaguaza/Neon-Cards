@@ -2,9 +2,12 @@ import { html } from 'lit';
 import type { TemplateResult } from 'lit';
 import type { CoverState } from '../../ha/cover';
 import { CONTROL_ICONS } from './constants';
+import type { CoverType } from './types';
 
 export interface ControlsOptions {
   cover: CoverState;
+  /** Tipo de cover: decide la flecha de Cerrar y de Abrir. */
+  type: CoverType;
   labels: { open: string; close: string; stop: string };
   onOpen: () => void;
   onStop: () => void;
@@ -40,7 +43,7 @@ export function renderControls(o: ControlsOptions): TemplateResult {
       ${controls.map(
         (c, i) => html`
           <button type="button" class="control ${i > 0 ? 'control--divided' : ''}" data-control=${c.key} aria-label=${c.label} title=${c.label} ?disabled=${!o.cover.available} @click=${c.onPress}>
-            <ha-icon icon=${CONTROL_ICONS[c.key]}></ha-icon>
+            <ha-icon icon=${CONTROL_ICONS[o.type][c.key]}></ha-icon>
             <span class="control-label">${c.label}</span>
           </button>
         `

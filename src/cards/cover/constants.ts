@@ -22,12 +22,34 @@ export const STATUS_COLOR_GROUPS: readonly StatusGroup[] = ['open', 'moving', 'c
 /** Clave de la config con el color del icono grande; sin ella el icono sigue al halo. */
 export const ICON_COLOR_KEY = 'icon_color';
 
-/** Iconos de los tres botones de la tarjeta. */
-export const CONTROL_ICONS = {
-  close: 'mdi:arrow-collapse-down',
-  stop: 'mdi:pause',
-  open: 'mdi:arrow-collapse-up',
-} as const;
+/** Los tres iconos del pie de botones de un tipo de cover. */
+export interface ControlIcons {
+  close: string;
+  stop: string;
+  open: string;
+}
+
+const STOP_ICON = 'mdi:pause';
+
+/** Persiana, veneciana y TV: cerrar baja (⤓) y abrir sube (⤒). */
+const DOWN_TO_CLOSE: ControlIcons = { close: 'mdi:arrow-collapse-down', stop: STOP_ICON, open: 'mdi:arrow-collapse-up' };
+/** Toldo y pantalla de proyector: se recogen hacia arriba, así que cerrar sube (⤒) y abrir baja (⤓). */
+const UP_TO_CLOSE: ControlIcons = { close: 'mdi:arrow-collapse-up', stop: STOP_ICON, open: 'mdi:arrow-collapse-down' };
+
+/**
+ * Iconos de los botones según el tipo, para que la flecha dibuje el movimiento
+ * real: la cortina se cierra con dos flechas hacia dentro (cada lado va de
+ * fuera hacia el centro) y se abre con dos hacia fuera; el toldo y la pantalla
+ * de proyector se cierran hacia arriba (recogidos) y se abren hacia abajo.
+ */
+export const CONTROL_ICONS: Record<CoverType, ControlIcons> = {
+  shutter: DOWN_TO_CLOSE,
+  blind: DOWN_TO_CLOSE,
+  tv: DOWN_TO_CLOSE,
+  curtain: { close: 'mdi:arrow-collapse-horizontal', stop: STOP_ICON, open: 'mdi:arrow-expand-horizontal' },
+  awning: UP_TO_CLOSE,
+  projector: UP_TO_CLOSE,
+};
 
 /** Extremos del porcentaje de apertura (0 = cerrada, 100 = abierta del todo). */
 export const POSITION_MIN = 0;
@@ -36,7 +58,7 @@ export const POSITION_MAX = 100;
 /** Los tipos de cover que la tarjeta sabe dibujar, en el orden del editor. */
 export const COVER_TYPES: readonly CoverType[] = ['shutter', 'blind', 'curtain', 'awning', 'projector', 'tv'];
 
-/** Los tipos binarios: solo abiertos o cerrados, sin porcentaje, dial ni deslizadores. */
+/** Los tipos binarios: solo abiertos o cerrados; no se elige un porcentaje y no llevan dial ni deslizadores. */
 export const BINARY_COVER_TYPES: readonly CoverType[] = ['projector', 'tv'];
 
 /** Los tamaños de la tarjeta, en el orden del editor. */

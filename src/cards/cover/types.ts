@@ -29,8 +29,8 @@ export interface NeonCoverCardConfig {
    * proyector (`projector`) o TV en mueble (`tv`). Siempre se elige a mano: ya
    * no se deduce del `device_class` de la entidad. Sin él, o con un valor que
    * no sea uno de los seis, es una persiana enrollable. La pantalla de
-   * proyector y la TV son binarias: solo abiertas o cerradas, sin porcentaje,
-   * dial ni deslizadores.
+   * proyector y la TV son binarias, solo abiertas o cerradas: en la grande muestran 0 % o 100 % (no se elige un
+   * porcentaje) y ninguna lleva dial ni deslizadores.
    */
   cover_type?: CoverType;
   /**

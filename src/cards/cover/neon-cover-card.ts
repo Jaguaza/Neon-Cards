@@ -161,10 +161,18 @@ export class NeonCoverCard extends BaseNeonCard {
     return this._dragPosition ?? cover.position;
   }
 
-  /** Posición actual en grande y su dial; sin `current_position` no hay nada que mostrar. */
+  /**
+   * Posición actual en grande y su dial; sin `current_position` no hay nada
+   * que mostrar. Un tipo binario (proyector, TV) llena el hueco con el
+   * porcentaje solo, sin dial: 0 % cerrado y 100 % abierto (o el de la
+   * entidad, si lo informa), que no se puede elegir.
+   */
   private _renderPositionRow(cover: CoverState, type: CoverType): TemplateResult | typeof nothing {
+    if (isBinaryCoverType(type)) {
+      return renderPositionBlock({ label: this._t('position_label'), value: Math.round(openFraction(cover, cover.position) * 100) });
+    }
     const value = this._shownPosition(cover);
-    if (value === null || isBinaryCoverType(type)) return nothing;
+    if (value === null) return nothing;
     const canSet = cover.canSetPosition && cover.available;
     return renderPositionRow({ entity: cover.entity, value, label: this._t('position_label'), pointer: this._pointerHandlers(canSet) });
   }
@@ -264,6 +272,7 @@ export class NeonCoverCard extends BaseNeonCard {
         ${this._renderSliders(cover, type)}
         ${renderControls({
           cover,
+          type,
           labels: { open: this._t('action_open'), close: this._t('action_close'), stop: this._t('action_stop') },
           onOpen: () => this._call('open_cover'),
           onStop: () => this._call('stop_cover'),

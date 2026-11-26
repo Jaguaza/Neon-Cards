@@ -18,7 +18,7 @@ export function resolveCoverSize(configured?: unknown): CoverSize {
   return COVER_SIZES.includes(configured as CoverSize) ? (configured as CoverSize) : DEFAULT_COVER_SIZE;
 }
 
-/** Los tipos binarios (pantalla de proyector y TV) solo se abren o se cierran: sin porcentaje, dial ni deslizadores. */
+/** Los tipos binarios (pantalla de proyector y TV) solo se abren o se cierran: sin dial ni deslizadores y sin elegir un porcentaje. */
 export function isBinaryCoverType(type: CoverType): boolean {
   return BINARY_COVER_TYPES.includes(type);
 }
