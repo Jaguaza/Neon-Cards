@@ -565,6 +565,15 @@ name: Persiana Salón
 size: medium
 ```
 
+Tamaño compacto (de 3 a 6 columnas, solo icono, nombre, estado y porcentaje, sin dial ni deslizadores):
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.persiana_salon
+name: Persiana Salón
+size: compact
+```
+
 Pantalla de proyector y TV en un mueble (tipos binarios: solo abrir y cerrar; el porcentaje solo se muestra, 0 % o 100 %):
 
 ```yaml
@@ -1203,6 +1212,15 @@ type: custom:neon-cover-card
 entity: cover.living_room_shutter
 name: Living room shutter
 size: medium
+```
+
+Compact size (3 to 6 columns, just icon, name, state and percentage, no dial or sliders):
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.living_room_shutter
+name: Living room shutter
+size: compact
 ```
 
 Projector screen and TV in a cabinet (binary types: just open and close; the percentage is only shown, 0 % or 100 %):

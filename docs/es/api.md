@@ -1763,7 +1763,7 @@ disponible» (y en desarrollo avisa por consola). Especificación completa en
 |---|---|---|---|
 | `entity` | `string` | — (requerida) | Entidad `cover.*`. |
 | `name` | `string` | `friendly_name` de la entidad | Nombre mostrado. |
-| `size` | `'large' \| 'medium'` | `'large'` | Tamaño de la tarjeta. La grande lleva el icono a la izquierda con el dial; la mediana, el icono grande a la derecha en lugar del dial y el porcentaje a la izquierda (mismos deslizadores y pie). Un valor que no sea uno de los dos se ignora. |
+| `size` | `'large' \| 'medium' \| 'compact'` | `'large'` | Tamaño de la tarjeta. La grande lleva el icono a la izquierda con el dial; la mediana, el icono grande a la derecha en lugar del dial y el porcentaje a la izquierda (mismos deslizadores y pie); la compacta, de 3 a 6 columnas, solo el icono pequeño, el nombre, el estado y el porcentaje, sin dial ni deslizadores y con el pie solo de iconos. Un valor que no sea uno de los tres se ignora. |
 | `cover_type` | `'shutter' \| 'blind' \| 'curtain' \| 'awning' \| 'projector' \| 'tv'` | `'shutter'` | Tipo de cover, es decir, el dibujo del icono: persiana enrollable, veneciana, cortina, toldo, pantalla de proyector o TV en mueble. Siempre se elige a mano: **no se deduce** del `device_class` de la entidad. Sin él, o con un valor que no sea uno de los seis, es una persiana enrollable. `projector` y `tv` son **binarios**: sin dial ni deslizadores y sin elegir un porcentaje (la grande muestra 0 % o 100 %), solo el icono animado y los botones. |
 | `neon_palette` | `'emerald' \| 'cyberpunk' \| 'electric' \| 'sunset' \| 'toxic' \| 'custom'` | `'emerald'` | Paleta del halo. Su color 1 es también el del icono, el porcentaje, el dial y los deslizadores mientras la persiana no está cerrada. |
 | `neon_color1` / `neon_color2` / `neon_color3` | `string` (hex) | según paleta | Colores con `neon_palette: custom`. |
@@ -1785,13 +1785,14 @@ puntos, que abren «más información».
 El alto es automático (`rows: 'auto'`) y el ancho depende del tamaño
 (`COVER_GRID` en `src/cards/cover/constants.ts`): la grande solo se puede dejar
 entre 9 y 12 columnas (menos no deja sitio al icono grande, al porcentaje con el
-dial y al pie de botones) y la mediana, sin dial, entre 6 y 8, el ancho de la
-mediana del termostato. `getCardSize()` devuelve `5`.
+dial y al pie de botones), la mediana, sin dial, entre 6 y 8, el ancho de la
+mediana del termostato, y la compacta, sin dial ni deslizadores, entre 3 y 6. `getCardSize()` devuelve `5`.
 
 | Tamaño | `columns` | `min_columns` | `max_columns` |
 |---|---|---|---|
 | Grande (`large`) | `12` | `9` | `12` |
 | Mediana (`medium`) | `8` | `6` | `8` |
+| Compacta (`compact`) | `6` | `3` | `6` |
 
 ### Ejemplo completo
 
