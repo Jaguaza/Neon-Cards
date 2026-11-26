@@ -13,8 +13,8 @@ el pie tiene tres botones que **abren, paran y cierran**. Hay dos tipos más,
 o cerrados, sin elegir un porcentaje. Lleva el halo neón de
 la familia Neón Cards.
 
-Tiene dos tamaños, con `size`: **grande** (`large`, por defecto) y **mediana**
-(`medium`).
+Tiene tres tamaños, con `size`: **grande** (`large`, por defecto), **mediana**
+(`medium`) y **compacta** (`compact`).
 
 ## Diseño
 
@@ -57,6 +57,28 @@ tiene porcentaje ni deslizadores: solo el estado a la izquierda y el icono
 grande a la derecha; en una mediana estrecha (unas 6 columnas, menos de unos
 260 px) el proyector y la TV bajan el icono, centrado, al hueco de debajo del
 texto para no pisar el estado.
+
+### Tamaño compacto
+
+La más estrecha (de 3 a 6 columnas) y la más baja (unos 100 px de alto, frente a
+los casi 200 de la mediana): lo justo para ver y mover la persiana.
+
+- **Icono, nombre y estado:** el icono pequeño (el mismo dibujo del tipo que
+  elijas) a la izquierda y, a su derecha, el nombre, el estado con su punto y el
+  porcentaje en grande; los tres puntos de «más información» flotan en la
+  esquina.
+- **Sin** dial, deslizadores, inclinación ni «Posición actual» a la vista (la
+  etiqueta sigue ahí, oculta, para los lectores de pantalla). La posición se
+  cambia con los botones o desde «más información».
+- **Pie:** los botones Cerrar, Parar y Abrir, solo con el icono (el nombre sigue
+  en `aria-label` y `title`).
+- Un tipo binario (`projector`, `tv`) o una entidad sin `current_position` no
+  muestra porcentaje: solo el icono, el nombre y el estado.
+- Se adapta al ancho que le da la rejilla: a 6 columnas, icono y texto en fila;
+  a 4 o 5, lo mismo algo menor; a 3 columnas pasa a vertical, con el icono y el
+  porcentaje arriba y el nombre y el estado debajo.
+- El halo, `icon_color` y los `status_color_*` funcionan igual que en los demás
+  tamaños.
 
 ### El icono
 
@@ -158,11 +180,12 @@ interacción.
 |---|---|---|---|
 | `large` (por defecto) | `12` | `9` | `12` |
 | `medium` | `8` | `6` | `8` |
+| `compact` | `6` | `3` | `6` |
 
 La grande solo se puede dejar entre 9 y 12 columnas: menos no deja sitio al
 icono grande, al porcentaje con el dial y al pie de botones. La mediana, sin
-dial, se puede dejar entre 6 y 8 (el ancho de la mediana de la Thermostat).
-`getCardSize()` devuelve `5`.
+dial, se puede dejar entre 6 y 8 (el ancho de la mediana de la Thermostat). La compacta, sin dial ni
+deslizadores, entre 3 y 6. `getCardSize()` devuelve `5`.
 
 **En tarjetas estrechas** (pocas columnas o una pantalla pequeña como un móvil)
 la tarjeta se adapta al ancho que le da la rejilla, no al de la ventana: el dial
@@ -202,8 +225,8 @@ and a slider, **venetian blinds** get a second slider for the slat tilt, and
 three buttons **open, stop and close**. It has the neon halo of the Neón Cards
 family and, like the Thermostat, no sensor footer.
 
-It has two sizes, with `size`: **large** (`large`, the default) and **medium**
-(`medium`).
+It has three sizes, with `size`: **large** (`large`, the default), **medium**
+(`medium`) and **compact** (`compact`).
 
 ## Design
 
@@ -245,6 +268,27 @@ percentage or sliders: just the state on the left and the large icon on the
 right; in a narrow medium card (about 6 columns, under about 260 px) the
 projector and the TV move the icon, centered, down into the gap under the text
 so it does not run over the state.
+
+### Compact size
+
+The narrowest (3 to 6 columns) and the lowest (about 100 px tall, against almost
+200 for the medium one): just enough to see and move the cover.
+
+- **Icon, name and state:** the small icon (the same drawing of the type you
+  choose) on the left and, to its right, the name, the state with its dot and
+  the percentage in large type; the three dots for "more info" float in the
+  corner.
+- **No** dial, sliders, tilt or visible "Current position" (the label is still
+  there, hidden, for screen readers). The position is changed with the buttons
+  or from "more info".
+- **Footer:** the Close, Stop and Open buttons, icon only (the name stays in
+  `aria-label` and `title`).
+- A binary type (`projector`, `tv`) or an entity without `current_position`
+  shows no percentage: just the icon, the name and the state.
+- It adapts to the width the grid gives it: at 6 columns, icon and text in a
+  row; at 4 or 5, the same a bit smaller; at 3 columns it turns vertical, with
+  the icon and the percentage on top and the name and the state below.
+- The halo, `icon_color` and the `status_color_*` work as in the other sizes.
 
 ### The icon
 
@@ -347,11 +391,12 @@ interaction.
 |---|---|---|---|
 | `large` (default) | `12` | `9` | `12` |
 | `medium` | `8` | `6` | `8` |
+| `compact` | `6` | `3` | `6` |
 
 The large one can only be set between 9 and 12 columns: less leaves no room for
 the large icon, the percentage with its dial and the button footer. The medium
 one, with no dial, can be set between 6 and 8 (the width of the Thermostat's
-medium card). `getCardSize()` returns `5`.
+medium card). The compact one, with no dial or sliders, between 3 and 6. `getCardSize()` returns `5`.
 
 **In narrow cards** (few columns or a small screen such as a phone) the card
 adapts to the width the grid gives it, not to the window's: the large size's

@@ -119,7 +119,7 @@ describe('NeonCoverCardEditor', () => {
   it('el selector de tamaño tiene Grande y Mediana, con Grande por defecto', async () => {
     const { el } = await mount({ entity: 'cover.salon' });
     const select = el.shadowRoot!.querySelector('#size') as HTMLSelectElement;
-    expect(Array.from(select.options).map((o) => o.value)).toEqual(['large', 'medium']);
+    expect(Array.from(select.options).map((o) => o.value)).toEqual(['large', 'medium', 'compact']);
     expect(select.value).toBe('large');
   });
 
@@ -136,18 +136,29 @@ describe('NeonCoverCardEditor', () => {
     expect('size' in last()).toBe(false);
   });
 
+  it('elegir Compacta guarda size: compact', async () => {
+    const { el, last } = await mount({ entity: 'cover.salon' });
+    const select = el.shadowRoot!.querySelector('#size') as HTMLSelectElement;
+    select.value = 'compact';
+    select.dispatchEvent(new Event('change'));
+    expect(last().size).toBe('compact');
+    await el.updateComplete;
+    expect((el.shadowRoot!.querySelector('#size') as HTMLSelectElement).value).toBe('compact');
+    expect(Array.from((el.shadowRoot!.querySelector('#size') as HTMLSelectElement).options).map((o) => o.textContent?.trim())[2]).toBe('Compacta (icono pequeño, sin dial ni deslizadores)');
+  });
+
   it('un size guardado sale elegido y uno inválido cuenta como Grande', async () => {
     const medium = await mount({ entity: 'cover.salon', size: 'medium' });
     expect((medium.el.shadowRoot!.querySelector('#size') as HTMLSelectElement).value).toBe('medium');
     document.body.innerHTML = '';
-    const invalid = await mount({ entity: 'cover.salon', size: 'compact' });
+    const invalid = await mount({ entity: 'cover.salon', size: 'giant' });
     expect((invalid.el.shadowRoot!.querySelector('#size') as HTMLSelectElement).value).toBe('large');
   });
 
   it('los textos del tamaño salen en el idioma de Home Assistant', async () => {
     const { el } = await mount({ entity: 'cover.salon' }, 'en');
     const select = el.shadowRoot!.querySelector('#size') as HTMLSelectElement;
-    expect(Array.from(select.options).map((o) => o.textContent?.trim())).toEqual(['Large', 'Medium (large icon on the right, no dial)']);
+    expect(Array.from(select.options).map((o) => o.textContent?.trim())).toEqual(['Large', 'Medium (large icon on the right, no dial)', 'Compact (small icon, no dial or sliders)']);
   });
 
   it('los textos salen en el idioma de Home Assistant', async () => {

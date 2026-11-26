@@ -19,6 +19,7 @@ export const es: CoverTranslations = {
   size_label: 'Tamaño',
   size_large: 'Grande',
   size_medium: 'Mediana (icono grande a la derecha, sin dial)',
+  size_compact: 'Compacta (icono pequeño, sin dial ni deslizadores)',
   type_label: 'Tipo de persiana',
   type_shutter: 'Persiana',
   type_blind: 'Veneciana',

@@ -94,8 +94,8 @@ describe('tarjeta mediana', () => {
 });
 
 describe('selección del tamaño', () => {
-  it('sin size, o con uno que no es large ni medium, es la grande', async () => {
-    for (const size of [undefined, 'large', 'compact', '', 3]) {
+  it('sin size, o con uno que no es large, medium ni compact, es la grande', async () => {
+    for (const size of [undefined, 'large', 'giant', '', 3]) {
       document.body.innerHTML = '';
       const el = await mount(size === undefined ? {} : { size });
       expect(card(el).getAttribute('data-cover-size')).toBe('large');

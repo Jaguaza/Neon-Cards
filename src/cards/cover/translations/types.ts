@@ -17,6 +17,7 @@ export interface CoverTranslations {
   size_label: string;
   size_large: string;
   size_medium: string;
+  size_compact: string;
   type_label: string;
   type_shutter: string;
   type_blind: string;

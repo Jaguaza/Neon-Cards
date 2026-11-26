@@ -8,7 +8,7 @@ export type StatusGroup = 'open' | 'moving' | 'closed' | 'alert';
 export type CoverType = 'shutter' | 'blind' | 'curtain' | 'awning' | 'projector' | 'tv';
 
 /** Tamaño de la tarjeta: grande (icono a la izquierda, con dial) o mediana (icono grande a la derecha, sin dial). */
-export type CoverSize = 'large' | 'medium';
+export type CoverSize = 'large' | 'medium' | 'compact';
 
 export interface NeonCoverCardConfig {
   type?: string;

@@ -92,12 +92,13 @@ describe('isBinaryCoverType', () => {
 });
 
 describe('resolveCoverSize', () => {
-  it('large o medium, tal cual', () => {
+  it('large, medium o compact, tal cual', () => {
     expect(resolveCoverSize('large')).toBe('large');
     expect(resolveCoverSize('medium')).toBe('medium');
+    expect(resolveCoverSize('compact')).toBe('compact');
   });
 
-  it('sin valor, o con uno que no es uno de los dos, es la grande', () => {
-    for (const value of [undefined, '', 'compact', 'normal', 3, null]) expect(resolveCoverSize(value)).toBe('large');
+  it('sin valor, o con uno que no es uno de los tres, es la grande', () => {
+    for (const value of [undefined, '', 'giant', 'normal', 3, null]) expect(resolveCoverSize(value)).toBe('large');
   });
 });

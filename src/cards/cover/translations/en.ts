@@ -19,6 +19,7 @@ export const en: CoverTranslations = {
   size_label: 'Size',
   size_large: 'Large',
   size_medium: 'Medium (large icon on the right, no dial)',
+  size_compact: 'Compact (small icon, no dial or sliders)',
   type_label: 'Cover type',
   type_shutter: 'Shutter',
   type_blind: 'Venetian blind',

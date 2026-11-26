@@ -21,6 +21,7 @@ import { NEON_COVER_GLYPH_STYLES } from './cover-glyph.styles';
 import { NEON_COVER_BODY_STYLES } from './cover-body.styles';
 import { NEON_COVER_BLIND_STYLES } from './cover-blind.styles';
 import { NEON_COVER_CONTROLS_STYLES } from './cover-controls.styles';
+import { NEON_COVER_COMPACT_STYLES } from './cover-compact.styles';
 import { NEON_COVER_MEDIUM_STYLES } from './cover-medium.styles';
 import { NEON_COVER_CARD_STYLES } from './neon-cover-card.styles';
 import { renderControls } from './controls-view';
@@ -29,7 +30,7 @@ import { renderPositionBlock, renderPositionRow, renderScale, renderSlider, rend
 import type { PointerHandlers } from './position-view';
 import { COVER_TRANSLATIONS } from './translations';
 import type { CoverTranslations } from './translations';
-import type { CoverType, NeonCoverCardConfig } from './types';
+import type { CoverSize, CoverType, NeonCoverCardConfig } from './types';
 
 /**
  * Neón Cover Card
@@ -60,7 +61,7 @@ export class NeonCoverCard extends BaseNeonCard {
   private readonly _ringUid = Math.random().toString(36).slice(2);
   private readonly _ring = new RingSizeController(this);
 
-  static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_COVER_CARD_STYLES, NEON_COVER_GLYPH_STYLES, NEON_COVER_BODY_STYLES, NEON_COVER_CONTROLS_STYLES, NEON_COVER_BLIND_STYLES, NEON_COVER_MEDIUM_STYLES];
+  static styles = [NEON_HALO_STYLES, NEON_RING_SPLIT_STYLES, NEON_COVER_CARD_STYLES, NEON_COVER_GLYPH_STYLES, NEON_COVER_BODY_STYLES, NEON_COVER_CONTROLS_STYLES, NEON_COVER_BLIND_STYLES, NEON_COVER_MEDIUM_STYLES, NEON_COVER_COMPACT_STYLES];
 
   static getConfigElement(): HTMLElement {
     return document.createElement('neon-cover-card-editor');
@@ -94,7 +95,7 @@ export class NeonCoverCard extends BaseNeonCard {
     return 5;
   }
 
-  /** Alto automático y ancho según el tamaño: la grande, entre 9 y 12 columnas; la mediana, entre 6 y 8. */
+  /** Alto automático y ancho según el tamaño: la grande, entre 9 y 12 columnas; la mediana, entre 6 y 8; la compacta, entre 3 y 6. */
   getGridOptions(): { rows: 'auto'; columns: number; min_columns: number; max_columns: number } {
     return { rows: 'auto', ...COVER_GRID[resolveCoverSize(this._config?.size)] };
   }
@@ -245,15 +246,21 @@ export class NeonCoverCard extends BaseNeonCard {
   }
 
   /**
-   * Mediana: el nombre arriba (con los tres puntos) y, debajo, a la izquierda
-   * el estado y el porcentaje y a la derecha el icono grande, que sube hasta
-   * la altura del estado (el nombre y el estado nunca llegan hasta él). Un tipo
+   * Mediana y compacta: el nombre con los tres puntos, el estado y el
+   * porcentaje (sin dial) a un lado y el icono al otro. En la mediana el nombre
+   * va arriba a todo el ancho y el icono, grande, a la derecha a la altura del
+   * estado; en la compacta el icono, pequeño, va a la izquierda. Un tipo
    * binario o sin `current_position` no tiene porcentaje.
    */
-  private _renderMediumMain(cover: CoverState, type: CoverType, active: boolean): TemplateResult {
+  private _renderIconMain(cover: CoverState, type: CoverType, active: boolean, size: 'medium' | 'compact'): TemplateResult {
     const value = this._shownPosition(cover);
     const block = value === null || isBinaryCoverType(type) ? nothing : renderPositionBlock({ label: this._t('position_label'), value });
-    return html`<div class="medium-main">${this._renderHeader(cover)} ${block} ${this._renderHeroIcon(cover, type, active)}</div>`;
+    return html`<div class="${size}-main">${this._renderHeader(cover)} ${block} ${this._renderHeroIcon(cover, type, active)}</div>`;
+  }
+
+  /** La cabecera y la posición de cada tamaño: grande con dial, mediana y compacta sin él. */
+  private _renderMain(cover: CoverState, type: CoverType, active: boolean, size: CoverSize): TemplateResult {
+    return size === 'large' ? this._renderLargeMain(cover, type, active) : this._renderIconMain(cover, type, active, size);
   }
 
   render(): TemplateResult {
@@ -269,8 +276,8 @@ export class NeonCoverCard extends BaseNeonCard {
     return html`
       <ha-card class="neon-ring-host ${active ? 'neon-halo-active' : ''}" data-cover-type=${type} data-cover-size=${size} style=${neonHaloVars(colors)}>
         ${neonRingSplitTemplate(this._ringUid, this._ring.size.width, this._ring.size.height, this._ring.size.radius)}
-        ${size === 'medium' ? this._renderMediumMain(cover, type, active) : this._renderLargeMain(cover, type, active)}
-        ${this._renderSliders(cover, type)}
+        ${this._renderMain(cover, type, active, size)}
+        ${size === 'compact' ? nothing : this._renderSliders(cover, type)}
         ${renderControls({
           cover,
           type,

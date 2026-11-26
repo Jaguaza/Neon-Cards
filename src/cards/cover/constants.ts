@@ -63,7 +63,7 @@ export const COVER_TYPES: readonly CoverType[] = ['shutter', 'blind', 'curtain',
 export const BINARY_COVER_TYPES: readonly CoverType[] = ['projector', 'tv'];
 
 /** Los tamaños de la tarjeta, en el orden del editor. */
-export const COVER_SIZES: readonly CoverSize[] = ['large', 'medium'];
+export const COVER_SIZES: readonly CoverSize[] = ['large', 'medium', 'compact'];
 export const DEFAULT_COVER_SIZE: CoverSize = 'large';
 
 /**
@@ -72,9 +72,12 @@ export const DEFAULT_COVER_SIZE: CoverSize = 'large';
  * con menos no hay sitio para el icono grande, el porcentaje con el dial y el
  * pie de botones. La mediana empieza a 8 columnas y se puede dejar entre 6 y 8
  * (el ancho de la mediana del termostato); sin dial necesita menos, pero no
- * menos de 6 para el % con el icono grande al lado.
+ * menos de 6 para el % con el icono grande al lado. La compacta empieza a 6
+ * columnas y se puede dejar entre 3 y 6: sin dial ni deslizadores, con el
+ * icono pequeño, el nombre, el estado, el % y el pie de iconos.
  */
 export const COVER_GRID: Record<CoverSize, { columns: number; min_columns: number; max_columns: number }> = {
   large: { columns: 12, min_columns: 9, max_columns: 12 },
   medium: { columns: 8, min_columns: 6, max_columns: 8 },
+  compact: { columns: 6, min_columns: 3, max_columns: 6 },
 };
