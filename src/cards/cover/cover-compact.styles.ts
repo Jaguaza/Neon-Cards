@@ -124,7 +124,7 @@ export const NEON_COVER_COMPACT_STYLES = css`
     }
 
     ha-card[data-cover-size='compact'] .name {
-      padding-right: 14px;
+      padding-right: 16px;
       font-size: 13px;
       line-height: 18px;
     }
@@ -139,7 +139,7 @@ export const NEON_COVER_COMPACT_STYLES = css`
     }
 
     ha-card[data-cover-size='compact'] .menu {
-      top: 4px;
+      top: 5px;
       right: 4px;
     }
   }
@@ -187,8 +187,8 @@ export const NEON_COVER_COMPACT_STYLES = css`
     }
 
     ha-card[data-cover-size='compact'] .menu {
-      top: 2px;
-      right: 3px;
+      top: 5px;
+      right: 4px;
       width: 18px;
       height: 18px;
     }
