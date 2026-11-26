@@ -565,7 +565,7 @@ name: Persiana Salón
 size: medium
 ```
 
-Pantalla de proyector y TV en un mueble (tipos binarios: sin porcentaje, solo abrir y cerrar):
+Pantalla de proyector y TV en un mueble (tipos binarios: solo abrir y cerrar; el porcentaje solo se muestra, 0 % o 100 %):
 
 ```yaml
 type: custom:neon-cover-card
@@ -617,8 +617,10 @@ apertura, `blind` una veneciana cuyas lamas se recogen y giran con la
 inclinación, `curtain` una cortina cuyos paneles se recogen a los lados y
 `awning` un toldo que despliega la lona; `projector` y `tv` completan los seis
 tipos. El tipo no se deduce del `device_class` de la entidad. La pantalla de proyector y la TV en mueble son binarias: el
-icono se anima entre abierto y cerrado y solo hay botones, sin porcentaje, dial
-ni deslizadores. Muestra la posición actual con un dial en arco y un deslizador fino
+icono se anima entre abierto y cerrado y solo hay botones: sin dial ni deslizadores y con
+el porcentaje solo como indicador (0 % o 100 %). Las flechas de Cerrar y Abrir dibujan el
+movimiento de cada tipo: la cortina, dos flechas hacia dentro para cerrar y hacia fuera para
+abrir; el toldo y la pantalla de proyector, hacia arriba para cerrar y hacia abajo para abrir. Muestra la posición actual con un dial en arco y un deslizador fino
 de 0 a 100 % que también la fijan (la orden sale al soltar). Si la
 entidad soporta la inclinación de las lamas, como una veneciana, sale un segundo
 deslizador debajo para fijarla. En el pie, los botones Cerrar, Parar y Abrir
@@ -1203,7 +1205,7 @@ name: Living room shutter
 size: medium
 ```
 
-Projector screen and TV in a cabinet (binary types: no percentage, just open and close):
+Projector screen and TV in a cabinet (binary types: just open and close; the percentage is only shown, 0 % or 100 %):
 
 ```yaml
 type: custom:neon-cover-card
@@ -1255,8 +1257,10 @@ percentage, `blind` a venetian blind whose slats gather and turn with the
 tilt, `curtain` a curtain whose panels gather at the sides and `awning` an
 awning that unrolls its canvas; `projector` and `tv` complete the six types.
 The type is not deduced from the entity's `device_class`. The projector screen and the TV cabinet are
-binary: the icon animates between open and closed and there are only buttons, no
-percentage, dial or sliders. It
+binary: the icon animates between open and closed and there are only buttons: no dial or sliders,
+and the percentage is only an indicator (0 % or 100 %). The Close and Open arrows draw each
+type's movement: the curtain, two arrows pointing in to close and out to open; the awning and
+the projector screen, up to close and down to open. It
 shows the current position with an arc dial and a thin 0 to 100 % slider that
 also set it (the command is sent on release).
 If the entity supports slat tilt, like a venetian blind, a second slider below

@@ -10,7 +10,7 @@ apertura y, en una veneciana, gira las lamas con la inclinación. El
 **venecianas** tienen un segundo deslizador para la inclinación de las lamas y
 el pie tiene tres botones que **abren, paran y cierran**. Hay dos tipos más,
 **binarios**, para una pantalla de proyector y una TV en un mueble: solo abiertos
-o cerrados, sin porcentaje. Lleva el halo neón de
+o cerrados, sin elegir un porcentaje. Lleva el halo neón de
 la familia Neón Cards.
 
 Tiene dos tamaños, con `size`: **grande** (`large`, por defecto) y **mediana**
@@ -28,7 +28,14 @@ Tiene dos tamaños, con `size`: **grande** (`large`, por defecto) y **mediana**
 - **Inclinación** (solo si la entidad la soporta): otro deslizador bajo el de
   posición, con su título y su porcentaje.
 - **Pie:** los botones Cerrar, Parar y Abrir en columnas iguales con un
-  divisor vertical entre ellas, como el pie de sensores de la Thermostat.
+  divisor vertical entre ellas, como el pie de sensores de la Thermostat. La
+  flecha de Cerrar y de Abrir dibuja el movimiento real de cada tipo:
+
+  | Tipo | Cerrar | Abrir |
+  |---|---|---|
+  | Persiana, veneciana y TV | flecha hacia abajo | flecha hacia arriba |
+  | Toldo y pantalla de proyector (se recogen arriba) | flecha hacia arriba | flecha hacia abajo |
+  | Cortina (cada lado va de fuera al centro y al revés) | dos flechas hacia dentro | dos flechas hacia fuera |
 
 ### Tamaño mediano
 
@@ -115,11 +122,13 @@ La tarjeta lee `supported_features` y `current_position` (con
 | Deslizador de inclinación | soporta fijar inclinación y informa de `current_tilt_position` |
 
 **Tipos binarios.** Con `cover_type: projector` o `tv` la tarjeta no pinta el
-porcentaje, el dial ni los deslizadores (aunque la entidad informe de
-`current_position` o de inclinación): solo el icono, el nombre con el estado y
-el pie de botones. El icono se anima entre cerrado y abierto: sigue a
-`current_position` si la entidad lo informa y, si no, va al estado de destino
-(abierta o abriéndose, abierto; cerrada o cerrándose, cerrado).
+dial ni los deslizadores (aunque la entidad informe de `current_position` o de
+inclinación) y el porcentaje no se puede elegir. En la grande, el hueco bajo el
+nombre y el estado se llena con «Posición actual» y el porcentaje solo: 0 % con
+la persiana cerrada y 100 % abierta, o el que informe la entidad mientras se
+mueve. El icono se anima entre cerrado y abierto: sigue a `current_position` si
+la entidad lo informa y, si no, va al estado de destino (abierta o abriéndose,
+abierto; cerrada o cerrándose, cerrado).
 
 Con la entidad no disponible, los botones y los deslizadores se desactivan.
 Estos elementos dependen de la entidad y no de su estado: **la tarjeta no
@@ -205,7 +214,14 @@ It has two sizes, with `size`: **large** (`large`, the default) and **medium**
 - **Tilt** (only if the entity supports it): another slider under the position
   one, with its title and its percentage.
 - **Footer:** the Close, Stop and Open buttons in equal columns with a vertical
-  divider between them, like the Thermostat's sensor footer.
+  divider between them, like the Thermostat's sensor footer. The Close and Open
+  arrows draw the real movement of each type:
+
+  | Type | Close | Open |
+  |---|---|---|
+  | Shutter, venetian blind and TV | arrow down | arrow up |
+  | Awning and projector screen (they retract upward) | arrow up | arrow down |
+  | Curtain (each side goes from the outside to the center and back) | two arrows pointing in | two arrows pointing out |
 
 ### Medium size
 
@@ -292,12 +308,14 @@ The card reads `supported_features` and `current_position` (with
 | …and they can be moved | it also supports setting the position; otherwise they are shown but disabled |
 | Tilt slider | it supports setting the tilt and reports `current_tilt_position` |
 
-**Binary types.** With `cover_type: projector` or `tv` the card draws no
-percentage, dial or sliders (even if the entity reports `current_position` or
-tilt): just the icon, the name with the state and the button footer. The icon
-animates between closed and open: it follows `current_position` if the entity
-reports it and otherwise heads to the target state (open or opening, open;
-closed or closing, closed).
+**Binary types.** With `cover_type: projector` or `tv` the card draws no dial or
+sliders (even if the entity reports `current_position` or tilt) and the
+percentage cannot be chosen. In the large size, the gap under the name and the
+state is filled with "Current position" and the percentage alone: 0 % with the
+cover closed and 100 % open, or whatever the entity reports while it moves. The
+icon animates between closed and open: it follows `current_position` if the
+entity reports it and otherwise heads to the target state (open or opening,
+open; closed or closing, closed).
 
 With the entity unavailable, the buttons and sliders are disabled. These
 elements depend on the entity and not on its state: **the card does not change
