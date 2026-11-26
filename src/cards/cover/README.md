@@ -206,7 +206,7 @@ debajo de unos 340 px los botones usan menos relleno y por debajo de unos
 | `cover-glyph.ts` | Los dibujos de la persiana enrollable, la veneciana, la cortina, el toldo, la pantalla de proyector y la TV en mueble |
 | `cover-visual.ts` | Qué dibujo lleva el cover, apertura, grupo de estado, halo y colores elegidos |
 | `constants.ts`, `types.ts` | Iconos, colores del punto de estado y configuración |
-| `*.styles.ts` | Estilos divididos (carcasa y cabecera, dibujo, cuerpo, pie de botones) |
+| `*.styles.ts` | Estilos divididos: carcasa y cabecera, dibujo (`cover-glyph`), cuerpo (`cover-body`), veneciana (`cover-blind`), pie de botones (`cover-controls`) y los tamaños mediano (`cover-medium`) y compacto (`cover-compact`) |
 | `translations/` | Textos en español e inglés |
 | `neon-cover-card-editor.ts` | Editor visual: entidad, nombre, tipo de cover, colores y halo |
 
@@ -417,6 +417,6 @@ icon (the name stays in `aria-label` and `title`).
 | `cover-glyph.ts` | The rolling shutter, venetian blind, curtain, awning, projector screen and TV cabinet drawings |
 | `cover-visual.ts` | Which drawing the cover gets, opening, state group, halo and chosen colors |
 | `constants.ts`, `types.ts` | Icons, state dot colors and configuration |
-| `*.styles.ts` | Split styles (shell and header, drawing, body, button footer) |
+| `*.styles.ts` | Split styles: shell and header, drawing (`cover-glyph`), body (`cover-body`), venetian blind (`cover-blind`), button footer (`cover-controls`) and the medium (`cover-medium`) and compact (`cover-compact`) sizes |
 | `translations/` | Spanish and English texts |
 | `neon-cover-card-editor.ts` | Visual editor: entity, name, cover type, colors and halo |
