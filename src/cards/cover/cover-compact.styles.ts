@@ -86,8 +86,10 @@ export const NEON_COVER_COMPACT_STYLES = css`
   }
 
   /* Los tres puntos flotan en la esquina: no ocupan sitio en la rejilla. */
+  /* Por encima del halo (el aro se dibuja en el borde de la tarjeta) y separados de él. */
   ha-card[data-cover-size='compact'] .menu {
     position: absolute;
+    z-index: 1;
     top: 6px;
     right: 6px;
     width: 22px;
@@ -138,14 +140,14 @@ export const NEON_COVER_COMPACT_STYLES = css`
 
     ha-card[data-cover-size='compact'] .menu {
       top: 4px;
-      right: 2px;
+      right: 4px;
     }
   }
 
   /* 3 columnas: vertical, con el icono y el porcentaje arriba y el nombre y el estado debajo. */
   @container (max-width: 125px) {
     ha-card[data-cover-size='compact'] {
-      padding-top: 9px;
+      padding-top: 10px;
     }
 
     .compact-main {
@@ -185,10 +187,10 @@ export const NEON_COVER_COMPACT_STYLES = css`
     }
 
     ha-card[data-cover-size='compact'] .menu {
-      top: 0;
-      right: -2px;
-      width: 20px;
-      height: 20px;
+      top: 2px;
+      right: 3px;
+      width: 18px;
+      height: 18px;
     }
   }
 `;
