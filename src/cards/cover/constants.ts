@@ -39,14 +39,15 @@ const UP_TO_CLOSE: ControlIcons = { close: 'mdi:arrow-collapse-up', stop: STOP_I
 /**
  * Iconos de los botones según el tipo, para que la flecha dibuje el movimiento
  * real: la cortina se cierra con dos flechas hacia dentro (cada lado va de
- * fuera hacia el centro) y se abre con dos hacia fuera; el toldo y la pantalla
+ * fuera hacia el centro) y se abre con el mismo icono pero con las flechas
+ * hacia fuera (`arrow-split-vertical`, las mismas barras); el toldo y la pantalla
  * de proyector se cierran hacia arriba (recogidos) y se abren hacia abajo.
  */
 export const CONTROL_ICONS: Record<CoverType, ControlIcons> = {
   shutter: DOWN_TO_CLOSE,
   blind: DOWN_TO_CLOSE,
   tv: DOWN_TO_CLOSE,
-  curtain: { close: 'mdi:arrow-collapse-horizontal', stop: STOP_ICON, open: 'mdi:arrow-expand-horizontal' },
+  curtain: { close: 'mdi:arrow-collapse-horizontal', stop: STOP_ICON, open: 'mdi:arrow-split-vertical' },
   awning: UP_TO_CLOSE,
   projector: UP_TO_CLOSE,
 };

@@ -175,7 +175,10 @@ describe('tipos binarios: pantalla de proyector y TV en mueble', () => {
     expect(q(el, '.cover-glyph')?.getAttribute('data-glyph')).toBe(cover_type);
     expect(text(el, '.position-label')).toBe('Posición actual');
     expect(text(el, '.position-value')).toBe('72%');
-    for (const sel of ['.position-row', '.dial-svg', '.slider', '.scale', '.tilt-row']) expect(q(el, sel)).toBeNull();
+    for (const sel of ['.dial-svg', '.slider', '.scale', '.tilt-row']) expect(q(el, sel)).toBeNull();
+    // El porcentaje va solo, en el hueco de la derecha (la fila binaria lo alinea a ese lado).
+    expect(q(el, '.position-row')?.classList.contains('position-row--binary')).toBe(true);
+    expect(q(el, '.position-row--binary .position-block')).not.toBeNull();
     expect(qa(el, '.control').map((b) => (b as HTMLElement).dataset.control)).toEqual(['close', 'stop', 'open']);
     expect(text(el, '.name')).toBe('Persiana Salón');
     expect(text(el, '.status-text')).toBe('Abierta');
@@ -261,8 +264,8 @@ describe('flechas del pie según el tipo', () => {
     }
   });
 
-  it('cortina: cerrar con dos flechas hacia dentro y abrir con dos hacia fuera', async () => {
-    expect(icons(await mount({ cover_type: 'curtain' }))).toEqual({ close: 'mdi:arrow-collapse-horizontal', stop: 'mdi:pause', open: 'mdi:arrow-expand-horizontal' });
+  it('cortina: cerrar con dos flechas hacia dentro y abrir con el mismo icono y las flechas hacia fuera', async () => {
+    expect(icons(await mount({ cover_type: 'curtain' }))).toEqual({ close: 'mdi:arrow-collapse-horizontal', stop: 'mdi:pause', open: 'mdi:arrow-split-vertical' });
   });
 
   it('también en la mediana y sin cover_type (persiana)', async () => {

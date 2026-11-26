@@ -35,7 +35,7 @@ Tiene dos tamaños, con `size`: **grande** (`large`, por defecto) y **mediana**
   |---|---|---|
   | Persiana, veneciana y TV | flecha hacia abajo | flecha hacia arriba |
   | Toldo y pantalla de proyector (se recogen arriba) | flecha hacia arriba | flecha hacia abajo |
-  | Cortina (cada lado va de fuera al centro y al revés) | dos flechas hacia dentro | dos flechas hacia fuera |
+  | Cortina (cada lado va de fuera al centro y al revés) | dos flechas hacia dentro (`arrow-collapse-horizontal`) | el mismo icono con las flechas hacia fuera (`arrow-split-vertical`) |
 
 ### Tamaño mediano
 
@@ -54,7 +54,9 @@ ocupa el sitio del dial.
 
 Un tipo binario (`projector`, `tv`) o una entidad sin `current_position` no
 tiene porcentaje ni deslizadores: solo el estado a la izquierda y el icono
-grande a la derecha.
+grande a la derecha; en una mediana estrecha (unas 6 columnas, menos de unos
+260 px) el proyector y la TV bajan el icono, centrado, al hueco de debajo del
+texto para no pisar el estado.
 
 ### El icono
 
@@ -123,8 +125,8 @@ La tarjeta lee `supported_features` y `current_position` (con
 
 **Tipos binarios.** Con `cover_type: projector` o `tv` la tarjeta no pinta el
 dial ni los deslizadores (aunque la entidad informe de `current_position` o de
-inclinación) y el porcentaje no se puede elegir. En la grande, el hueco bajo el
-nombre y el estado se llena con «Posición actual» y el porcentaje solo: 0 % con
+inclinación) y el porcentaje no se puede elegir. En la grande, el hueco de la
+derecha (donde iría el dial) se llena con «Posición actual» y el porcentaje solo: 0 % con
 la persiana cerrada y 100 % abierta, o el que informe la entidad mientras se
 mueve. El icono se anima entre cerrado y abierto: sigue a `current_position` si
 la entidad lo informa y, si no, va al estado de destino (abierta o abriéndose,
@@ -221,7 +223,7 @@ It has two sizes, with `size`: **large** (`large`, the default) and **medium**
   |---|---|---|
   | Shutter, venetian blind and TV | arrow down | arrow up |
   | Awning and projector screen (they retract upward) | arrow up | arrow down |
-  | Curtain (each side goes from the outside to the center and back) | two arrows pointing in | two arrows pointing out |
+  | Curtain (each side goes from the outside to the center and back) | two arrows pointing in (`arrow-collapse-horizontal`) | the same icon with the arrows pointing out (`arrow-split-vertical`) |
 
 ### Medium size
 
@@ -240,7 +242,9 @@ icon takes the place of the dial.
 
 A binary type (`projector`, `tv`) or an entity without `current_position` has no
 percentage or sliders: just the state on the left and the large icon on the
-right.
+right; in a narrow medium card (about 6 columns, under about 260 px) the
+projector and the TV move the icon, centered, down into the gap under the text
+so it does not run over the state.
 
 ### The icon
 
@@ -310,8 +314,8 @@ The card reads `supported_features` and `current_position` (with
 
 **Binary types.** With `cover_type: projector` or `tv` the card draws no dial or
 sliders (even if the entity reports `current_position` or tilt) and the
-percentage cannot be chosen. In the large size, the gap under the name and the
-state is filled with "Current position" and the percentage alone: 0 % with the
+percentage cannot be chosen. In the large size, the gap on the
+right (where the dial would go) is filled with "Current position" and the percentage alone: 0 % with the
 cover closed and 100 % open, or whatever the entity reports while it moves. The
 icon animates between closed and open: it follows `current_position` if the
 entity reports it and otherwise heads to the target state (open or opening,

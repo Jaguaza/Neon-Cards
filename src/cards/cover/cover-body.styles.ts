@@ -9,6 +9,11 @@ export const NEON_COVER_BODY_STYLES = css`
     gap: 16px;
   }
 
+  /* Tipos binarios: sin dial, el porcentaje ocupa el hueco de la derecha. */
+  .position-row--binary {
+    justify-content: flex-end;
+  }
+
   .position-block {
     display: flex;
     flex-direction: column;

@@ -163,13 +163,14 @@ export class NeonCoverCard extends BaseNeonCard {
 
   /**
    * Posición actual en grande y su dial; sin `current_position` no hay nada
-   * que mostrar. Un tipo binario (proyector, TV) llena el hueco con el
-   * porcentaje solo, sin dial: 0 % cerrado y 100 % abierto (o el de la
+   * que mostrar. Un tipo binario (proyector, TV) llena el hueco de la derecha
+   * con el porcentaje solo, sin dial: 0 % cerrado y 100 % abierto (o el de la
    * entidad, si lo informa), que no se puede elegir.
    */
   private _renderPositionRow(cover: CoverState, type: CoverType): TemplateResult | typeof nothing {
     if (isBinaryCoverType(type)) {
-      return renderPositionBlock({ label: this._t('position_label'), value: Math.round(openFraction(cover, cover.position) * 100) });
+      const value = Math.round(openFraction(cover, cover.position) * 100);
+      return html`<div class="position-row position-row--binary">${renderPositionBlock({ label: this._t('position_label'), value })}</div>`;
     }
     const value = this._shownPosition(cover);
     if (value === null) return nothing;

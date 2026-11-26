@@ -97,4 +97,16 @@ export const NEON_COVER_MEDIUM_STYLES = css`
     padding-top: 0;
     padding-bottom: 0;
   }
+
+  /* Proyector y TV en una mediana estrecha (6 columnas): el icono baja del
+     lado del estado al hueco de debajo del texto, centrado, para no pisarlo. */
+  @container (max-width: 260px) {
+    ha-card[data-cover-size='medium'][data-cover-type='projector'] .hero-icon,
+    ha-card[data-cover-size='medium'][data-cover-type='tv'] .hero-icon {
+      grid-column: 1 / -1;
+      grid-row: 3;
+      justify-self: center;
+      margin-top: 4px;
+    }
+  }
 `;
