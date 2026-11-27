@@ -531,7 +531,7 @@ Tarjeta para entidades `cover` de Home Assistant (persianas, venecianas, cortina
 
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/persiana/persiana.png" width="900"></p>
 
-AQUÍ VA EL VIDEO
+https://github.com/user-attachments/assets/a2d0fe3b-26df-4c1b-b9e3-07f96a411662
 
 ### **Seis tipos con dibujo animado**
 
@@ -1170,7 +1170,7 @@ Card for Home Assistant `cover` entities (shutters, venetian blinds, curtains, a
 
   <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/persiana/persiana.png" width="900"></p>
 
-VIDEO GOES HERE
+https://github.com/user-attachments/assets/a2d0fe3b-26df-4c1b-b9e3-07f96a411662
 
 ### **Six types with animated drawings**
 
