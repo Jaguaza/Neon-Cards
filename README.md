@@ -46,11 +46,12 @@ If you’re enjoying this repository, do pop [over here](#apoyo_en) 
 - 🔐 **CERRADURA.**  [Ir a Cerradura](#cerradura-card)
 - 🚨 **ALARMA.**  [Ir a Alarma](#alarma-card)
 - 💡 **LUZ.**  [Ir a Luz](#luz-card)
+- 🪟 **PERSIANA.**  [Ir a Persiana](#persiana-card)
 
 ### 🔌 Características comunes
 
 - **Se adaptan a tu tema:** toman el radio de las esquinas y los colores del tema activo.
-- **Editor visual** en las siete tarjetas, sin necesidad de escribir YAML.
+- **Editor visual** en las ocho tarjetas, sin necesidad de escribir YAML.
 - **Interfaz de configuración en español e inglés**, según el idioma de tu Home Assistant.
 - **Paletas neón** (Cyber Emerald, Cyberpunk Pink, Electric Blue, Sunset Amber, Toxic Purple o colores propios).
 - **Tamaño automático** en el grid de Home Assistant: no hace falta indicar `grid_options`.
@@ -523,11 +524,76 @@ favorite_colors: ["#ff3b30", "#ff9500", "#34c759", "#0a84ff", "#bf5af2"]
 footer_options: [brightness, color_temp, color, favorites, effects]
 ```
 
+<a name="persiana-card"></a>
+### **🪟 Neón Cover Card**
+
+Tarjeta para entidades `cover` de Home Assistant (persianas, venecianas, cortinas, toldos…) con un **icono grande que se mueve con la entidad**, el porcentaje de apertura con **dial y deslizador**, un segundo deslizador para la **inclinación de las lamas**, tres botones para **abrir, parar y cerrar** y un halo neón.
+
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/persiana/persiana.png" width="900"></p>
+
+AQUÍ VA EL VIDEO
+
+### **Seis tipos con dibujo animado**
+
+Se elige con `cover_type` (o desde el editor visual). No se deduce del `device_class` de la entidad: si no lo indicas, es una persiana enrollable.
+
+| Tipo (`cover_type`) | Dibujo |
+|---|---|
+| `shutter` *(predeterminado)* | Persiana enrollable |
+| `blind` | Veneciana, con las lamas girando según la inclinación |
+| `curtain` | Cortina de dos paneles |
+| `awning` | Toldo |
+| `projector` | Pantalla de proyector *(solo abierta o cerrada)* |
+| `tv` | TV en mueble *(solo abierta o cerrada)* |
+
+Las flechas de **Cerrar** y **Abrir** dibujan el movimiento real de cada tipo. La pantalla de proyector y la TV no llevan dial ni deslizadores; en el tamaño grande muestran el porcentaje solo como indicador.
+
+### **Tres tamaños**
+
+| Tamaño (`size`) | Qué muestra | Columnas de inicio (alto automático) |
+|---|---|---|
+| `large` *(predeterminado)* | Icono, nombre, estado, porcentaje con dial, deslizadores y pie de botones | 12 (se ajusta de 9 a 12) |
+| `medium` | Sin dial: porcentaje a la izquierda e icono grande a la derecha, con deslizadores y pie de botones | 8 (se ajusta de 6 a 8) |
+| `compact` | Icono pequeño, nombre, estado, porcentaje y pie de iconos; sin dial ni deslizadores | 6 (se ajusta de 3 a 6) |
+
+La tarjeta se adapta al ancho que le dan y **no cambia de alto** al abrir, cerrar o mover la persiana.
+
+### **Mover la persiana**
+
+Los botones abren, paran y cierran. El dial y el deslizador fijan la posición, y el deslizador de inclinación gira las lamas; la orden se manda al soltar. Solo aparece lo que la entidad soporta (según `supported_features` y `current_position`). Los tres puntos abren «más información».
+
+### **Halo y colores**
+
+El halo se enciende mientras la persiana está abierta o en movimiento, con la paleta que elijas (`neon_palette`). El punto de estado es verde abierta, ámbar en movimiento, gris cerrada y rojo no disponible (`status_color_open`, `status_color_moving`, `status_color_closed` y `status_color_alert` los cambian). `icon_color` da un color propio al icono mientras la tarjeta está activa. Más detalles en la [documentación de la tarjeta](./src/cards/cover/README.md).
+
+### **Configuración mínima**
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.persiana_salon
+```
+
+### **Veneciana con colores propios**
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.veneciana_despacho
+name: Veneciana Despacho
+size: large
+cover_type: blind
+neon_palette: electric
+icon_color: "#ffb02e"
+status_color_open: "#06d6a0"
+status_color_moving: "#ffd166"
+status_color_closed: "#8d99ae"
+status_color_alert: "#ef476f"
+```
+
 ## 🚀 Próximamente
 
 Neon Cards se está diseñando como una colección completa de tarjetas para Home Assistant, se irán añadiendo más tarjetas.
 
-- **Próxima Tarjeta: 🪟 PERSIANA**
+- **Próxima Tarjeta: ✏️ TÍTULO**
 
 ---
 
@@ -620,11 +686,12 @@ Ver el texto legal completo en [`LICENSE`](./LICENSE) (inglés, vinculante) o su
 - 🔐 **LOCK.**  [Go to Lock](#lock-card-gb)
 - 🚨 **ALARM.**  [Go to Alarm](#alarm-card-gb)
 - 💡 **LIGHT.**  [Go to Light](#light-card-gb)
+- 🪟 **COVER.**  [Go to Cover](#cover-card-gb)
 
 ### 🔌 Common features
 
 - **They adapt to your theme:** they take the corner radius and colors of the active theme.
-- **Visual editor** in all seven cards, no YAML needed.
+- **Visual editor** in all eight cards, no YAML needed.
 - **Configuration UI in Spanish and English**, following your Home Assistant language.
 - **Neon palettes** (Cyber Emerald, Cyberpunk Pink, Electric Blue, Sunset Amber, Toxic Purple or your own colors).
 - **Automatic size** in Home Assistant's grid: no need to set `grid_options`.
@@ -1096,11 +1163,76 @@ favorite_colors: ["#ff3b30", "#ff9500", "#34c759", "#0a84ff", "#bf5af2"]
 footer_options: [brightness, color_temp, color, favorites, effects]
 ```
 
+<a name="cover-card-gb"></a>
+### **🪟 Neon Cover Card**
+
+Card for Home Assistant `cover` entities (shutters, venetian blinds, curtains, awnings…) with a **large icon that moves with the entity**, the opening percentage with a **dial and a slider**, a second slider for the **slat tilt**, three buttons to **open, stop and close** and a neon halo.
+
+  <p align="center"><img src="https://raw.githubusercontent.com/Jaguaza/Neon-Cards/main/assets/screenshots/persiana/persiana.png" width="900"></p>
+
+VIDEO GOES HERE
+
+### **Six types with animated drawings**
+
+Chosen with `cover_type` (or from the visual editor). It is not deduced from the entity's `device_class`: if you omit it, it is a rolling shutter.
+
+| Type (`cover_type`) | Drawing |
+|---|---|
+| `shutter` *(default)* | Rolling shutter |
+| `blind` | Venetian blind, with the slats turning with the tilt |
+| `curtain` | Two-panel curtain |
+| `awning` | Awning |
+| `projector` | Projector screen *(open or closed only)* |
+| `tv` | TV cabinet *(open or closed only)* |
+
+The **Close** and **Open** arrows draw the real movement of each type. The projector screen and the TV have no dial or sliders; in the large size they show the percentage only as an indicator.
+
+### **Three sizes**
+
+| Size (`size`) | What it shows | Starting columns (automatic height) |
+|---|---|---|
+| `large` *(default)* | Icon, name, state, percentage with dial, sliders and button footer | 12 (adjustable from 9 to 12) |
+| `medium` | No dial: percentage on the left and large icon on the right, with sliders and button footer | 8 (adjustable from 6 to 8) |
+| `compact` | Small icon, name, state, percentage and icon footer; no dial or sliders | 6 (adjustable from 3 to 6) |
+
+The card adapts to the width it is given and **does not change height** when the cover opens, closes or moves.
+
+### **Moving the cover**
+
+The buttons open, stop and close. The dial and the slider set the position, and the tilt slider turns the slats; the command is sent on release. Only what the entity supports is shown (according to `supported_features` and `current_position`). The three dots open "more info".
+
+### **Halo and colors**
+
+The halo turns on while the cover is open or moving, with the palette you choose (`neon_palette`). The state dot is green when open, amber while moving, grey when closed and red when unavailable (`status_color_open`, `status_color_moving`, `status_color_closed` and `status_color_alert` change them). `icon_color` gives the icon its own color while the card is active. More details in the [card documentation](./src/cards/cover/README.md).
+
+### **Minimal configuration**
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.living_room_shutter
+```
+
+### **Venetian blind with custom colors**
+
+```yaml
+type: custom:neon-cover-card
+entity: cover.office_blind
+name: Office Blind
+size: large
+cover_type: blind
+neon_palette: electric
+icon_color: "#ffb02e"
+status_color_open: "#06d6a0"
+status_color_moving: "#ffd166"
+status_color_closed: "#8d99ae"
+status_color_alert: "#ef476f"
+```
+
 ## 🚀 Coming Soon
 
 Neon Cards is being designed as a complete collection of cards for Home Assistant. More cards will be added over time.
 
-- **NEXT CARD: 🪟 ROLLER SHUTTER**
+- **NEXT CARD: ✏️ TITLE**
 
 ---
 
