@@ -22,12 +22,18 @@ export interface PositionBlockOptions {
   value: number;
 }
 
-/** La etiqueta «Posición actual» con el porcentaje en grande; lo usan la grande (con el dial) y la mediana (sin él). */
+/**
+ * La etiqueta «Posición actual» con el porcentaje en grande; lo usan la grande (con el dial) y la mediana (sin él).
+ * El bloque siempre reserva el ancho de «100%» con un fantasma invisible: si midiera lo que mide el número
+ * mostrado, el dial (que cede ancho en tarjetas estrechas) cambiaría de tamaño, y con él el alto de la tarjeta,
+ * al pasar de 99 a 100.
+ */
 export function renderPositionBlock(o: PositionBlockOptions): TemplateResult {
   return html`
     <div class="position-block">
       <span class="position-label">${o.label}</span>
       <span class="position-value">${o.value}<span class="unit">%</span></span>
+      <span class="position-ghost" aria-hidden="true">${POSITION_MAX}<span class="unit">%</span></span>
     </div>
   `;
 }

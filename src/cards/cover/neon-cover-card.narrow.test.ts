@@ -28,3 +28,21 @@ describe('tarjeta estrecha: botones del pie', () => {
     expect(qa(el, '.position-block .position-value')[0].textContent).toContain('%');
   });
 });
+
+describe('ancho del porcentaje', () => {
+  it('el bloque reserva siempre el ancho de «100%» con un fantasma oculto a los lectores de pantalla, sea cual sea la posición', async () => {
+    for (const position of [0, 7, 99, 100]) {
+      const el = await mount({}, hassWith('open', { attributes: { current_position: position } }));
+      const [ghost] = qa(el, '.position-block .position-ghost');
+      expect(ghost.textContent).toBe('100%');
+      expect(ghost.getAttribute('aria-hidden')).toBe('true');
+      expect(qa(el, '.position-value')[0].textContent).toBe(`${position}%`);
+      document.body.innerHTML = '';
+    }
+  });
+
+  it('también en la mediana, que muestra el bloque sin dial', async () => {
+    const el = await mount({ size: 'medium' }, hassWith('open', { attributes: { current_position: 40 } }));
+    expect(qa(el, '.position-block .position-ghost')[0].textContent).toBe('100%');
+  });
+});

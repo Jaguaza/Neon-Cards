@@ -32,7 +32,8 @@ export const NEON_COVER_BODY_STYLES = css`
     color: var(--secondary-text-color);
   }
 
-  .position-value {
+  .position-value,
+  .position-ghost {
     font-size: 36px;
     font-weight: 600;
     line-height: 1.05;
@@ -40,9 +41,22 @@ export const NEON_COVER_BODY_STYLES = css`
     transition: color 300ms ease-out;
   }
 
-  .position-value .unit {
+  .position-value .unit,
+  .position-ghost .unit {
     font-size: 18px;
     margin-left: 2px;
+  }
+
+  /* «100%» invisible y sin alto: solo da al bloque el ancho del valor máximo
+     para que el dial no cambie de tamaño según las cifras del número. El
+     margen negativo anula el hueco (gap) que dejaría su fila vacía. */
+  .position-ghost {
+    height: 0;
+    margin-top: -2px;
+    overflow: hidden;
+    visibility: hidden;
+    white-space: nowrap;
+    pointer-events: none;
   }
 
   /* El arco (barrido de 180°) solo dibuja en la mitad superior de la caja
@@ -207,7 +221,8 @@ export const NEON_COVER_BODY_STYLES = css`
   }
 
   @container (max-width: 380px) {
-    .position-value {
+    .position-value,
+    .position-ghost {
       font-size: 30px;
     }
   }
@@ -219,11 +234,13 @@ export const NEON_COVER_BODY_STYLES = css`
       gap: 8px;
     }
 
-    .position-value {
+    .position-value,
+    .position-ghost {
       font-size: 26px;
     }
 
-    .position-value .unit {
+    .position-value .unit,
+    .position-ghost .unit {
       font-size: 15px;
     }
   }
