@@ -9,6 +9,8 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-11-28
+
 ### Added
 
 - `src/shared`: nuevo `arc-dial.ts` (`DIAL_START_ANGLE`, `DIAL_END_ANGLE`, `pointOnDial`, `dialArcPath`, `angleForValue`, `valueForAngle`, `angleFromPoint`, `buildArcModel`, `ArcModel`), la geometría pura del arco de 180° con un punto arrastrable, ahora genérica (valor entre un mínimo y un máximo). Documentado en `docs/es/api.md` y `docs/en/api.md`.
@@ -414,6 +416,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [1.6.0] - 2026-11-28
 
 ### Added
 
