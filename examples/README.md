@@ -620,6 +620,10 @@ neon_color3: "#d500f9"
 
 ![Neón Cover Card, todos los tipos y tamaños](../assets/screenshots/persiana/persiana.png)
 
+### Video
+
+https://github.com/user-attachments/assets/a2d0fe3b-26df-4c1b-b9e3-07f96a411662
+
 ### Explicación
 
 Neón Cover Card controla una entidad `cover`: persianas, persianas venecianas,
@@ -1272,6 +1276,10 @@ neon_color3: "#d500f9"
 ### Screenshots
 
 ![Neón Cover Card, all types and sizes](../assets/screenshots/persiana/persiana.png)
+
+### Video
+
+https://github.com/user-attachments/assets/a2d0fe3b-26df-4c1b-b9e3-07f96a411662
 
 ### Explanation
 
